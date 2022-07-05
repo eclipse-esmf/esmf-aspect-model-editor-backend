@@ -1,0 +1,76 @@
+{
+  "resources": [
+    {
+      "pattern": "\\Qbamm/characteristic/1.0.0/characteristic-definitions.ttl\\E"
+    },
+    {
+      "pattern": "\\Qbamm/characteristic/1.0.0/characteristic-instances.ttl\\E"
+    },
+    {
+      "pattern": "\\Qbamm/characteristic/1.0.0/characteristic-shapes.ttl\\E"
+    },
+    {
+      "pattern": "\\Qbamm/characteristic/1.0.0/characteristic-validations.js\\E"
+    },
+    {
+      "pattern": "\\Qbamm/entity/1.0.0/FileResource.ttl\\E"
+    },
+    {
+      "pattern": "\\Qbamm/entity/1.0.0/Point3d.ttl\\E"
+    },
+    {
+      "pattern": "\\Qbamm/entity/1.0.0/TimeSeriesEntity.ttl\\E"
+    },
+    {
+      "pattern": "\\Qbamm/meta-model/1.0.0/aspect-meta-model-definitions.ttl\\E"
+    },
+    {
+      "pattern": "\\Qbamm/meta-model/1.0.0/aspect-meta-model-shapes.ttl\\E"
+    },
+    {
+      "pattern": "\\Qbamm/meta-model/1.0.0/prefix-declarations.ttl\\E"
+    },
+    {
+      "pattern": "\\Qbamm/meta-model/1.0.0/type-conversions.ttl\\E"
+    },
+    {
+      "pattern": "\\Qbamm/unit/1.0.0/units.ttl\\E"
+    },
+    {
+      "pattern": "\\Qrdf/\\E.*.(ttl)$"
+    },
+    {
+      "pattern": "\\Qdocu/static/\\E.*.(js|txt)$"
+    },
+    {
+      "pattern": "\\Qdocu/styles/\\E.*.(css)$"
+    },
+    {
+      "pattern": "\\Qdocu/templates/html/\\E.*.(vm)$"
+    },
+    {
+      "pattern": "\\Qdiagram/\\E.*.(ttf|sparql|mustache)$"
+    },
+    {
+      "pattern": "\\Qguru/nidi/graphviz/engine/render.js\\E"
+    },
+    {
+      "pattern": "\\QMETA-INF/resources/webjars/viz.js-graphviz-java/2.1.3/viz.js\\E"
+    },
+    {
+      "pattern": "\\QMETA-INF/resources/webjars/viz.js-graphviz-java/2.1.3/full.render.js\\E"
+    },
+    {
+      "pattern": "\\Qcom/eclipsesource/v8/V8.class\\E"
+    },
+    {
+      "pattern": "\\Qorg/apache/commons/exec/CommandLine.class\\E"
+    },
+    {
+      "pattern": "\\Qcom/kitfox/svg/SVGDiagram.class\\E"
+    },
+    {
+      "pattern": "\\Qorg/apache/batik/transcoder/Transcoder.class\\E"
+    }
+  ]
+}

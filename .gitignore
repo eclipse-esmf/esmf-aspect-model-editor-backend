@@ -1,0 +1,17 @@
+target/
+
+.store/
+.gradle/
+.project
+.classpath
+
+IDEA
+
+.idea/
+.vscode/
+.settings/
+*.iml
+*.log
+lsp
+
+*.gz

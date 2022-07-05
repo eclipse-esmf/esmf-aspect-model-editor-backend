@@ -1,0 +1,77 @@
+name: Check New Pull Request
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ '**' ]
+
+jobs:
+  build:
+    name: Check if passes all requirements
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Configure Pagefile
+        if: matrix.os == 'windows-latest'
+        # Fix for "LINK : fatal error LNK1171: unable to load mspdbcore.dll (error code: 1455)":
+        # This seems to be caused by running out of memory; increasing page file
+        # size suggested here:
+        # https://github.com/actions/virtual-environments/issues/3420#issuecomment-861342418
+        uses: al-cheb/configure-pagefile-action@v1.2
+        with:
+          minimum-size: 16GB
+          maximum-size: 16GB
+          disk-root: "C:"
+
+      - name: Setup graalvm ce
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.1.0'
+          java-version: '11'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Creating native image
+        run: mvn install -P native-image
+
+
+      - name: Creating native image (Mac)
+        if: matrix.os == 'macos-latest'
+        run: mvn install -P native-image -Dos.platform=mac
+
+      - name: Creating native image (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: mvn install -P native-image -Dos.platform=linux
+
+      - name: Creating native image (Win)
+        if: matrix.os == 'windows-latest'
+        run: mvn install -P native-image -D os.platform=win
+
+      - name: Performing integration test for Mac
+        if: matrix.os == 'macos-latest'
+        run: mvn install -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=mac
+
+      - name: Performing integration test for Linux
+        if: matrix.os == 'ubuntu-latest'
+        run: mvn install -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=linux
+
+      - name: Performing integration test for Windows
+        if: matrix.os == 'windows-latest'
+        run: mvn install -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-postman-integration-tests -D os.platform=win
+
