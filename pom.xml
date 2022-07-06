@@ -58,7 +58,7 @@
         <mockito-inline-version>4.1.0</mockito-inline-version>
         <cglib-version>3.3.0</cglib-version>
         <classworlds-version>1.1</classworlds-version>
-        <spring-aot-version>0.11.3</spring-aot-version>
+        <spring-aot-version>0.12.0</spring-aot-version>
         <spring-native-version>0.12.0</spring-native-version>
         <graal-svm-version>22.1.0.1</graal-svm-version>
 
