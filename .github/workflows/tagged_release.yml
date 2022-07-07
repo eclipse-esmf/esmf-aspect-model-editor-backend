@@ -46,29 +46,59 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Write settings.xml
+        uses: DamianReeves/write-file-action@v1.0
+        with:
+          path: settings.xml
+          contents: |
+            <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                                      https://maven.apache.org/xsd/settings-1.0.0.xsd">
+               <servers>
+                  <server>
+                     <id>github</id>
+                     <username>rbs-bot</username>
+                     <password>${env.TOKEN}</password>
+                  </server>
+               </servers>
+            </settings>
+          write-mode: overwrite
+
       - name: Set maven version on Mac
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         run: |
           tagVersion=${GITHUB_REF/refs\/tags\/v/}
-          mvn versions:set -DnewVersion=$tagVersion
+          mvn versions:set -s ./settings.xml -DnewVersion=$tagVersion
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set maven version on Windows
         if: matrix.os == 'windows-latest'
         run: |
           $tagVersion = ${env:GITHUB_REF} -replace 'refs/tags/v',''
-          mvn versions:set -DnewVersion="$tagVersion"
+          mvn versions:set -s ./settings.xml -DnewVersion="$tagVersion"
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Mac)
         if: matrix.os == 'macos-latest'
-        run: mvn install -P native-image -DskipTests -Dos.platform=mac
+        run: mvn install -s ./settings.xml -P native-image -DskipTests -Dos.platform=mac
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: mvn install -P native-image -DskipTests -Dos.platform=linux
+        run: mvn install -s ./settings.xml -P native-image -DskipTests -Dos.platform=linux
+
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Win)
         if: matrix.os == 'windows-latest'
-        run: mvn install -P native-image -DskipTests -D os.platform=win
+        run: mvn install -s ./settings.xml -P native-image -DskipTests -D os.platform=win
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub release (Mac)
         if: ${{ (matrix.os == 'macos-latest') &&  (!contains( github.ref, '-M' )) }}
