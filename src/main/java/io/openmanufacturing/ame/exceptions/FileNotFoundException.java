@@ -24,11 +24,11 @@ public class FileNotFoundException extends RuntimeException {
     *
     * @param message the message of the exception
     */
-   public FileNotFoundException(final String message) {
-      super(message);
+   public FileNotFoundException( final String message ) {
+      super( message );
    }
 
-   public FileNotFoundException(final String message, final Throwable cause) {
-      super(message, cause);
+   public FileNotFoundException( final String message, final Throwable cause ) {
+      super( message, cause );
    }
 }

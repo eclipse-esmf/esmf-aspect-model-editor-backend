@@ -132,18 +132,21 @@ public class PackageService {
 
          final ProcessedExportedPackage processedExportedPackage = new ProcessedExportedPackage();
 
+         // Save all aspect models to export storage path
          aspectModelFiles.forEach( aspectModelFileName -> {
             final String aspectModel = strategy.getModel( aspectModelFileName,
                   ApplicationSettings.getMetaModelStoragePath() );
             strategy.saveModel( Optional.empty(), aspectModel, storagePath );
+         } );
 
+         // Validate all aspect models from export storage path and create export package model
+         aspectModelFiles.forEach( aspectModelFileName -> {
+            final String aspectModel = strategy.getModel( aspectModelFileName, storagePath );
             final ValidationReport validationReport = ModelUtils.validateModel( aspectModel, storagePath,
                   aspectModelValidator );
 
             getMissingAspectModelFiles( validationReport ).forEach( processedExportedPackage::addMissingFiles );
-
-            final FileInformation fileInformation = new FileInformation( aspectModelFileName,
-                  ModelUtils.validateModel( aspectModel, storagePath, aspectModelValidator ) );
+            final FileInformation fileInformation = new FileInformation( aspectModelFileName, validationReport );
 
             processedExportedPackage.addFileInformation( fileInformation );
          } );

@@ -236,7 +236,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    /**
     * This method will transform the path in namespace:version:turtleFileName.
-    * ex: io\openmanufacturing\1.0.0\AspectDefault.ttl -F io.openmanufacturing:1.0.0:AspectDefault.ttl
+    * ex: io.openmanufacturing\1.0.0\AspectDefault.ttl - io.openmanufacturing:1.0.0:AspectDefault.ttl
     *
     * @param path - folder location that will be analyzed.
     */
