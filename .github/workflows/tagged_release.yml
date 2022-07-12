@@ -1,0 +1,167 @@
+name: "Create Tagged Release"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  gh_tagged_release:
+    name: Create tagged release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
+
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v3
+
+      - name: Configure Pagefile
+        if: matrix.os == 'windows-latest'
+        # Fix for "LINK : fatal error LNK1171: unable to load mspdbcore.dll (error code: 1455)":
+        # This seems to be caused by running out of memory; increasing page file
+        # size suggested here:
+        # https://github.com/actions/virtual-environments/issues/3420#issuecomment-861342418
+        uses: al-cheb/configure-pagefile-action@v1.2
+        with:
+          minimum-size: 16GB
+          maximum-size: 16GB
+          disk-root: "C:"
+
+      - name: Setup graalvm ce
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.1.0'
+          java-version: '11'
+          components: 'native-image'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Write settings.xml
+        uses: DamianReeves/write-file-action@v1.0
+        with:
+          path: settings.xml
+          contents: |
+            <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                                      https://maven.apache.org/xsd/settings-1.0.0.xsd">
+               <servers>
+                  <server>
+                     <id>github</id>
+                     <username>rbs-bot</username>
+                     <password>${env.TOKEN}</password>
+                  </server>
+               </servers>
+            </settings>
+          write-mode: overwrite
+
+      - name: Set maven version on Mac
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        run: |
+          tagVersion=${GITHUB_REF/refs\/tags\/v/}
+          mvn versions:set -s ./settings.xml -DnewVersion=$tagVersion
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set maven version on Windows
+        if: matrix.os == 'windows-latest'
+        run: |
+          $tagVersion = ${env:GITHUB_REF} -replace 'refs/tags/v',''
+          mvn versions:set -s ./settings.xml -DnewVersion="$tagVersion"
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Creating native image (Mac)
+        if: matrix.os == 'macos-latest'
+        run: mvn install -s ./settings.xml -P native-image -DskipTests -Dos.platform=mac
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Creating native image (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: mvn install -s ./settings.xml -P native-image -DskipTests -Dos.platform=linux
+
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Creating native image (Win)
+        if: matrix.os == 'windows-latest'
+        run: mvn install -s ./settings.xml -P native-image -DskipTests -D os.platform=win
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub release (Mac)
+        if: ${{ (matrix.os == 'macos-latest') &&  (!contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
+        with:
+          file_glob: true
+          overwrite: true
+          prerelease: false
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-mac
+          tag: ${{ github.ref }}
+
+      - name: Create GitHub pre-release (Mac)
+        if: ${{ (matrix.os == 'macos-latest') &&  (contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
+        with:
+          file_glob: true
+          overwrite: true
+          prerelease: true
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-mac
+          tag: ${{ github.ref }}
+
+      - name: Create GitHub release (Linux)
+        if: ${{ (matrix.os == 'ubuntu-latest') &&  (!contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
+        with:
+          file_glob: true
+          overwrite: true
+          prerelease: false
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-linux
+          tag: ${{ github.ref }}
+
+      - name: Create GitHub pre-release (Linux)
+        if: ${{ (matrix.os == 'ubuntu-latest') &&  (contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
+        with:
+          file_glob: true
+          overwrite: true
+          prerelease: true
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-linux
+          tag: ${{ github.ref }}
+
+      - name: Create GitHub release (Windows)
+        if: ${{ (matrix.os == 'windows-latest') && (!contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
+        with:
+          file_glob: true
+          overwrite: true
+          prerelease: false
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-win.exe
+          tag: ${{ github.ref }}
+
+      - name: Create GitHub pre-release (Windows)
+        if: ${{ (matrix.os == 'windows-latest') && (contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
+        with:
+          file_glob: true
+          overwrite: true
+          prerelease: true
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-win.exe
+          tag: ${{ github.ref }}

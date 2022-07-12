@@ -1,0 +1,1556 @@
+[
+  {
+    "name": "io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorServiceLoader",
+    "allDeclaredFields": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.AspectInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.CharacteristicInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.CodeInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.CollectionInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.ConstraintInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.DurationInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.EitherInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.EncodingConstraintInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.EntityInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.EnumerationInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.FixedPointConstraintInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.LanguageConstraintInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.LengthConstraintInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.ListInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.LocaleConstraintInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.MeasurementInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.OperationInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.PropertyInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.QuantifiableInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.RangeConstraintInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.RegularExpressionConstraintInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.SetInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.SingleEntityInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.SortedSetInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.StateInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.StructuredValueInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.TimeSeriesInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.TraitInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name" : "java.lang.Class",
+    "methods" : [
+      { "name" : "getSimpleName", "parameterTypes" : [] },
+      { "name" : "getInterfaces", "parameterTypes" : [] },
+      { "name" : "getInterfaces", "parameterTypes" : ["java.lang.boolean"] }
+    ]
+  },
+  {
+    "name": "java.lang.Object",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "java.util.Optional",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "java.util.ArrayList",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "java.util.HashSet",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.aspectmodel.generator.I18nLanguageBundle",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.aspectmodel.generator.AspectModelHelper",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.BaseImpl",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.BoundDefinition",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultAspect",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultCharacteristic",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultCode",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultCollection",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultDuration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultEither",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultEncodingConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultEntity",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultEnumeration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultFixedPointConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultLanguageConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultLengthConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultList",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultLocaleConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultMeasurement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultOperation",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultProperty",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultQuantifiable",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultRangeConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultRegularExpressionConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultScalar",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultSet",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultSingleEntity",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultSortedSet",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultState",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultStructuredValue",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultTimeSeries",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultTrait",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultUnit",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Aspect",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Base",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.CanRefine",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Characteristic",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Code",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Collection",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Constraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Duration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Either",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.EncodingConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Entity",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Enumeration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.FixedPointConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.HasProperties",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.IsDescribed",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.LanguageConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.LengthConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.List",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.LocaleConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Measurement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Operation",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Property",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Quantifiable",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.QuantityKind",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.QuantityKinds",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.RangeConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.RegularExpressionConstraint",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Scalar",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Set",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.SingleEntity",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.SortedSet",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.State",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.StructuredValue",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.TimeSeries",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Trait",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Type",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Unit",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.Units",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.RuntimeInstance",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.resource.ResourceManagerImpl",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.resource.loader.FileResourceLoader",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.resource.ResourceCacheImpl",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.directive.Stop",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.directive.Define",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.directive.Break",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.directive.Evaluate",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.directive.Macro",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.directive.Parse",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.directive.Include",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.directive.Foreach",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.app.event.implement.EscapeHtmlReference",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.parser.StandardParser",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.runtime.ParserPoolImpl",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.util.introspection.UberspectImpl",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.apache.velocity.util.introspection.TypeConversionHandlerImpl",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.aspectmodel.generator.I18nLanguageBundle",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "io.openmanufacturing.sds.aspectmodel.generator.AspectModelHelper",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.AntClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.EquinoxClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.EquinoxContextFinderClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.FelixClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.JBossClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.WeblogicClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.WebsphereLibertyClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.WebsphereTraditionalClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.OSGiDefaultClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.SpringBootRestartClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.TomcatWebappClassLoaderBaseHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.PlexusClassWorldsClassRealmClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.ParentLastDelegationOrderTestClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.JPMSClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.URLClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "nonapi.io.github.classgraph.classloaderhandler.FallbackClassLoaderHandler",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHConstraintComponentImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHJSConstraintImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHJSExecutableImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHJSFunctionImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHNodeShapeImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHParameterImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHParameterizableImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHParameterizableInstanceImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHParameterizableTargetImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHPropertyShapeImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHResourceImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHResultImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHRuleImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHShapeImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHSPARQLConstraintImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHSPARQLFunctionImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.topbraid.shacl.model.impl.SHSPARQLTargetImpl",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "org.apache.jena.graph.Node",
+          "org.apache.jena.enhanced.EnhGraph"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.springframework.format.number.money.CurrencyUnitFormatter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateToReadableInstantConverter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToCalendarConverter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.LocalDateParser",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToLocalDateTimeConverter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToLongConverter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToDateConverter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.number.money.Jsr354NumberFormatAnnotationFormatterFactory$NumberDecoratingFormatter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToDateMidnightConverter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToLocalDateConverter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToMutableDateTimeConverter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToLocalTimeConverter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.ReadablePartialPrinter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.number.money.MonetaryAmountFormatter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.number.money.Jsr354NumberFormatAnnotationFormatterFactory$PatternDecoratingFormatter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.number.money.CurrencyUnitFormatter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  },
+  {
+    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToInstantConverter",
+    "allDeclaredClasses": true,
+    "allPublicClasses": true
+  }
+]
