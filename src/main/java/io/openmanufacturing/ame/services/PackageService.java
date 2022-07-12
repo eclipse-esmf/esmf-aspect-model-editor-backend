@@ -35,8 +35,7 @@ import io.openmanufacturing.ame.repository.strategy.ModelResolverStrategy;
 import io.openmanufacturing.ame.resolver.file.FileSystemStrategy;
 import io.openmanufacturing.ame.services.model.FileInformation;
 import io.openmanufacturing.ame.services.model.MissingFileInfo;
-import io.openmanufacturing.ame.services.model.ProcessedExportedPackage;
-import io.openmanufacturing.ame.services.model.ProcessedImportedPackage;
+import io.openmanufacturing.ame.services.model.ProcessPackage;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.ame.services.utils.UnzipUtils;
 import io.openmanufacturing.ame.services.utils.ZipUtils;
@@ -61,7 +60,7 @@ public class PackageService {
       DataType.setupTypeMapping();
    }
 
-   public ProcessedImportedPackage validateImportAspectModelPackage( final MultipartFile zipFile,
+   public ProcessPackage validateImportAspectModelPackage( final MultipartFile zipFile,
          final String storagePath ) {
       try {
          // When validating the aspect modes to be exported, the folder is initially deleted.
@@ -75,23 +74,26 @@ public class PackageService {
 
          final LocalPackageInfo localPackageInfo = strategy.getLocalPackageInformation( storagePath );
 
-         final ProcessedImportedPackage processedImportedPackage = new ProcessedImportedPackage(
+         final ProcessPackage processPackage = new ProcessPackage(
                localPackageInfo.getInValidFiles() );
 
          localPackageInfo.getValidFiles().forEach( localPackageInformation -> {
                   final Boolean modelExist = strategy.checkModelExist( localPackageInformation.getAspectModelFile(),
                         ApplicationSettings.getMetaModelStoragePath() );
 
-                  final FileInformation fileInformation = new FileInformation( localPackageInformation.getAspectModelFile(),
-                        ModelUtils.validateModel( localPackageInformation.getAspectModel(), storagePath,
-                              aspectModelValidator ),
-                        modelExist );
+                  final ValidationReport validationReport = ModelUtils.validateModel(
+                        localPackageInformation.getAspectModel(), storagePath, aspectModelValidator );
 
-                  processedImportedPackage.addFileInformation( fileInformation );
+                  final FileInformation fileInformation = new FileInformation( localPackageInformation.getAspectModelFile(),
+                        validationReport, modelExist );
+
+                  getMissingAspectModelFiles( validationReport ).forEach( processPackage::addMissingFiles );
+
+                  processPackage.addFileInformation( fileInformation );
                }
          );
 
-         return processedImportedPackage;
+         return processPackage;
       } catch ( final IOException e ) {
          LOG.error( "Cannot delete imported package folder." );
          throw new FileNotFoundException(
@@ -121,7 +123,7 @@ public class PackageService {
       }
    }
 
-   public ProcessedExportedPackage validateAspectModels( final List<String> aspectModelFiles,
+   public ProcessPackage validateAspectModels( final List<String> aspectModelFiles,
          final String storagePath ) {
       try {
          // When validating the aspect modes to be exported, the folder is initially deleted.
@@ -130,7 +132,7 @@ public class PackageService {
          final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(
                LocalFolderResolverStrategy.class );
 
-         final ProcessedExportedPackage processedExportedPackage = new ProcessedExportedPackage();
+         final ProcessPackage processPackage = new ProcessPackage();
 
          // Save all aspect models to export storage path
          aspectModelFiles.forEach( aspectModelFileName -> {
@@ -145,13 +147,13 @@ public class PackageService {
             final ValidationReport validationReport = ModelUtils.validateModel( aspectModel, storagePath,
                   aspectModelValidator );
 
-            getMissingAspectModelFiles( validationReport ).forEach( processedExportedPackage::addMissingFiles );
+            getMissingAspectModelFiles( validationReport ).forEach( processPackage::addMissingFiles );
             final FileInformation fileInformation = new FileInformation( aspectModelFileName, validationReport );
 
-            processedExportedPackage.addFileInformation( fileInformation );
+            processPackage.addFileInformation( fileInformation );
          } );
 
-         return processedExportedPackage;
+         return processPackage;
       } catch ( final IOException e ) {
          LOG.error( "Cannot delete exported package folder." );
          throw new FileNotFoundException( String.format( "Unable to delete folder: %s", storagePath ), e );
@@ -190,13 +192,15 @@ public class PackageService {
 
                                 final String analysedFile = fileSystemStrategy.getAspectModelFile(
                                       AspectModelUrn.fromUrn( focusNodeUrn ) );
+
                                 final String missingFile = fileSystemStrategy.getAspectModelFile(
                                       AspectModelUrn.fromUrn( valueUrn ) );
 
-                                return new MissingFileInfo( analysedFile, missingFile,
+                                return new MissingFileInfo( new File( analysedFile ).getName(),
+                                      new File( missingFile ).getName(),
                                       String.format(
-                                            "Shared model: %s defined in the Aspect Model file: %s could not be found. Please export it as well to prevent validation problems later.",
-                                            missingFile, analysedFile )
+                                            "Referenced Aspect Model %s could not be found in Aspect Model %s.",
+                                            missingFile.replace( "/", "." ), analysedFile.replace( "/", "." ) )
                                 );
                              } )
                              .collect( Collectors.toList() );

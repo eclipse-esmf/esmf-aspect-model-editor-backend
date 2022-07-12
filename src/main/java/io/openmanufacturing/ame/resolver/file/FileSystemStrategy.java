@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import org.apache.jena.rdf.model.Model;
 
+import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.sds.aspectmodel.resolver.AspectModelResolver;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
@@ -52,9 +53,8 @@ public class FileSystemStrategy {
                    .filter( uri -> AspectModelResolver.containsDefinition( loadFromUri( uri ).get(), aspectModelUrn ) )
                    .map( URI::getPath )
                    .findFirst()
-                   .orElse( String.format(
-                         "File with the content of URN: %s could not be found.",
-                         aspectModelUrn ) );
+                   .orElse( String.format( "File with the content of URN: %s could not be found.", aspectModelUrn ) )
+                   .replace( ApplicationSettings.getMetaModelStoragePath() + File.separator, "" );
    }
 
    /**

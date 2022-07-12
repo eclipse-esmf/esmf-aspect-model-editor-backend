@@ -32,8 +32,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
-import io.openmanufacturing.ame.services.model.ProcessedExportedPackage;
-import io.openmanufacturing.ame.services.model.ProcessedImportedPackage;
+import io.openmanufacturing.ame.services.model.ProcessPackage;
 
 @RunWith( SpringRunner.class )
 @SpringBootTest
@@ -48,7 +47,6 @@ public class PackageServiceTest {
    private static final String nameSpaceTwo = "io.openmanufacturing.test:1.0.0:TestFileTwo.ttl";
    private static final String nameSpaceThree = "io.openmanufacturing.test:1.0.0:TestFileThree.ttl";
 
-
    @Test
    public void testValidateImportAspectModelPackage() throws IOException {
       final Path storagePath = Paths.get( resourcesPath.toString(), "test-packages" );
@@ -60,11 +58,11 @@ public class PackageServiceTest {
             Files.readAllBytes( zipFilePath )
       );
 
-      final ProcessedImportedPackage processedImportedPackage = packageService.validateImportAspectModelPackage(
+      final ProcessPackage importPackage = packageService.validateImportAspectModelPackage(
             mockedZipFile, storagePath.toFile().getAbsolutePath() );
 
-      assertEquals( processedImportedPackage.getCorrectFiles().size(), 2 );
-      assertEquals( processedImportedPackage.getIncorrectFiles().size(), 1 );
+      assertEquals( importPackage.getCorrectFiles().size(), 2 );
+      assertEquals( importPackage.getIncorrectFiles().size(), 1 );
    }
 
    @Test
@@ -75,7 +73,7 @@ public class PackageServiceTest {
 
          final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
          final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo );
-         final ProcessedExportedPackage processedExportedPackage = packageService.validateAspectModels( aspectModelFiles,
+         final ProcessPackage processedExportedPackage = packageService.validateAspectModels( aspectModelFiles,
                exportedStoragePath.toFile().getAbsolutePath() );
 
          assertEquals( 2, processedExportedPackage.getCorrectFiles().size() );
@@ -84,13 +82,19 @@ public class PackageServiceTest {
          final String[] nameSpaceOneArray = nameSpaceOne.split( ":" );
          final String[] nameSpaceThreeArray = nameSpaceThree.split( ":" );
 
-         assertTrue( processedExportedPackage.getMissingFiles().get( 0 ).getAnalysedFile().contains( nameSpaceOneArray[0] )  );
-         assertTrue( processedExportedPackage.getMissingFiles().get( 0 ).getAnalysedFile().contains( nameSpaceOneArray[1] )  );
-         assertTrue( processedExportedPackage.getMissingFiles().get( 0 ).getAnalysedFile().contains( nameSpaceOneArray[2] )  );
+         assertTrue(
+               processedExportedPackage.getMissingFiles().get( 0 ).getAnalysedFile().contains( nameSpaceOneArray[0] ) );
+         assertTrue(
+               processedExportedPackage.getMissingFiles().get( 0 ).getAnalysedFile().contains( nameSpaceOneArray[1] ) );
+         assertTrue(
+               processedExportedPackage.getMissingFiles().get( 0 ).getAnalysedFile().contains( nameSpaceOneArray[2] ) );
 
-         assertTrue( processedExportedPackage.getMissingFiles().get( 0 ).getMissingFile().contains( nameSpaceThreeArray[0] ) );
-         assertTrue( processedExportedPackage.getMissingFiles().get( 0 ).getMissingFile().contains( nameSpaceThreeArray[1] ) );
-         assertTrue( processedExportedPackage.getMissingFiles().get( 0 ).getMissingFile().contains( nameSpaceThreeArray[2] ) );
+         assertTrue( processedExportedPackage.getMissingFiles().get( 0 ).getMissingFile()
+                                             .contains( nameSpaceThreeArray[0] ) );
+         assertTrue( processedExportedPackage.getMissingFiles().get( 0 ).getMissingFile()
+                                             .contains( nameSpaceThreeArray[1] ) );
+         assertTrue( processedExportedPackage.getMissingFiles().get( 0 ).getMissingFile()
+                                             .contains( nameSpaceThreeArray[2] ) );
 
          FileUtils.deleteDirectory( exportedStoragePath.toFile() );
       }

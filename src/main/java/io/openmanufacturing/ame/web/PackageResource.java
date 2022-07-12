@@ -31,8 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileReadException;
 import io.openmanufacturing.ame.services.PackageService;
-import io.openmanufacturing.ame.services.model.ProcessedExportedPackage;
-import io.openmanufacturing.ame.services.model.ProcessedImportedPackage;
+import io.openmanufacturing.ame.services.model.ProcessPackage;
 import io.openmanufacturing.ame.web.utils.MediaTypeExtension;
 
 /**
@@ -55,7 +54,7 @@ public class PackageResource {
     * @return
     */
    @PostMapping( "/validate-models" )
-   public ProcessedExportedPackage validateAspectModels( @RequestBody final List<String> aspectModelFiles ) {
+   public ProcessPackage validateAspectModels( @RequestBody final List<String> aspectModelFiles ) {
       return packageService.validateAspectModels( aspectModelFiles, ApplicationSettings.getExportPackageStoragePath() );
    }
 
@@ -67,7 +66,7 @@ public class PackageResource {
     *       which files are not aspect models.
     */
    @PostMapping( "/validate-import-zip" )
-   public ResponseEntity<ProcessedImportedPackage> validateImportAspectModelPackage(
+   public ResponseEntity<ProcessPackage> validateImportAspectModelPackage(
          @RequestParam( "zipFile" ) final MultipartFile zipFile ) {
       final String extension = FilenameUtils.getExtension( zipFile.getOriginalFilename() );
 
