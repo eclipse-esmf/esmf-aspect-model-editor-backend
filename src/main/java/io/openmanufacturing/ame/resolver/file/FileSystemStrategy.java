@@ -14,7 +14,6 @@
 package io.openmanufacturing.ame.resolver.file;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -25,7 +24,6 @@ import java.util.Optional;
 import org.apache.jena.rdf.model.Model;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
-import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.sds.aspectmodel.resolver.AspectModelResolver;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
@@ -45,27 +43,30 @@ public class FileSystemStrategy {
     * @return The file that defines the supplied aspectModelUrn.
     */
    public String getAspectModelFile( final AspectModelUrn aspectModelUrn ) {
-      try {
-         final Path directory = modelsRoot.resolve( aspectModelUrn.getNamespace() )
-                                          .resolve( aspectModelUrn.getVersion() );
+      final Path directory = modelsRoot.resolve( aspectModelUrn.getNamespace() )
+                                       .resolve( aspectModelUrn.getVersion() );
 
-         final String pathAsString = Arrays.stream(
-                                                 Optional.ofNullable( directory.toFile().listFiles() ).orElse( new File[] {} ) )
-                                           .filter( File::isFile )
-                                           .filter( file -> file.getName().endsWith( ".ttl" ) )
-                                           .map( File::toURI )
-                                           .sorted()
-                                           .filter( uri -> AspectModelResolver.containsDefinition(
-                                                 loadFromUri( uri ).get(), aspectModelUrn ) )
-                                           .map( URI::getPath ).findFirst()
-                                           .orElseThrow( IOException::new );
+      final String fileInformation = Arrays.stream(
+                                              Optional.ofNullable( directory.toFile().listFiles() ).orElse( new File[] {} ) )
+                                        .filter( File::isFile )
+                                        .filter( file -> file.getName().endsWith( ".ttl" ) )
+                                        .map( File::toURI )
+                                        .sorted()
+                                        .filter( uri -> AspectModelResolver.containsDefinition(
+                                              loadFromUri( uri ).get(), aspectModelUrn ) )
+                                        .map( URI::getPath )
+                                        .findFirst()
+                                        .orElse( String.format( "File with the content of URN: %s could not be found.",
+                                              aspectModelUrn ) );
 
-         return new File( pathAsString ).getPath()
-                                        .replace( ApplicationSettings.getMetaModelStoragePath() + File.separator, "" );
-      } catch ( final IOException e ) {
-         throw new FileNotFoundException(
-               String.format( "File with the content of URN: %s could not be found.", aspectModelUrn ), e );
+      final File filePath = new File( fileInformation );
+
+      if ( !filePath.exists() ) {
+         return fileInformation;
       }
+
+      return filePath.getPath().replace(
+            ApplicationSettings.getMetaModelStoragePath() + File.separator, "" );
    }
 
    /**
