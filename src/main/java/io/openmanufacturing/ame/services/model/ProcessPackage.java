@@ -21,18 +21,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class ProcessedImportedPackage {
-   @JsonProperty("incorrectFiles")
-   private final List<String> incorrectFiles;
+public class ProcessPackage {
+   @JsonProperty( "incorrectFiles" )
+   private List<String> incorrectFiles;
 
-   @JsonProperty("correctFiles")
+   @JsonProperty( "correctFiles" )
    private final List<FileInformation> correctFiles = new ArrayList<>();
 
-   public ProcessedImportedPackage(final List<String> incorrectFiles ) {
+   @JsonProperty( "missingFiles" )
+   private final List<MissingFileInfo> missingFiles = new ArrayList<>();
+
+   public ProcessPackage() {
+   }
+
+   public ProcessPackage( final List<String> incorrectFiles ) {
       this.incorrectFiles = incorrectFiles;
    }
 
-   public void addFileInformation(final FileInformation fileInformation) {
+   public void addFileInformation( final FileInformation fileInformation ) {
       correctFiles.add( fileInformation );
+   }
+
+   public void addMissingFiles( final MissingFileInfo missingFiles ) {
+      this.missingFiles.add( missingFiles );
    }
 }
