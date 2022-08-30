@@ -342,7 +342,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    private Try<AspectModelUrn> getRootElementUrn( final VersionedModel versionedModel ) {
-      final BAMM bamm = new BAMM( KnownVersion.BAMM_1_0_0 );
+      final BAMM bamm = new BAMM( KnownVersion.getLatest() );
       final StmtIterator stmtIterator = versionedModel.getModel().listStatements( null, RDF.type, bamm.Aspect() );
 
       if ( stmtIterator.hasNext() ) {

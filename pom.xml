@@ -46,7 +46,7 @@
         <main.class>io.openmanufacturing.ame.Application</main.class>
 
         <!-- Internal sds dependencies -->
-        <sds-sdk-version>1.0.3</sds-sdk-version>
+        <sds-sdk-version>2.0.4</sds-sdk-version>
 
         <!-- Versions of third party dependencies -->
         <spring-boot-version>2.6.7</spring-boot-version>
@@ -171,12 +171,6 @@
             <groupId>io.openmanufacturing</groupId>
             <artifactId>sds-aspect-model-starter</artifactId>
             <version>${sds-sdk-version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.openmanufacturing</groupId>
-                    <artifactId>sds-aspect-model-generator</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>io.openmanufacturing</groupId>
@@ -207,13 +201,6 @@
             <groupId>io.openmanufacturing</groupId>
             <artifactId>sds-test-resources</artifactId>
             <version>${sds-sdk-version}</version>
-        </dependency>
-
-        <!-- TODO Graphviz temporary fix, change when going to the new sdk version -->
-        <dependency>
-            <groupId>io.openmanufacturing</groupId>
-            <artifactId>sds-aspect-model-generator</artifactId>
-            <version>1.1.0-M3</version>
         </dependency>
 
         <!-- Third party dependencies for developing-->
