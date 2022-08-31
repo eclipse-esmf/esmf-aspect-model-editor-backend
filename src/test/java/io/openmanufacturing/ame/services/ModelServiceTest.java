@@ -13,7 +13,7 @@
 
 package io.openmanufacturing.ame.services;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.io.IOException;
@@ -52,6 +52,7 @@ public class ModelServiceTest {
          "1.0.0" );
 
    private static final String aspectModelFile = "AspectModel.ttl";
+   private static final String oldAspectModelFile = "OldAspectModel.ttl";
 
    @Test
    public void testGetModel() throws IOException {
@@ -156,5 +157,23 @@ public class ModelServiceTest {
    public void testGetAllNamespacesThrowsIOException() {
       final Path storagePath = Paths.get( "src", "test", "noResources" );
       modelService.getAllNamespaces( true, Optional.of( storagePath.toFile().getAbsolutePath() ) );
+   }
+
+   @Test
+   public void testMigrateModel() throws IOException {
+      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
+            LocalFolderResolverStrategy.class ) ) {
+         final Path storagePath = Path.of( openManufacturingTestPath.toString(), oldAspectModelFile );
+
+         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
+                  .thenReturn( storagePath.toString() );
+
+         final String migrateModel = modelService.migrateModel(
+               Files.readString( storagePath, StandardCharsets.UTF_8 ), storagePath.toString() );
+         assertTrue( migrateModel.contains( "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#>" ) );
+         assertTrue( migrateModel.contains( "@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#>" ) );
+         assertTrue( migrateModel.contains( "@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#>" ) );
+         assertTrue( migrateModel.contains( "@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#>" ) );
+      }
    }
 }

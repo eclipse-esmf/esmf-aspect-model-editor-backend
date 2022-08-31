@@ -70,4 +70,8 @@ public class ModelService {
    public ValidationReport validateModel( final String aspectModel, final String storagePath ) {
       return ModelUtils.validateModel( aspectModel, storagePath, aspectModelValidator );
    }
+
+   public String migrateModel( final String aspectModel, final String storagePath ) {
+      return ModelUtils.migrateModel( aspectModel, storagePath );
+   }
 }

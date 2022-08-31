@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 
 import org.apache.jena.riot.RiotException;
 
+import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
 import io.openmanufacturing.ame.exceptions.UrnNotFoundException;
 import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
 import io.openmanufacturing.sds.aspectmodel.resolver.AspectModelResolver;
@@ -32,6 +33,7 @@ import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationError;
 import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReport;
 import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReportBuilder;
 import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
+import io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorService;
 import io.vavr.control.Try;
 
 public class ModelUtils {
@@ -41,6 +43,17 @@ public class ModelUtils {
          Pattern.CASE_INSENSITIVE );
 
    private ModelUtils() {
+   }
+
+   /**
+    * This Method is used to create an in memory strategy for the given Aspect Model.
+    *
+    * @param aspectModel as a string
+    * @param storagePath path of the folder structure
+    * @return in memory for the given storage path.
+    */
+   public static InMemoryStrategy inMemoryStrategy( final String aspectModel, final String storagePath ) {
+      return new InMemoryStrategy( aspectModel, Path.of( storagePath ) );
    }
 
    /**
@@ -59,42 +72,55 @@ public class ModelUtils {
    }
 
    /**
-    * This Method is used to create an in memory strategy for the given Aspect Model.
+    * Method to resolve a given AspectModelUrn using a suitable ResolutionStrategy.
     *
-    * @param aspectModel as a string
-    * @param storagePath path of the folder structure
-    * @return in memory for the given storage path.
+    * @param aspectModel as a string.
+    * @param storagePath stored path to the Aspect Models.
+    * @return The resolved model on success.
     */
-   public static InMemoryStrategy getInMemoryStrategy( final String aspectModel, final String storagePath ) {
-      return new InMemoryStrategy( aspectModel, Path.of( storagePath ) );
+   public static Try<VersionedModel> fetchVersionModel( final String aspectModel, final String storagePath ) {
+      final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel, storagePath );
+      return new AspectModelResolver().resolveAspectModel( inMemoryStrategy, inMemoryStrategy.getAspectModelUrn() );
    }
 
    /**
     * Method to resolve a given AspectModelUrn using a suitable ResolutionStrategy.
     *
-    * @param inMemoryStrategy strategy that are uesed
-    * @return The resolved model on success.
+    * @param aspectModel as a string.
+    * @param storagePath stored path to the Aspect Models.
+    * @return Migrated Aspect Model.
     */
-   public static Try<VersionedModel> fetchVersionModel( final InMemoryStrategy inMemoryStrategy ) {
-      return new AspectModelResolver().resolveAspectModel( inMemoryStrategy, inMemoryStrategy.getAspectModelUrn() );
+   public static String migrateModel( final String aspectModel, final String storagePath ) {
+      final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel, storagePath );
+
+      final Try<VersionedModel> migratedFile = new AspectModelResolver().resolveAspectModel( inMemoryStrategy,
+                                                                              inMemoryStrategy.getAspectModelUrn() )
+                                                                        .flatMap(
+                                                                              versionedModel -> new MigratorService().updateMetaModelVersion(
+                                                                                    versionedModel ) );
+
+      final VersionedModel versionedModel = migratedFile.getOrElseThrow(
+            e -> new InvalidAspectModelException( "AspectModel cannot be migrated.", e ) );
+
+      return getPrettyPrintedVersionedModel( versionedModel, inMemoryStrategy.getAspectModelUrn().getUrn() );
    }
 
    /**
     * Validates an Aspect Model that is provided as a Try of a VersionedModel that can contain either a syntactically
     * valid (but semantically invalid) Aspect model, or a RiotException if a parser error occured.
     *
-    * @param aspectModel as a string
-    * @param storagePath stored path to the Aspect Model
+    * @param aspectModel as a string.
+    * @param storagePath stored path to the Aspect Models.
     * @param aspectModelValidator Aspect Model Validator from sds-sdk
     * @return Either a ValidationReport.ValidReport if the model is syntactically correct and conforms to the Aspect
     *       Meta Model semantics or a ValidationReport.InvalidReport that provides a number of ValidationErrors that
-    *       describe all validation violations..
+    *       describe all validation violations.
     */
    public static ValidationReport validateModel( final String aspectModel, final String storagePath,
          final AspectModelValidator aspectModelValidator ) {
       try {
-         final InMemoryStrategy inMemoryStrategy = getInMemoryStrategy( aspectModel, storagePath );
-         final Try<VersionedModel> versionedModel = ModelUtils.fetchVersionModel( inMemoryStrategy );
+         final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel, storagePath );
+         final Try<VersionedModel> versionedModel = ModelUtils.fetchVersionModel( aspectModel, storagePath );
 
          if ( versionedModel.isFailure() ) {
             final String message = versionedModel.getCause().toString();

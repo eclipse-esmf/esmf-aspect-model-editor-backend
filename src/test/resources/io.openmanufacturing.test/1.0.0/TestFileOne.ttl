@@ -19,14 +19,11 @@
 @prefix : <urn:bamm:io.openmanufacturing.test:1.0.0#> .
 
 :TestFileOne a bamm:Aspect ;
-    bamm:name "TestFileOne" ;
     bamm:properties (:property1 :property3) ;
     bamm:operations () .
 
 :property1 a bamm:Property;
-    bamm:name "property1";
     bamm:characteristic :Characteristic1 .
 
 :Characteristic1 a bamm:Characteristic ;
-    bamm:name "Characteristic1" ;
     bamm:dataType xsd:string .
