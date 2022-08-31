@@ -20,7 +20,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -94,11 +93,11 @@ public class PackageResource {
    /**
     * Method to export packaged aspect models.
     *
-    * @param zipFileName - the name of the zip file to be created.
     * @return the package as zip file as blob.
     */
-   @GetMapping( path = "/export-zip/{zipFileName}", produces = MediaTypeExtension.APPLICATION_ZIP_VALUE )
-   public ResponseEntity<byte[]> exportAspectModelPackage( @PathVariable final String zipFileName ) {
+   @GetMapping( path = "/export-zip", produces = MediaTypeExtension.APPLICATION_ZIP_VALUE )
+   public ResponseEntity<byte[]> exportAspectModelPackage() {
+      final String zipFileName = "package.zip";
 
       return ResponseEntity.ok()
                            .header( HttpHeaders.CONTENT_DISPOSITION,
