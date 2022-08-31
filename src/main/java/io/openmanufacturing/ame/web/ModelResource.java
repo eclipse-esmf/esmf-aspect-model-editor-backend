@@ -98,7 +98,8 @@ public class ModelResource {
     */
    @PostMapping( path = "migrate", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public ResponseEntity<String> migrateModel( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( "This method will be available soon." );
+      return ResponseEntity.ok(
+            modelService.migrateModel( aspectModel, ApplicationSettings.getMetaModelStoragePath() ) );
    }
 
    /**

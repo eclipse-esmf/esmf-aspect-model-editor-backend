@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
@@ -84,10 +85,21 @@ public class InMemoryStrategy extends FileSystemStrategy {
    }
 
    private Optional<StmtIterator> getSdsStatements() {
-      final BAMM bamm = new BAMM( KnownVersion.getLatest() );
-      final List<Resource> resources = List.of( bamm.Aspect(), bamm.Property(), bamm.Entity(), bamm.Characteristic() );
-      return resources.stream().filter( resource -> model.listStatements( null, RDF.type, resource ).hasNext() )
-                      .map( resource -> model.listStatements( null, RDF.type, resource ) )
-                      .findFirst();
+
+      for ( final KnownVersion version : KnownVersion.getVersions() ) {
+         final BAMM bamm = new BAMM( version );
+         final List<Resource> resources = List.of( bamm.Aspect(), bamm.Property(), bamm.Entity(),
+               bamm.Characteristic() );
+         final List<StmtIterator> collect = resources.stream().filter(
+                                                           resource -> model.listStatements( null, RDF.type, resource ).hasNext() )
+                                                     .map( resource -> model.listStatements( null, RDF.type,
+                                                           resource ) )
+                                                     .collect( Collectors.toList() );
+         if ( !collect.isEmpty() ) {
+            return collect.stream().findFirst();
+         }
+      }
+
+      return Optional.empty();
    }
 }

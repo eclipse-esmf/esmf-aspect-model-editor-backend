@@ -9,7 +9,7 @@
 #
 # SPDX-License-Identifier: MPL-2.0
 
-@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:01.0.#> .
+@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .
 @prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .
 @prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .
 @prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .
@@ -19,14 +19,11 @@
 @prefix : <urn:bamm:io.openmanufacturing:1.0.0#> .
 
 :AspectModel a bamm:Aspect ;
-    bamm:name "AspectModel" ;
     bamm:properties (:property) ;
     bamm:operations () .
 
 :property a bamm:Property;
-    bamm:name "property";
     bamm:characteristic :Characteristic .
 
 :Characteristic a bamm:Characteristic ;
-    bamm:name "Characteristic" ;
     bamm:dataType xsd:string .

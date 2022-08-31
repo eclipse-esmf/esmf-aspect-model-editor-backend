@@ -213,6 +213,46 @@
 			"response": []
 		},
 		{
+			"name": "MigrateAspectModel",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(pm.response.text()).to.include(pm.variables.replaceIn(\"@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:{{currentBammVersion}}#>\"));});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:1.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:1.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:1.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:1.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:name \"AspectDefault\" ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:name \"property1\";\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:name \"Characteristic1\" ;\r\n    bamm:dataType xsd:string .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/models/migrate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"models",
+						"migrate"
+					]
+				},
+				"description": "Validte aspect model"
+			},
+			"response": []
+		},
+		{
 			"name": "ValidateAspectModel",
 			"event": [
 				{
