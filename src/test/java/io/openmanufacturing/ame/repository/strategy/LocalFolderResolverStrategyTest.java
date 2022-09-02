@@ -90,7 +90,7 @@ public class LocalFolderResolverStrategyTest {
       doReturn( true ).when( fileMock ).exists();
       doReturn( TTL_FILE_CONTENT ).when( localFolderResolverStrategy ).getFileContent( any() );
 
-      final String result = localFolderResolverStrategy.getModel( NAMESPACE,
+      final String result = localFolderResolverStrategy.getModelAsString( NAMESPACE,
             STORAGE_PATH + File.separator + NAMESPACE );
 
       assertEquals( TTL_FILE_CONTENT, result );
@@ -100,7 +100,7 @@ public class LocalFolderResolverStrategyTest {
    public void testGetModelModelNotFound() {
       doReturn( false ).when( fileMock ).exists();
 
-      localFolderResolverStrategy.getModel( NAMESPACE, STORAGE_PATH + File.separator + NAMESPACE );
+      localFolderResolverStrategy.getModelAsString( NAMESPACE, STORAGE_PATH + File.separator + NAMESPACE );
    }
 
    @Test
@@ -211,8 +211,8 @@ public class LocalFolderResolverStrategyTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( "com.test.example:1.0.0:AspectDefault.ttl" );
 
-
-         final Map<String, List<String>> result = localFolderResolverStrategy.getAllNamespaces( true, ApplicationSettings.getMetaModelStoragePath());
+         final Map<String, List<String>> result = localFolderResolverStrategy.getAllNamespaces( true,
+               ApplicationSettings.getMetaModelStoragePath() );
 
          assertEquals( nameSpace, result );
       }
@@ -233,7 +233,8 @@ public class LocalFolderResolverStrategyTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( "com.test.example:1.2.0" );
 
-         final Map<String, List<String>> result = localFolderResolverStrategy.getAllNamespaces( true, ApplicationSettings.getMetaModelStoragePath() );
+         final Map<String, List<String>> result = localFolderResolverStrategy.getAllNamespaces( true,
+               ApplicationSettings.getMetaModelStoragePath() );
 
          assertEquals( expectedResult, result );
       }

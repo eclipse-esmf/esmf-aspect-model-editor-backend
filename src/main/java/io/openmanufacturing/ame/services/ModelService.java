@@ -44,7 +44,8 @@ public class ModelService {
    public String getModel( final String namespace, final Optional<String> storagePath ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      return strategy.getModel( namespace, storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
+      return strategy.getModelAsString( namespace,
+            storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
    }
 
    public String saveModel( final Optional<String> urn, final String turtleData ) {
