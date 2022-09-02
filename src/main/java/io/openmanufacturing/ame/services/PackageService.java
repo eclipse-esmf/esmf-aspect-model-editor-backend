@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
@@ -32,6 +31,7 @@ import io.openmanufacturing.ame.repository.ModelResolverRepository;
 import io.openmanufacturing.ame.repository.model.LocalPackageInfo;
 import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
 import io.openmanufacturing.ame.repository.strategy.ModelResolverStrategy;
+import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import io.openmanufacturing.ame.resolver.file.FileSystemStrategy;
 import io.openmanufacturing.ame.services.model.FileInformation;
 import io.openmanufacturing.ame.services.model.MissingFileInfo;
@@ -60,10 +60,45 @@ public class PackageService {
       DataType.setupTypeMapping();
    }
 
-   public ProcessPackage validateImportAspectModelPackage( final MultipartFile zipFile,
+   public ProcessPackage validateAspectModels( final List<String> aspectModelFiles,
          final String storagePath ) {
       try {
          // When validating the aspect modes to be exported, the folder is initially deleted.
+         FileUtils.deleteDirectory( new File( storagePath ) );
+
+         final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(
+               LocalFolderResolverStrategy.class );
+
+         final ProcessPackage processPackage = new ProcessPackage();
+
+         // Save all aspect models to export storage path
+         aspectModelFiles.forEach( aspectModelFileName -> copyFileToDirectory( aspectModelFileName,
+               ApplicationSettings.getMetaModelStoragePath(), storagePath ) );
+
+         // Validate all aspect models from export storage path and create export package model
+         aspectModelFiles.forEach( aspectModelFileName -> {
+            final String aspectModel = strategy.getModelAsString( aspectModelFileName, storagePath );
+
+            final ValidationReport validationReport = ModelUtils.validateModel( aspectModel, storagePath,
+                  aspectModelValidator );
+
+            getMissingAspectModelFiles( validationReport ).forEach( processPackage::addMissingFiles );
+            final FileInformation fileInformation = new FileInformation( aspectModelFileName, validationReport );
+
+            processPackage.addFileInformation( fileInformation );
+         } );
+
+         return processPackage;
+      } catch ( final IOException e ) {
+         LOG.error( "Cannot delete exported package folder." );
+         throw new FileNotFoundException( String.format( "Unable to delete folder: %s", storagePath ), e );
+      }
+   }
+
+   public ProcessPackage validateImportAspectModelPackage( final MultipartFile zipFile,
+         final String storagePath ) {
+      try {
+         // Delete directory for importing new Aspect Models.
          FileUtils.deleteDirectory( new File( storagePath ) );
 
          final Path packagePath = Path.of( storagePath );
@@ -103,15 +138,11 @@ public class PackageService {
 
    public List<String> importAspectModelPackage( final List<String> aspectModelFiles, final String storagePath ) {
       try {
-         final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(
-               LocalFolderResolverStrategy.class );
 
-         final List<String> fileLocations = aspectModelFiles.stream()
-                                                            .map( aspectModelFile -> strategy.saveModel(
-                                                                  Optional.empty(),
-                                                                  strategy.getModel( aspectModelFile, storagePath ),
-                                                                  ApplicationSettings.getMetaModelStoragePath() )
-                                                            ).collect( Collectors.toList() );
+         final List<String> fileLocations =
+               aspectModelFiles.stream().map( aspectModelFileName -> copyFileToDirectory(
+                                     aspectModelFileName, storagePath, ApplicationSettings.getMetaModelStoragePath() ) )
+                               .collect( Collectors.toList() );
 
          FileUtils.deleteDirectory( new File( storagePath ) );
 
@@ -123,40 +154,27 @@ public class PackageService {
       }
    }
 
-   public ProcessPackage validateAspectModels( final List<String> aspectModelFiles,
-         final String storagePath ) {
+   private String copyFileToDirectory( final String aspectModelFileName, final String sourceStorage,
+         final String destStorage ) {
+      final LocalFolderResolverUtils.FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath(
+            aspectModelFileName );
+
+      final String absoluteAspectModelPath = sourceStorage + File.separator + folderStructure.toString();
+
+      final File aspectModelStoragePath = new File( destStorage + File.separator + folderStructure.getFileRootPath()
+            + File.separator + folderStructure.getVersion() );
+
+      if ( !aspectModelStoragePath.exists() ) {
+         aspectModelStoragePath.mkdir();
+      }
+
       try {
-         // When validating the aspect modes to be exported, the folder is initially deleted.
-         FileUtils.deleteDirectory( new File( storagePath ) );
-
-         final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(
-               LocalFolderResolverStrategy.class );
-
-         final ProcessPackage processPackage = new ProcessPackage();
-
-         // Save all aspect models to export storage path
-         aspectModelFiles.forEach( aspectModelFileName -> {
-            final String aspectModel = strategy.getModel( aspectModelFileName,
-                  ApplicationSettings.getMetaModelStoragePath() );
-            strategy.saveModel( Optional.empty(), aspectModel, storagePath );
-         } );
-
-         // Validate all aspect models from export storage path and create export package model
-         aspectModelFiles.forEach( aspectModelFileName -> {
-            final String aspectModel = strategy.getModel( aspectModelFileName, storagePath );
-            final ValidationReport validationReport = ModelUtils.validateModel( aspectModel, storagePath,
-                  aspectModelValidator );
-
-            getMissingAspectModelFiles( validationReport ).forEach( processPackage::addMissingFiles );
-            final FileInformation fileInformation = new FileInformation( aspectModelFileName, validationReport );
-
-            processPackage.addFileInformation( fileInformation );
-         } );
-
-         return processPackage;
+         FileUtils.copyFileToDirectory( new File( absoluteAspectModelPath ), aspectModelStoragePath );
+         return folderStructure.toString();
       } catch ( final IOException e ) {
-         LOG.error( "Cannot delete exported package folder." );
-         throw new FileNotFoundException( String.format( "Unable to delete folder: %s", storagePath ), e );
+         throw new FileNotFoundException(
+               String.format( "Cannot copy file %s to %s", folderStructure.getFileName(),
+                     aspectModelStoragePath ) );
       }
    }
 

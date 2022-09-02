@@ -13,7 +13,7 @@
 
 package io.openmanufacturing.ame.repository.strategy;
 
-import static io.openmanufacturing.ame.services.utils.ModelUtils.fetchVersionModel;
+import static io.openmanufacturing.ame.services.utils.ModelUtils.*;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
@@ -43,6 +43,8 @@ import io.openmanufacturing.ame.exceptions.FileReadException;
 import io.openmanufacturing.ame.exceptions.FileWriteException;
 import io.openmanufacturing.ame.repository.model.LocalPackageInfo;
 import io.openmanufacturing.ame.repository.model.ValidFile;
+import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
+import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
 import io.openmanufacturing.sds.aspectmetamodel.KnownVersion;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.ExtendedXsdDataType;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
@@ -57,7 +59,6 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    private static final Logger LOG = LoggerFactory.getLogger( LocalFolderResolverStrategy.class );
 
    private static final String TTL_FILE_DOES_NOT_EXISTS = "File %s does not exists.";
-   public static final String NAMESPACE_VERSION_NAME_SEPARATOR = ":";
    public static final String TTL = ".ttl";
 
    private final ApplicationSettings applicationSettings;
@@ -69,20 +70,25 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    @Override
    public Boolean checkModelExist( final @Nonnull String namespace, final String storagePath ) {
-      final String filePath = extractFilePath( namespace );
+      final String filePath = LocalFolderResolverUtils.extractFilePath( namespace ).toString();
       final String qualifiedFilePath = getQualifiedFilePath( filePath, storagePath );
 
       return new File( qualifiedFilePath ).exists();
    }
 
    @Override
-   public String getModel( final @Nonnull String namespace, final String storagePath ) {
-      final String filePath = extractFilePath( namespace );
+   public String getModelAsString( final @Nonnull String namespace, final String storagePath ) {
+      return getFileContent( getModelAsFile( namespace, storagePath ) );
+   }
+
+   @Override
+   public File getModelAsFile( final @Nonnull String namespace, final String storagePath ) {
+      final String filePath = LocalFolderResolverUtils.extractFilePath( namespace ).toString();
       final String qualifiedFilePath = getQualifiedFilePath( filePath, storagePath );
       final File storeFile = getFileInstance( qualifiedFilePath );
 
       if ( storeFile.exists() ) {
-         return getFileContent( storeFile );
+         return storeFile;
       } else {
          throw new FileNotFoundException( String.format( TTL_FILE_DOES_NOT_EXISTS, namespace ) );
       }
@@ -95,7 +101,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final String aspectModelUrn = urn.orElse( StringUtils.EMPTY );
 
       final String filePath = !aspectModelUrn.isEmpty() && ":latest.ttl".equalsIgnoreCase( aspectModelUrn ) ?
-            extractFilePath( aspectModelUrn ) :
+            LocalFolderResolverUtils.extractFilePath( aspectModelUrn ).toString() :
             getFilePathBasedOnTurtleData( turtleData, storagePath ) + applicationSettings.getFileType();
       final File storeFile = getFileInstance( getQualifiedFilePath( filePath, storagePath ) );
 
@@ -111,7 +117,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    @Override
    public void deleteModel( final @Nonnull String namespace, final String storagePath ) {
-      final String filePath = extractFilePath( namespace );
+      final String filePath = LocalFolderResolverUtils.extractFilePath( namespace ).toString();
       final String qualifiedFilePath = getQualifiedFilePath( filePath, storagePath );
       final File file = getFileInstance( qualifiedFilePath );
 
@@ -228,7 +234,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
             .stream()
             .map( path -> {
                final String aspectModelFile = transformToValidModelDirectory( path );
-               final String aspectModel = getModel( aspectModelFile, storagePath );
+               final String aspectModel = getModelAsString( aspectModelFile, storagePath );
                return new ValidFile( aspectModelFile, aspectModel );
             } )
             .collect( toList() );
@@ -259,7 +265,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
          final List<String> collect = entry.getValue().stream()
                                            .filter( value -> !value.equals( entry.getKey() ) )
                                            .map( value -> value.replaceAll( entry.getKey(), StringUtils.EMPTY ) )
-                                           .map( value -> value.replace( NAMESPACE_VERSION_NAME_SEPARATOR,
+                                           .map( value -> value.replace(
+                                                 LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR,
                                                  StringUtils.EMPTY ) )
                                            .collect( toList() );
 
@@ -277,7 +284,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final int lastFileSeparatorIndex = path.lastIndexOf( File.separator );
 
       if ( lastFileSeparatorIndex != -1 ) {
-         return path.substring( 0, lastFileSeparatorIndex ) + NAMESPACE_VERSION_NAME_SEPARATOR + path.substring(
+         return path.substring( 0, lastFileSeparatorIndex ) + LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR
+               + path.substring(
                lastFileSeparatorIndex + 1 );
       }
 
@@ -291,12 +299,13 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * @param modelIdentifier - folder location that will be analyzed.
     */
    private String extractNamespaceAndVersion( @Nonnull final String modelIdentifier ) {
-      if ( modelIdentifier.lastIndexOf( NAMESPACE_VERSION_NAME_SEPARATOR ) == -1 ) {
+      if ( modelIdentifier.lastIndexOf( LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR ) == -1 ) {
          return StringUtils.EMPTY;
       }
 
       if ( modelIdentifier.endsWith( TTL ) ) {
-         return modelIdentifier.substring( 0, modelIdentifier.lastIndexOf( NAMESPACE_VERSION_NAME_SEPARATOR ) );
+         return modelIdentifier.substring( 0,
+               modelIdentifier.lastIndexOf( LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR ) );
       }
 
       return modelIdentifier;
@@ -352,57 +361,13 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    protected String getFilePathBasedOnTurtleData( @Nonnull final String turtleData,
          final @Nonnull String storagePath ) {
-      final Try<AspectModelUrn> urnTemp = fetchVersionModel( turtleData, storagePath ).flatMap(
+      final InMemoryStrategy inMemoryStrategy = getInMemoryStrategy( turtleData, storagePath );
+      final Try<AspectModelUrn> urnTemp = fetchVersionModel( inMemoryStrategy ).flatMap(
             this::getRootElementUrn );
       final AspectModelUrn aspectModelUrn = urnTemp.get();
 
       return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator +
             aspectModelUrn.getName();
-   }
-
-   /**
-    * This method will extract namespace, version and name from path based on ':'.
-    */
-   private String extractFilePath( @Nonnull final String path ) {
-      final String[] splitNamespace = path.split( NAMESPACE_VERSION_NAME_SEPARATOR );
-
-      switch ( splitNamespace.length ) {
-         case 1:
-            return path;
-         case 2:
-            return extractNamespaceVersion( splitNamespace );
-         case 3:
-            return extractNamespaceVersionName( splitNamespace );
-         default:
-            return StringUtils.EMPTY;
-      }
-   }
-
-   /**
-    * Split the given path in path, version and filename based on ':'.
-    * ex: io.openmanufacturing:1.0.0
-    *
-    * @param path - path of the current ttl.
-    */
-   private String extractNamespaceVersion( final String[] path ) {
-      final String filePath = path[0];
-      final String version = path[1];
-
-      return filePath + File.separator + version;
-   }
-
-   /**
-    * Split the given path in path, version and filename based on ':'.
-    * ex: io.openmanufacturing:1.0.0:AspectDefault.ttl
-    *
-    * @param path - path of the current ttl.
-    */
-   private String extractNamespaceVersionName( final String[] path ) {
-      final String filePath = path[0];
-      final String version = path[1];
-      final String fileName = path[2];
-
-      return filePath + File.separator + version + File.separator + fileName;
    }
 
    /**

@@ -27,6 +27,7 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDF;
 
+import io.openmanufacturing.ame.exceptions.UrnNotFoundException;
 import io.openmanufacturing.sds.aspectmetamodel.KnownVersion;
 import io.openmanufacturing.sds.aspectmodel.resolver.FileSystemStrategy;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
@@ -63,7 +64,9 @@ public class InMemoryStrategy extends FileSystemStrategy {
          return Try.success( model );
       }
 
-      return Try.failure( new NotImplementedError( "Failed to resolve " + aspectModelUrn ) );
+      return Try.failure(
+            new UrnNotFoundException( String.format( "%s cannot be resolved correctly.", aspectModelUrn ),
+                  aspectModelUrn ) );
    }
 
    /**

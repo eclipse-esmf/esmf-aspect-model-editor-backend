@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
+import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
 import io.openmanufacturing.sds.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
@@ -42,15 +43,16 @@ import io.vavr.control.Try;
 public class GenerateService {
    private static final Logger LOG = LoggerFactory.getLogger( GenerateService.class );
 
+   private static final String COULD_NOT_LOAD_ASPECT_MODEL = "Could not load Aspect model, please make sure the model is valid.";
+
    public GenerateService() {
       DataType.setupTypeMapping();
    }
 
-   public byte[] generateHtmlDocument( final String model, final Optional<String> storagePath ) throws IOException {
-      final Try<VersionedModel> versionedModel = ModelUtils.fetchVersionModel( model,
-            storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
+   public byte[] generateHtmlDocument( final String aspectModel, final Optional<String> storagePath )
+         throws IOException {
       final AspectModelDocumentationGenerator generator = new AspectModelDocumentationGenerator(
-            versionedModel.get() );
+            getVersionModel( aspectModel, storagePath ).get() );
       final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
       generator.generate( artifactName -> byteArrayOutputStream,
@@ -61,14 +63,12 @@ public class GenerateService {
 
    public String jsonSchema( final String aspectModel, final Optional<String> storagePath ) {
       try {
-         final Try<VersionedModel> versionedModel = ModelUtils.fetchVersionModel( aspectModel,
-               storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
-
-         final Aspect aspect = AspectModelLoader.fromVersionedModel( versionedModel.get() ).getOrElseThrow(
-               e -> {
-                  LOG.error( "Could not load Aspect model, please make sure the model is valid." );
+         final Aspect aspect = AspectModelLoader
+               .fromVersionedModel( getVersionModel( aspectModel, storagePath ).get() )
+               .getOrElseThrow( e -> {
+                  LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
                   return new InvalidAspectModelException(
-                        "Could not load Aspect model, please make sure the model is valid.", e );
+                        COULD_NOT_LOAD_ASPECT_MODEL, e );
                } );
 
          final AspectModelJsonSchemaGenerator generator = new AspectModelJsonSchemaGenerator();
@@ -78,6 +78,7 @@ public class GenerateService {
          final ObjectMapper objectMapper = new ObjectMapper();
 
          objectMapper.writerWithDefaultPrettyPrinter().writeValue( out, jsonSchema );
+
          return out.toString();
       } catch ( final IOException e ) {
          LOG.error( "Aspect Model could not be loaded correctly." );
@@ -87,18 +88,24 @@ public class GenerateService {
 
    public String sampleJSONPayload( final String aspectModel, final Optional<String> storagePath ) {
       try {
-         final Try<VersionedModel> versionedModel = ModelUtils.fetchVersionModel( aspectModel,
-               storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
+         final AspectModelJsonPayloadGenerator generator = new AspectModelJsonPayloadGenerator(
+               getVersionModel( aspectModel, storagePath ).get() );
 
-         final AspectModelJsonPayloadGenerator generator = new AspectModelJsonPayloadGenerator( versionedModel.get() );
          return generator.generateJson();
       } catch ( final AspectLoadingException e ) {
-         LOG.error( "Could not load Aspect model, please make sure the model is valid." );
-         throw new InvalidAspectModelException( "Could not load Aspect model, please make sure the model is valid.",
+         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
+         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL,
                e );
       } catch ( final IOException e ) {
          LOG.error( "Aspect Model could not be loaded correctly." );
          throw new InvalidAspectModelException( "Could not load Aspect", e );
       }
+   }
+
+   private Try<VersionedModel> getVersionModel( final String aspectModel, final Optional<String> storagePath ) {
+      final InMemoryStrategy inMemoryStrategy = ModelUtils.getInMemoryStrategy( aspectModel,
+            storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
+
+      return ModelUtils.fetchVersionModel( inMemoryStrategy );
    }
 }

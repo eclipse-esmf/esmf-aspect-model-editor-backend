@@ -38,75 +38,79 @@ import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import io.vavr.control.Try;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith( MockitoJUnitRunner.class )
 public class InMemoryOmpStrategyTest {
-    private InMemoryStrategy inMemoryStrategy;
+   private InMemoryStrategy inMemoryStrategy;
 
-    @Mock
-    private Try<Model> tryModel;
+   @Mock
+   private Try<Model> tryModel;
 
-    @Mock
-    private Model modelMock;
+   @Mock
+   private Model modelMock;
 
-    @Mock
-    private AspectModelUrn aspectModelUrnMock;
+   @Mock
+   private AspectModelUrn aspectModelUrnMock;
 
-    @Mock
-    private Resource resourceMock;
+   @Mock
+   private Resource resourceMock;
 
-    @Mock
-    private StmtIterator stmtIteratorMock;
+   @Mock
+   private StmtIterator stmtIteratorMock;
 
-    @Mock
-    private Try<Model> isDirectory;
+   @Mock
+   private Try<Model> isDirectory;
 
-    @Before
-    public void setUp() {
-        try (final MockedStatic<TurtleLoader> turtleLoaderUtilities = Mockito.mockStatic(TurtleLoader.class)) {
-            turtleLoaderUtilities.when(() -> TurtleLoader.loadTurtle(any(InputStream.class))).thenReturn(tryModel);
+   @Before
+   public void setUp() {
+      try ( final MockedStatic<TurtleLoader> turtleLoaderUtilities = Mockito.mockStatic( TurtleLoader.class ) ) {
+         turtleLoaderUtilities.when( () -> TurtleLoader.loadTurtle( any( InputStream.class ) ) ).thenReturn( tryModel );
 
-            when(tryModel.get()).thenReturn(modelMock);
-            inMemoryStrategy = Mockito.spy(new InMemoryStrategy("turtle file content",
-                    Path.of(ApplicationSettings.getMetaModelStoragePath())));
-            doReturn(isDirectory).when( inMemoryStrategy ).getModelFromFileSystem(aspectModelUrnMock);
-            when(isDirectory.isSuccess()).thenReturn(false);
-        }
-    }
+         when( tryModel.get() ).thenReturn( modelMock );
+         inMemoryStrategy = Mockito.spy( new InMemoryStrategy( "turtle file content",
+               Path.of( ApplicationSettings.getMetaModelStoragePath() ) ) );
+         doReturn( isDirectory ).when( inMemoryStrategy ).getModelFromFileSystem( aspectModelUrnMock );
+         when( isDirectory.isSuccess() ).thenReturn( false );
+      }
+   }
 
-    @Test
-    public void testApplySuccess() {
-        try (final MockedStatic<ResourceFactory> resourceFactoryUtilities = Mockito.mockStatic(ResourceFactory.class)) {
-            resourceFactoryUtilities.when(() -> ResourceFactory.createResource(any(String.class))).thenReturn(resourceMock);
+   @Test
+   public void testApplySuccess() {
+      try ( final MockedStatic<ResourceFactory> resourceFactoryUtilities = Mockito.mockStatic(
+            ResourceFactory.class ) ) {
+         resourceFactoryUtilities.when( () -> ResourceFactory.createResource( any( String.class ) ) )
+                                 .thenReturn( resourceMock );
 
-            when(ResourceFactory.createResource(any())).thenReturn(resourceMock);
-            when(modelMock.listStatements(resourceMock, null, (RDFNode) null)).thenReturn(stmtIteratorMock);
-            when(stmtIteratorMock.hasNext()).thenReturn(true);
+         when( ResourceFactory.createResource( any() ) ).thenReturn( resourceMock );
+         when( modelMock.listStatements( resourceMock, null, (RDFNode) null ) ).thenReturn( stmtIteratorMock );
+         when( stmtIteratorMock.hasNext() ).thenReturn( true );
 
-            final Try<Model> result = inMemoryStrategy.apply(aspectModelUrnMock);
+         final Try<Model> result = inMemoryStrategy.apply( aspectModelUrnMock );
 
-            assertEquals(result, Try.success(modelMock));
-        }
-    }
+         assertEquals( result, Try.success( modelMock ) );
+      }
+   }
 
-    @Test
-    public void testApplyFailureNullAspectModelUrn() {
-        final Try<Model> result = inMemoryStrategy.apply(null);
+   @Test
+   public void testApplyFailureNullAspectModelUrn() {
+      final Try<Model> result = inMemoryStrategy.apply( null );
 
-        assertTrue(result.isFailure());
-    }
+      assertTrue( result.isFailure() );
+   }
 
-    @Test
-    public void testApplyFailure() {
-        try (final MockedStatic<ResourceFactory> resourceFactoryUtilities = Mockito.mockStatic(ResourceFactory.class)) {
-            resourceFactoryUtilities.when(() -> ResourceFactory.createResource(any(String.class))).thenReturn(resourceMock);
+   @Test
+   public void testApplyFailure() {
+      try ( final MockedStatic<ResourceFactory> resourceFactoryUtilities = Mockito.mockStatic(
+            ResourceFactory.class ) ) {
+         resourceFactoryUtilities.when( () -> ResourceFactory.createResource( any( String.class ) ) )
+                                 .thenReturn( resourceMock );
 
-            when(ResourceFactory.createResource(any())).thenReturn(resourceMock);
-            when(modelMock.listStatements(resourceMock, null, (RDFNode) null)).thenReturn(stmtIteratorMock);
-            when(stmtIteratorMock.hasNext()).thenReturn(false);
+         when( ResourceFactory.createResource( any() ) ).thenReturn( resourceMock );
+         when( modelMock.listStatements( resourceMock, null, (RDFNode) null ) ).thenReturn( stmtIteratorMock );
+         when( stmtIteratorMock.hasNext() ).thenReturn( false );
 
-            final Try<Model> result = inMemoryStrategy.apply(aspectModelUrnMock);
+         final Try<Model> result = inMemoryStrategy.apply( aspectModelUrnMock );
 
-            assertTrue(result.isFailure());
-        }
-    }
+         assertTrue( result.isFailure() );
+      }
+   }
 }

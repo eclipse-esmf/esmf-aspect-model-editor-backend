@@ -13,6 +13,7 @@
 
 package io.openmanufacturing.ame.repository.strategy;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,12 +34,23 @@ public interface ModelResolverStrategy {
 
    /**
     * Returns turtleData based on received namespace.
-    * ex: io.openmanufacturing:0.8.0:AspectDefault.ttl
+    * ex: io.openmanufacturing:1.0.0:AspectDefault.ttl
     *
     * @param namespace - used to extract file path.
     * @param storagePath - path to storage files.
+    * @return the Aspect Model turtleData as {@link String}.
     */
-   String getModel( @Nonnull final String namespace, final String storagePath );
+   String getModelAsString( @Nonnull final String namespace, final String storagePath );
+
+   /**
+    * Returns the path of the Aspect Model.
+    * ex: io.openmanufacturing/1.0.0/AspectDefault.ttl
+    *
+    * @param namespace - used to extract file path.
+    * @param storagePath - path to storage files.
+    * @return the file location of the saved turtleData.
+    */
+   File getModelAsFile( @Nonnull final String namespace, final String storagePath );
 
    /**
     * Save given turtleData into repository. File path will be decided based on urn if exists, if not it will be
@@ -53,7 +65,7 @@ public interface ModelResolverStrategy {
 
    /**
     * Deletes the folder from the given namespace.
-    * ex: io.openmanufacturing:0.8.0:AspectDefault.ttl
+    * ex: io.openmanufacturing:1.0.0:AspectDefault.ttl
     *
     * @param namespace - used to extract filePath.
     * @param storagePath - path to storage files.
