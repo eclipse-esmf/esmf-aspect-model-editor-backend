@@ -73,8 +73,7 @@ public class ModelResource {
    @PostMapping( consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public ResponseEntity<String> createModel( @RequestHeader final Map<String, String> headers,
          @RequestBody final String turtleData ) {
-      modelService.saveModel( Optional.ofNullable( headers.get( AME_MODEL_URN ) ), turtleData,
-            Optional.empty() );
+      modelService.saveModel( Optional.ofNullable( headers.get( AME_MODEL_URN ) ), turtleData, Optional.empty() );
 
       return new ResponseEntity<>( HttpStatus.CREATED );
    }
@@ -110,9 +109,15 @@ public class ModelResource {
     * @return A list of Aspect Models that are migrated or not.
     */
    @GetMapping( path = "migrate-workspace" )
-   public ResponseEntity<Namespaces> migrateWorkspace() {
-      return ResponseEntity.ok( modelService.migrateWorkspace( ApplicationSettings.getMetaModelStoragePath(),
-            ApplicationSettings.getMigrationStoragePath() ) );
+   public ResponseEntity<Namespaces> migrateWorkspace(
+         @RequestParam( value = "namespaceUpdate", required = false, defaultValue = "false" )
+         final boolean namespaceUpdate ) {
+      final String desPath = namespaceUpdate ?
+            ApplicationSettings.getMigrationStoragePath() :
+            ApplicationSettings.getMetaModelStoragePath();
+
+      return ResponseEntity.ok(
+            modelService.migrateWorkspace( ApplicationSettings.getMetaModelStoragePath(), desPath ) );
    }
 
    /**
