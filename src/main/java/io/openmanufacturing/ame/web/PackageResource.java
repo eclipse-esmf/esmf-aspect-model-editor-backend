@@ -105,4 +105,16 @@ public class PackageResource {
                            .body( packageService.exportAspectModelPackage( zipFileName,
                                  ApplicationSettings.getExportPackageStoragePath() ) );
    }
+
+   /**
+    * Method to backup workspace files into package.
+    *
+    * @return HttpState 200 if the backup succeeded.
+    */
+   @GetMapping( path = "/backup-workspace" )
+   public ResponseEntity<Void> backupWorkspace() {
+      packageService.backupWorkspace( ApplicationSettings.getMetaModelStoragePath(),
+            ApplicationSettings.getAspectModelEditorStoragePath() );
+      return ResponseEntity.ok().build();
+   }
 }

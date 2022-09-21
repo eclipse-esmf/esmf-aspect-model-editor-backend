@@ -42,18 +42,18 @@ public class ZipUtils {
 
    static final int BUFFER = 1024;
 
-   public static byte[] createZipFile( final String zipFileName, final String exportStoragePath ) throws IOException {
-      final String zipFile = exportStoragePath + File.separator + zipFileName;
+   public static byte[] createZipFile( final String zipFileName, final String sourceStoragePath ) throws IOException {
+      final String zipFile = sourceStoragePath + File.separator + zipFileName;
 
       try ( final FileOutputStream fos = new FileOutputStream( zipFile );
             final ZipOutputStream zos = new ZipOutputStream( fos ) ) {
 
-         final List<File> fileList = getFileList( new File( exportStoragePath ), new ArrayList<>(), exportStoragePath );
+         final List<File> fileList = getFileList( new File( sourceStoragePath ), new ArrayList<>(), sourceStoragePath );
 
          for ( final File file : fileList ) {
             final String fileName = file.isDirectory() ?
-                  getFileName( file.toString(), exportStoragePath ) + File.separator :
-                  getFileName( file.toString(), exportStoragePath );
+                  getFileName( file.toString(), sourceStoragePath ) + File.separator :
+                  getFileName( file.toString(), sourceStoragePath );
             final BasicFileAttributes attr = Files.readAttributes( file.toPath(), BasicFileAttributes.class );
 
             final ZipEntry zipEntry = new ZipEntry( fileName );
@@ -78,7 +78,7 @@ public class ZipUtils {
       return Files.readAllBytes( Paths.get( zipFile ) );
    }
 
-   private static List<File> getFileList( File source, final List<File> fileList, final String exportStoragePath ) {
+   private static List<File> getFileList( File source, final List<File> fileList, final String sourceStoragePath ) {
       if ( source.isDirectory() ) {
          final String[] subList = source.list();
          if ( Objects.requireNonNull( subList ).length == 0 ) {
@@ -86,7 +86,7 @@ public class ZipUtils {
          }
          for ( final String child : subList ) {
             if ( !child.endsWith( ".zip" ) ) {
-               getFileList( new File( source, child ), fileList, exportStoragePath );
+               getFileList( new File( source, child ), fileList, sourceStoragePath );
             }
          }
       } else {
@@ -96,8 +96,8 @@ public class ZipUtils {
       return fileList;
    }
 
-   private static String getFileName( final String filePath, final String exportStoragePath ) {
-      return filePath.substring( exportStoragePath.length() + 1 );
+   private static String getFileName( final String filePath, final String sourceStoragePath ) {
+      return filePath.substring( sourceStoragePath.length() + 1 );
    }
 
    private static void createNewAspectModelFileWithContent( final File file, final ZipOutputStream zos )
