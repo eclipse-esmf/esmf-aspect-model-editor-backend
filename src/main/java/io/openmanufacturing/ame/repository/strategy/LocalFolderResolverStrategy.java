@@ -59,6 +59,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    private static final Logger LOG = LoggerFactory.getLogger( LocalFolderResolverStrategy.class );
 
    private static final String TTL_FILE_DOES_NOT_EXISTS = "File %s does not exists.";
+   public static final String NAMESPACE_VERSION_NAME_SEPARATOR = ":";
    public static final String TTL = ".ttl";
 
    private final ApplicationSettings applicationSettings;
@@ -96,23 +97,34 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    @Override
    public String saveModel( final Optional<String> urn, final @Nonnull String turtleData, final String storagePath ) {
-      ExtendedXsdDataType.setChecking( false );
-
-      final String aspectModelUrn = urn.orElse( StringUtils.EMPTY );
-
-      final String filePath = !aspectModelUrn.isEmpty() && ":latest.ttl".equalsIgnoreCase( aspectModelUrn ) ?
-            LocalFolderResolverUtils.extractFilePath( aspectModelUrn ).toString() :
-            getFilePathBasedOnTurtleData( turtleData, storagePath ) + applicationSettings.getFileType();
-      final File storeFile = getFileInstance( getQualifiedFilePath( filePath, storagePath ) );
-
       try {
+         ExtendedXsdDataType.setChecking( false );
+
+         final String filePath = getFilePath( urn.orElse( StringUtils.EMPTY ), turtleData, storagePath );
+         final File storeFile = getFileInstance( getQualifiedFilePath( filePath, storagePath ) );
+
          writeToFile( turtleData, storeFile );
+
+         ExtendedXsdDataType.setChecking( true );
+         return filePath;
       } catch ( final IOException e ) {
          throw new FileWriteException( "File cannot be written", e );
       }
+   }
 
-      ExtendedXsdDataType.setChecking( true );
-      return filePath;
+   private String getFilePath( final String urn, final String turtleData, final String storagePath ) {
+
+      if ( urn.isEmpty() ) {
+         return getFilePathBasedOnTurtleData( turtleData, storagePath ) + applicationSettings.getFileType();
+      }
+
+      if ( ":latest.ttl".equalsIgnoreCase( urn ) ) {
+         return extractFilePath( urn );
+      }
+
+      final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn( urn );
+      return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator +
+            aspectModelUrn.getName();
    }
 
    @Override
@@ -285,8 +297,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
       if ( lastFileSeparatorIndex != -1 ) {
          return path.substring( 0, lastFileSeparatorIndex ) + LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR
-               + path.substring(
-               lastFileSeparatorIndex + 1 );
+               + path.substring( lastFileSeparatorIndex + 1 );
       }
 
       return path;
@@ -361,8 +372,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    protected String getFilePathBasedOnTurtleData( @Nonnull final String turtleData,
          final @Nonnull String storagePath ) {
-      final InMemoryStrategy inMemoryStrategy = getInMemoryStrategy( turtleData, storagePath );
-      final Try<AspectModelUrn> urnTemp = fetchVersionModel( inMemoryStrategy ).flatMap(
+      final Try<AspectModelUrn> urnTemp = fetchVersionModel( turtleData, storagePath ).flatMap(
             this::getRootElementUrn );
       final AspectModelUrn aspectModelUrn = urnTemp.get();
 
@@ -378,7 +388,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * @param storagePath - path of the workspace storage.
     */
    protected String getQualifiedFilePath( final String namespace, final String storagePath ) {
-      return storagePath + File.separator + namespace;
+      return storagePath + File.separator + namespace + TTL;
    }
 
    /**
@@ -424,7 +434,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       try {
          FileUtils.forceDelete( file );
       } catch ( final IOException e ) {
-         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ), e );
+         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ),
+               e );
       }
    }
 

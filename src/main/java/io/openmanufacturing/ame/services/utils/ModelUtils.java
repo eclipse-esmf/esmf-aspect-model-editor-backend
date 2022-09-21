@@ -26,6 +26,7 @@ import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
 import io.openmanufacturing.ame.exceptions.UrnNotFoundException;
 import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
 import io.openmanufacturing.sds.aspectmodel.resolver.AspectModelResolver;
+import io.openmanufacturing.sds.aspectmodel.resolver.services.SdsAspectMetaModelResourceResolver;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
 import io.openmanufacturing.sds.aspectmodel.serializer.PrettyPrinter;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
@@ -93,11 +94,15 @@ public class ModelUtils {
    public static String migrateModel( final String aspectModel, final String storagePath ) {
       final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel, storagePath );
 
-      final Try<VersionedModel> migratedFile = new AspectModelResolver().resolveAspectModel( inMemoryStrategy,
-                                                                              inMemoryStrategy.getAspectModelUrn() )
+      final SdsAspectMetaModelResourceResolver metaModelResourceResolver = new SdsAspectMetaModelResourceResolver();
+
+      final Try<VersionedModel> migratedFile = metaModelResourceResolver.getBammVersion( inMemoryStrategy.model )
+                                                                        .flatMap( metaModelVersion ->
+                                                                              metaModelResourceResolver.mergeMetaModelIntoRawModel(
+                                                                                    inMemoryStrategy.model,
+                                                                                    metaModelVersion ) )
                                                                         .flatMap(
-                                                                              versionedModel -> new MigratorService().updateMetaModelVersion(
-                                                                                    versionedModel ) );
+                                                                              new MigratorService()::updateMetaModelVersion );
 
       final VersionedModel versionedModel = migratedFile.getOrElseThrow(
             e -> new InvalidAspectModelException( "AspectModel cannot be migrated.", e ) );

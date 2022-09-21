@@ -33,9 +33,9 @@ import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
 import io.openmanufacturing.ame.repository.strategy.ModelResolverStrategy;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import io.openmanufacturing.ame.resolver.file.FileSystemStrategy;
-import io.openmanufacturing.ame.services.model.FileInformation;
-import io.openmanufacturing.ame.services.model.MissingFileInfo;
-import io.openmanufacturing.ame.services.model.ProcessPackage;
+import io.openmanufacturing.ame.services.model.packaging.MissingFile;
+import io.openmanufacturing.ame.services.model.packaging.ProcessPackage;
+import io.openmanufacturing.ame.services.model.packaging.ValidFile;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.ame.services.utils.UnzipUtils;
 import io.openmanufacturing.ame.services.utils.ZipUtils;
@@ -83,9 +83,9 @@ public class PackageService {
                   aspectModelValidator );
 
             getMissingAspectModelFiles( validationReport ).forEach( processPackage::addMissingFiles );
-            final FileInformation fileInformation = new FileInformation( aspectModelFileName, validationReport );
+            final ValidFile validFile = new ValidFile( aspectModelFileName, validationReport );
 
-            processPackage.addFileInformation( fileInformation );
+            processPackage.addValidFiles( validFile );
          } );
 
          return processPackage;
@@ -119,12 +119,12 @@ public class PackageService {
                   final ValidationReport validationReport = ModelUtils.validateModel(
                         localPackageInformation.getAspectModel(), storagePath, aspectModelValidator );
 
-                  final FileInformation fileInformation = new FileInformation( localPackageInformation.getAspectModelFile(),
+                  final ValidFile validFile = new ValidFile( localPackageInformation.getAspectModelFile(),
                         validationReport, modelExist );
 
                   getMissingAspectModelFiles( validationReport ).forEach( processPackage::addMissingFiles );
 
-                  processPackage.addFileInformation( fileInformation );
+                  processPackage.addValidFiles( validFile );
                }
          );
 
@@ -190,7 +190,7 @@ public class PackageService {
       }
    }
 
-   private List<MissingFileInfo> getMissingAspectModelFiles( final ValidationReport validationReport ) {
+   private List<MissingFile> getMissingAspectModelFiles( final ValidationReport validationReport ) {
       final List<ValidationError> validationErrors = validationReport.getValidationErrors().stream().filter(
             validationError -> validationError instanceof ValidationError.Semantic ).collect( Collectors.toList() );
 
@@ -214,7 +214,7 @@ public class PackageService {
                                 final String missingFile = fileSystemStrategy.getAspectModelFile(
                                       AspectModelUrn.fromUrn( valueUrn ) );
 
-                                return new MissingFileInfo( new File( analysedFile ).getName(),
+                                return new MissingFile( new File( analysedFile ).getName(),
                                       new File( missingFile ).getName(),
                                       String.format(
                                             "Referenced Aspect Model %s could not be found in Aspect Model %s.",

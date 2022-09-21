@@ -105,7 +105,10 @@ public class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( resourcesPath.toString() );
 
-         final String result = modelService.saveModel( Optional.of( "" ), turtleData );
+         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
+                  .thenReturn( fileToReplace.toString() );
+
+         final String result = modelService.saveModel( Optional.of( "" ), turtleData, Optional.empty() );
          assertEquals( result, Path.of( "io.openmanufacturing", "1.0.0", aspectModelFile ).toString() );
       }
    }
@@ -122,7 +125,10 @@ public class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( resourcesPath.toString() );
 
-         modelService.saveModel( Optional.of( "" ), turtleData );
+         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
+                  .thenReturn( fileToReplace.toString() );
+
+         modelService.saveModel( Optional.of( "" ), turtleData, Optional.empty() );
       }
 
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
