@@ -15,7 +15,10 @@ package io.openmanufacturing.ame.services;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -169,6 +172,24 @@ public class PackageService {
          LOG.error( "Cannot create exported package file." );
          throw new FileNotFoundException( String.format( "Error while creating the package file: %s", zipFileName ),
                e );
+      }
+   }
+
+   public void backupWorkspace( final String sourceStoragePath, final String destStoragePath ) {
+      try {
+         final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy.MM.dd-HH.mm.ss" );
+         final String timestamp = sdf.format( new Timestamp( System.currentTimeMillis() ) );
+         final String fileName = "backup-" + timestamp + ".zip";
+         final byte[] zipFile = ZipUtils.createZipFile( fileName, sourceStoragePath );
+
+         final File file = new File( sourceStoragePath + File.separator + fileName );
+         final File destStorageFile = new File( destStoragePath + File.separator + fileName );
+
+         FileUtils.writeByteArrayToFile( destStorageFile, zipFile );
+         Files.deleteIfExists( file.toPath() );
+      } catch ( final IOException e ) {
+         LOG.error( "Cannot create backup package." );
+         throw new FileNotFoundException( "Error while creating backup package.", e );
       }
    }
 

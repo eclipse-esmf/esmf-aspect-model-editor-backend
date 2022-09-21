@@ -44,6 +44,10 @@ public class ApplicationSettings {
       this.local = local;
    }
 
+   public static String getAspectModelEditorStoragePath() {
+      return ASPECT_MODEL_PATH;
+   }
+
    public static String getMetaModelStoragePath() {
       return META_MODEL_PATH;
    }

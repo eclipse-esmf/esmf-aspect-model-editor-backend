@@ -17,8 +17,4 @@ public class AspectModelFile {
    @JsonInclude( JsonInclude.Include.NON_NULL )
    @JsonProperty( "success" )
    public Boolean success;
-
-   public AspectModelFile( final String name ) {
-      this.name = name;
-   }
 }
