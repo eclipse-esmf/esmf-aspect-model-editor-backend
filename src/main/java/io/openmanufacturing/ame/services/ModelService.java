@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
@@ -111,17 +110,16 @@ public class ModelService {
          FileUtils.listFiles( destDirectory, extensions, true )
                   .stream()
                   .map( File::getAbsoluteFile )
-                  .map( inputFile -> {
+                  .forEach( inputFile -> {
                      final Try<VersionedModel> versionedModels = updateModelVersion(
                            inputFile );
                      final AspectModelUrn aspectModelUrn = strategy.convertFileToUrn(
                            inputFile );
                      final Namespace namespace = resolveNamespace( namespaces,
                            aspectModelUrn );
-                     return namespaceFileInfo( namespace, inputFile, versionedModels,
+                     namespaceFileInfo( namespace, inputFile, versionedModels,
                            destPath );
-                  } )
-                  .collect( Collectors.toList() );
+                  } );
 
          return new Namespaces( namespaces );
       } catch ( final IOException e ) {
@@ -157,7 +155,7 @@ public class ModelService {
          saveVersionedModel( model.get(), aspectModelUrn, destPath );
       }
 
-      final AspectModelFile aspectModelFile = new AspectModelFile( aspectModelUrn.getName() + ModelUtils.TTL,
+      final AspectModelFile aspectModelFile = new AspectModelFile( aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,
             model.isSuccess() );
 
       namespace.addAspectModelFile( aspectModelFile );
