@@ -32,7 +32,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
-import io.openmanufacturing.ame.services.model.ProcessPackage;
+import io.openmanufacturing.ame.services.model.packaging.ProcessPackage;
 
 @RunWith( SpringRunner.class )
 @SpringBootTest
@@ -61,8 +61,8 @@ public class PackageServiceTest {
       final ProcessPackage importPackage = packageService.validateImportAspectModelPackage(
             mockedZipFile, storagePath.toFile().getAbsolutePath() );
 
-      assertEquals( importPackage.getCorrectFiles().size(), 2 );
-      assertEquals( importPackage.getIncorrectFiles().size(), 1 );
+      assertEquals( importPackage.getValidFiles().size(), 2 );
+      assertEquals( importPackage.getInvalidFiles().size(), 1 );
    }
 
    @Test
@@ -76,7 +76,7 @@ public class PackageServiceTest {
          final ProcessPackage processedExportedPackage = packageService.validateAspectModels( aspectModelFiles,
                exportedStoragePath.toFile().getAbsolutePath() );
 
-         assertEquals( 2, processedExportedPackage.getCorrectFiles().size() );
+         assertEquals( 2, processedExportedPackage.getValidFiles().size() );
          assertEquals( 1, processedExportedPackage.getMissingFiles().size() );
 
          final String[] nameSpaceOneArray = nameSpaceOne.split( ":" );

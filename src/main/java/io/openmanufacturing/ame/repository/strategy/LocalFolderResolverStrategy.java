@@ -90,23 +90,34 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    @Override
    public String saveModel( final Optional<String> urn, final @Nonnull String turtleData, final String storagePath ) {
-      ExtendedXsdDataType.setChecking( false );
-
-      final String aspectModelUrn = urn.orElse( StringUtils.EMPTY );
-
-      final String filePath = !aspectModelUrn.isEmpty() && ":latest.ttl".equalsIgnoreCase( aspectModelUrn ) ?
-            extractFilePath( aspectModelUrn ) :
-            getFilePathBasedOnTurtleData( turtleData, storagePath ) + applicationSettings.getFileType();
-      final File storeFile = getFileInstance( getQualifiedFilePath( filePath, storagePath ) );
-
       try {
+         ExtendedXsdDataType.setChecking( false );
+
+         final String filePath = getFilePath( urn.orElse( StringUtils.EMPTY ), turtleData, storagePath );
+         final File storeFile = getFileInstance( getQualifiedFilePath( filePath, storagePath ) );
+
          writeToFile( turtleData, storeFile );
+
+         ExtendedXsdDataType.setChecking( true );
+         return filePath;
       } catch ( final IOException e ) {
          throw new FileWriteException( "File cannot be written", e );
       }
+   }
 
-      ExtendedXsdDataType.setChecking( true );
-      return filePath;
+   private String getFilePath( final String urn, final String turtleData, final String storagePath ) {
+
+      if ( urn.isEmpty() ) {
+         return getFilePathBasedOnTurtleData( turtleData, storagePath ) + applicationSettings.getFileType();
+      }
+
+      if ( ":latest.ttl".equalsIgnoreCase( urn ) ) {
+         return extractFilePath( urn );
+      }
+
+      final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn( urn );
+      return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator +
+            aspectModelUrn.getName();
    }
 
    @Override
@@ -413,7 +424,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * @param storagePath - path of the workspace storage.
     */
    protected String getQualifiedFilePath( final String namespace, final String storagePath ) {
-      return storagePath + File.separator + namespace;
+      return storagePath + File.separator + namespace + TTL;
    }
 
    /**
@@ -459,7 +470,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       try {
          FileUtils.forceDelete( file );
       } catch ( final IOException e ) {
-         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ), e );
+         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ),
+               e );
       }
    }
 

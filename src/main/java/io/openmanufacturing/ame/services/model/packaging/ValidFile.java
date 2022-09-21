@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package io.openmanufacturing.ame.services.model;
+package io.openmanufacturing.ame.services.model.packaging;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -22,18 +22,18 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class FileInformation {
-   @JsonProperty("aspectModelFileName")
+public class ValidFile {
+   @JsonProperty( "aspectModelFileName" )
    private final String aspectModelFileName;
 
-   @JsonProperty("validationReport")
+   @JsonProperty( "validationReport" )
    private final ValidationReport validationReport;
 
-   @JsonInclude( JsonInclude.Include.NON_NULL)
-   @JsonProperty("fileAlreadyDefined")
+   @JsonInclude( JsonInclude.Include.NON_NULL )
+   @JsonProperty( "fileAlreadyDefined" )
    private Boolean fileAlreadyDefined;
 
-   public FileInformation(final String aspectModelFileName, final ValidationReport validationReport ) {
+   public ValidFile( final String aspectModelFileName, final ValidationReport validationReport ) {
       this.aspectModelFileName = aspectModelFileName;
       this.validationReport = validationReport;
    }
