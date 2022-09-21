@@ -13,6 +13,7 @@
 
 package io.openmanufacturing.ame.repository.strategy;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,6 +21,7 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import io.openmanufacturing.ame.repository.model.LocalPackageInfo;
+import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 public interface ModelResolverStrategy {
 
@@ -74,4 +76,11 @@ public interface ModelResolverStrategy {
     * @param storagePath - path to storage files.
     */
    LocalPackageInfo getLocalPackageInformation( final String storagePath );
+
+   /**
+    * Returns the converted {@link AspectModelUrn} from the file that is provided.
+    *
+    * @param inputFile - file from workspace.
+    */
+   AspectModelUrn convertFileToUrn( final File inputFile );
 }
