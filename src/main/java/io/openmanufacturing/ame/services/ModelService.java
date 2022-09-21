@@ -101,8 +101,10 @@ public class ModelService {
          final File storageDirectory = new File( storagePath );
          final File destDirectory = new File( destPath );
 
-         FileUtils.deleteDirectory( destDirectory );
-         FileUtils.copyDirectory( storageDirectory, destDirectory );
+         if ( !storageDirectory.equals( destDirectory ) ) {
+            FileUtils.deleteDirectory( destDirectory );
+            FileUtils.copyDirectory( storageDirectory, destDirectory );
+         }
 
          final String[] extensions = { "ttl" };
 
