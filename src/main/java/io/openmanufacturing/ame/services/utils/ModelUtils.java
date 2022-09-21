@@ -14,6 +14,10 @@
 package io.openmanufacturing.ame.services.utils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.nio.file.Path;
@@ -27,6 +31,7 @@ import io.openmanufacturing.ame.exceptions.UrnNotFoundException;
 import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
 import io.openmanufacturing.sds.aspectmodel.resolver.AspectModelResolver;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.SdsAspectMetaModelResourceResolver;
+import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
 import io.openmanufacturing.sds.aspectmodel.serializer.PrettyPrinter;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
@@ -38,6 +43,9 @@ import io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorService;
 import io.vavr.control.Try;
 
 public class ModelUtils {
+
+   public static final String TTL = "ttl";
+   public static final String TTL_EXTENSION = "." + TTL;
 
    public final static Pattern URN_PATTERN = Pattern.compile(
          "^urn:[a-z0-9][a-z0-9-]{0,31}:([a-z0-9()+,\\-.:=@;$_!*#']|%[0-9a-f]{2})+$",
@@ -84,13 +92,17 @@ public class ModelUtils {
       return new AspectModelResolver().resolveAspectModel( inMemoryStrategy, inMemoryStrategy.getAspectModelUrn() );
    }
 
-   /**
-    * Method to resolve a given AspectModelUrn using a suitable ResolutionStrategy.
-    *
-    * @param aspectModel as a string.
-    * @param storagePath stored path to the Aspect Models.
-    * @return Migrated Aspect Model.
-    */
+   public static Try<VersionedModel> loadButNotResolveModel( final File inputFile ) {
+      try ( final InputStream inputStream = new FileInputStream( inputFile ) ) {
+         final SdsAspectMetaModelResourceResolver metaModelResourceResolver = new SdsAspectMetaModelResourceResolver();
+         return TurtleLoader.loadTurtle( inputStream ).flatMap( model ->
+               metaModelResourceResolver.getBammVersion( model ).flatMap( metaModelVersion ->
+                     metaModelResourceResolver.mergeMetaModelIntoRawModel( model, metaModelVersion ) ) );
+      } catch ( final IOException exception ) {
+         return Try.failure( exception );
+      }
+   }
+
    public static String migrateModel( final String aspectModel, final String storagePath ) {
       final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel, storagePath );
 
