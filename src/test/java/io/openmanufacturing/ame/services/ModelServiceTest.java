@@ -14,8 +14,9 @@
 package io.openmanufacturing.ame.services;
 
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,6 +38,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
+import io.openmanufacturing.ame.services.model.migration.Namespaces;
 import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReport;
 
 @RunWith( SpringRunner.class )
@@ -45,11 +48,15 @@ public class ModelServiceTest {
    @Autowired
    private ModelService modelService;
 
-   final String namespace = StringUtils.EMPTY;
-
+   private final String namespace = StringUtils.EMPTY;
    private static final Path resourcesPath = Path.of( "src", "test", "resources" );
    private static final Path openManufacturingTestPath = Path.of( resourcesPath.toString(), "io.openmanufacturing",
          "1.0.0" );
+   private static final Path migrationWorkspacePath = Path.of( resourcesPath.toString(), "workspace-to-migrate" );
+   private static final Path toMigrationWorkspaceOne = Path.of( migrationWorkspacePath.toString(),
+         "io.migrate-workspace-one", "1.0.0" );
+   private static final Path toMigrationWorkspaceTwo = Path.of( migrationWorkspacePath.toString(),
+         "io.migrate-workspace-two", "1.0.0" );
 
    private static final String aspectModelFile = "AspectModel.ttl";
    private static final String oldAspectModelFile = "OldAspectModel.ttl";
@@ -174,12 +181,48 @@ public class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         final String migrateModel = modelService.migrateModel(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), storagePath.toString() );
+         final String migrateModel = modelService.migrateModel( Files.readString( storagePath, StandardCharsets.UTF_8 ),
+               storagePath.toString() );
          assertTrue( migrateModel.contains( "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#>" ) );
          assertTrue( migrateModel.contains( "@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#>" ) );
          assertTrue( migrateModel.contains( "@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#>" ) );
          assertTrue( migrateModel.contains( "@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#>" ) );
+      }
+   }
+
+   @Test
+   public void testMigrateWorkspaceWithoutVersionUpgrade() {
+      try ( final MockedStatic<LocalFolderResolverStrategy> strategyUtilities = Mockito.mockStatic(
+            LocalFolderResolverStrategy.class );
+            final MockedStatic<FileUtils> fileUtilities = Mockito.mockStatic( FileUtils.class ) ) {
+         final String storagePath = migrationWorkspacePath.toAbsolutePath().toString();
+         final File OneToMigrateOne = new File( toMigrationWorkspaceOne + File.separator + "ToMigrateOne.ttl" );
+         final File OneToMigrateTwo = new File( toMigrationWorkspaceOne + File.separator + "ToMigrateTwo.ttl" );
+         final File TwoToMigrateOne = new File( toMigrationWorkspaceTwo + File.separator + "ToMigrateOne.ttl" );
+         final File TwoToMigrateTwo = new File( toMigrationWorkspaceTwo + File.separator + "ToMigrateTwo.ttl" );
+
+         fileUtilities.when( () -> FileUtils.listFiles( any( File.class ), any(), anyBoolean() ) )
+                      .thenReturn( List.of( OneToMigrateOne, OneToMigrateTwo, TwoToMigrateOne, TwoToMigrateTwo ) );
+
+         strategyUtilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
+                          .thenReturn( storagePath );
+
+         final Namespaces namespaces = modelService.migrateWorkspace( storagePath, storagePath );
+
+         assertEquals( 2, namespaces.namespaces.size() );
+         assertEquals( namespaces.namespaces.get( 0 ).versionedNamespace, "io.migrate-workspace-one:1.0.0" );
+         assertEquals( 2, namespaces.namespaces.get( 0 ).files.size() );
+         assertEquals( namespaces.namespaces.get( 0 ).files.get( 0 ).getName(), "ToMigrateOne.ttl" );
+         assertEquals( namespaces.namespaces.get( 0 ).files.get( 0 ).getSuccess(), true );
+         assertEquals( namespaces.namespaces.get( 0 ).files.get( 1 ).getName(), "ToMigrateTwo.ttl" );
+         assertEquals( namespaces.namespaces.get( 0 ).files.get( 1 ).getSuccess(), true );
+
+         assertEquals( namespaces.namespaces.get( 1 ).versionedNamespace, "io.migrate-workspace-two:1.0.0" );
+         assertEquals( 2, namespaces.namespaces.get( 1 ).files.size() );
+         assertEquals( namespaces.namespaces.get( 1 ).files.get( 0 ).getName(), "ToMigrateOne.ttl" );
+         assertEquals( namespaces.namespaces.get( 1 ).files.get( 0 ).getSuccess(), true );
+         assertEquals( namespaces.namespaces.get( 1 ).files.get( 1 ).getName(), "ToMigrateTwo.ttl" );
+         assertEquals( namespaces.namespaces.get( 1 ).files.get( 1 ).getSuccess(), true );
       }
    }
 }

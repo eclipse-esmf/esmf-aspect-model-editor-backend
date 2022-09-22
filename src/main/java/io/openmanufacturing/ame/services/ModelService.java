@@ -113,14 +113,10 @@ public class ModelService {
                   .stream()
                   .map( File::getAbsoluteFile )
                   .forEach( inputFile -> {
-                     final Try<VersionedModel> versionedModels = updateModelVersion(
-                           inputFile );
-                     final AspectModelUrn aspectModelUrn = strategy.convertFileToUrn(
-                           inputFile );
-                     final Namespace namespace = resolveNamespace( namespaces,
-                           aspectModelUrn );
-                     namespaceFileInfo( namespace, inputFile, versionedModels,
-                           destPath );
+                     final Try<VersionedModel> versionedModels = updateModelVersion( inputFile );
+                     final AspectModelUrn aspectModelUrn = strategy.convertFileToUrn( inputFile );
+                     final Namespace namespace = resolveNamespace( namespaces, aspectModelUrn );
+                     namespaceFileInfo( namespace, versionedModels, aspectModelUrn, destPath );
                   } );
 
          return new Namespaces( namespaces );
@@ -147,11 +143,8 @@ public class ModelService {
       } );
    }
 
-   private Namespace namespaceFileInfo( final Namespace namespace, final File inputFile,
-         final Try<VersionedModel> model, final String destPath ) {
-      final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-
-      final AspectModelUrn aspectModelUrn = strategy.convertFileToUrn( inputFile );
+   private void namespaceFileInfo( final Namespace namespace, final Try<VersionedModel> model,
+         final AspectModelUrn aspectModelUrn, final String destPath ) {
 
       if ( model.isSuccess() ) {
          saveVersionedModel( model.get(), aspectModelUrn, destPath );
@@ -161,6 +154,5 @@ public class ModelService {
             model.isSuccess() );
 
       namespace.addAspectModelFile( aspectModelFile );
-      return namespace;
    }
 }
