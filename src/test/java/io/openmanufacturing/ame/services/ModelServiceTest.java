@@ -181,17 +181,15 @@ public class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         final String migrateModel = modelService.migrateModel( Files.readString( storagePath, StandardCharsets.UTF_8 ),
-               storagePath.toString() );
-         assertTrue( migrateModel.contains( "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#>" ) );
-         assertTrue( migrateModel.contains( "@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#>" ) );
-         assertTrue( migrateModel.contains( "@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#>" ) );
-         assertTrue( migrateModel.contains( "@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#>" ) );
+         final String migratedModel = modelService.migrateModel(
+               Files.readString( storagePath, StandardCharsets.UTF_8 ), storagePath.toString() );
+
+         checkMigratedModel( migratedModel );
       }
    }
 
    @Test
-   public void testMigrateWorkspaceWithoutVersionUpgrade() {
+   public void testMigrateWorkspaceWithoutVersionUpgrade() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> strategyUtilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class );
             final MockedStatic<FileUtils> fileUtilities = Mockito.mockStatic( FileUtils.class ) ) {
@@ -210,19 +208,36 @@ public class ModelServiceTest {
          final Namespaces namespaces = modelService.migrateWorkspace( storagePath, storagePath );
 
          assertEquals( 2, namespaces.namespaces.size() );
-         assertEquals( namespaces.namespaces.get( 0 ).versionedNamespace, "io.migrate-workspace-one:1.0.0" );
+         assertEquals( "io.migrate-workspace-one:1.0.0", namespaces.namespaces.get( 0 ).versionedNamespace );
          assertEquals( 2, namespaces.namespaces.get( 0 ).files.size() );
-         assertEquals( namespaces.namespaces.get( 0 ).files.get( 0 ).getName(), "ToMigrateOne.ttl" );
-         assertEquals( namespaces.namespaces.get( 0 ).files.get( 0 ).getSuccess(), true );
-         assertEquals( namespaces.namespaces.get( 0 ).files.get( 1 ).getName(), "ToMigrateTwo.ttl" );
-         assertEquals( namespaces.namespaces.get( 0 ).files.get( 1 ).getSuccess(), true );
+         assertEquals( "ToMigrateOne.ttl", namespaces.namespaces.get( 0 ).files.get( 0 ).getName() );
+         assertEquals( true, namespaces.namespaces.get( 0 ).files.get( 0 ).getSuccess() );
+         assertEquals( "ToMigrateTwo.ttl", namespaces.namespaces.get( 0 ).files.get( 1 ).getName() );
+         assertEquals( true, namespaces.namespaces.get( 0 ).files.get( 1 ).getSuccess() );
 
-         assertEquals( namespaces.namespaces.get( 1 ).versionedNamespace, "io.migrate-workspace-two:1.0.0" );
+         assertEquals( "io.migrate-workspace-two:1.0.0", namespaces.namespaces.get( 1 ).versionedNamespace );
          assertEquals( 2, namespaces.namespaces.get( 1 ).files.size() );
-         assertEquals( namespaces.namespaces.get( 1 ).files.get( 0 ).getName(), "ToMigrateOne.ttl" );
-         assertEquals( namespaces.namespaces.get( 1 ).files.get( 0 ).getSuccess(), true );
-         assertEquals( namespaces.namespaces.get( 1 ).files.get( 1 ).getName(), "ToMigrateTwo.ttl" );
-         assertEquals( namespaces.namespaces.get( 1 ).files.get( 1 ).getSuccess(), true );
+         assertEquals( "ToMigrateOne.ttl", namespaces.namespaces.get( 1 ).files.get( 0 ).getName() );
+         assertEquals( true, namespaces.namespaces.get( 1 ).files.get( 0 ).getSuccess() );
+         assertEquals( "ToMigrateTwo.ttl", namespaces.namespaces.get( 1 ).files.get( 1 ).getName() );
+         assertEquals( true, namespaces.namespaces.get( 1 ).files.get( 1 ).getSuccess() );
+
+         final String migratedModelOne = Files.readString( OneToMigrateOne.toPath(), StandardCharsets.UTF_8 );
+         final String migratedModelTwo = Files.readString( OneToMigrateTwo.toPath(), StandardCharsets.UTF_8 );
+         final String migratedModelThree = Files.readString( TwoToMigrateOne.toPath(), StandardCharsets.UTF_8 );
+         final String migratedModelFour = Files.readString( TwoToMigrateTwo.toPath(), StandardCharsets.UTF_8 );
+
+         checkMigratedModel( migratedModelOne );
+         checkMigratedModel( migratedModelTwo );
+         checkMigratedModel( migratedModelThree );
+         checkMigratedModel( migratedModelFour );
       }
+   }
+
+   private void checkMigratedModel( final String migratedModel ) {
+      assertTrue( migratedModel.contains( "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#>" ) );
    }
 }
