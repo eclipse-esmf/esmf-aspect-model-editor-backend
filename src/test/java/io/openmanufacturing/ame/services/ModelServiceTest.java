@@ -163,7 +163,7 @@ public class ModelServiceTest {
    public void testGetAllNamespaces() {
       final Map<String, List<String>> result = modelService.getAllNamespaces( true,
             Optional.of( resourcesPath.toFile().getAbsolutePath() ) );
-      assertEquals( result.size(), 2 );
+      assertEquals( 7, result.size() );
    }
 
    @Test( expected = FileNotFoundException.class )
