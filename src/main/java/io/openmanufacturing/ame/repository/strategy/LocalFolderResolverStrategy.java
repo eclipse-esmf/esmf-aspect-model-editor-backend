@@ -123,7 +123,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
       final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn( urn );
       return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator +
-            aspectModelUrn.getName();
+            aspectModelUrn.getName() + applicationSettings.getFileType();
    }
 
    @Override
@@ -401,7 +401,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * @param storagePath - path of the workspace storage.
     */
    protected String getQualifiedFilePath( final String namespace, final String storagePath ) {
-      return storagePath + File.separator + namespace + ModelUtils.TTL_EXTENSION;
+      return storagePath + File.separator + namespace;
    }
 
    /**
