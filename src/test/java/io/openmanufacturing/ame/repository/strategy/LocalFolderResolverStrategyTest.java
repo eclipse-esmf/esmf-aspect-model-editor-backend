@@ -41,6 +41,8 @@ import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.exceptions.FileReadException;
 import io.openmanufacturing.ame.exceptions.FileWriteException;
+import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
+import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 @RunWith( MockitoJUnitRunner.class )
 public class LocalFolderResolverStrategyTest {
@@ -56,7 +58,9 @@ public class LocalFolderResolverStrategyTest {
    @Mock
    private File parentFileMock;
 
-   public static final String MODELS = "models";
+   public static final String MODELS = "workspace-to-migrate";
+
+   private static final Path resourcesPath = Path.of( "src", "test", "resources" );
    private static final String STORAGE_PATH =
          System.getProperty( "user.home" ) + File.separator + "aspect-model-editor" + File.separator + MODELS;
    private static final String NAMESPACE = "com.test.example:1.0.0:AspectDefault.ttl";
@@ -64,11 +68,9 @@ public class LocalFolderResolverStrategyTest {
    private static final String TTL_FILE_EXTENSION = ".ttl";
    private static final String COM_TEST_EXAMPLE_1_2_0 =
          "com" + File.separator + "test" + File.separator + "example" + File.separator + "1.2.0";
-   private static final String COM_TEST_EXAMPLE_1_0_0_ASPECT_DEFAULT = "com" + File.separator +
-         "test" + File.separator +
-         "example" + File.separator +
-         "1.0.0" + File.separator +
-         "AspectDefault";
+   private static final String COM_TEST_EXAMPLE_1_0_0_ASPECT_DEFAULT =
+         "com" + File.separator + "test" + File.separator + "example" + File.separator + "1.0.0" + File.separator
+               + "AspectDefault";
 
    @Before
    public void setUp() {
@@ -253,5 +255,23 @@ public class LocalFolderResolverStrategyTest {
       when( fileMock.exists() ).thenReturn( false );
 
       localFolderResolverStrategy.getAllNamespaces( true, ApplicationSettings.getMetaModelStoragePath() );
+   }
+
+   @Test
+   public void testConvertFileToUrn() {
+      final Path openManufacturingTestPath = Path.of( resourcesPath.toString(), "io.openmanufacturing", "1.0.0" );
+      final String expectedResult = "urn:bamm:io.openmanufacturing:1.0.0#AspectModel";
+      final File testFile = new File( openManufacturingTestPath + File.separator + "AspectModel.ttl" );
+
+      final AspectModelUrn aspectModelUrn = localFolderResolverStrategy.convertFileToUrn( testFile );
+
+      assertEquals( expectedResult, aspectModelUrn.getUrn().toString() );
+   }
+
+   @Test( expected = InvalidAspectModelException.class )
+   public void testConvertFileToUrnErrorInvalidUrn() {
+      final File testFile = new File( resourcesPath + File.separator + "NoDefinedFolderStructure.ttl" );
+
+      localFolderResolverStrategy.convertFileToUrn( testFile );
    }
 }

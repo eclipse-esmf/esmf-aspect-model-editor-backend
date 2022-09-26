@@ -13,7 +13,7 @@
 
 package io.openmanufacturing.ame.repository.strategy;
 
-import static io.openmanufacturing.ame.services.utils.ModelUtils.*;
+import static io.openmanufacturing.ame.services.utils.ModelUtils.fetchVersionModel;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDF;
@@ -41,12 +42,14 @@ import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.exceptions.FileReadException;
 import io.openmanufacturing.ame.exceptions.FileWriteException;
+import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
 import io.openmanufacturing.ame.repository.model.LocalPackageInfo;
 import io.openmanufacturing.ame.repository.model.ValidFile;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
-import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
+import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmetamodel.KnownVersion;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.ExtendedXsdDataType;
+import io.openmanufacturing.sds.aspectmodel.resolver.services.SdsAspectMetaModelResourceResolver;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMM;
@@ -57,10 +60,7 @@ import io.vavr.control.Try;
 public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    private static final Logger LOG = LoggerFactory.getLogger( LocalFolderResolverStrategy.class );
-
    private static final String TTL_FILE_DOES_NOT_EXISTS = "File %s does not exists.";
-   public static final String TTL = ".ttl";
-
    private final ApplicationSettings applicationSettings;
    private Optional<Map<String, List<String>>> namespaces = Optional.empty();
 
@@ -96,23 +96,34 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    @Override
    public String saveModel( final Optional<String> urn, final @Nonnull String turtleData, final String storagePath ) {
-      ExtendedXsdDataType.setChecking( false );
-
-      final String aspectModelUrn = urn.orElse( StringUtils.EMPTY );
-
-      final String filePath = !aspectModelUrn.isEmpty() && ":latest.ttl".equalsIgnoreCase( aspectModelUrn ) ?
-            LocalFolderResolverUtils.extractFilePath( aspectModelUrn ).toString() :
-            getFilePathBasedOnTurtleData( turtleData, storagePath ) + applicationSettings.getFileType();
-      final File storeFile = getFileInstance( getQualifiedFilePath( filePath, storagePath ) );
-
       try {
+         ExtendedXsdDataType.setChecking( false );
+
+         final String filePath = getFilePath( urn.orElse( StringUtils.EMPTY ), turtleData, storagePath );
+         final File storeFile = getFileInstance( getQualifiedFilePath( filePath, storagePath ) );
+
          writeToFile( turtleData, storeFile );
+
+         ExtendedXsdDataType.setChecking( true );
+         return filePath;
       } catch ( final IOException e ) {
          throw new FileWriteException( "File cannot be written", e );
       }
+   }
 
-      ExtendedXsdDataType.setChecking( true );
-      return filePath;
+   private String getFilePath( final String urn, final String turtleData, final String storagePath ) {
+
+      if ( urn.isEmpty() ) {
+         return getFilePathBasedOnTurtleData( turtleData, storagePath ) + applicationSettings.getFileType();
+      }
+
+      if ( ":latest.ttl".equalsIgnoreCase( urn ) ) {
+         return LocalFolderResolverUtils.extractFilePath( urn ).toString();
+      }
+
+      final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn( urn );
+      return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator +
+            aspectModelUrn.getName() + applicationSettings.getFileType();
    }
 
    @Override
@@ -149,6 +160,20 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       return new LocalPackageInfo(
             getListOfLocalPackageInformation( getEndFilePaths( storagePath, file ), storagePath ),
             getNonTurtleFiles( storagePath, file ) );
+   }
+
+   @Override
+   public AspectModelUrn convertFileToUrn( final File inputFile ) {
+      final File versionDirectory = inputFile.getParentFile();
+      final String version = versionDirectory.getName();
+      final File namespaceDirectory = versionDirectory.getParentFile();
+      final String namespace = namespaceDirectory.getName();
+      final String aspectName = FilenameUtils.removeExtension( inputFile.getName() );
+      final String urn = String.format( "urn:bamm:%s:%s#%s", namespace, version, aspectName );
+      return new SdsAspectMetaModelResourceResolver().getAspectModelUrn( urn ).getOrElse( () -> {
+         throw new InvalidAspectModelException(
+               String.format( "The URN constructed from the input file path is invalid: %s", urn ) );
+      } );
    }
 
    private synchronized Optional<Map<String, List<String>>> getNamespaces() {
@@ -208,7 +233,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
          return paths.filter( path -> {
                         final File parentDir = getFileInstance( path.toString() );
-                        return !parentDir.isDirectory() && !path.toString().endsWith( TTL );
+                        return !parentDir.isDirectory() && !path.toString().endsWith( ModelUtils.TTL_EXTENSION );
                      } )
                      .map( Path::toString )
                      .map( path -> path.replace( rootSharedFolder, StringUtils.EMPTY ) )
@@ -249,7 +274,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    public static String transformToValidModelDirectory( @Nonnull final String path ) {
       String result = replaceLastFileSeparator( path );
 
-      if ( path.endsWith( TTL ) ) {
+      if ( path.endsWith( ModelUtils.TTL_EXTENSION ) ) {
          result = replaceLastFileSeparator( result );
       }
 
@@ -285,8 +310,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
       if ( lastFileSeparatorIndex != -1 ) {
          return path.substring( 0, lastFileSeparatorIndex ) + LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR
-               + path.substring(
-               lastFileSeparatorIndex + 1 );
+               + path.substring( lastFileSeparatorIndex + 1 );
       }
 
       return path;
@@ -303,7 +327,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
          return StringUtils.EMPTY;
       }
 
-      if ( modelIdentifier.endsWith( TTL ) ) {
+      if ( modelIdentifier.endsWith( ModelUtils.TTL_EXTENSION ) ) {
          return modelIdentifier.substring( 0,
                modelIdentifier.lastIndexOf( LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR ) );
       }
@@ -318,7 +342,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * @param path - folder location that will be analyzed.
     */
    protected boolean isPathRelevant( @Nonnull final Path path ) {
-      if ( path.toString().endsWith( TTL ) ) {
+      if ( path.toString().endsWith( ModelUtils.TTL_EXTENSION ) ) {
          return true;
       }
       final File parentDir = getFileInstance( path.toString() );
@@ -342,7 +366,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    private Try<AspectModelUrn> getRootElementUrn( final VersionedModel versionedModel ) {
-      final BAMM bamm = new BAMM( KnownVersion.BAMM_1_0_0 );
+      final BAMM bamm = new BAMM( KnownVersion.getLatest() );
       final StmtIterator stmtIterator = versionedModel.getModel().listStatements( null, RDF.type, bamm.Aspect() );
 
       if ( stmtIterator.hasNext() ) {
@@ -361,8 +385,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    protected String getFilePathBasedOnTurtleData( @Nonnull final String turtleData,
          final @Nonnull String storagePath ) {
-      final InMemoryStrategy inMemoryStrategy = getInMemoryStrategy( turtleData, storagePath );
-      final Try<AspectModelUrn> urnTemp = fetchVersionModel( inMemoryStrategy ).flatMap(
+      final Try<AspectModelUrn> urnTemp = fetchVersionModel( turtleData, storagePath ).flatMap(
             this::getRootElementUrn );
       final AspectModelUrn aspectModelUrn = urnTemp.get();
 
@@ -424,7 +447,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       try {
          FileUtils.forceDelete( file );
       } catch ( final IOException e ) {
-         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ), e );
+         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ),
+               e );
       }
    }
 

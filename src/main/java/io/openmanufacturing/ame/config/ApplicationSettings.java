@@ -24,10 +24,14 @@ public class ApplicationSettings {
    private static final String END_FILE_PATH = "models";
    private static final String IMPORT_END_PATH = "packages-to-import";
    private static final String EXPORT_END_PATH = "packages-to-export";
+
+   private static final String MIGRATION_END_PATH = "migration";
    private static final String ASPECT_MODEL_PATH = USER_HOME + File.separator + ASPECT_MODEL_EDITOR_END_PATH;
    private static final String META_MODEL_PATH = ASPECT_MODEL_PATH + File.separator + END_FILE_PATH;
    private static final String IMPORT_PACKAGE_PATH = ASPECT_MODEL_PATH + File.separator + IMPORT_END_PATH;
    private static final String EXPORT_PACKAGE_PATH = ASPECT_MODEL_PATH + File.separator + EXPORT_END_PATH;
+
+   private static final String MIGRATION_PATH = ASPECT_MODEL_PATH + File.separator + MIGRATION_END_PATH;
 
    private Boolean local;
    private String fileType;
@@ -40,6 +44,10 @@ public class ApplicationSettings {
       this.local = local;
    }
 
+   public static String getAspectModelEditorStoragePath() {
+      return ASPECT_MODEL_PATH;
+   }
+
    public static String getMetaModelStoragePath() {
       return META_MODEL_PATH;
    }
@@ -50,6 +58,10 @@ public class ApplicationSettings {
 
    public static String getExportPackageStoragePath() {
       return EXPORT_PACKAGE_PATH;
+   }
+
+   public static String getMigrationStoragePath() {
+      return MIGRATION_PATH;
    }
 
    public String getEndFilePath() {

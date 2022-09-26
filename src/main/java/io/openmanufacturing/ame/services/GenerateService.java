@@ -27,7 +27,6 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
-import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
 import io.openmanufacturing.sds.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
@@ -103,9 +102,7 @@ public class GenerateService {
    }
 
    private Try<VersionedModel> getVersionModel( final String aspectModel, final Optional<String> storagePath ) {
-      final InMemoryStrategy inMemoryStrategy = ModelUtils.getInMemoryStrategy( aspectModel,
+      return ModelUtils.fetchVersionModel( aspectModel,
             storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
-
-      return ModelUtils.fetchVersionModel( inMemoryStrategy );
    }
 }

@@ -16,14 +16,17 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix : <urn:bamm:io.openmanufacturing.test:1.0.0#> .
+@prefix : <urn:bamm:io.backup-workspace-two:1.0.0#> .
 
-:TestFileThree a bamm:Aspect ;
-    bamm:properties (:property3) ;
+:ToBackupTwo a bamm:Aspect ;
+    bamm:name "ToBackupTwo" ;
+    bamm:properties (:property2) ;
     bamm:operations () .
 
-:property3 a bamm:Property;
-    bamm:characteristic :Characteristic3 .
+:property2 a bamm:Property;
+    bamm:name "property2" ;
+    bamm:characteristic :Characteristic2 .
 
-:Characteristic3 a bamm:Characteristic ;
+:Characteristic2 a bamm:Characteristic ;
+    bamm:name "Characteristic2" ;
     bamm:dataType xsd:string .

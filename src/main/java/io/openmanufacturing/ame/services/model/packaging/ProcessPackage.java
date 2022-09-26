@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package io.openmanufacturing.ame.services.model;
+package io.openmanufacturing.ame.services.model.packaging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,27 +22,27 @@ import lombok.Data;
 
 @Data
 public class ProcessPackage {
-   @JsonProperty( "incorrectFiles" )
-   private List<String> incorrectFiles;
+   @JsonProperty( "invalidFiles" )
+   private List<String> invalidFiles;
 
-   @JsonProperty( "correctFiles" )
-   private final List<FileInformation> correctFiles = new ArrayList<>();
+   @JsonProperty( "validFiles" )
+   private final List<ValidFile> validFiles = new ArrayList<>();
 
    @JsonProperty( "missingFiles" )
-   private final List<MissingFileInfo> missingFiles = new ArrayList<>();
+   private final List<MissingFile> missingFiles = new ArrayList<>();
 
    public ProcessPackage() {
    }
 
-   public ProcessPackage( final List<String> incorrectFiles ) {
-      this.incorrectFiles = incorrectFiles;
+   public ProcessPackage( final List<String> invalidFiles ) {
+      this.invalidFiles = invalidFiles;
    }
 
-   public void addFileInformation( final FileInformation fileInformation ) {
-      correctFiles.add( fileInformation );
+   public void addValidFiles( final ValidFile validFile ) {
+      validFiles.add( validFile );
    }
 
-   public void addMissingFiles( final MissingFileInfo missingFiles ) {
+   public void addMissingFiles( final MissingFile missingFiles ) {
       this.missingFiles.add( missingFiles );
    }
 }
