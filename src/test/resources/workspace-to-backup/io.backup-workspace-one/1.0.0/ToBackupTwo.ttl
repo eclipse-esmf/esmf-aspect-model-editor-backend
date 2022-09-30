@@ -19,14 +19,11 @@
 @prefix : <urn:bamm:io.backup-workspace-one:1.0.0#> .
 
 :ToBackupTwo a bamm:Aspect ;
-    bamm:name "ToBackupTwo" ;
     bamm:properties (:property2) ;
     bamm:operations () .
 
 :property2 a bamm:Property;
-    bamm:name "property2" ;
     bamm:characteristic :Characteristic2 .
 
 :Characteristic2 a bamm:Characteristic ;
-    bamm:name "Characteristic2" ;
     bamm:dataType xsd:string .
