@@ -19,7 +19,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
@@ -32,7 +34,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
-import io.openmanufacturing.ame.services.model.ProcessPackage;
+import io.openmanufacturing.ame.services.model.packaging.ProcessPackage;
 
 @RunWith( SpringRunner.class )
 @SpringBootTest
@@ -42,7 +44,7 @@ public class PackageServiceTest {
    private PackageService packageService;
 
    private static final Path resourcesPath = Path.of( "src", "test", "resources" );
-
+   private static final Path workspaceToBackupPath = Path.of( resourcesPath.toString(), "workspace-to-backup" );
    private static final String nameSpaceOne = "io.openmanufacturing.test:1.0.0:TestFileOne.ttl";
    private static final String nameSpaceTwo = "io.openmanufacturing.test:1.0.0:TestFileTwo.ttl";
    private static final String nameSpaceThree = "io.openmanufacturing.test:1.0.0:TestFileThree.ttl";
@@ -52,17 +54,14 @@ public class PackageServiceTest {
       final Path storagePath = Paths.get( resourcesPath.toString(), "test-packages" );
       final Path zipFilePath = Paths.get( resourcesPath.toString(), "TestArchive.zip" );
 
-      final MockMultipartFile mockedZipFile
-            = new MockMultipartFile(
-            "TestArchive.zip",
-            Files.readAllBytes( zipFilePath )
-      );
+      final MockMultipartFile mockedZipFile = new MockMultipartFile( "TestArchive.zip",
+            Files.readAllBytes( zipFilePath ) );
 
-      final ProcessPackage importPackage = packageService.validateImportAspectModelPackage(
-            mockedZipFile, storagePath.toFile().getAbsolutePath() );
+      final ProcessPackage importPackage = packageService.validateImportAspectModelPackage( mockedZipFile,
+            storagePath.toFile().getAbsolutePath() );
 
-      assertEquals( importPackage.getCorrectFiles().size(), 2 );
-      assertEquals( importPackage.getIncorrectFiles().size(), 1 );
+      assertEquals( importPackage.getValidFiles().size(), 2 );
+      assertEquals( importPackage.getInvalidFiles().size(), 1 );
    }
 
    @Test
@@ -76,7 +75,7 @@ public class PackageServiceTest {
          final ProcessPackage processedExportedPackage = packageService.validateAspectModels( aspectModelFiles,
                exportedStoragePath.toFile().getAbsolutePath() );
 
-         assertEquals( 2, processedExportedPackage.getCorrectFiles().size() );
+         assertEquals( 2, processedExportedPackage.getValidFiles().size() );
          assertEquals( 1, processedExportedPackage.getMissingFiles().size() );
 
          final String[] nameSpaceOneArray = nameSpaceOne.split( ":" );
@@ -110,5 +109,14 @@ public class PackageServiceTest {
 
          FileUtils.deleteDirectory( exportedStoragePath.toFile() );
       }
+   }
+
+   @Test
+   public void testBackupWorkspace() {
+      packageService.backupWorkspace( workspaceToBackupPath.toAbsolutePath().toString(),
+            resourcesPath.toAbsolutePath().toString() );
+
+      assertTrue( Arrays.stream( Objects.requireNonNull( resourcesPath.toFile().list() ) )
+                        .anyMatch( file -> file.contains( "backup" ) ) );
    }
 }

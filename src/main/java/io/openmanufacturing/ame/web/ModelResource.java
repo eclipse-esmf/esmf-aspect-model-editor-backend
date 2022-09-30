@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.services.ModelService;
+import io.openmanufacturing.ame.services.model.migration.Namespaces;
 import io.openmanufacturing.ame.web.utils.MediaTypeExtension;
 import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationError;
 import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReport;
@@ -72,7 +73,7 @@ public class ModelResource {
    @PostMapping( consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public ResponseEntity<String> createModel( @RequestHeader final Map<String, String> headers,
          @RequestBody final String turtleData ) {
-      modelService.saveModel( Optional.ofNullable( headers.get( AME_MODEL_URN ) ), turtleData );
+      modelService.saveModel( Optional.ofNullable( headers.get( AME_MODEL_URN ) ), turtleData, Optional.empty() );
 
       return new ResponseEntity<>( HttpStatus.CREATED );
    }
@@ -98,7 +99,18 @@ public class ModelResource {
     */
    @PostMapping( path = "migrate", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public ResponseEntity<String> migrateModel( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( "This method will be available soon." );
+      return ResponseEntity.ok(
+            modelService.migrateModel( aspectModel, ApplicationSettings.getMetaModelStoragePath() ) );
+   }
+
+   /**
+    * This method migrates all Aspect models in the workspace.
+    *
+    * @return A list of Aspect Models that are migrated or not.
+    */
+   @GetMapping( path = "migrate-workspace" )
+   public ResponseEntity<Namespaces> migrateWorkspace() {
+      return ResponseEntity.ok( modelService.migrateWorkspace( ApplicationSettings.getMetaModelStoragePath() ) );
    }
 
    /**

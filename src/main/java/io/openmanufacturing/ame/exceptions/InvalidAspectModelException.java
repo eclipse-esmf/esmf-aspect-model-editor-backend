@@ -14,15 +14,19 @@
 package io.openmanufacturing.ame.exceptions;
 
 public class InvalidAspectModelException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
+   private static final long serialVersionUID = 1L;
 
-    /**
-     * Constructs a AspectModelValidationException with message and cause.
-     *
-     * @param message the message of the exception
-     * @param cause of the exception
-     */
-    public InvalidAspectModelException( final String message, final Throwable cause ) {
-        super( message, cause );
-    }
+   /**
+    * Constructs a AspectModelValidationException with message and cause.
+    *
+    * @param message the message of the exception
+    * @param cause of the exception
+    */
+   public InvalidAspectModelException( final String message, final Throwable cause ) {
+      super( message, cause );
+   }
+
+   public InvalidAspectModelException( final String message ) {
+      super( message );
+   }
 }
