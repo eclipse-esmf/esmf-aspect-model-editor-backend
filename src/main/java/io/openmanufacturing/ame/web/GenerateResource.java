@@ -20,9 +20,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.openmanufacturing.ame.services.GenerateService;
+import io.openmanufacturing.sds.aspectmodel.generator.openapi.PagingOption;
 
 /**
  * Controller class that supports the generation of the aspect model into other formats.
@@ -45,7 +47,7 @@ public class GenerateResource {
     */
    @PostMapping( "documentation" )
    public ResponseEntity<byte[]> generateHtml( @RequestBody final String aspectModel ) throws IOException {
-      return ResponseEntity.ok( generateService.generateHtmlDocument( aspectModel, Optional.empty() ) );
+      return ResponseEntity.ok( generateService.generateHtmlDocument( aspectModel ) );
    }
 
    /**
@@ -56,7 +58,7 @@ public class GenerateResource {
     */
    @PostMapping( "json-sample" )
    public ResponseEntity<Object> jsonSample( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( generateService.sampleJSONPayload( aspectModel, Optional.empty() ) );
+      return ResponseEntity.ok( generateService.sampleJSONPayload( aspectModel ) );
    }
 
    /**
@@ -67,6 +69,30 @@ public class GenerateResource {
     */
    @PostMapping( "json-schema" )
    public ResponseEntity<String> jsonSchema( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( generateService.jsonSchema( aspectModel, Optional.empty() ) );
+      return ResponseEntity.ok( generateService.jsonSchema( aspectModel ) );
+   }
+
+   /**
+    * This Method is used to generate an open api specification of the aspect model
+    *
+    * @param aspectModel The Aspect Model Data
+    * @return The open api specification
+    */
+   @PostMapping( "open-api-spec" )
+   public ResponseEntity<String> openApiSpec( @RequestBody final String aspectModel,
+         @RequestParam( name = "json", defaultValue = "false" ) final boolean jsonOutput,
+         @RequestParam( name = "baseUrl", defaultValue = "https://www.example.com" ) final String baseUrl,
+         @RequestParam( name = "includeQueryApi", defaultValue = "false" ) final boolean includeQueryApi,
+         @RequestParam( name = "useSemanticVersion", defaultValue = "false" ) final boolean useSemanticVersion,
+         @RequestParam( name = "pagingOption", defaultValue = "TIME_BASED_PAGING" )
+         final Optional<PagingOption> pagingOption ) {
+
+      final String openApiOutput = jsonOutput ?
+            generateService.generateJsonOpenApiSpec( aspectModel, baseUrl, includeQueryApi, useSemanticVersion,
+                  pagingOption ) :
+            generateService.generateYamlOpenApiSpec( aspectModel, baseUrl, includeQueryApi, useSemanticVersion,
+                  pagingOption );
+
+      return ResponseEntity.ok( openApiOutput );
    }
 }

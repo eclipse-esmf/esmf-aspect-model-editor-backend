@@ -48,8 +48,7 @@ public class ModelUtils {
    public static final String TTL_EXTENSION = "." + TTL;
 
    public final static Pattern URN_PATTERN = Pattern.compile(
-         "^urn:[a-z0-9][a-z0-9-]{0,31}:([a-z0-9()+,\\-.:=@;$_!*#']|%[0-9a-f]{2})+$",
-         Pattern.CASE_INSENSITIVE );
+         "^urn:[a-z0-9][a-z0-9-]{0,31}:([a-z0-9()+,\\-.:=@;$_!*#']|%[0-9a-f]{2})+$", Pattern.CASE_INSENSITIVE );
 
    private ModelUtils() {
    }
@@ -95,31 +94,33 @@ public class ModelUtils {
    public static Try<VersionedModel> loadButNotResolveModel( final File inputFile ) {
       try ( final InputStream inputStream = new FileInputStream( inputFile ) ) {
          final SdsAspectMetaModelResourceResolver metaModelResourceResolver = new SdsAspectMetaModelResourceResolver();
-         return TurtleLoader.loadTurtle( inputStream ).flatMap( model ->
-               metaModelResourceResolver.getBammVersion( model ).flatMap( metaModelVersion ->
-                     metaModelResourceResolver.mergeMetaModelIntoRawModel( model, metaModelVersion ) ) );
+         return TurtleLoader.loadTurtle( inputStream ).flatMap(
+               model -> metaModelResourceResolver.getBammVersion( model ).flatMap(
+                     metaModelVersion -> metaModelResourceResolver.mergeMetaModelIntoRawModel( model,
+                           metaModelVersion ) ) );
       } catch ( final IOException exception ) {
          return Try.failure( exception );
       }
    }
 
    public static String migrateModel( final String aspectModel, final String storagePath ) {
-      final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel, storagePath );
+      final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel, storagePath );
 
-      final SdsAspectMetaModelResourceResolver metaModelResourceResolver = new SdsAspectMetaModelResourceResolver();
-
-      final Try<VersionedModel> migratedFile = metaModelResourceResolver.getBammVersion( inMemoryStrategy.model )
-                                                                        .flatMap( metaModelVersion ->
-                                                                              metaModelResourceResolver.mergeMetaModelIntoRawModel(
-                                                                                    inMemoryStrategy.model,
-                                                                                    metaModelVersion ) )
-                                                                        .flatMap(
-                                                                              new MigratorService()::updateMetaModelVersion );
+      final Try<VersionedModel> migratedFile = loadAndResolveModel( inMemoryStrategy )
+            .flatMap( new MigratorService()::updateMetaModelVersion );
 
       final VersionedModel versionedModel = migratedFile.getOrElseThrow(
             e -> new InvalidAspectModelException( "AspectModel cannot be migrated.", e ) );
 
       return getPrettyPrintedVersionedModel( versionedModel, inMemoryStrategy.getAspectModelUrn().getUrn() );
+   }
+
+   public static Try<VersionedModel> loadAndResolveModel( final InMemoryStrategy inMemoryStrategy ) {
+      final SdsAspectMetaModelResourceResolver metaModelResourceResolver = new SdsAspectMetaModelResourceResolver();
+
+      return metaModelResourceResolver.getBammVersion( inMemoryStrategy.model ).flatMap(
+            metaModelVersion -> metaModelResourceResolver.mergeMetaModelIntoRawModel( inMemoryStrategy.model,
+                  metaModelVersion ) );
    }
 
    /**
@@ -163,16 +164,14 @@ public class ModelUtils {
    }
 
    private static ValidationReport buildValidationSyntacticReport( final RiotException riotException ) {
-      return new ValidationReportBuilder()
-            .withValidationErrors( List.of( new ValidationError.Syntactic( riotException ) ) )
-            .buildInvalidReport();
+      return new ValidationReportBuilder().withValidationErrors(
+            List.of( new ValidationError.Syntactic( riotException ) ) ).buildInvalidReport();
    }
 
    private static ValidationReport buildValidationSemanticReport( final String message, final String focusNode,
          final String resultPath, final String Severity, final String value ) {
-      return new ValidationReportBuilder()
-            .withValidationErrors( List
-                  .of( new ValidationError.Semantic( message, focusNode, resultPath, Severity, value ) ) )
-            .buildInvalidReport();
+      return new ValidationReportBuilder().withValidationErrors(
+                                                List.of( new ValidationError.Semantic( message, focusNode, resultPath, Severity, value ) ) )
+                                          .buildInvalidReport();
    }
 }

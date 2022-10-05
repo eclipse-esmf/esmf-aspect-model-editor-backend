@@ -27,10 +27,13 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
+import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
 import io.openmanufacturing.sds.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
 import io.openmanufacturing.sds.aspectmodel.generator.jsonschema.AspectModelJsonSchemaGenerator;
+import io.openmanufacturing.sds.aspectmodel.generator.openapi.AspectModelOpenApiGenerator;
+import io.openmanufacturing.sds.aspectmodel.generator.openapi.PagingOption;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.DataType;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
 import io.openmanufacturing.sds.metamodel.Aspect;
@@ -41,15 +44,15 @@ import io.vavr.control.Try;
 @Service
 public class GenerateService {
    private static final Logger LOG = LoggerFactory.getLogger( GenerateService.class );
-
+   private static final String COULD_NOT_LOAD_ASPECT = "Could not load Aspect";
    private static final String COULD_NOT_LOAD_ASPECT_MODEL = "Could not load Aspect model, please make sure the model is valid.";
 
    public GenerateService() {
       DataType.setupTypeMapping();
    }
 
-   public byte[] generateHtmlDocument( final String aspectModel, final Optional<String> storagePath )
-         throws IOException {
+   public byte[] generateHtmlDocument( final String aspectModel ) throws IOException {
+      final Optional<String> storagePath = Optional.of( ApplicationSettings.getMetaModelStoragePath() );
       final AspectModelDocumentationGenerator generator = new AspectModelDocumentationGenerator(
             getVersionModel( aspectModel, storagePath ).get() );
       final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -60,15 +63,15 @@ public class GenerateService {
       return byteArrayOutputStream.toByteArray();
    }
 
-   public String jsonSchema( final String aspectModel, final Optional<String> storagePath ) {
+   public String jsonSchema( final String aspectModel ) {
       try {
-         final Aspect aspect = AspectModelLoader
-               .fromVersionedModel( getVersionModel( aspectModel, storagePath ).get() )
-               .getOrElseThrow( e -> {
-                  LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
-                  return new InvalidAspectModelException(
-                        COULD_NOT_LOAD_ASPECT_MODEL, e );
-               } );
+         final Optional<String> storagePath = Optional.of( ApplicationSettings.getMetaModelStoragePath() );
+         final Aspect aspect = AspectModelLoader.fromVersionedModel( getVersionModel( aspectModel, storagePath ).get() )
+                                                .getOrElseThrow( e -> {
+                                                   LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
+                                                   return new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL,
+                                                         e );
+                                                } );
 
          final AspectModelJsonSchemaGenerator generator = new AspectModelJsonSchemaGenerator();
          final JsonNode jsonSchema = generator.apply( aspect );
@@ -81,28 +84,71 @@ public class GenerateService {
          return out.toString();
       } catch ( final IOException e ) {
          LOG.error( "Aspect Model could not be loaded correctly." );
-         throw new InvalidAspectModelException( "Could not load Aspect", e );
+         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
       }
    }
 
-   public String sampleJSONPayload( final String aspectModel, final Optional<String> storagePath ) {
+   public String sampleJSONPayload( final String aspectModel ) {
       try {
+         final Optional<String> storagePath = Optional.of( ApplicationSettings.getMetaModelStoragePath() );
          final AspectModelJsonPayloadGenerator generator = new AspectModelJsonPayloadGenerator(
                getVersionModel( aspectModel, storagePath ).get() );
 
          return generator.generateJson();
       } catch ( final AspectLoadingException e ) {
          LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
-         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL,
-               e );
+         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL, e );
       } catch ( final IOException e ) {
          LOG.error( "Aspect Model could not be loaded correctly." );
-         throw new InvalidAspectModelException( "Could not load Aspect", e );
+         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
       }
    }
 
    private Try<VersionedModel> getVersionModel( final String aspectModel, final Optional<String> storagePath ) {
       return ModelUtils.fetchVersionModel( aspectModel,
             storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
+   }
+
+   public String generateYamlOpenApiSpec( final String aspectModel, final String baseUrl, final boolean includeQueryApi,
+         final boolean useSemanticVersion, final Optional<PagingOption> pagingOption ) {
+      try {
+         final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
+
+         return generator.applyForYaml( getAspect( aspectModel ), useSemanticVersion, baseUrl, Optional.empty(),
+               Optional.empty(), includeQueryApi, pagingOption );
+      } catch ( final IOException e ) {
+         LOG.error( "Yaml open api specification could not be generated." );
+         throw new InvalidAspectModelException( "Error generating yaml open api specification", e );
+      }
+   }
+
+   public String generateJsonOpenApiSpec( final String aspectModel, final String baseUrl,
+         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption ) {
+      try {
+         final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
+
+         final JsonNode json = generator.applyForJson( getAspect( aspectModel ), useSemanticVersion, baseUrl,
+               Optional.empty(), Optional.empty(), includeQueryApi, pagingOption );
+
+         final ByteArrayOutputStream out = new ByteArrayOutputStream();
+         final ObjectMapper objectMapper = new ObjectMapper();
+
+         objectMapper.writerWithDefaultPrettyPrinter().writeValue( out, json );
+
+         return out.toString();
+      } catch ( final IOException e ) {
+         LOG.error( "Json open api specification could not be generated." );
+         throw new InvalidAspectModelException( "Error generating json open api specification", e );
+      }
+   }
+
+   private Aspect getAspect( final String aspectModel ) {
+      final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel,
+            ApplicationSettings.getMetaModelStoragePath() );
+
+      final VersionedModel versionedModel = ModelUtils.loadAndResolveModel( inMemoryStrategy ).getOrElseThrow(
+            e -> new InvalidAspectModelException( "Cannot create Open API specification.", e ) );
+
+      return AspectModelLoader.fromVersionedModelUnchecked( versionedModel );
    }
 }

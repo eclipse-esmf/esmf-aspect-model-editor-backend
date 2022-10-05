@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +54,7 @@ public class GenerateServiceTest {
                   .thenReturn( storagePath.toString() );
 
          final String payload = generateService.sampleJSONPayload(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), Optional.empty() );
+               Files.readString( storagePath, StandardCharsets.UTF_8 ) );
          assertEquals( "{\"property\":\"eOMtThyhVNLWUZNRcBaQKxI\"}", payload );
       }
    }
@@ -70,7 +69,7 @@ public class GenerateServiceTest {
                   .thenReturn( storagePath.toString() );
 
          final String payload = generateService.jsonSchema(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), Optional.empty() );
+               Files.readString( storagePath, StandardCharsets.UTF_8 ) );
          assertTrue( payload.contains( "#/components/schemas/urn_bamm_io.openmanufacturing_1.0.0_Characteristic" ) );
       }
    }

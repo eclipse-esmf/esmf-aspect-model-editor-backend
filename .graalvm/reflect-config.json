@@ -312,11 +312,22 @@
     ]
   },
   {
-    "name" : "java.lang.Class",
-    "methods" : [
-      { "name" : "getSimpleName", "parameterTypes" : [] },
-      { "name" : "getInterfaces", "parameterTypes" : [] },
-      { "name" : "getInterfaces", "parameterTypes" : ["java.lang.boolean"] }
+    "name": "java.lang.Class",
+    "methods": [
+      {
+        "name": "getSimpleName",
+        "parameterTypes": []
+      },
+      {
+        "name": "getInterfaces",
+        "parameterTypes": []
+      },
+      {
+        "name": "getInterfaces",
+        "parameterTypes": [
+          "java.lang.boolean"
+        ]
+      }
     ]
   },
   {
