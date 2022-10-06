@@ -42,7 +42,7 @@ public class GenerateResource {
    /**
     * This Method is used to generate a documentation of the aspect model
     *
-    * @param aspectModel - The Aspect Model Data
+    * @param aspectModel the Aspect Model Data
     * @return the aspect model definition as documentation html file.
     */
    @PostMapping( "documentation" )
@@ -53,7 +53,7 @@ public class GenerateResource {
    /**
     * This Method is used to generate a sample JSON Payload of the aspect model
     *
-    * @param aspectModel The Aspect Model Data
+    * @param aspectModel the Aspect Model Data
     * @return The JSON Sample Payload
     */
    @PostMapping( "json-sample" )
@@ -75,19 +75,27 @@ public class GenerateResource {
    /**
     * This Method is used to generate an open api specification of the aspect model
     *
-    * @param aspectModel The Aspect Model Data
+    * @param aspectModel the Aspect Model Data
+    * @param output of the open api specification
+    * @param baseUrl the base URL for the Aspect API
+    * @param includeQueryApi if set to true, a path section for the Query API Endpoint of the Aspect API will be
+    *       included in the specification
+    * @param useSemanticVersion if set to true, the complete semantic version of the Aspect Model will be used as
+    *       the version of the API, otherwise only the major part of the Aspect Version is used as the version of the
+    *       API.
+    * @param pagingOption if defined, the chosen paging type will be in the JSON.
     * @return The open api specification
     */
    @PostMapping( "open-api-spec" )
    public ResponseEntity<String> openApiSpec( @RequestBody final String aspectModel,
-         @RequestParam( name = "json", defaultValue = "false" ) final boolean jsonOutput,
-         @RequestParam( name = "baseUrl", defaultValue = "https://www.example.com" ) final String baseUrl,
+         @RequestParam( name = "output", defaultValue = "yaml" ) final String output,
+         @RequestParam( name = "baseUrl", defaultValue = "https://open-manufacturing.org" ) final String baseUrl,
          @RequestParam( name = "includeQueryApi", defaultValue = "false" ) final boolean includeQueryApi,
          @RequestParam( name = "useSemanticVersion", defaultValue = "false" ) final boolean useSemanticVersion,
          @RequestParam( name = "pagingOption", defaultValue = "TIME_BASED_PAGING" )
          final Optional<PagingOption> pagingOption ) {
 
-      final String openApiOutput = jsonOutput ?
+      final String openApiOutput = output.equals( "json" ) ?
             generateService.generateJsonOpenApiSpec( aspectModel, baseUrl, includeQueryApi, useSemanticVersion,
                   pagingOption ) :
             generateService.generateYamlOpenApiSpec( aspectModel, baseUrl, includeQueryApi, useSemanticVersion,

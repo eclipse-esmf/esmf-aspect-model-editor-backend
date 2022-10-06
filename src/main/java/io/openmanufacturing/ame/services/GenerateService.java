@@ -27,7 +27,6 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
-import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
 import io.openmanufacturing.sds.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
@@ -114,8 +113,8 @@ public class GenerateService {
       try {
          final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
 
-         return generator.applyForYaml( getAspect( aspectModel ), useSemanticVersion, baseUrl, Optional.empty(),
-               Optional.empty(), includeQueryApi, pagingOption );
+         return generator.applyForYaml( ModelUtils.resolveAspectFromModel( aspectModel ), useSemanticVersion, baseUrl,
+               Optional.empty(), Optional.empty(), includeQueryApi, pagingOption );
       } catch ( final IOException e ) {
          LOG.error( "Yaml open api specification could not be generated." );
          throw new InvalidAspectModelException( "Error generating yaml open api specification", e );
@@ -127,8 +126,8 @@ public class GenerateService {
       try {
          final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
 
-         final JsonNode json = generator.applyForJson( getAspect( aspectModel ), useSemanticVersion, baseUrl,
-               Optional.empty(), Optional.empty(), includeQueryApi, pagingOption );
+         final JsonNode json = generator.applyForJson( ModelUtils.resolveAspectFromModel( aspectModel ),
+               useSemanticVersion, baseUrl, Optional.empty(), Optional.empty(), includeQueryApi, pagingOption );
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
          final ObjectMapper objectMapper = new ObjectMapper();
@@ -140,15 +139,5 @@ public class GenerateService {
          LOG.error( "Json open api specification could not be generated." );
          throw new InvalidAspectModelException( "Error generating json open api specification", e );
       }
-   }
-
-   private Aspect getAspect( final String aspectModel ) {
-      final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel,
-            ApplicationSettings.getMetaModelStoragePath() );
-
-      final VersionedModel versionedModel = ModelUtils.loadAndResolveModel( inMemoryStrategy ).getOrElseThrow(
-            e -> new InvalidAspectModelException( "Cannot create Open API specification.", e ) );
-
-      return AspectModelLoader.fromVersionedModelUnchecked( versionedModel );
    }
 }

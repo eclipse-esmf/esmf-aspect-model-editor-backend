@@ -30,6 +30,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import io.openmanufacturing.ame.exceptions.model.ErrorResponse;
+import io.openmanufacturing.sds.metamodel.loader.AspectLoadingException;
 
 /**
  * Provides custom exception handling for the REST API.
@@ -104,21 +105,34 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    }
 
    /**
+    * Method for handling exception of type {@link AspectLoadingException}
+    *
+    * @param request the Http request
+    * @param e the exception which occurred
+    * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
+    */
+   @ExceptionHandler( AspectLoadingException.class )
+   public ResponseEntity<Object> handleAspectLoadingException( final WebRequest request,
+         final AspectLoadingException e ) {
+      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
+   }
+
+   /**
     * Method for handling exception of type {@link InvalidAspectModelException}
     *
     * @param request the Http request
-    * @param e       the exception which occurred
+    * @param e the exception which occurred
     * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
     */
-   @ExceptionHandler(InvalidAspectModelException.class)
-   public ResponseEntity<Object> handleInvalidAspectModelException(final WebRequest request,
-         final InvalidAspectModelException e) {
-      return error(HttpStatus.BAD_REQUEST, request, e, e.getMessage());
+   @ExceptionHandler( InvalidAspectModelException.class )
+   public ResponseEntity<Object> handleInvalidAspectModelException( final WebRequest request,
+         final InvalidAspectModelException e ) {
+      return error( HttpStatus.BAD_REQUEST, request, e, e.getMessage() );
    }
 
    private ResponseEntity<Object> error( final HttpStatus responseCode, final WebRequest request,
          final RuntimeException e, final String message ) {
-      logRequest(request, e, responseCode);
+      logRequest( request, e, responseCode );
 
       final ErrorResponse errorResponse = new ErrorResponse( message,
             ((ServletWebRequest) request).getRequest().getRequestURI(), responseCode.value() );
@@ -138,7 +152,8 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
       }
    }
 
-   private static String getLogRequestMessage( final WebRequest request, final Throwable ex, final HttpStatus httpStatus ) {
+   private static String getLogRequestMessage( final WebRequest request, final Throwable ex,
+         final HttpStatus httpStatus ) {
       final HttpServletRequest servletRequest = ((ServletWebRequest) request).getRequest();
       return servletRequest.getQueryString() == null ?
             getLogRequestMessage( servletRequest.getRequestURI(), ex, httpStatus ) :

@@ -24,8 +24,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RiotException;
 
+import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
 import io.openmanufacturing.ame.exceptions.UrnNotFoundException;
 import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
@@ -40,8 +42,12 @@ import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReport;
 import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReportBuilder;
 import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
 import io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorService;
+import io.openmanufacturing.sds.metamodel.Aspect;
+import io.openmanufacturing.sds.metamodel.loader.AspectModelLoader;
 import io.vavr.control.Try;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 public class ModelUtils {
 
    public static final String TTL = "ttl";
@@ -49,9 +55,6 @@ public class ModelUtils {
 
    public final static Pattern URN_PATTERN = Pattern.compile(
          "^urn:[a-z0-9][a-z0-9-]{0,31}:([a-z0-9()+,\\-.:=@;$_!*#']|%[0-9a-f]{2})+$", Pattern.CASE_INSENSITIVE );
-
-   private ModelUtils() {
-   }
 
    /**
     * This Method is used to create an in memory strategy for the given Aspect Model.
@@ -91,23 +94,18 @@ public class ModelUtils {
       return new AspectModelResolver().resolveAspectModel( inMemoryStrategy, inMemoryStrategy.getAspectModelUrn() );
    }
 
-   public static Try<VersionedModel> loadButNotResolveModel( final File inputFile ) {
-      try ( final InputStream inputStream = new FileInputStream( inputFile ) ) {
-         final SdsAspectMetaModelResourceResolver metaModelResourceResolver = new SdsAspectMetaModelResourceResolver();
-         return TurtleLoader.loadTurtle( inputStream ).flatMap(
-               model -> metaModelResourceResolver.getBammVersion( model ).flatMap(
-                     metaModelVersion -> metaModelResourceResolver.mergeMetaModelIntoRawModel( model,
-                           metaModelVersion ) ) );
-      } catch ( final IOException exception ) {
-         return Try.failure( exception );
-      }
-   }
-
+   /**
+    * Migrates a model to its latest version.
+    *
+    * @param aspectModel as a string.
+    * @param storagePath stored path to the Aspect Models.
+    * @return migrated Aspect Model as a string.
+    */
    public static String migrateModel( final String aspectModel, final String storagePath ) {
       final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel, storagePath );
 
-      final Try<VersionedModel> migratedFile = loadAndResolveModel( inMemoryStrategy )
-            .flatMap( new MigratorService()::updateMetaModelVersion );
+      final Try<VersionedModel> migratedFile = LoadModelFromStoragePath( inMemoryStrategy ).flatMap(
+            new MigratorService()::updateMetaModelVersion );
 
       final VersionedModel versionedModel = migratedFile.getOrElseThrow(
             e -> new InvalidAspectModelException( "AspectModel cannot be migrated.", e ) );
@@ -115,12 +113,51 @@ public class ModelUtils {
       return getPrettyPrintedVersionedModel( versionedModel, inMemoryStrategy.getAspectModelUrn().getUrn() );
    }
 
-   public static Try<VersionedModel> loadAndResolveModel( final InMemoryStrategy inMemoryStrategy ) {
+   /**
+    * Creates an Aspect instance from an Aspect Model.
+    *
+    * @param aspectModel as a string.
+    * @return the Aspect as an object.
+    */
+   public static Aspect resolveAspectFromModel( final String aspectModel ) {
+      final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel,
+            ApplicationSettings.getMetaModelStoragePath() );
+
+      final VersionedModel versionedModel = ModelUtils.LoadModelFromStoragePath( inMemoryStrategy ).getOrElseThrow(
+            e -> new InvalidAspectModelException( "Cannot resolve Aspect Model.", e ) );
+
+      return AspectModelLoader.fromVersionedModelUnchecked( versionedModel );
+   }
+
+   /**
+    * Load Aspect Model from storage path.
+    *
+    * @param inMemoryStrategy for the given storage path.
+    * @return the resulting {@link VersionedModel} that corresponds to the input Aspect model.
+    */
+   public static Try<VersionedModel> LoadModelFromStoragePath( final InMemoryStrategy inMemoryStrategy ) {
+      return resolveModel( inMemoryStrategy.model );
+   }
+
+   /**
+    * Loading the Aspect Model from input file.
+    *
+    * @param file Aspect Model as a file.
+    * @return the resulting {@link VersionedModel} that corresponds to the input Aspect model.
+    */
+   public static Try<VersionedModel> loadModelFromFile( final File file ) {
+      try ( final InputStream inputStream = new FileInputStream( file ) ) {
+         return TurtleLoader.loadTurtle( inputStream ).flatMap( ModelUtils::resolveModel );
+      } catch ( final IOException exception ) {
+         return Try.failure( exception );
+      }
+   }
+
+   private static Try<VersionedModel> resolveModel( final Model model ) {
       final SdsAspectMetaModelResourceResolver metaModelResourceResolver = new SdsAspectMetaModelResourceResolver();
 
-      return metaModelResourceResolver.getBammVersion( inMemoryStrategy.model ).flatMap(
-            metaModelVersion -> metaModelResourceResolver.mergeMetaModelIntoRawModel( inMemoryStrategy.model,
-                  metaModelVersion ) );
+      return metaModelResourceResolver.getBammVersion( model ).flatMap(
+            metaModelVersion -> metaModelResourceResolver.mergeMetaModelIntoRawModel( model, metaModelVersion ) );
    }
 
    /**
