@@ -138,7 +138,7 @@ public class ModelService {
          saveVersionedModel( model.get(), aspectModelUrn, storagePath );
          modelIsSuccess = !getModel(
                namespace.versionedNamespace + ':' + aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,
-               Optional.empty() ).contains( "undefined:" );
+               Optional.of( storagePath ) ).contains( "undefined:" );
       }
 
       final AspectModelFile aspectModelFile = new AspectModelFile( aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,
