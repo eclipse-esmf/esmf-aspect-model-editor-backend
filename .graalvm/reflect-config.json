@@ -81,6 +81,28 @@
     ]
   },
   {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.EventInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.AbstractEntityInstantiator",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+        ]
+      }
+    ]
+  },
+  {
     "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.EncodingConstraintInstantiator",
     "methods": [
       {
