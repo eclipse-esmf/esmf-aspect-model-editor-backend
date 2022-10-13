@@ -108,7 +108,7 @@ public class ModelUtils {
             new MigratorService()::updateMetaModelVersion );
 
       final VersionedModel versionedModel = migratedFile.getOrElseThrow(
-            e -> new InvalidAspectModelException( "AspectModel cannot be migrated.", e ) );
+            e -> new InvalidAspectModelException( "Aspect Model cannot be migrated.", e ) );
 
       return getPrettyPrintedVersionedModel( versionedModel, inMemoryStrategy.getAspectModelUrn().getUrn() );
    }
@@ -207,8 +207,8 @@ public class ModelUtils {
 
    private static ValidationReport buildValidationSemanticReport( final String message, final String focusNode,
          final String resultPath, final String Severity, final String value ) {
-      return new ValidationReportBuilder().withValidationErrors(
-                                                List.of( new ValidationError.Semantic( message, focusNode, resultPath, Severity, value ) ) )
-                                          .buildInvalidReport();
+      final ValidationError.Semantic semantic = new ValidationError.Semantic( message, focusNode, resultPath, Severity,
+            value );
+      return new ValidationReportBuilder().withValidationErrors( List.of( semantic ) ).buildInvalidReport();
    }
 }

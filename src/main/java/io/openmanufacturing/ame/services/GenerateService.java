@@ -116,8 +116,8 @@ public class GenerateService {
          return generator.applyForYaml( ModelUtils.resolveAspectFromModel( aspectModel ), useSemanticVersion, baseUrl,
                Optional.empty(), Optional.empty(), includeQueryApi, pagingOption );
       } catch ( final IOException e ) {
-         LOG.error( "Yaml open api specification could not be generated." );
-         throw new InvalidAspectModelException( "Error generating yaml open api specification", e );
+         LOG.error( "YAML OpenAPI specification could not be generated." );
+         throw new InvalidAspectModelException( "Error generating YAML OpenAPI specification", e );
       }
    }
 
@@ -136,8 +136,8 @@ public class GenerateService {
 
          return out.toString();
       } catch ( final IOException e ) {
-         LOG.error( "Json open api specification could not be generated." );
-         throw new InvalidAspectModelException( "Error generating json open api specification", e );
+         LOG.error( "JSON OpenAPI specification could not be generated." );
+         throw new InvalidAspectModelException( "Error generating JSON OpenAPI specification", e );
       }
    }
 }
