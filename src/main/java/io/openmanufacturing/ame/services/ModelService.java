@@ -132,12 +132,17 @@ public class ModelService {
    private void namespaceFileInfo( final Namespace namespace, final Try<VersionedModel> model,
          final AspectModelUrn aspectModelUrn, final String storagePath ) {
 
+      boolean modelIsSuccess = false;
+
       if ( model.isSuccess() ) {
          saveVersionedModel( model.get(), aspectModelUrn, storagePath );
+         modelIsSuccess = !getModel(
+               namespace.versionedNamespace + ':' + aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,
+               Optional.empty() ).contains( "undefined:" );
       }
 
       final AspectModelFile aspectModelFile = new AspectModelFile( aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,
-            model.isSuccess() );
+            modelIsSuccess );
 
       namespace.addAspectModelFile( aspectModelFile );
    }
