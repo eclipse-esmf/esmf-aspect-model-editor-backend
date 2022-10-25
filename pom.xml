@@ -42,7 +42,7 @@
     </scm>
 
     <properties>
-        <os.platform></os.platform>
+        <os.platform/>
         <main.class>io.openmanufacturing.ame.Application</main.class>
 
         <!-- Internal sds dependencies -->
@@ -60,7 +60,7 @@
         <classworlds-version>1.1</classworlds-version>
         <spring-aot-version>0.12.0</spring-aot-version>
         <spring-native-version>0.12.0</spring-native-version>
-        <graal-svm-version>22.1.0.1</graal-svm-version>
+        <graal-svm-version>22.2.0.1</graal-svm-version>
 
         <!-- Required for building a native image -->
         <org-osgi-service-cm-version>1.6.1</org-osgi-service-cm-version>
@@ -683,9 +683,7 @@
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <target>
-                                        <replaceregexp
-                                                file="${project.build.outputDirectory}/${postman.directory}/${postman.test.environment}"
-                                                match="9091" replace="${integration-test-port}" byline="true"/>
+                                        <replaceregexp file="${project.build.outputDirectory}/${postman.directory}/${postman.test.environment}" match="9091" replace="${integration-test-port}" byline="true"/>
                                     </target>
                                 </configuration>
                                 <goals>
