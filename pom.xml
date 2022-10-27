@@ -42,11 +42,11 @@
     </scm>
 
     <properties>
-        <os.platform></os.platform>
+        <os.platform/>
         <main.class>io.openmanufacturing.ame.Application</main.class>
 
         <!-- Internal sds dependencies -->
-        <sds-sdk-version>2.0.7</sds-sdk-version>
+        <sds-sdk-version>2.0.8</sds-sdk-version>
 
         <!-- Versions of third party dependencies -->
         <spring-boot-version>2.6.7</spring-boot-version>
@@ -683,9 +683,7 @@
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <target>
-                                        <replaceregexp
-                                                file="${project.build.outputDirectory}/${postman.directory}/${postman.test.environment}"
-                                                match="9091" replace="${integration-test-port}" byline="true"/>
+                                        <replaceregexp file="${project.build.outputDirectory}/${postman.directory}/${postman.test.environment}" match="9091" replace="${integration-test-port}" byline="true"/>
                                     </target>
                                 </configuration>
                                 <goals>
