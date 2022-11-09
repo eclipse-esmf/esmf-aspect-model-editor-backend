@@ -71,6 +71,24 @@
     },
     {
       "pattern": "\\Qorg/apache/batik/transcoder/Transcoder.class\\E"
+    },
+    {
+      "pattern": "\\Qopenapi/OpenApiRootJson.json\\E"
+    },
+    {
+      "pattern": "\\Qopenapi/CursorBasedPaging.json\\E"
+    },
+    {
+      "pattern": "\\Qopenapi/Filter.json\\E"
+    },
+    {
+      "pattern": "\\Qopenapi/JsonRPC.json\\E"
+    },
+    {
+      "pattern": "\\Qopenapi/OffsetBasedPaging.json\\E"
+    },
+    {
+      "pattern": "\\Qopenapi/TimeBasedPaging.json\\E"
     }
   ]
 }

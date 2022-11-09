@@ -31,6 +31,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
+import io.openmanufacturing.sds.aspectmodel.generator.openapi.PagingOption;
 
 @RunWith( SpringRunner.class )
 @SpringBootTest
@@ -55,7 +56,7 @@ public class GenerateServiceTest {
                   .thenReturn( storagePath.toString() );
 
          final String payload = generateService.sampleJSONPayload(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), Optional.empty() );
+               Files.readString( storagePath, StandardCharsets.UTF_8 ) );
          assertEquals( "{\"property\":\"eOMtThyhVNLWUZNRcBaQKxI\"}", payload );
       }
    }
@@ -70,8 +71,48 @@ public class GenerateServiceTest {
                   .thenReturn( storagePath.toString() );
 
          final String payload = generateService.jsonSchema(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), Optional.empty() );
+               Files.readString( storagePath, StandardCharsets.UTF_8 ) );
          assertTrue( payload.contains( "#/components/schemas/urn_bamm_io.openmanufacturing_1.0.0_Characteristic" ) );
+      }
+   }
+
+   @Test
+   public void testAspectModelJsonOpenApiSpec() throws IOException {
+      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
+            LocalFolderResolverStrategy.class ) ) {
+         final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+
+         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
+                  .thenReturn( storagePath.toString() );
+
+         final String payload = generateService.generateJsonOpenApiSpec(
+               Files.readString( storagePath, StandardCharsets.UTF_8 ), "https://test.com", false, false,
+               Optional.of( PagingOption.TIME_BASED_PAGING ) );
+
+         assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
+         assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
+         assertTrue( payload.contains( "\"title\" : \"AspectModel\"" ) );
+         assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
+      }
+   }
+
+   @Test
+   public void testAspectModelYamlOpenApiSpec() throws IOException {
+      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
+            LocalFolderResolverStrategy.class ) ) {
+         final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+
+         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
+                  .thenReturn( storagePath.toString() );
+
+         final String payload = generateService.generateYamlOpenApiSpec(
+               Files.readString( storagePath, StandardCharsets.UTF_8 ), "https://test.com", false, false,
+               Optional.of( PagingOption.TIME_BASED_PAGING ) );
+
+         assertTrue( payload.contains( "openapi: 3.0.3" ) );
+         assertTrue( payload.contains( "title: AspectModel" ) );
+         assertTrue( payload.contains( "version: v1" ) );
+         assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
       }
    }
 }
