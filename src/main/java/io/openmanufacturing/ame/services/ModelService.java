@@ -114,7 +114,7 @@ public class ModelService {
    }
 
    private Try<VersionedModel> updateModelVersion( final File inputFile ) {
-      return ModelUtils.loadButNotResolveModel( inputFile ).flatMap( new MigratorService()::updateMetaModelVersion );
+      return ModelUtils.loadModelFromFile( inputFile ).flatMap( new MigratorService()::updateMetaModelVersion );
    }
 
    private Namespace resolveNamespace( final List<Namespace> namespaces, final AspectModelUrn aspectModelUrn ) {

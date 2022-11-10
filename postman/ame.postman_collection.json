@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "60fc3835-36b0-43ff-a9b4-084c8616844b",
+		"_postman_id": "d11906f6-ce45-4709-94ff-d7bbab64eef5",
 		"name": "AME.POSTMAN.RESOURCES",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -25,7 +25,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:name \"AspectDefault\" ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:name \"property1\";\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:name \"Characteristic1\" ;\r\n    bamm:dataType xsd:string .\r\n"
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models",
@@ -70,7 +70,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:name \"AspectDefault\" ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:name \"property1\";\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:name \"Characteristic1\" ;\r\n    bamm:dataType xsd:string .\r\n"
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models",
@@ -273,7 +273,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:name \"AspectDefault\" ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:name \"property1\";\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:name \"Characteristic1\" ;\r\n    bamm:dataType xsd:string .\r\n"
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models/validate",
@@ -314,7 +314,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:DefaultAspect a bamm:Aspect ;\r\n   bamm:name \"DefaultAspect\" ;\r\n   bamm:preferredName \"DefaultAspect\"@en ;\r\n   bamm:description \"DefaultAspect Description\"@en ;\r\n   bamm:properties ( :property1 ) ;\r\n   bamm:operations ( ) .\r\n\r\n:property1 a bamm:Property ;\r\n   bamm:name \"property1\" ;\r\n   bamm:preferredName \"Property 1 \"@en ;\r\n   bamm:description \"Property Description 1 \"@en ;\r\n   bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n   bamm:name \"Characteristic1\" ;\r\n   bamm:preferredName \"Characteristic 1 \"@en ;\r\n   bamm:description \"Characteristic Description 1 \"@en ;\r\n   bamm:dataType xsd:string .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n   bamm:name \"Characteristic2\" ;\r\n   bamm:preferredName \"Characteristic 2 \"@en ;\r\n   bamm:description \"Characteristic Description 2 \"@en ;\r\n   bamm:dataType xsd:string ."
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:DefaultAspect a bamm:Aspect ;\r\n   bamm:preferredName \"DefaultAspect\"@en ;\r\n   bamm:description \"DefaultAspect Description\"@en ;\r\n   bamm:properties ( :property1 ) ;\r\n   bamm:operations ( ) .\r\n\r\n:property1 a bamm:Property ;\r\n   bamm:preferredName \"Property 1 \"@en ;\r\n   bamm:description \"Property Description 1 \"@en ;\r\n   bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n   bamm:preferredName \"Characteristic 1 \"@en ;\r\n   bamm:description \"Characteristic Description 1 \"@en ;\r\n   bamm:dataType xsd:string .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n   bamm:preferredName \"Characteristic 2 \"@en ;\r\n   bamm:description \"Characteristic Description 2 \"@en ;\r\n   bamm:dataType xsd:string ."
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models/validate",
@@ -355,7 +355,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:name \"AspectDefaultUpdate\" ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:name \"property1Update\";\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:name \"Characteristic1Update\" \r\n    bamm:dataType xsd:string .\r\n"
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:characteristic :Characteristic1\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models/validate",
@@ -437,7 +437,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectWithUsedAndUnusedConstraint a bamm:Aspect ;\r\n   bamm:name \"AspectWithUsedAndUnusedConstraint\" ;\r\n   bamm:properties ( :testProperty ) ;\r\n   bamm:operations ( ) .\r\n\r\n:testProperty a bamm:Property ;\r\n   bamm:name \"testProperty\" ;\r\n   bamm:characteristic :UsedTestTrait .\r\n\r\n:UsedTestTrait a bamm-c:Trait ;\r\n   bamm:name \"UsedTestTrait\" ;\r\n   bamm-c:constraint :UnusedTestConstraint ;\r\n   bamm-c:baseCharacteristic bamm-c:Text .\r\n\r\n:UnusedTestConstraint a bamm-c:LengthConstraint ;\r\n   bamm:name \"UnusedTestConstraint\" ;\r\n   bamm:preferredName \"Unused Test Constraint\"@en ;\r\n   bamm:description \"Unused Test Constraint\"@en ;\r\n   bamm:see <http://openmanufacturing.com> ;\r\n   bamm:see <http://openmanufacturing.com/me> ;\r\n   bamm-c:minValue \"5\"^^xsd:nonNegativeInteger ;\r\n   bamm-c:maxValue \"10\"^^xsd:nonNegativeInteger ."
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectWithUsedAndUnusedConstraint a bamm:Aspect ;\r\n   bamm:properties ( :testProperty ) ;\r\n   bamm:operations ( ) .\r\n\r\n:testProperty a bamm:Property ;\r\n   bamm:characteristic :UsedTestTrait .\r\n\r\n:UsedTestTrait a bamm-c:Trait ;\r\n   bamm-c:constraint :UnusedTestConstraint ;\r\n   bamm-c:baseCharacteristic bamm-c:Text .\r\n\r\n:UnusedTestConstraint a bamm-c:LengthConstraint ;\r\n   bamm:preferredName \"Unused Test Constraint\"@en ;\r\n   bamm:description \"Unused Test Constraint\"@en ;\r\n   bamm:see <http://openmanufacturing.com> ;\r\n   bamm:see <http://openmanufacturing.com/me> ;\r\n   bamm-c:minValue \"5\"^^xsd:nonNegativeInteger ;\r\n   bamm-c:maxValue \"10\"^^xsd:nonNegativeInteger ."
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models/validate",
@@ -479,7 +479,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:name \"AspectDefault\" ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:name \"property1\";\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:name \"Characteristic1\" ;\r\n    bamm:dataType xsd:string .\r\n"
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/json-sample",
@@ -522,7 +522,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:name \"AspectDefault\" ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:name \"property1\";\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:name \"Characteristic1\" ;\r\n    bamm:dataType xsd:string .\r\n"
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/json-schema",
@@ -561,7 +561,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\n\n:AspectDefault a bamm:Aspect ;\n    bamm:name \"AspectDefault\" ;\n    bamm:properties (:property1) ;\n    bamm:operations () .\n\n:property1 a bamm:Property;\n    bamm:name \"property1\";\n    bamm:characteristic :Characteristic1 .\n\n:Characteristic1 a bamm:Characteristic ;\n    bamm:name \"Characteristic1\" ."
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\n\n:AspectDefault a bamm:Aspect ;\n    bamm:properties (:property1) ;\n    bamm:operations () .\n\n:property1 a bamm:Property;\n    bamm:characteristic :Characteristic1 .\n\n:Characteristic1 a bamm:Characteristic ."
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/json-schema",
@@ -600,7 +600,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\n\n:AspectDefault a bamm:Aspect ;\n    bamm:name \"AspectDefault\" ;\n    bamm:properties (:property1) ;\n    bamm:operations () .\n\n:property1 a bamm:Property;\n    bamm:name \"property1\";\n    bamm:characteristic :Characteristic1 .\n\n:Characteristic1 a bamm:Characteristic ;\n    bamm:name \"Characteristic1\" ."
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\n\n:AspectDefault a bamm:Aspect ;\n    bamm:properties (:property1) ;\n    bamm:operations () .\n\n:property1 a bamm:Property;\n    bamm:characteristic :Characteristic1 .\n\n:Characteristic1 a bamm:Characteristic ."
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/json-sample",
@@ -614,6 +614,266 @@
 						"api",
 						"generate",
 						"json-sample"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateJsonOpenApiSpec",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response body is valid\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.openapi).to.equal(\"3.0.3\");\r",
+							"    pm.expect(jsonData.info.title).to.equal(\"AspectDefault\");\r",
+							"    pm.expect(jsonData.info.version).to.equal(\"v1.0.0\");\r",
+							"    pm.expect(jsonData.servers[0].url).to.equal(\"http://www.test.com/api/v1.0.0\");\r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:dataType xsd:string .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/generate/open-api-spec?output=json&baseUrl=http://www.test.com&includeQueryApi=true&useSemanticVersion=true&pagingOption=NO_PAGING",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"generate",
+						"open-api-spec"
+					],
+					"query": [
+						{
+							"key": "output",
+							"value": "json"
+						},
+						{
+							"key": "baseUrl",
+							"value": "http://www.test.com"
+						},
+						{
+							"key": "includeQueryApi",
+							"value": "true"
+						},
+						{
+							"key": "useSemanticVersion",
+							"value": "true"
+						},
+						{
+							"key": "pagingOption",
+							"value": "NO_PAGING"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateYamlOpenApiSpec",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response body is valid\", function () {\r",
+							"    const jsonData = pm.response.text();\r",
+							"    pm.expect(jsonData).to.include(\"openapi: 3.0.3\");\r",
+							"    pm.expect(jsonData).to.include(\"title: AspectDefault\");\r",
+							"    pm.expect(jsonData).to.include(\"version: v1\");\r",
+							"    pm.expect(jsonData).to.include(\"url: http://www.test.com/api/v1\");\r",
+							"\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic ;\r\n    bamm:dataType xsd:string .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/generate/open-api-spec?output=yaml&baseUrl=http://www.test.com&includeQueryApi=false&useSemanticVersion=false&pagingOption=OFFSET_BASED_PAGING",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"generate",
+						"open-api-spec"
+					],
+					"query": [
+						{
+							"key": "output",
+							"value": "yaml"
+						},
+						{
+							"key": "baseUrl",
+							"value": "http://www.test.com"
+						},
+						{
+							"key": "includeQueryApi",
+							"value": "false"
+						},
+						{
+							"key": "useSemanticVersion",
+							"value": "false"
+						},
+						{
+							"key": "pagingOption",
+							"value": "OFFSET_BASED_PAGING"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateJsonOpenApiSpecFromInvalidAspectModel",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(422);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/generate/open-api-spec?output=json&baseUrl=http://www.test.com&includeQueryApi=true&useSemanticVersion=true&pagingOption=NO_PAGING",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"generate",
+						"open-api-spec"
+					],
+					"query": [
+						{
+							"key": "output",
+							"value": "json"
+						},
+						{
+							"key": "baseUrl",
+							"value": "http://www.test.com"
+						},
+						{
+							"key": "includeQueryApi",
+							"value": "true"
+						},
+						{
+							"key": "useSemanticVersion",
+							"value": "true"
+						},
+						{
+							"key": "pagingOption",
+							"value": "NO_PAGING"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateYamlOpenApiSpecFromInvalidAspectModel",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(422);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#> .\r\n@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#> .\r\n@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#> .\r\n@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:bamm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a bamm:Aspect ;\r\n    bamm:properties (:property1) ;\r\n    bamm:operations () .\r\n\r\n:property1 a bamm:Property;\r\n    bamm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a bamm:Characteristic .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/generate/open-api-spec?output=yaml&baseUrl=http://www.test.com&includeQueryApi=true&useSemanticVersion=true&pagingOption=NO_PAGING",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"generate",
+						"open-api-spec"
+					],
+					"query": [
+						{
+							"key": "output",
+							"value": "yaml"
+						},
+						{
+							"key": "baseUrl",
+							"value": "http://www.test.com"
+						},
+						{
+							"key": "includeQueryApi",
+							"value": "true"
+						},
+						{
+							"key": "useSemanticVersion",
+							"value": "true"
+						},
+						{
+							"key": "pagingOption",
+							"value": "NO_PAGING"
+						}
 					]
 				}
 			},
