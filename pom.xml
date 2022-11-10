@@ -50,7 +50,7 @@
 
         <!-- Versions of third party dependencies -->
         <spring-boot-version>2.6.13</spring-boot-version>
-        <lombok-version>1.18.22</lombok-version>
+        <lombok-version>1.18.24</lombok-version>
         <commons-io-version>2.11.0</commons-io-version>
         <commons-validator-version>1.7</commons-validator-version>
         <port-allocator-version>1.2</port-allocator-version>
