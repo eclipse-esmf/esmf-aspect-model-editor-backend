@@ -111,7 +111,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
          return getFilePathBasedOnTurtleData( turtleData, storagePath ) + applicationSettings.getFileType();
       }
 
-      if ( ":latest.ttl".equalsIgnoreCase( urn ) ) {
+      if ( ":latest.ttl".equalsIgnoreCase( urn ) || urn.contains( applicationSettings.getFileType() ) ) {
          return LocalFolderResolverUtils.extractFilePath( urn ).toString();
       }
 
