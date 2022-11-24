@@ -19,6 +19,7 @@ import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -66,6 +67,9 @@ public class LocalFolderResolverStrategyTest {
    private static final String NAMESPACE = "com.test.example:1.0.0:AspectDefault.ttl";
    private static final String TTL_FILE_CONTENT = "new result ttl file";
    private static final String TTL_FILE_EXTENSION = ".ttl";
+   private static final String TTL_FILE_WITH_EXT_REF =
+         "io.openmanufacturing" + File.separator + "1.0.0" + File.separator
+               + "AspectModelWithExternalRef" + TTL_FILE_EXTENSION;
    private static final String COM_TEST_EXAMPLE_1_2_0 =
          "com" + File.separator + "test" + File.separator + "example" + File.separator + "1.2.0";
    private static final String COM_TEST_EXAMPLE_1_0_0_ASPECT_DEFAULT =
@@ -182,6 +186,16 @@ public class LocalFolderResolverStrategyTest {
             STORAGE_PATH + File.separator + NAMESPACE );
 
       assertEquals( COM_TEST_EXAMPLE_1_0_0_ASPECT_DEFAULT + TTL_FILE_EXTENSION, result );
+   }
+
+   @Test
+   public void testGetFilePathBasedOnTurtleData() throws Exception {
+      final Path extRefAspectModel = Path.of( resourcesPath.toAbsolutePath().toString(), TTL_FILE_WITH_EXT_REF );
+      final AspectModelUrn aspectModelUrn = localFolderResolverStrategy.getAspectModelUrn(
+            Files.readString( extRefAspectModel ),
+            resourcesPath.toString() );
+
+      assertEquals( "urn:bamm:io.openmanufacturing:1.0.0#AspectModelWithExternalRef", aspectModelUrn.toString() );
    }
 
    @Test( expected = FileWriteException.class )

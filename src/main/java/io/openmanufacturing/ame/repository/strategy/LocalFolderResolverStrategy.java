@@ -44,7 +44,6 @@ import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
 import io.openmanufacturing.ame.repository.model.LocalPackageInfo;
 import io.openmanufacturing.ame.repository.model.ValidFile;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
-import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.ExtendedXsdDataType;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.SdsAspectMetaModelResourceResolver;
@@ -360,6 +359,18 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    /**
+    * Extract Aspect Model urn from turtle data.
+    *
+    * @param turtleData - file used to extract filePath.
+    * @param storagePath - path to storage files.
+    * @return Aspect Model urn
+    */
+   protected AspectModelUrn getAspectModelUrn( @Nonnull final String turtleData,
+         final @Nonnull String storagePath ) {
+      return inMemoryStrategy( turtleData, storagePath ).getAspectModelUrn();
+   }
+
+   /**
     * Extract file path from turtle file - namespace.
     * ex: @prefix : urn:bamm:io.openmanufacturing:1.0.0#.
     *
@@ -368,8 +379,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    protected String getFilePathBasedOnTurtleData( @Nonnull final String turtleData,
          final @Nonnull String storagePath ) {
-      final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( turtleData, storagePath );
-      final AspectModelUrn aspectModelUrn = inMemoryStrategy.getAspectModelUrn();
+      final AspectModelUrn aspectModelUrn = getAspectModelUrn( turtleData, storagePath );
 
       return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator +
             aspectModelUrn.getName();
