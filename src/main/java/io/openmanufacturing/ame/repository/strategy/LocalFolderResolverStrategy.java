@@ -13,7 +13,7 @@
 
 package io.openmanufacturing.ame.repository.strategy;
 
-import static io.openmanufacturing.ame.services.utils.ModelUtils.fetchVersionModel;
+import static io.openmanufacturing.ame.services.utils.ModelUtils.inMemoryStrategy;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
@@ -32,8 +32,6 @@ import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.vocabulary.RDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -47,14 +45,9 @@ import io.openmanufacturing.ame.repository.model.LocalPackageInfo;
 import io.openmanufacturing.ame.repository.model.ValidFile;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
-import io.openmanufacturing.sds.aspectmetamodel.KnownVersion;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.ExtendedXsdDataType;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.SdsAspectMetaModelResourceResolver;
-import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
-import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMM;
-import io.vavr.NotImplementedError;
-import io.vavr.control.Try;
 
 @Service
 public class LocalFolderResolverStrategy implements ModelResolverStrategy {
@@ -117,7 +110,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
          return getFilePathBasedOnTurtleData( turtleData, storagePath ) + applicationSettings.getFileType();
       }
 
-      if ( ":latest.ttl".equalsIgnoreCase( urn ) ) {
+      if ( ":latest.ttl".equalsIgnoreCase( urn ) || urn.contains( applicationSettings.getFileType() ) ) {
          return LocalFolderResolverUtils.extractFilePath( urn ).toString();
       }
 
@@ -365,15 +358,16 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       return storeFile;
    }
 
-   private Try<AspectModelUrn> getRootElementUrn( final VersionedModel versionedModel ) {
-      final BAMM bamm = new BAMM( KnownVersion.getLatest() );
-      final StmtIterator stmtIterator = versionedModel.getModel().listStatements( null, RDF.type, bamm.Aspect() );
-
-      if ( stmtIterator.hasNext() ) {
-         return Try.success( AspectModelUrn.fromUrn( stmtIterator.next().getSubject().getURI() ) );
-      }
-
-      return Try.failure( new NotImplementedError( "AspectModelUrn cannot be found." ) );
+   /**
+    * Extract Aspect Model urn from turtle data.
+    *
+    * @param turtleData - file used to extract filePath.
+    * @param storagePath - path to storage files.
+    * @return Aspect Model urn
+    */
+   protected AspectModelUrn getAspectModelUrn( @Nonnull final String turtleData,
+         final @Nonnull String storagePath ) {
+      return inMemoryStrategy( turtleData, storagePath ).getAspectModelUrn();
    }
 
    /**
@@ -385,9 +379,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    protected String getFilePathBasedOnTurtleData( @Nonnull final String turtleData,
          final @Nonnull String storagePath ) {
-      final Try<AspectModelUrn> urnTemp = fetchVersionModel( turtleData, storagePath ).flatMap(
-            this::getRootElementUrn );
-      final AspectModelUrn aspectModelUrn = urnTemp.get();
+      final AspectModelUrn aspectModelUrn = getAspectModelUrn( turtleData, storagePath );
 
       return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator +
             aspectModelUrn.getName();

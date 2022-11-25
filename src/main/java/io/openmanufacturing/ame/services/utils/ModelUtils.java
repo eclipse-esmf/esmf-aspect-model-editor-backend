@@ -85,12 +85,10 @@ public class ModelUtils {
    /**
     * Method to resolve a given AspectModelUrn using a suitable ResolutionStrategy.
     *
-    * @param aspectModel as a string.
-    * @param storagePath stored path to the Aspect Models.
+    * @param inMemoryStrategy strategy of the backend.
     * @return The resolved model on success.
     */
-   public static Try<VersionedModel> fetchVersionModel( final String aspectModel, final String storagePath ) {
-      final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel, storagePath );
+   public static Try<VersionedModel> fetchVersionModel( final InMemoryStrategy inMemoryStrategy ) {
       return new AspectModelResolver().resolveAspectModel( inMemoryStrategy, inMemoryStrategy.getAspectModelUrn() );
    }
 
@@ -175,7 +173,7 @@ public class ModelUtils {
          final AspectModelValidator aspectModelValidator ) {
       try {
          final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel, storagePath );
-         final Try<VersionedModel> versionedModel = ModelUtils.fetchVersionModel( aspectModel, storagePath );
+         final Try<VersionedModel> versionedModel = ModelUtils.fetchVersionModel( inMemoryStrategy );
 
          if ( versionedModel.isFailure() ) {
             final String message = versionedModel.getCause().toString();

@@ -13,6 +13,8 @@
 
 package io.openmanufacturing.ame.services;
 
+import static io.openmanufacturing.ame.services.utils.ModelUtils.inMemoryStrategy;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Optional;
@@ -27,6 +29,7 @@ import com.google.common.collect.ImmutableMap;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
+import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
 import io.openmanufacturing.sds.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
@@ -104,8 +107,9 @@ public class GenerateService {
    }
 
    private Try<VersionedModel> getVersionModel( final String aspectModel, final Optional<String> storagePath ) {
-      return ModelUtils.fetchVersionModel( aspectModel,
+      final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel,
             storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
+      return ModelUtils.fetchVersionModel( inMemoryStrategy );
    }
 
    public String generateYamlOpenApiSpec( final String aspectModel, final String baseUrl, final boolean includeQueryApi,
