@@ -46,7 +46,7 @@
         <main.class>io.openmanufacturing.ame.Application</main.class>
 
         <!-- Internal sds dependencies -->
-        <sds-sdk-version>2.0.7</sds-sdk-version>
+        <sds-sdk-version>2.0.8</sds-sdk-version>
 
         <!-- Versions of third party dependencies -->
         <spring-boot-version>2.6.13</spring-boot-version>
