@@ -35,7 +35,8 @@ jobs:
         uses: graalvm/setup-graalvm@v1
         with:
           version: '22.1.0'
-          java-version: '11'
+          version: '22.3.0'
+          java-version: '17'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -59,7 +60,7 @@ jobs:
                <servers>
                   <server>
                      <id>github</id>
-                     <username>sds-bot</username>
+                     <username>esmf-bot</username>
                      <password>${env.TOKEN}</password>
                   </server>
                </servers>

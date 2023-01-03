@@ -33,16 +33,7 @@ public class ApplicationSettings {
 
    private static final String MIGRATION_PATH = ASPECT_MODEL_PATH + File.separator + MIGRATION_END_PATH;
 
-   private Boolean local;
    private String fileType;
-
-   public Boolean getLocal() {
-      return local;
-   }
-
-   public void setLocal( final Boolean local ) {
-      this.local = local;
-   }
 
    public static String getAspectModelEditorStoragePath() {
       return ASPECT_MODEL_PATH;

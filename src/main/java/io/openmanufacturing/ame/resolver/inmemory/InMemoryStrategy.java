@@ -19,13 +19,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.RiotException;
 import org.apache.jena.vocabulary.RDF;
 
 import io.openmanufacturing.ame.exceptions.UrnNotFoundException;
@@ -40,10 +40,16 @@ import io.vavr.control.Try;
 public class InMemoryStrategy extends FileSystemStrategy {
    public final Model model;
 
-   public InMemoryStrategy( final String aspectModel, final Path modelsRoot ) {
+   public InMemoryStrategy( final String aspectModel, final Path modelsRoot ) throws RiotException {
       super( modelsRoot );
       final InputStream aspectModelStream = new ByteArrayInputStream( aspectModel.getBytes( StandardCharsets.UTF_8 ) );
-      model = TurtleLoader.loadTurtle( aspectModelStream ).get();
+      final Try<Model> loadTurtle = TurtleLoader.loadTurtle( aspectModelStream );
+
+      if ( loadTurtle.isFailure() ) {
+         throw new RiotException( loadTurtle.getCause().getMessage(), loadTurtle.getCause() );
+      }
+
+      model = loadTurtle.get();
    }
 
    @Override
@@ -58,16 +64,15 @@ public class InMemoryStrategy extends FileSystemStrategy {
          return isOnDirectory;
       }
 
-      final StmtIterator stmtIterator = model
-            .listStatements( ResourceFactory.createResource( aspectModelUrn.toString() ), null, (RDFNode) null );
+      final StmtIterator stmtIterator = model.listStatements(
+            ResourceFactory.createResource( aspectModelUrn.toString() ), null, (RDFNode) null );
 
       if ( stmtIterator.hasNext() ) {
          return Try.success( model );
       }
 
-      return Try.failure(
-            new UrnNotFoundException( String.format( "%s cannot be resolved correctly.", aspectModelUrn ),
-                  aspectModelUrn ) );
+      return Try.failure( new UrnNotFoundException( String.format( "%s cannot be resolved correctly.", aspectModelUrn ),
+            aspectModelUrn ) );
    }
 
    /**
@@ -81,8 +86,7 @@ public class InMemoryStrategy extends FileSystemStrategy {
       final Optional<StmtIterator> sdsStatements = getSdsStatements();
 
       final String aspectModelUrn = sdsStatements.orElseThrow(
-                                                       () -> new NotImplementedError( "AspectModelUrn cannot be found." ) )
-                                                 .next().getSubject().getURI();
+            () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next().getSubject().getURI();
 
       return AspectModelUrn.fromUrn( aspectModelUrn );
    }
@@ -91,13 +95,12 @@ public class InMemoryStrategy extends FileSystemStrategy {
 
       for ( final KnownVersion version : KnownVersion.getVersions() ) {
          final BAMM bamm = new BAMM( version );
-         final List<Resource> resources = List.of( bamm.Aspect(), bamm.Property(), bamm.Entity(),
-               bamm.Characteristic() );
+         final List<Resource> resources = List.of( bamm.Aspect(), bamm.Property(), bamm.Entity(), bamm.Characteristic(),
+               bamm.Constraint() );
          final List<StmtIterator> collect = resources.stream().filter(
                                                            resource -> model.listStatements( null, RDF.type, resource ).hasNext() )
                                                      .map( resource -> model.listStatements( null, RDF.type,
-                                                           resource ) )
-                                                     .collect( Collectors.toList() );
+                                                           resource ) ).toList();
          if ( !collect.isEmpty() ) {
             return collect.stream().findFirst();
          }

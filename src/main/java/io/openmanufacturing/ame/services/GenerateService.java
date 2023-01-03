@@ -17,6 +17,7 @@ import static io.openmanufacturing.ame.services.utils.ModelUtils.inMemoryStrateg
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -76,7 +77,7 @@ public class GenerateService {
                                                 } );
 
          final AspectModelJsonSchemaGenerator generator = new AspectModelJsonSchemaGenerator();
-         final JsonNode jsonSchema = generator.apply( aspect );
+         final JsonNode jsonSchema = generator.apply( aspect, new Locale( "en", "EN" ) );
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
          final ObjectMapper objectMapper = new ObjectMapper();

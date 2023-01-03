@@ -34,6 +34,7 @@ import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.services.ModelService;
 import io.openmanufacturing.ame.services.model.migration.Namespaces;
 import io.openmanufacturing.ame.web.utils.MediaTypeExtension;
+import io.openmanufacturing.sds.aspectmodel.resolver.exceptions.ParserException;
 import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationError;
 import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReport;
 
@@ -98,7 +99,7 @@ public class ModelResource {
     * @return A migrated version of the Aspect Model
     */
    @PostMapping( path = "migrate", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
-   public ResponseEntity<String> migrateModel( @RequestBody final String aspectModel ) {
+   public ResponseEntity<String> migrateModel( @RequestBody final String aspectModel ) throws ParserException {
       return ResponseEntity.ok(
             modelService.migrateModel( aspectModel, ApplicationSettings.getMetaModelStoragePath() ) );
    }

@@ -46,10 +46,10 @@
         <main.class>io.openmanufacturing.ame.Application</main.class>
 
         <!-- Internal sds dependencies -->
-        <sds-sdk-version>2.0.7</sds-sdk-version>
+        <sds-sdk-version>DEV-SNAPSHOT</sds-sdk-version>
 
         <!-- Versions of third party dependencies -->
-        <spring-boot-version>2.6.13</spring-boot-version>
+        <spring-boot-version>3.0.0</spring-boot-version>
         <lombok-version>1.18.24</lombok-version>
         <commons-io-version>2.11.0</commons-io-version>
         <commons-validator-version>1.7</commons-validator-version>
@@ -58,17 +58,10 @@
         <mockito-inline-version>4.1.0</mockito-inline-version>
         <cglib-version>3.3.0</cglib-version>
         <classworlds-version>1.1</classworlds-version>
-        <spring-aot-version>0.12.0</spring-aot-version>
-        <spring-native-version>0.12.0</spring-native-version>
-        <graal-svm-version>22.1.0.1</graal-svm-version>
-
-        <!-- Required for building a native image -->
-        <org-osgi-service-cm-version>1.6.1</org-osgi-service-cm-version>
-        <org-eclipse-osgi-version>3.17.200</org-eclipse-osgi-version>
-        <joda-time-version>2.10.13</joda-time-version>
-        <javax-money-version>1.0.3</javax-money-version>
-        <gson-version>2.9.0</gson-version>
-        <javax-json-bind-api-version>1.0</javax-json-bind-api-version>
+        <graal-svm-version>22.3.0</graal-svm-version>
+        <slf4j-api-version>2.0.5</slf4j-api-version>
+        <jakarta-version>6.0.0</jakarta-version>
+        <native-maven-plugin-version>0.9.19</native-maven-plugin-version>
 
         <!-- Versions of plugins -->
         <junit-version>4.13.2</junit-version>
@@ -87,7 +80,6 @@
         <maven-surefire-plugin-version>2.22.2</maven-surefire-plugin-version>
         <cyclonedx-maven-plugin-version>1.4.1</cyclonedx-maven-plugin-version>
         <frontend-maven-plugin-version>1.12.1</frontend-maven-plugin-version>
-        <native-image-maven-plugin-version>21.2.0</native-image-maven-plugin-version>
 
         <!-- General settings -->
         <postman.directory>postman</postman.directory>
@@ -106,9 +98,9 @@
         <postman.test.environment>ame.postman_environment.json</postman.test.environment>
         <postman.test.collection>ame.postman_collection.json</postman.test.collection>
 
-        <java.version>11</java.version>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
 
         <sonar.coverage.jacoco.xmlReportPaths>
             ${project.basedir}/target/site/jacoco-aggregate/jacoco.xml
@@ -202,18 +194,24 @@
             <artifactId>sds-test-resources</artifactId>
             <version>${sds-sdk-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.graalvm.nativeimage</groupId>
+            <artifactId>svm</artifactId>
+            <version>${graal-svm-version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Third party dependencies for developing-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-properties-migrator</artifactId>
+            <version>${spring-boot-version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <version>${spring-boot-version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-to-slf4j</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -227,22 +225,20 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.experimental</groupId>
-            <artifactId>spring-aot</artifactId>
-            <version>${spring-aot-version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-api-version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.experimental</groupId>
-            <artifactId>spring-native</artifactId>
-            <version>${spring-native-version}</version>
-        </dependency>
-
-        <!-- Required for GraalVM build: Annotations for substitution classes -->
-        <dependency>
-            <groupId>org.graalvm.nativeimage</groupId>
-            <artifactId>svm</artifactId>
-            <version>${graal-svm-version}</version>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>${jakarta-version}</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.buildtools</groupId>
+            <artifactId>native-maven-plugin</artifactId>
+            <version>${native-maven-plugin-version}</version>
         </dependency>
 
         <!-- Third party dependencies for testing -->
@@ -338,9 +334,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin-version}</version>
-                <configuration>
-                    <release>11</release>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -473,26 +466,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>org.springframework.experimental</groupId>
-                <artifactId>spring-aot-maven-plugin</artifactId>
-                <version>${spring-aot-version}</version>
-                <executions>
-                    <execution>
-                        <id>test-generate</id>
-                        <goals>
-                            <goal>test-generate</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>generate</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
@@ -502,34 +475,75 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.graalvm.nativeimage</groupId>
-                        <artifactId>native-image-maven-plugin</artifactId>
-                        <version>${native-image-maven-plugin-version}</version>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>${native-maven-plugin-version}</version>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>add-reachability-metadata</id>
+                                <goals>
+                                    <goal>add-reachability-metadata</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>compile-no-fork</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                        </executions>
                         <configuration>
-                            <mainClass>${main.class}</mainClass>
+                            <mainClass>io.openmanufacturing.ame.Application</mainClass>
                             <imageName>ame-backend-${project.version}-${os.platform}</imageName>
+                            <verbose>true</verbose>
                             <buildArgs>
                                 <buildArg>-Dspring.graal.remove-unused-autoconfig=true</buildArg>
                                 <buildArg>-Dspring.graal.remove-yaml-support=true</buildArg>
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                 <buildArg>
-                                    --initialize-at-build-time=org.apache.commons.logging.impl.SLF4JLocationAwareLog,guru.nidi.graphviz.attribute.,org.apache.velocity.
+                                    --initialize-at-build-time=org.slf4j.LoggerFactory,ch.qos.logback,guru.nidi.graphviz.attribute.,org.apache.velocity.
                                 </buildArg>
                                 <buildArg>-J-Xmx8G</buildArg>
                                 <buildArg>-H:+ReportExceptionStackTraces</buildArg>
-                                <buildArg>-H:ReflectionConfigurationFiles=../.graalvm/reflect-config.json</buildArg>
-                                <buildArg>-H:ResourceConfigurationFiles=../.graalvm/resource-config.json</buildArg>
+                                <buildArg>
+                                    -H:ReflectionConfigurationFiles=${project.basedir}/.graalvm/reflect-config.json
+                                </buildArg>
+                                <buildArg>
+                                    -H:ResourceConfigurationFiles=${project.basedir}/.graalvm/resource-config.json
+                                </buildArg>
                             </buildArgs>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <version>${spring-boot-version}</version>
                         <executions>
                             <execution>
+                                <id>process-test-aot</id>
                                 <goals>
-                                    <goal>native-image</goal>
+                                    <goal>process-test-aot</goal>
                                 </goals>
-                                <phase>package</phase>
+                            </execution>
+                            <execution>
+                                <id>process-aot</id>
+                                <goals>
+                                    <goal>process-aot</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <goals>
+                                    <goal>repackage</goal>
+                                    <goal>build-info</goal>
+                                </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <mainClass>${main.class}</mainClass>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
@@ -553,22 +567,6 @@
                                 </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.springframework.boot</groupId>
-                        <artifactId>spring-boot-maven-plugin</artifactId>
-                        <version>${spring-boot-version}</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>repackage</goal>
-                                    <goal>build-info</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <mainClass>${main.class}</mainClass>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -683,7 +681,9 @@
                                 <phase>pre-integration-test</phase>
                                 <configuration>
                                     <target>
-                                        <replaceregexp file="${project.build.outputDirectory}/${postman.directory}/${postman.test.environment}" match="9091" replace="${integration-test-port}" byline="true"/>
+                                        <replaceregexp
+                                                file="${project.build.outputDirectory}/${postman.directory}/${postman.test.environment}"
+                                                match="9091" replace="${integration-test-port}" byline="true"/>
                                     </target>
                                 </configuration>
                                 <goals>
@@ -821,7 +821,7 @@
         <repository>
             <id>github</id>
             <name>OpenManufacturingPlatform SDS-SDK</name>
-            <url>https://maven.pkg.github.com/OpenManufacturingPlatform/sds-sdk</url>
+            <url>https://maven.pkg.github.com/eclipse-esmf/esmf-sdk</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
