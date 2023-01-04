@@ -19,6 +19,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.util.ReflectionUtils;
 
+import io.openmanufacturing.sds.aspectmodel.shacl.constraint.JsConstraint;
 import io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorService;
 import io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorServiceLoader;
 
@@ -33,6 +34,9 @@ public class Application {
       ReflectionUtils.setField( migratorServiceRef, migratorService, new MigratorService() );
       instanceRef.setAccessible( true );
       ReflectionUtils.setField( instanceRef, migratorService, migratorService );
+
+      // Spring and GrallVm cannot launch Javascript engines at the moment, so this must be disabled for now.
+      JsConstraint.setEvaluateJavaScript( false );
 
       SpringApplication.run( Application.class, args );
    }
