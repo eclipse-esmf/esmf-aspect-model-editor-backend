@@ -36,11 +36,8 @@ jobs:
         with:
           version: '22.3.0'
           java-version: '17'
-          components: 'native-image'
+          components: 'native-image', 'js'
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install graalvm javascript runtime
-        run: gu install js
 
       - name: Cache maven packages
         uses: actions/cache@v3
