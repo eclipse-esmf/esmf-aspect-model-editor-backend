@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
 
     steps:
       - name: Checkout project
@@ -38,6 +38,9 @@ jobs:
           java-version: '17'
           components: 'native-image'
           github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install graalvm javascript runtime
+        run: gu install js
 
       - name: Cache maven packages
         uses: actions/cache@v3
