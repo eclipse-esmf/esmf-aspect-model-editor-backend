@@ -819,15 +819,12 @@
 
     <repositories>
         <repository>
-            <id>github</id>
-            <name>OpenManufacturingPlatform SDS-SDK</name>
+            <id>esmf-sdk-release</id>
+            <name>ESMF-SDK</name>
             <url>https://maven.pkg.github.com/eclipse-esmf/esmf-sdk</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
         </repository>
         <repository>
             <id>spring-release</id>

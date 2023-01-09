@@ -47,62 +47,43 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Write settings.xml
-        uses: DamianReeves/write-file-action@v1.0
-        with:
-          path: settings.xml
-          contents: |
-            <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                      xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                                      https://maven.apache.org/xsd/settings-1.0.0.xsd">
-               <servers>
-                  <server>
-                     <id>github</id>
-                     <username>esmf-bot</username>
-                     <password>${env.TOKEN}</password>
-                  </server>
-               </servers>
-            </settings>
-          write-mode: overwrite
-
       - name: Creating native image
-        run: mvn install -s ./settings.xml -P native-image
+        run: mvn install -P native-image
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Mac)
         if: matrix.os == 'macos-latest'
-        run: mvn install -s ./settings.xml -P native-image -Dos.platform=mac
+        run: mvn install -P native-image -Dos.platform=mac
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: mvn install -s ./settings.xml -P native-image -Dos.platform=linux
+        run: mvn install -P native-image -Dos.platform=linux
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Win)
         if: matrix.os == 'windows-latest'
-        run: mvn install -s ./settings.xml -P native-image -D os.platform=win
+        run: mvn install -P native-image -D os.platform=win
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Mac
         if: matrix.os == 'macos-latest'
-        run: mvn install -s ./settings.xml -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=mac
+        run: mvn install -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=mac
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Linux
         if: matrix.os == 'ubuntu-latest'
-        run: mvn install -s ./settings.xml -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=linux
+        run: mvn install -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=linux
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Windows
         if: matrix.os == 'windows-latest'
-        run: mvn install -s ./settings.xml -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-postman-integration-tests -D os.platform=win
+        run: mvn install -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-postman-integration-tests -D os.platform=win
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
