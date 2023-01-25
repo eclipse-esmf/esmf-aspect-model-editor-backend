@@ -34,7 +34,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
-import io.openmanufacturing.ame.services.model.packaging.ProcessPackage;
+import io.openmanufacturing.ame.model.packaging.ProcessPackage;
 
 @RunWith( SpringRunner.class )
 @SpringBootTest

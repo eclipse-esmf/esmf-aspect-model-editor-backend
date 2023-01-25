@@ -30,22 +30,24 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
+import io.openmanufacturing.ame.model.packaging.MissingFile;
+import io.openmanufacturing.ame.model.packaging.ProcessPackage;
+import io.openmanufacturing.ame.model.packaging.ValidFile;
+import io.openmanufacturing.ame.model.repository.LocalPackageInfo;
+import io.openmanufacturing.ame.model.validation.ViolationError;
+import io.openmanufacturing.ame.model.validation.ViolationReport;
 import io.openmanufacturing.ame.repository.ModelResolverRepository;
-import io.openmanufacturing.ame.repository.model.LocalPackageInfo;
 import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
 import io.openmanufacturing.ame.repository.strategy.ModelResolverStrategy;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import io.openmanufacturing.ame.resolver.file.FileSystemStrategy;
-import io.openmanufacturing.ame.services.model.packaging.MissingFile;
-import io.openmanufacturing.ame.services.model.packaging.ProcessPackage;
-import io.openmanufacturing.ame.services.model.packaging.ValidFile;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.ame.services.utils.UnzipUtils;
 import io.openmanufacturing.ame.services.utils.ZipUtils;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.DataType;
+import io.openmanufacturing.sds.aspectmodel.shacl.violation.InvalidSyntaxViolation;
+import io.openmanufacturing.sds.aspectmodel.shacl.violation.ProcessingViolation;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
-import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationError;
-import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReport;
 import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
 
 @Service
@@ -82,11 +84,12 @@ public class PackageService {
          aspectModelFiles.forEach( aspectModelFileName -> {
             final String aspectModel = strategy.getModelAsString( aspectModelFileName, storagePath );
 
-            final ValidationReport validationReport = ModelUtils.validateModel( aspectModel, storagePath,
-                  aspectModelValidator );
+            final ViolationReport violationReport = new ViolationReport();
 
-            getMissingAspectModelFiles( validationReport ).forEach( processPackage::addMissingFiles );
-            final ValidFile validFile = new ValidFile( aspectModelFileName, validationReport );
+            ModelUtils.validateModel( aspectModel, storagePath, aspectModelValidator, violationReport );
+
+            getMissingAspectModelFiles( violationReport ).forEach( processPackage::addMissingFiles );
+            final ValidFile validFile = new ValidFile( aspectModelFileName, violationReport );
 
             processPackage.addValidFiles( validFile );
          } );
@@ -119,13 +122,14 @@ public class PackageService {
                   final Boolean modelExist = strategy.checkModelExist( localPackageInformation.getAspectModelFile(),
                         ApplicationSettings.getMetaModelStoragePath() );
 
-                  final ValidationReport validationReport = ModelUtils.validateModel(
-                        localPackageInformation.getAspectModel(), storagePath, aspectModelValidator );
+                  final ViolationReport violationReport = new ViolationReport();
+
+                  // ModelUtils.validateModel( localPackageInformation.getAspectModel(), storagePath, aspectModelValidator );
 
                   final ValidFile validFile = new ValidFile( localPackageInformation.getAspectModelFile(),
-                        validationReport, modelExist );
+                        violationReport, modelExist );
 
-                  getMissingAspectModelFiles( validationReport ).forEach( processPackage::addMissingFiles );
+                  getMissingAspectModelFiles( violationReport ).forEach( processPackage::addMissingFiles );
 
                   processPackage.addValidFiles( validFile );
                }
@@ -211,20 +215,25 @@ public class PackageService {
       }
    }
 
-   private List<MissingFile> getMissingAspectModelFiles( final ValidationReport validationReport ) {
-      final List<ValidationError> validationErrors = validationReport.getValidationErrors().stream().filter(
-            validationError -> validationError instanceof ValidationError.Semantic ).collect( Collectors.toList() );
+   private List<MissingFile> getMissingAspectModelFiles( final ViolationReport violationReport ) {
+      final List<ViolationError> validationErrors = violationReport.getViolationErrors().stream().filter(
+            violation -> !violation.getErrorCode().equals( InvalidSyntaxViolation.ERROR_CODE )
+                  && violation.getErrorCode().equals(
+                  ProcessingViolation.ERROR_CODE ) ).toList();
 
       if ( validationErrors.isEmpty() ) {
          return List.of();
       }
 
       return validationErrors.stream()
-                             .filter( validationError -> ModelUtils.URN_PATTERN.matcher(
-                                   ((ValidationError.Semantic) validationError).getValue() ).matches() )
-                             .map( validationError -> {
-                                final String valueUrn = ((ValidationError.Semantic) validationError).getValue();
-                                final String focusNodeUrn = ((ValidationError.Semantic) validationError).getFocusNode();
+                             .filter(
+                                   validation -> ModelUtils.URN_PATTERN.matcher( validation.getFocusNode().toString() )
+                                                                       .matches() )
+                             .map( validation -> {
+                                final String valueUrn = null;
+                                // ((ValidationError.Semantic) validationError).getValue();
+                                final String focusNodeUrn = null;
+                                // ((ValidationError.Semantic) validationError).getFocusNode();
 
                                 final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy(
                                       Path.of( ApplicationSettings.getMetaModelStoragePath() ) );

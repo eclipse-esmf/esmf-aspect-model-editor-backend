@@ -29,31 +29,31 @@ import org.apache.jena.riot.RiotException;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
-import io.openmanufacturing.ame.exceptions.UrnNotFoundException;
+import io.openmanufacturing.ame.model.validation.ViolationReport;
 import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
+import io.openmanufacturing.ame.validation.ViolationFormatter;
 import io.openmanufacturing.sds.aspectmodel.resolver.AspectModelResolver;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.SdsAspectMetaModelResourceResolver;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
 import io.openmanufacturing.sds.aspectmodel.serializer.PrettyPrinter;
+import io.openmanufacturing.sds.aspectmodel.shacl.violation.Violation;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
-import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationError;
-import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReport;
-import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReportBuilder;
 import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
 import io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorService;
 import io.openmanufacturing.sds.metamodel.Aspect;
 import io.openmanufacturing.sds.metamodel.loader.AspectModelLoader;
 import io.vavr.control.Try;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 public class ModelUtils {
+
+   private ModelUtils() {
+   }
 
    public static final String TTL = "ttl";
    public static final String TTL_EXTENSION = "." + TTL;
 
-   public final static Pattern URN_PATTERN = Pattern.compile(
+   public static final Pattern URN_PATTERN = Pattern.compile(
          "^urn:[a-z0-9][a-z0-9-]{0,31}:([a-z0-9()+,\\-.:=@;$_!*#']|%[0-9a-f]{2})+$", Pattern.CASE_INSENSITIVE );
 
    /**
@@ -103,7 +103,7 @@ public class ModelUtils {
    public static String migrateModel( final String aspectModel, final String storagePath ) {
       final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel, storagePath );
 
-      final Try<VersionedModel> migratedFile = LoadModelFromStoragePath( inMemoryStrategy ).flatMap(
+      final Try<VersionedModel> migratedFile = loadModelFromStoragePath( inMemoryStrategy ).flatMap(
             new MigratorService()::updateMetaModelVersion );
 
       final VersionedModel versionedModel = migratedFile.getOrElseThrow(
@@ -122,10 +122,10 @@ public class ModelUtils {
       final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel,
             ApplicationSettings.getMetaModelStoragePath() );
 
-      final VersionedModel versionedModel = ModelUtils.LoadModelFromStoragePath( inMemoryStrategy ).getOrElseThrow(
+      final VersionedModel versionedModel = ModelUtils.loadModelFromStoragePath( inMemoryStrategy ).getOrElseThrow(
             e -> new InvalidAspectModelException( "Cannot resolve Aspect Model.", e ) );
 
-      return AspectModelLoader.fromVersionedModelUnchecked( versionedModel );
+      return AspectModelLoader.getSingleAspectUnchecked( versionedModel );
    }
 
    /**
@@ -134,7 +134,7 @@ public class ModelUtils {
     * @param inMemoryStrategy for the given storage path.
     * @return the resulting {@link VersionedModel} that corresponds to the input Aspect model.
     */
-   public static Try<VersionedModel> LoadModelFromStoragePath( final InMemoryStrategy inMemoryStrategy ) {
+   public static Try<VersionedModel> loadModelFromStoragePath( final InMemoryStrategy inMemoryStrategy ) {
       return resolveModel( inMemoryStrategy.model );
    }
 
@@ -170,44 +170,21 @@ public class ModelUtils {
     *       Meta Model semantics or a ValidationReport.InvalidReport that provides a number of ValidationErrors that
     *       describe all validation violations.
     */
-   public static ValidationReport validateModel( final String aspectModel, final String storagePath,
-         final AspectModelValidator aspectModelValidator ) {
+   public static ViolationReport validateModel( final String aspectModel, final String storagePath,
+         final AspectModelValidator aspectModelValidator, final ViolationReport violationReport ) {
       try {
          final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel, storagePath );
          final Try<VersionedModel> versionedModel = ModelUtils.fetchVersionModel( inMemoryStrategy );
+         final List<Violation> violations = aspectModelValidator.validateModel( versionedModel );
 
-         if ( versionedModel.isFailure() ) {
-            final String message = versionedModel.getCause().toString();
-
-            if ( versionedModel.getCause() instanceof UrnNotFoundException ) {
-               final String aspectModelUrn = inMemoryStrategy.getAspectModelUrn().toString();
-               final String causedAspectModelUrn = ((UrnNotFoundException) versionedModel.getCause()).getUrn()
-                                                                                                     .toString();
-               return buildValidationSemanticReport( message, aspectModelUrn, null, null, causedAspectModelUrn );
-            }
-
-            return buildValidationSemanticReport( message, null, null, null, null );
-         }
-
-         return aspectModelValidator.validate( versionedModel );
+         violationReport.setViolationErrors( new ViolationFormatter().apply( violations ) );
+         
+         return violationReport;
       } catch ( final RiotException riotException ) {
+         violationReport.addViolation(
+               new ViolationFormatter().visitInvalidSyntaxViolation( riotException.getMessage() ) );
 
-         return buildValidationSyntacticReport( riotException );
-      } catch ( final IllegalArgumentException illegalArgumentException ) {
-
-         return buildValidationSemanticReport( illegalArgumentException.getMessage(), null, null, null, null );
+         return violationReport;
       }
-   }
-
-   private static ValidationReport buildValidationSyntacticReport( final RiotException riotException ) {
-      return new ValidationReportBuilder().withValidationErrors(
-            List.of( new ValidationError.Syntactic( riotException ) ) ).buildInvalidReport();
-   }
-
-   private static ValidationReport buildValidationSemanticReport( final String message, final String focusNode,
-         final String resultPath, final String Severity, final String value ) {
-      final ValidationError.Semantic semantic = new ValidationError.Semantic( message, focusNode, resultPath, Severity,
-            value );
-      return new ValidationReportBuilder().withValidationErrors( List.of( semantic ) ).buildInvalidReport();
    }
 }

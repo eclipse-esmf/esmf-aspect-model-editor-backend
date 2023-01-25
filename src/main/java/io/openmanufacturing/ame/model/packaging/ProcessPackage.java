@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package io.openmanufacturing.ame.services.model.packaging;
+package io.openmanufacturing.ame.model.packaging;
 
 import java.util.ArrayList;
 import java.util.List;

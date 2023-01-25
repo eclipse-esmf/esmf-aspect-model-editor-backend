@@ -23,17 +23,17 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
+import io.openmanufacturing.ame.model.migration.AspectModelFile;
+import io.openmanufacturing.ame.model.migration.Namespace;
+import io.openmanufacturing.ame.model.migration.Namespaces;
+import io.openmanufacturing.ame.model.validation.ViolationReport;
 import io.openmanufacturing.ame.repository.ModelResolverRepository;
 import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
 import io.openmanufacturing.ame.repository.strategy.ModelResolverStrategy;
-import io.openmanufacturing.ame.services.model.migration.AspectModelFile;
-import io.openmanufacturing.ame.services.model.migration.Namespace;
-import io.openmanufacturing.ame.services.model.migration.Namespaces;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.DataType;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
-import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReport;
 import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
 import io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorService;
 import io.vavr.control.Try;
@@ -84,8 +84,8 @@ public class ModelService {
             storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
    }
 
-   public ValidationReport validateModel( final String aspectModel, final String storagePath ) {
-      return ModelUtils.validateModel( aspectModel, storagePath, aspectModelValidator );
+   public ViolationReport validateModel( final String aspectModel, final String storagePath ) {
+      return ModelUtils.validateModel( aspectModel, storagePath, aspectModelValidator, new ViolationReport() );
    }
 
    public String migrateModel( final String aspectModel, final String storagePath ) {

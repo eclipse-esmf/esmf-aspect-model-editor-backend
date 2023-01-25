@@ -30,8 +30,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileReadException;
+import io.openmanufacturing.ame.model.packaging.ProcessPackage;
 import io.openmanufacturing.ame.services.PackageService;
-import io.openmanufacturing.ame.services.model.packaging.ProcessPackage;
 import io.openmanufacturing.ame.web.utils.MediaTypeExtension;
 
 /**

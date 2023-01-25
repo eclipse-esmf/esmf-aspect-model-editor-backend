@@ -11,16 +11,14 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package io.openmanufacturing.ame.repository.model;
-
-import java.util.List;
+package io.openmanufacturing.ame.model.repository;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class LocalPackageInfo {
-    private final List<ValidFile> validFiles;
-    private final List<String> inValidFiles;
+public class ValidFile {
+   private String aspectModelFile;
+   private String aspectModel;
 }
