@@ -170,16 +170,16 @@ public class PackageService {
 
    private List<MissingElement> getMissingAspectModelFiles( final ViolationReport violationReport,
          final String fileName ) {
-      final List<ViolationError> validationErrors = violationReport.getViolationErrors().stream()
-                                                                   .filter( ModelUtils.isProcessingViolation() ).filter(
+      final List<ViolationError> violationErrors = violationReport.getViolationErrors().stream()
+                                                                  .filter( ModelUtils.isProcessingViolation() ).filter(
                   validation -> ModelUtils.URN_PATTERN.matcher( validation.getFocusNode().toString() ).matches() )
-                                                                   .toList();
+                                                                  .toList();
 
-      if ( validationErrors.isEmpty() ) {
+      if ( violationErrors.isEmpty() ) {
          return List.of();
       }
 
-      return validationErrors.stream().map( validation -> {
+      return violationErrors.stream().map( validation -> {
          final String element = validation.getFocusNode().toString();
          final String errorMessage = String.format(
                "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", element, fileName );
