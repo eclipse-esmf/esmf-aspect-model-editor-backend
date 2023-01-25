@@ -212,7 +212,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
                      .map( Path::toString )
                      .map( path -> path.replace( rootSharedFolder, StringUtils.EMPTY ) )
                      .filter( this::isPathExcluded )
-                     .collect( toList() );
+                     .toList();
       } catch ( final IOException e ) {
          throw new FileReadException( "Can not read shared folder file structure", e );
       }
@@ -239,7 +239,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    /**
     * Method for excluding turtle files from user.
-    * For example latest.ttl is used internally AME and it should nt be modified or used by the user.
+    * For example latest.ttl is used internally AME, and it should nt be modified or used by the user.
     *
     * @param path - folder location that will be analyzed.
     */
@@ -255,7 +255,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
                final String aspectModel = getModelAsString( aspectModelFile, storagePath );
                return new ValidFile( aspectModelFile, aspectModel );
             } )
-            .collect( toList() );
+            .toList();
    }
 
    /**
@@ -286,7 +286,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
                                            .map( value -> value.replace(
                                                  LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR,
                                                  StringUtils.EMPTY ) )
-                                           .collect( toList() );
+                                           .toList();
 
          entry.setValue( collect );
       }

@@ -20,12 +20,12 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class MissingFile {
-   @JsonProperty( "analysedFile" )
-   private String analysedFile;
+public class MissingElement {
+   @JsonProperty( "fileName" )
+   private String fileName;
 
-   @JsonProperty( "missingFile" )
-   private String missingFile;
+   @JsonProperty( "element" )
+   private String element;
 
    @JsonProperty( "errorMessage" )
    private String errorMessage;

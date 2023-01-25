@@ -21,15 +21,21 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RiotException;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
+import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
+import io.openmanufacturing.ame.model.validation.ViolationError;
 import io.openmanufacturing.ame.model.validation.ViolationReport;
+import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
 import io.openmanufacturing.ame.validation.ViolationFormatter;
 import io.openmanufacturing.sds.aspectmodel.resolver.AspectModelResolver;
@@ -37,6 +43,7 @@ import io.openmanufacturing.sds.aspectmodel.resolver.services.SdsAspectMetaModel
 import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
 import io.openmanufacturing.sds.aspectmodel.serializer.PrettyPrinter;
+import io.openmanufacturing.sds.aspectmodel.shacl.violation.ProcessingViolation;
 import io.openmanufacturing.sds.aspectmodel.shacl.violation.Violation;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
@@ -178,7 +185,7 @@ public class ModelUtils {
          final List<Violation> violations = aspectModelValidator.validateModel( versionedModel );
 
          violationReport.setViolationErrors( new ViolationFormatter().apply( violations ) );
-         
+
          return violationReport;
       } catch ( final RiotException riotException ) {
          violationReport.addViolation(
@@ -186,5 +193,28 @@ public class ModelUtils {
 
          return violationReport;
       }
+   }
+
+   public static Predicate<ViolationError> isProcessingViolation() {
+      return violation -> violation.getErrorCode().equals( ProcessingViolation.ERROR_CODE );
+   }
+
+   public static List<String> copyAspectModelToDirectory( final List<String> aspectModelFiles,
+         final String sourceStorage, final String destStorage ) {
+      return aspectModelFiles.stream().map( file -> {
+         final LocalFolderResolverUtils.FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath(
+               file );
+         final String absoluteAspectModelPath = sourceStorage + File.separator + folderStructure.toString();
+         final File aspectModelStoragePath = Paths.get( destStorage, folderStructure.getFileRootPath(),
+               folderStructure.getVersion() ).toFile();
+
+         try {
+            FileUtils.copyFileToDirectory( new File( absoluteAspectModelPath ), aspectModelStoragePath );
+            return folderStructure.toString();
+         } catch ( final IOException e ) {
+            throw new FileNotFoundException(
+                  String.format( "Cannot copy file %s to %s", folderStructure.getFileName(), aspectModelStoragePath ) );
+         }
+      } ).toList();
    }
 }

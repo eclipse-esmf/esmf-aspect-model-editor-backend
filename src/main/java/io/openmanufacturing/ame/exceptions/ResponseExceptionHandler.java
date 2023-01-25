@@ -39,7 +39,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    private static final Logger LOG = LoggerFactory.getLogger( ResponseExceptionHandler.class );
 
    /**
-    * Method for handling exception of type {@link FileNotFoundException}
+    * Method for handling exception to type {@link FileNotFoundException}
     *
     * @param request the Http request
     * @param e the exception which occurred
@@ -52,7 +52,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    }
 
    /**
-    * Method for handling exception of type {@link FileWriteException}
+    * Method for handling exception to type {@link FileWriteException}
     *
     * @param request the Http request
     * @param e the exception which occurred
@@ -65,7 +65,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    }
 
    /**
-    * Method for handling exception of type {@link FileReadException}
+    * Method for handling exception to type {@link FileReadException}
     *
     * @param request the Http request
     * @param e the exception which occurred
@@ -78,7 +78,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    }
 
    /**
-    * Method for handling exception of type {@link CreateFileException}
+    * Method for handling exception to type {@link CreateFileException}
     *
     * @param request the Http request
     * @param e the exception which occurred
@@ -91,7 +91,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    }
 
    /**
-    * Method for handling exception of type {@link AspectModelPrintDocumentationException}
+    * Method for handling exception to type {@link AspectModelPrintDocumentationException}
     *
     * @param request the Http request
     * @param e the exception which occurred
@@ -104,7 +104,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    }
 
    /**
-    * Method for handling exception of type {@link AspectLoadingException}
+    * Method for handling exception to type {@link AspectLoadingException}
     *
     * @param request the Http request
     * @param e the exception which occurred
@@ -117,7 +117,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    }
 
    /**
-    * Method for handling exception of type {@link InvalidAspectModelException}
+    * Method for handling exception to type {@link InvalidAspectModelException}
     *
     * @param request the Http request
     * @param e the exception which occurred
