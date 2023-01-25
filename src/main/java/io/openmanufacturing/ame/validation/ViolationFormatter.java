@@ -16,14 +16,13 @@ package io.openmanufacturing.ame.validation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import io.openmanufacturing.ame.exceptions.UrnNotFoundException;
 import io.openmanufacturing.ame.model.validation.ViolationError;
+import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.shacl.fix.Fix;
-import io.openmanufacturing.sds.aspectmodel.shacl.violation.InvalidSyntaxViolation;
 import io.openmanufacturing.sds.aspectmodel.shacl.violation.ProcessingViolation;
 import io.openmanufacturing.sds.aspectmodel.shacl.violation.SparqlConstraintViolation;
 import io.openmanufacturing.sds.aspectmodel.shacl.violation.Violation;
@@ -38,14 +37,18 @@ public class ViolationFormatter
       }
 
       final List<ViolationError> violationErrors = new ArrayList<>();
-      final List<Violation> nonSemanticViolations = violations.stream().filter( violation ->
-            violation.errorCode().equals( InvalidSyntaxViolation.ERROR_CODE ) || violation.errorCode().equals(
-                  ProcessingViolation.ERROR_CODE ) ).toList();
+      final List<Violation> nonSemanticViolations = filterNonSemanticViolations( violations );
+      
       if ( !nonSemanticViolations.isEmpty() ) {
          return processNonSemanticViolation( nonSemanticViolations, violationErrors );
       }
 
       return processSemanticViolations( violations, violationErrors );
+   }
+
+   private List<Violation> filterNonSemanticViolations( final List<Violation> violations ) {
+      return violations.stream().filter( violation -> ModelUtils.isInvalidSyntaxViolation().test( violation )
+            || ModelUtils.isProcessingViolationViolation().test( violation ) ).toList();
    }
 
    protected List<ViolationError> processNonSemanticViolation( final List<Violation> violations,
@@ -57,32 +60,16 @@ public class ViolationFormatter
 
    protected List<ViolationError> processSemanticViolations( final List<Violation> violations,
          final List<ViolationError> violationErrors ) {
-      final Map<? extends Class<? extends Violation>, List<Violation>> violationsByType = violations.stream().collect(
-            Collectors.groupingBy( Violation::getClass ) );
+      final Map<Class<? extends Violation>, List<Violation>> violationsByType = groupViolationsByType( violations );
 
-      for ( final Map.Entry<? extends Class<? extends Violation>, List<Violation>> entry : violationsByType.entrySet() ) {
-         for ( final Violation violation : entry.getValue() ) {
-
-            final ViolationError accept = violation.accept( this );
-
-            final ViolationError violationError = new ViolationError( violation.message() );
-
-            final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn(
-                  Optional.ofNullable( violation.context().element().getURI() ).orElse( "anonymous element" ) );
-
-            violationError.setErrorCode( violation.errorCode() );
-            violationError.setFocusNode( aspectModelUrn );
-
-            if ( !violation.fixes().isEmpty() ) {
-               violation.fixes().forEach( possibleFix -> violationError.addFix(
-                     String.format( "%n  > Possible fix: %s", possibleFix.description() ) ) );
-            }
-
-            violationErrors.add( violationError );
-         }
+      for ( final Map.Entry<Class<? extends Violation>, List<Violation>> entry : violationsByType.entrySet() ) {
+         entry.getValue().forEach( violation -> violationErrors.add( violation.accept( this ) ) );
       }
-
       return violationErrors;
+   }
+
+   private Map<Class<? extends Violation>, List<Violation>> groupViolationsByType( final List<Violation> violations ) {
+      return violations.stream().collect( Collectors.groupingBy( Violation::getClass ) );
    }
 
    @Override

@@ -43,6 +43,7 @@ import io.openmanufacturing.sds.aspectmodel.resolver.services.SdsAspectMetaModel
 import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
 import io.openmanufacturing.sds.aspectmodel.serializer.PrettyPrinter;
+import io.openmanufacturing.sds.aspectmodel.shacl.violation.InvalidSyntaxViolation;
 import io.openmanufacturing.sds.aspectmodel.shacl.violation.ProcessingViolation;
 import io.openmanufacturing.sds.aspectmodel.shacl.violation.Violation;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
@@ -197,6 +198,14 @@ public class ModelUtils {
 
    public static Predicate<ViolationError> isProcessingViolation() {
       return violation -> violation.getErrorCode().equals( ProcessingViolation.ERROR_CODE );
+   }
+
+   public static Predicate<Violation> isInvalidSyntaxViolation() {
+      return violation -> violation.errorCode().equals( InvalidSyntaxViolation.ERROR_CODE );
+   }
+
+   public static Predicate<Violation> isProcessingViolationViolation() {
+      return violation -> violation.errorCode().equals( ProcessingViolation.ERROR_CODE );
    }
 
    public static List<String> copyAspectModelToDirectory( final List<String> aspectModelFiles,
