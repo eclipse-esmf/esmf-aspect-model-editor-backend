@@ -14,7 +14,6 @@
 package io.openmanufacturing.ame.validation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -51,18 +50,8 @@ public class ViolationFormatter
 
    protected List<ViolationError> processNonSemanticViolation( final List<Violation> violations,
          final List<ViolationError> violationErrors ) {
-      final StringBuilder builder = new StringBuilder();
-      for ( final Violation violation : violations ) {
-         builder.append( String.format( "# Processing violations were found:%n" ) );
-         builder.append( String.format( "- violation-type: %s%n", violation.getClass().getSimpleName() ) );
-         builder.append( String.format( "  description: %s%n", violation.message() ) );
+      violations.forEach( violation -> violationErrors.add( violation.accept( this ) ) );
 
-         Arrays.stream( violation.accept( this ).getMessage().split( "\n" ) )
-               .forEach( line -> builder.append( String.format( "  %s%n", line ) ) );
-
-         final ViolationError violationError = new ViolationError( builder.toString() );
-         violationError.setErrorCode( violation.errorCode() );
-      }
       return violationErrors;
    }
 
@@ -73,6 +62,9 @@ public class ViolationFormatter
 
       for ( final Map.Entry<? extends Class<? extends Violation>, List<Violation>> entry : violationsByType.entrySet() ) {
          for ( final Violation violation : entry.getValue() ) {
+
+            final ViolationError accept = violation.accept( this );
+
             final ViolationError violationError = new ViolationError( violation.message() );
 
             final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn(
@@ -96,6 +88,8 @@ public class ViolationFormatter
    @Override
    public ViolationError visit( final Violation violation ) {
       final ViolationError violationError = new ViolationError( violation.message() );
+
+      violationError.setErrorCode( violation.errorCode() );
 
       for ( final Fix possibleFix : violation.fixes() ) {
          violationError.addFix( String.format( "%n  > Possible fix: %s", possibleFix.description() ) );

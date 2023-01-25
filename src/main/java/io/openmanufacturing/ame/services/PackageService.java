@@ -45,9 +45,7 @@ import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.ame.services.utils.UnzipUtils;
 import io.openmanufacturing.ame.services.utils.ZipUtils;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.DataType;
-import io.openmanufacturing.sds.aspectmodel.shacl.violation.InvalidSyntaxViolation;
 import io.openmanufacturing.sds.aspectmodel.shacl.violation.ProcessingViolation;
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
 
 @Service
@@ -124,7 +122,8 @@ public class PackageService {
 
                   final ViolationReport violationReport = new ViolationReport();
 
-                  // ModelUtils.validateModel( localPackageInformation.getAspectModel(), storagePath, aspectModelValidator );
+                  ModelUtils.validateModel( localPackageInformation.getAspectModel(), storagePath, aspectModelValidator,
+                        violationReport );
 
                   final ValidFile validFile = new ValidFile( localPackageInformation.getAspectModelFile(),
                         violationReport, modelExist );
@@ -217,9 +216,10 @@ public class PackageService {
 
    private List<MissingFile> getMissingAspectModelFiles( final ViolationReport violationReport ) {
       final List<ViolationError> validationErrors = violationReport.getViolationErrors().stream().filter(
-            violation -> !violation.getErrorCode().equals( InvalidSyntaxViolation.ERROR_CODE )
-                  && violation.getErrorCode().equals(
-                  ProcessingViolation.ERROR_CODE ) ).toList();
+            violation -> {
+               return violation.getErrorCode().equals(
+                     ProcessingViolation.ERROR_CODE );
+            } ).toList();
 
       if ( validationErrors.isEmpty() ) {
          return List.of();
@@ -232,17 +232,16 @@ public class PackageService {
                              .map( validation -> {
                                 final String valueUrn = null;
                                 // ((ValidationError.Semantic) validationError).getValue();
-                                final String focusNodeUrn = null;
-                                // ((ValidationError.Semantic) validationError).getFocusNode();
 
                                 final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy(
                                       Path.of( ApplicationSettings.getMetaModelStoragePath() ) );
 
                                 final String analysedFile = fileSystemStrategy.getAspectModelFile(
-                                      AspectModelUrn.fromUrn( focusNodeUrn ) );
+                                      validation.getFocusNode() );
 
-                                final String missingFile = fileSystemStrategy.getAspectModelFile(
-                                      AspectModelUrn.fromUrn( valueUrn ) );
+                                final String missingFile = "";
+
+                                //                                      fileSystemStrategy.getAspectModelFile( AspectModelUrn.fromUrn( valueUrn ) );
 
                                 return new MissingFile( new File( analysedFile ).getName(),
                                       new File( missingFile ).getName(),
@@ -251,6 +250,6 @@ public class PackageService {
                                             missingFile.replace( "/", "." ), analysedFile.replace( "/", "." ) )
                                 );
                              } )
-                             .collect( Collectors.toList() );
+                             .toList();
    }
 }
