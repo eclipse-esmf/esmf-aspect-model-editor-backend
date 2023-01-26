@@ -495,7 +495,7 @@
                             </execution>
                         </executions>
                         <configuration>
-                            <mainClass>io.openmanufacturing.ame.Application</mainClass>
+                            <mainClass>${main.class}</mainClass>
                             <imageName>ame-backend-${project.version}-${os.platform}</imageName>
                             <verbose>true</verbose>
                             <buildArgs>
@@ -825,6 +825,9 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
         <repository>
             <id>spring-release</id>

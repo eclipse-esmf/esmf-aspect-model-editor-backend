@@ -35,7 +35,7 @@ public class Application {
       instanceRef.setAccessible( true );
       ReflectionUtils.setField( instanceRef, migratorService, migratorService );
 
-      // Spring and GrallVm cannot launch Javascript engines at the moment, so this must be disabled for now.
+      // Spring and GraalVM cannot launch Javascript engines at the moment, so this must be disabled for now.
       JsConstraint.setEvaluateJavaScript( false );
 
       SpringApplication.run( Application.class, args );
