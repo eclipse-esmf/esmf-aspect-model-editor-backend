@@ -13,9 +13,6 @@
 
 package io.openmanufacturing.ame.exceptions;
 
-import lombok.Getter;
-
-@Getter
 public class FileWriteException extends RuntimeException {
    private static final long serialVersionUID = 1L;
 

@@ -25,6 +25,7 @@ import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.StmtIterator;
+import org.apache.jena.riot.RiotException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,7 +62,7 @@ public class InMemoryOmpStrategyTest {
    private Try<Model> isDirectory;
 
    @Before
-   public void setUp() {
+   public void setUp() throws RiotException {
       try ( final MockedStatic<TurtleLoader> turtleLoaderUtilities = Mockito.mockStatic( TurtleLoader.class ) ) {
          turtleLoaderUtilities.when( () -> TurtleLoader.loadTurtle( any( InputStream.class ) ) ).thenReturn( tryModel );
 

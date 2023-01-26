@@ -37,6 +37,9 @@
       "pattern": "\\Qbamm/unit/2.0.0/units.ttl\\E"
     },
     {
+      "pattern": "\\Qbamm/scripts/language-registry.js\\E"
+    },
+    {
       "pattern": "\\Qrdf/\\E.*.(ttl)$"
     },
     {

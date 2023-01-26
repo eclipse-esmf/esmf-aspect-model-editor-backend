@@ -63,7 +63,8 @@ public class ModelUtils {
     * @param storagePath path of the folder structure
     * @return in memory for the given storage path.
     */
-   public static InMemoryStrategy inMemoryStrategy( final String aspectModel, final String storagePath ) {
+   public static InMemoryStrategy inMemoryStrategy( final String aspectModel, final String storagePath )
+         throws RiotException {
       return new InMemoryStrategy( aspectModel, Path.of( storagePath ) );
    }
 

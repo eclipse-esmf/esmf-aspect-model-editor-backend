@@ -1502,87 +1502,112 @@
     ]
   },
   {
-    "name": "org.springframework.format.number.money.CurrencyUnitFormatter",
+    "name": "ch.qos.logback.classic.AsyncAppender",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true,
     "allDeclaredClasses": true,
     "allPublicClasses": true
   },
   {
-    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateToReadableInstantConverter",
+    "name": "ch.qos.logback.classic.encoder.PatternLayoutEncoder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true,
     "allDeclaredClasses": true,
     "allPublicClasses": true
   },
   {
-    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToCalendarConverter",
+    "name": "ch.qos.logback.classic.pattern.DateConverter",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true,
     "allDeclaredClasses": true,
     "allPublicClasses": true
   },
   {
-    "name": "org.springframework.format.datetime.joda.LocalDateParser",
+    "name": "ch.qos.logback.classic.pattern.LevelConverter",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true,
     "allDeclaredClasses": true,
     "allPublicClasses": true
   },
   {
-    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToLocalDateTimeConverter",
+    "name": "ch.qos.logback.classic.pattern.LineSeparatorConverter",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true,
     "allDeclaredClasses": true,
     "allPublicClasses": true
   },
   {
-    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToLongConverter",
+    "name": "ch.qos.logback.classic.pattern.LoggerConverter",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true,
     "allDeclaredClasses": true,
     "allPublicClasses": true
   },
   {
-    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToDateConverter",
+    "name": "ch.qos.logback.classic.pattern.MessageConverter",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true,
     "allDeclaredClasses": true,
     "allPublicClasses": true
   },
   {
-    "name": "org.springframework.format.number.money.Jsr354NumberFormatAnnotationFormatterFactory$NumberDecoratingFormatter",
+    "name": "ch.qos.logback.classic.pattern.ThreadConverter",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true,
     "allDeclaredClasses": true,
     "allPublicClasses": true
   },
   {
-    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToDateMidnightConverter",
+    "name": "ch.qos.logback.core.ConsoleAppender",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true,
     "allDeclaredClasses": true,
     "allPublicClasses": true
   },
   {
-    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToLocalDateConverter",
-    "allDeclaredClasses": true,
-    "allPublicClasses": true
-  },
-  {
-    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToMutableDateTimeConverter",
-    "allDeclaredClasses": true,
-    "allPublicClasses": true
-  },
-  {
-    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToLocalTimeConverter",
-    "allDeclaredClasses": true,
-    "allPublicClasses": true
-  },
-  {
-    "name": "org.springframework.format.datetime.joda.ReadablePartialPrinter",
-    "allDeclaredClasses": true,
-    "allPublicClasses": true
-  },
-  {
-    "name": "org.springframework.format.number.money.MonetaryAmountFormatter",
-    "allDeclaredClasses": true,
-    "allPublicClasses": true
-  },
-  {
-    "name": "org.springframework.format.number.money.Jsr354NumberFormatAnnotationFormatterFactory$PatternDecoratingFormatter",
-    "allDeclaredClasses": true,
-    "allPublicClasses": true
-  },
-  {
-    "name": "org.springframework.format.number.money.CurrencyUnitFormatter",
-    "allDeclaredClasses": true,
-    "allPublicClasses": true
-  },
-  {
-    "name": "org.springframework.format.datetime.joda.JodaTimeConverters$DateTimeToInstantConverter",
+    "name": "ch.qos.logback.core.FileAppender",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true,
     "allDeclaredClasses": true,
     "allPublicClasses": true
   }

@@ -15,8 +15,6 @@ package io.openmanufacturing.ame.exceptions;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +29,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import io.openmanufacturing.ame.exceptions.model.ErrorResponse;
 import io.openmanufacturing.sds.metamodel.loader.AspectLoadingException;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Provides custom exception handling for the REST API.
