@@ -19,10 +19,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
@@ -225,5 +229,61 @@ public class ModelUtils {
                   String.format( "Cannot copy file %s to %s", folderStructure.getFileName(), aspectModelStoragePath ) );
          }
       } ).toList();
+   }
+
+   /**
+    * Returns the {@link Model} that corresponds to the given model URN
+    *
+    * @param aspectModelUrn The model URN
+    * @return The file that defines the supplied aspectModelUrn.
+    */
+   public static String getAspectModelFile( final String modelsRootPath, final AspectModelUrn aspectModelUrn ) {
+      final Path directory = Path.of( modelsRootPath ).resolve( aspectModelUrn.getNamespace() )
+                                 .resolve( aspectModelUrn.getVersion() );
+
+      final String fileInformation = Arrays.stream(
+                                                 Optional.ofNullable( directory.toFile().listFiles() ).orElse( new File[] {} ) )
+                                           .filter( File::isFile )
+                                           .filter( file -> file.getName().endsWith( ".ttl" ) )
+                                           .map( File::toURI )
+                                           .sorted()
+                                           .filter( uri -> AspectModelResolver.containsDefinition(
+                                                 loadFromUri( uri ).get(), aspectModelUrn ) )
+                                           .map( URI::getPath )
+                                           .findFirst()
+                                           .orElse( "NO CORRESPONDING FILE FOUND Found" );
+
+      final File filePath = new File( fileInformation );
+
+      if ( !filePath.exists() ) {
+         return fileInformation;
+      }
+
+      return filePath.getPath().replace(
+            ApplicationSettings.getMetaModelStoragePath() + File.separator, "" );
+   }
+
+   /**
+    * Loads an Aspect model from a resolveable URI
+    *
+    * @param uri The URI
+    * @return The model
+    */
+   private static Try<Model> loadFromUri( final URI uri ) {
+      try {
+         return loadFromUrl( uri.toURL() );
+      } catch ( final MalformedURLException exception ) {
+         return Try.failure( exception );
+      }
+   }
+
+   /**
+    * Loads an Aspect model from a resolveable URL
+    *
+    * @param url The URL
+    * @return The model
+    */
+   private static Try<Model> loadFromUrl( final URL url ) {
+      return Try.ofSupplier( () -> TurtleLoader.openUrl( url ) ).flatMap( TurtleLoader::loadTurtle );
    }
 }

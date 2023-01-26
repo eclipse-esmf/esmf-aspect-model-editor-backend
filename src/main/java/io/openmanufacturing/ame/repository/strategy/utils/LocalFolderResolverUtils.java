@@ -85,6 +85,10 @@ public class LocalFolderResolverUtils {
    }
 
    public static void deleteDirectory( final String storagePath ) throws IOException {
-      FileUtils.forceDelete( new File( storagePath ) );
+      File storageDir = new File( storagePath );
+      
+      if ( storageDir.exists() && storageDir.isDirectory() ) {
+         FileUtils.forceDelete( storageDir );
+      }
    }
 }

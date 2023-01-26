@@ -29,7 +29,7 @@ public class ProcessPackage {
    private final List<ValidFile> validFiles = new ArrayList<>();
 
    @JsonProperty( "missingFiles" )
-   private final List<MissingElement> missingFiles = new ArrayList<>();
+   private final List<MissingElement> missingElements = new ArrayList<>();
 
    public ProcessPackage() {
    }
@@ -42,7 +42,7 @@ public class ProcessPackage {
       validFiles.add( validFile );
    }
 
-   public void addMissingFiles( final MissingElement missingFiles ) {
-      this.missingFiles.add( missingFiles );
+   public void addMissingElement( final MissingElement missingElement ) {
+      missingElements.add( missingElement );
    }
 }

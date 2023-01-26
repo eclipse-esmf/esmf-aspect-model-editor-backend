@@ -72,19 +72,19 @@ public class PackageServiceTest {
 
          final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
          final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo );
-         final ProcessPackage processedExportedPackage = packageService.validateAspectModels( aspectModelFiles,
+         final ProcessPackage processedExportedPackage = packageService.validateAspectModelsForExport( aspectModelFiles,
                exportedStoragePath.toFile().getAbsolutePath() );
 
          assertEquals( 2, processedExportedPackage.getValidFiles().size() );
-         assertEquals( 1, processedExportedPackage.getMissingFiles().size() );
+         assertEquals( 1, processedExportedPackage.getMissingElements().size() );
 
          final String[] nameSpaceOneArray = nameSpaceOne.split( ":" );
          final String[] nameSpaceThreeArray = nameSpaceThree.split( ":" );
 
-         assertTrue(
-               processedExportedPackage.getMissingFiles().get( 0 ).getFileName().contains( nameSpaceOneArray[2] ) );
+         assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getDefinedFileName()
+                                             .contains( nameSpaceOneArray[2] ) );
 
-         assertTrue( processedExportedPackage.getMissingFiles().get( 0 ).getMissingFile()
+         assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getMissingFileName()
                                              .contains( nameSpaceThreeArray[2] ) );
 
          FileUtils.deleteDirectory( exportedStoragePath.toFile() );
@@ -100,7 +100,8 @@ public class PackageServiceTest {
          final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
          final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo, nameSpaceThree );
 
-         packageService.validateAspectModels( aspectModelFiles, exportedStoragePath.toFile().getAbsolutePath() );
+         packageService.validateAspectModelsForExport( aspectModelFiles,
+               exportedStoragePath.toFile().getAbsolutePath() );
 
          final byte[] bytes = packageService.exportAspectModelPackage( "TestExportArchive.zip",
                exportedStoragePath.toFile().getAbsolutePath() );

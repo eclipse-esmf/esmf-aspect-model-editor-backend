@@ -44,6 +44,7 @@ import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.ame.services.utils.UnzipUtils;
 import io.openmanufacturing.ame.services.utils.ZipUtils;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.DataType;
+import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
 
 @Service
@@ -61,7 +62,8 @@ public class PackageService {
       DataType.setupTypeMapping();
    }
 
-   public ProcessPackage validateAspectModels( final List<String> aspectModelFiles, final String storagePath ) {
+   public ProcessPackage validateAspectModelsForExport( final List<String> aspectModelFiles,
+         final String storagePath ) {
       try {
          // Folder will be deleted when the validation starts.
          LocalFolderResolverUtils.deleteDirectory( storagePath );
@@ -90,7 +92,7 @@ public class PackageService {
          final ViolationReport violationReport = new ViolationReport();
          ModelUtils.validateModel( aspectModel, storagePath, aspectModelValidator, violationReport );
          processPackage.addValidFiles( new ValidFile( fileName, violationReport ) );
-         getMissingAspectModelFiles( violationReport, fileName ).forEach( processPackage::addMissingFiles );
+         getMissingAspectModelFiles( violationReport, fileName ).forEach( processPackage::addMissingElement );
       } );
 
       return processPackage;
@@ -149,7 +151,7 @@ public class PackageService {
          ModelUtils.validateModel( fileInfo.getAspectModel(), storagePath, aspectModelValidator, violationReport );
 
          processPackage.addValidFiles( new ValidFile( aspectModelFile, violationReport, modelExist ) );
-         getMissingAspectModelFiles( violationReport, aspectModelFile ).forEach( processPackage::addMissingFiles );
+         getMissingAspectModelFiles( violationReport, aspectModelFile ).forEach( processPackage::addMissingElement );
       } );
    }
 
@@ -180,10 +182,17 @@ public class PackageService {
       }
 
       return violationErrors.stream().map( validation -> {
-         final String element = validation.getFocusNode().toString();
+         final AspectModelUrn focusNode = validation.getFocusNode();
+
+         final String missingAspectModelFile = ModelUtils.getAspectModelFile(
+               ApplicationSettings.getMetaModelStoragePath(),
+               focusNode );
+
          final String errorMessage = String.format(
-               "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", element, fileName );
-         return new MissingElement( fileName.split( ":" )[2], element, errorMessage );
+               "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", focusNode,
+               fileName );
+         return new MissingElement( fileName.split( ":" )[2], focusNode.toString(), missingAspectModelFile,
+               errorMessage );
       } ).toList();
    }
 
