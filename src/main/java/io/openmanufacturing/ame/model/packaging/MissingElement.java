@@ -21,8 +21,8 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class MissingElement {
-   @JsonProperty( "definedFileName" )
-   private String definedFileName;
+   @JsonProperty( "analysedFileName" )
+   private String analysedFileName;
 
    @JsonProperty( "element" )
    private String element;

@@ -81,7 +81,7 @@ public class PackageServiceTest {
          final String[] nameSpaceOneArray = nameSpaceOne.split( ":" );
          final String[] nameSpaceThreeArray = nameSpaceThree.split( ":" );
 
-         assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getDefinedFileName()
+         assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getAnalysedFileName()
                                              .contains( nameSpaceOneArray[2] ) );
 
          assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getMissingFileName()
