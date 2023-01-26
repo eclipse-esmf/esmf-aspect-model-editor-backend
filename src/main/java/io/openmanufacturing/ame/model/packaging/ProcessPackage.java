@@ -28,7 +28,7 @@ public class ProcessPackage {
    @JsonProperty( "validFiles" )
    private final List<ValidFile> validFiles = new ArrayList<>();
 
-   @JsonProperty( "missingFiles" )
+   @JsonProperty( "missingElements" )
    private final List<MissingElement> missingElements = new ArrayList<>();
 
    public ProcessPackage() {
