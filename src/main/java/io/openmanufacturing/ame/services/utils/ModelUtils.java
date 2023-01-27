@@ -250,7 +250,7 @@ public class ModelUtils {
                                                  loadFromUri( uri ).get(), aspectModelUrn ) )
                                            .map( URI::getPath )
                                            .findFirst()
-                                           .orElse( "NO CORRESPONDING FILE FOUND Found" );
+                                           .orElse( "NO CORRESPONDING FILE FOUND" );
 
       final File filePath = new File( fileInformation );
 
