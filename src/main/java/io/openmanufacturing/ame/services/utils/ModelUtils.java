@@ -28,16 +28,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RiotException;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
-import io.openmanufacturing.ame.model.validation.ViolationError;
 import io.openmanufacturing.ame.model.validation.ViolationReport;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
@@ -65,10 +64,8 @@ public class ModelUtils {
    public static final String TTL = "ttl";
    public static final String TTL_EXTENSION = "." + TTL;
 
-   public static final Pattern URN_PATTERN = Pattern.compile(
-         "^urn:[a-z0-9][a-z0-9-]{0,31}:([a-z0-9()+,\\-.:=@;$_!*#']|%[0-9a-f]{2})+$", Pattern.CASE_INSENSITIVE );
-
    /**
+    * /**
     * This Method is used to create an in memory strategy for the given Aspect Model.
     *
     * @param aspectModel as a string
@@ -200,16 +197,14 @@ public class ModelUtils {
       }
    }
 
-   public static Predicate<ViolationError> isProcessingViolation() {
-      return violation -> violation.getErrorCode().equals( ProcessingViolation.ERROR_CODE );
-   }
-
    public static Predicate<Violation> isInvalidSyntaxViolation() {
-      return violation -> violation.errorCode().equals( InvalidSyntaxViolation.ERROR_CODE );
+      return violation -> violation.errorCode() != null && violation.errorCode()
+                                                                    .equals( InvalidSyntaxViolation.ERROR_CODE );
    }
 
-   public static Predicate<Violation> isProcessingViolationViolation() {
-      return violation -> violation.errorCode().equals( ProcessingViolation.ERROR_CODE );
+   public static Predicate<Violation> isProcessingViolation() {
+      return violation -> violation.errorCode() != null && violation.errorCode()
+                                                                    .equals( ProcessingViolation.ERROR_CODE );
    }
 
    public static List<String> copyAspectModelToDirectory( final List<String> aspectModelFiles,
@@ -238,6 +233,10 @@ public class ModelUtils {
     * @return The file that defines the supplied aspectModelUrn.
     */
    public static String getAspectModelFile( final String modelsRootPath, final AspectModelUrn aspectModelUrn ) {
+      if ( aspectModelUrn == null ) {
+         return StringUtils.EMPTY;
+      }
+
       final Path directory = Path.of( modelsRootPath ).resolve( aspectModelUrn.getNamespace() )
                                  .resolve( aspectModelUrn.getVersion() );
 

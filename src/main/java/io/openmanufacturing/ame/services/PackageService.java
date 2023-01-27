@@ -44,6 +44,7 @@ import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.ame.services.utils.UnzipUtils;
 import io.openmanufacturing.ame.services.utils.ZipUtils;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.DataType;
+import io.openmanufacturing.sds.aspectmodel.shacl.violation.ProcessingViolation;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
 
@@ -173,8 +174,9 @@ public class PackageService {
    private List<MissingElement> getMissingAspectModelFiles( final ViolationReport violationReport,
          final String fileName ) {
       final List<ViolationError> violationErrors = violationReport.getViolationErrors().stream()
-                                                                  .filter( ModelUtils.isProcessingViolation() ).filter(
-                  validation -> ModelUtils.URN_PATTERN.matcher( validation.getFocusNode().toString() ).matches() )
+                                                                  .filter( violation -> violation.getErrorCode() != null
+                                                                        && violation.getErrorCode().equals(
+                                                                        ProcessingViolation.ERROR_CODE ) )
                                                                   .toList();
 
       if ( violationErrors.isEmpty() ) {
@@ -182,17 +184,15 @@ public class PackageService {
       }
 
       return violationErrors.stream().map( validation -> {
-         final AspectModelUrn focusNode = validation.getFocusNode();
+         final AspectModelUrn focusNode = validation.getFocusNode() != null ? validation.getFocusNode() : null;
 
          final String missingAspectModelFile = ModelUtils.getAspectModelFile(
-               ApplicationSettings.getMetaModelStoragePath(),
-               focusNode );
+               ApplicationSettings.getMetaModelStoragePath(), focusNode );
 
          final String errorMessage = String.format(
-               "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", focusNode,
-               fileName );
-         return new MissingElement( fileName.split( ":" )[2], focusNode.toString(), missingAspectModelFile,
-               errorMessage );
+               "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", focusNode, fileName );
+         return new MissingElement( fileName.split( ":" )[2], (focusNode != null ? focusNode.toString() : ""),
+               missingAspectModelFile, errorMessage );
       } ).toList();
    }
 

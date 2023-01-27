@@ -71,7 +71,7 @@ public class ViolationFormatter
 
    private List<Violation> filterNonSemanticViolations( final List<Violation> violations ) {
       return violations.stream().filter( violation -> ModelUtils.isInvalidSyntaxViolation().test( violation )
-            || ModelUtils.isProcessingViolationViolation().test( violation ) ).toList();
+            || ModelUtils.isProcessingViolation().test( violation ) ).toList();
    }
 
    protected List<ViolationError> processNonSemanticViolation( final List<Violation> violations,
