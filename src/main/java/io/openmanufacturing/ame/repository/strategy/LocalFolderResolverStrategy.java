@@ -46,7 +46,6 @@ import io.openmanufacturing.ame.model.repository.ValidFile;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.ExtendedXsdDataType;
-import io.openmanufacturing.sds.aspectmodel.resolver.services.SdsAspectMetaModelResourceResolver;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 @Service
@@ -163,7 +162,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final String namespace = namespaceDirectory.getName();
       final String aspectName = FilenameUtils.removeExtension( inputFile.getName() );
       final String urn = String.format( "urn:bamm:%s:%s#%s", namespace, version, aspectName );
-      return new SdsAspectMetaModelResourceResolver().getAspectModelUrn( urn ).getOrElse( () -> {
+      return AspectModelUrn.from( urn ).getOrElse( () -> {
          throw new InvalidAspectModelException(
                String.format( "The URN constructed from the input file path is invalid: %s", urn ) );
       } );
