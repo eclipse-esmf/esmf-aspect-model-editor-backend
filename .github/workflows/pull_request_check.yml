@@ -47,11 +47,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Creating native image
-        run: mvn install -P native-image
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Creating native image (Mac)
         if: matrix.os == 'macos-latest'
         run: mvn install -P native-image -Dos.platform=mac
