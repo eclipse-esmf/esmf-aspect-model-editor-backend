@@ -23,8 +23,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.exec.OS;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
+import org.junit.jupiter.api.Order;
 import org.junit.runner.RunWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -50,6 +52,7 @@ public class PackageServiceTest {
    private static final String nameSpaceThree = "io.openmanufacturing.test:1.0.0:TestFileThree.ttl";
 
    @Test
+   @Order( 1 )
    public void testValidateImportAspectModelPackage() throws IOException {
       final Path storagePath = Paths.get( resourcesPath.toString(), "test-packages" );
       final Path zipFilePath = Paths.get( resourcesPath.toString(), "TestArchive.zip" );
@@ -65,6 +68,7 @@ public class PackageServiceTest {
    }
 
    @Test
+   @Order( 2 )
    public void testValidateAspectModels() throws IOException {
       try ( final MockedStatic<ApplicationSettings> utilities = Mockito.mockStatic( ApplicationSettings.class ) ) {
          utilities.when( ApplicationSettings::getMetaModelStoragePath )
@@ -87,11 +91,16 @@ public class PackageServiceTest {
          assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getMissingFileName()
                                              .contains( nameSpaceThreeArray[2] ) );
 
-         FileUtils.deleteDirectory( exportedStoragePath.toFile() );
+         if ( OS.isFamilyWindows() ) {
+            FileUtils.forceDeleteOnExit( exportedStoragePath.toFile() );
+         } else {
+            FileUtils.forceDelete( exportedStoragePath.toFile() );
+         }
       }
    }
 
    @Test
+   @Order( 3 )
    public void testExportAspectModelPackage() throws IOException {
       try ( final MockedStatic<ApplicationSettings> utilities = Mockito.mockStatic( ApplicationSettings.class ) ) {
          utilities.when( ApplicationSettings::getMetaModelStoragePath )
@@ -108,11 +117,16 @@ public class PackageServiceTest {
 
          assertTrue( bytes.length > 0 );
 
-         FileUtils.deleteDirectory( exportedStoragePath.toFile() );
+         if ( OS.isFamilyWindows() ) {
+            FileUtils.forceDeleteOnExit( exportedStoragePath.toFile() );
+         } else {
+            FileUtils.forceDelete( exportedStoragePath.toFile() );
+         }
       }
    }
 
    @Test
+   @Order( 4 )
    public void testBackupWorkspace() {
       packageService.backupWorkspace( workspaceToBackupPath.toAbsolutePath().toString(),
             resourcesPath.toAbsolutePath().toString() );
