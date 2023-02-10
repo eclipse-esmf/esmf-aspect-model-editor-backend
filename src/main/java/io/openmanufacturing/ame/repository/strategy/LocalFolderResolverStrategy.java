@@ -209,8 +209,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
          return paths.filter( this::isPathRelevant )
                      .map( Path::toString )
-                     .map( path -> path.replace( rootSharedFolder, StringUtils.EMPTY ) )
-                     .filter( this::isPathExcluded )
+                     .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) )
+                     .filter( StringUtils::isNotBlank )
                      .toList();
       } catch ( final IOException e ) {
          throw new FileReadException( "Can not read shared folder file structure", e );
@@ -228,22 +228,31 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
                         return !parentDir.isDirectory() && !path.toString().endsWith( ModelUtils.TTL_EXTENSION );
                      } )
                      .map( Path::toString )
-                     .map( path -> path.replace( rootSharedFolder, StringUtils.EMPTY ) )
-                     .filter( this::isPathExcluded )
-                     .collect( toList() );
+                     .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) )
+                     .filter( StringUtils::isNotBlank )
+                     .toList();
       } catch ( final IOException e ) {
          throw new FileReadException( "Can not read shared folder file structure", e );
       }
    }
 
    /**
-    * Method for excluding turtle files from user.
-    * For example latest.ttl is used internally AME, and it should nt be modified or used by the user.
+    * Method for excluding standalone files without folder structure from user.
+    * For example latest.ttl is used internally AME, and it should not be modified or used by the user.
+    * In addition, aspect models should be available in their folder structure.
     *
-    * @param path - folder location that will be analyzed.
+    * @param rootSharedFolder - absolute path of the file.
+    * @param pathAsString - folder location that will be analyzed.
     */
-   private boolean isPathExcluded( @Nonnull final String path ) {
-      return !path.endsWith( "latest.ttl" );
+   private String excludeStandaloneFiles( final String rootSharedFolder, final String pathAsString ) {
+      final String relativePath = pathAsString.replace( rootSharedFolder, StringUtils.EMPTY );
+      final Path path = Path.of( relativePath );
+
+      if ( path.getParent() == null || path.getParent().getParent() == null || path.endsWith( "latest.ttl" ) ) {
+         return StringUtils.EMPTY;
+      }
+
+      return relativePath;
    }
 
    private List<ValidFile> getListOfLocalPackageInformation( final List<String> filePath, final String storagePath ) {
