@@ -723,7 +723,7 @@
                         <version>${exec-maven-plugin-version}</version>
                         <executions>
                             <execution>
-                                <id>Add execution rights on native-image</id>
+                                <id>Add execution right´s on native-image</id>
                                 <phase>package</phase>
                                 <goals>
                                     <goal>exec</goal>
