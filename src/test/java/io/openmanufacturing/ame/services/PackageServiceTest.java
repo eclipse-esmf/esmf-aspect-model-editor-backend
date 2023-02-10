@@ -54,7 +54,7 @@ public class PackageServiceTest {
    @Test
    @Order( 1 )
    public void testValidateImportAspectModelPackage() throws IOException {
-      final Path storagePath = Paths.get( resourcesPath.toString(), "test-packages" );
+      final Path storagePath = Paths.get( resourcesPath.toString(), "test-packages", "io.openmanufacturing.1.0.0" );
       final Path zipFilePath = Paths.get( resourcesPath.toString(), "TestArchive.zip" );
 
       final MockMultipartFile mockedZipFile = new MockMultipartFile( "TestArchive.zip",
