@@ -92,7 +92,7 @@ public class PackageServiceTest {
                                              .contains( nameSpaceThreeArray[2] ) );
 
          if ( OS.isFamilyWindows() ) {
-            FileUtils.forceDeleteOnExit( exportedStoragePath.toFile() );
+            FileUtils.deleteQuietly( exportedStoragePath.toFile() );
          } else {
             FileUtils.forceDelete( exportedStoragePath.toFile() );
          }
@@ -118,7 +118,7 @@ public class PackageServiceTest {
          assertTrue( bytes.length > 0 );
 
          if ( OS.isFamilyWindows() ) {
-            FileUtils.forceDeleteOnExit( exportedStoragePath.toFile() );
+            FileUtils.deleteQuietly( exportedStoragePath.toFile() );
          } else {
             FileUtils.forceDelete( exportedStoragePath.toFile() );
          }
