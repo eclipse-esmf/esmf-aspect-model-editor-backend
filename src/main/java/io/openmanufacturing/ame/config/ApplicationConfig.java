@@ -26,6 +26,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import io.openmanufacturing.ame.exceptions.ResponseExceptionHandler;
 import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
 import io.openmanufacturing.ame.repository.strategy.ModelResolverStrategy;
+import io.openmanufacturing.sds.aspectmodel.shacl.constraint.JsConstraint;
 import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
 
 /**
@@ -59,6 +60,9 @@ public class ApplicationConfig implements WebMvcConfigurer {
     */
    @Bean
    public AspectModelValidator getAspectModelValidator() {
+      // Spring and GraalVM cannot launch Javascript engines at the moment, so this must be disabled for now.
+      JsConstraint.setEvaluateJavaScript( false );
+      
       return new AspectModelValidator();
    }
 
