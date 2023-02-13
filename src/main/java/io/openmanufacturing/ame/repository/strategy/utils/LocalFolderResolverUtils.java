@@ -88,7 +88,7 @@ public class LocalFolderResolverUtils {
       final File storageDir = new File( storagePath );
 
       if ( storageDir.exists() && storageDir.isDirectory() ) {
-         FileUtils.forceDeleteOnExit( storageDir );
+         FileUtils.forceDelete( storageDir );
       }
    }
 }

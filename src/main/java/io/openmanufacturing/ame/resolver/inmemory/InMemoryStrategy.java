@@ -17,6 +17,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +35,7 @@ import io.openmanufacturing.sds.aspectmodel.resolver.FileSystemStrategy;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMM;
+import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMMC;
 import io.vavr.NotImplementedError;
 import io.vavr.control.Try;
 
@@ -71,8 +73,9 @@ public class InMemoryStrategy extends FileSystemStrategy {
          return Try.success( model );
       }
 
-      return Try.failure( new UrnNotFoundException( String.format( "%s cannot be resolved correctly.", aspectModelUrn ),
-            aspectModelUrn ) );
+      return Try.failure(
+            new UrnNotFoundException( String.format( "%s cannot be resolved correctly.", aspectModelUrn ),
+                  aspectModelUrn ) );
    }
 
    /**
@@ -95,8 +98,16 @@ public class InMemoryStrategy extends FileSystemStrategy {
 
       for ( final KnownVersion version : KnownVersion.getVersions() ) {
          final BAMM bamm = new BAMM( version );
-         final List<Resource> resources = List.of( bamm.Aspect(), bamm.Property(), bamm.Entity(), bamm.Characteristic(),
-               bamm.Constraint() );
+         final BAMMC bammc = new BAMMC( version );
+
+         final List<Resource> resources = new ArrayList<>();
+
+         resources.addAll( List.of( bamm.Aspect(), bamm.Property(), bamm.Operation(), bamm.Event(),
+               bamm.Entity(), bamm.Characteristic(), bamm.Constraint(), bamm.AbstractEntity(),
+               bamm.AbstractProperty() ) );
+
+         resources.addAll( bammc.allCharacteristics().toList() );
+
          final List<StmtIterator> collect = resources.stream().filter(
                                                            resource -> model.listStatements( null, RDF.type, resource ).hasNext() )
                                                      .map( resource -> model.listStatements( null, RDF.type,
