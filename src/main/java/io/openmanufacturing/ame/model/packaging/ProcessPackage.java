@@ -11,7 +11,7 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package io.openmanufacturing.ame.services.model.packaging;
+package io.openmanufacturing.ame.model.packaging;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +28,8 @@ public class ProcessPackage {
    @JsonProperty( "validFiles" )
    private final List<ValidFile> validFiles = new ArrayList<>();
 
-   @JsonProperty( "missingFiles" )
-   private final List<MissingFile> missingFiles = new ArrayList<>();
+   @JsonProperty( "missingElements" )
+   private final List<MissingElement> missingElements = new ArrayList<>();
 
    public ProcessPackage() {
    }
@@ -42,7 +42,7 @@ public class ProcessPackage {
       validFiles.add( validFile );
    }
 
-   public void addMissingFiles( final MissingFile missingFiles ) {
-      this.missingFiles.add( missingFiles );
+   public void addMissingElement( final MissingElement missingElement ) {
+      missingElements.add( missingElement );
    }
 }

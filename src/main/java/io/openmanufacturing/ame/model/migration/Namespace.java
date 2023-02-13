@@ -1,4 +1,4 @@
-package io.openmanufacturing.ame.services.model.migration;
+package io.openmanufacturing.ame.model.migration;
 
 import java.util.ArrayList;
 import java.util.List;

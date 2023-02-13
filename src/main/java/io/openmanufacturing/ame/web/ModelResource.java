@@ -31,11 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
+import io.openmanufacturing.ame.model.migration.Namespaces;
+import io.openmanufacturing.ame.model.validation.ViolationReport;
 import io.openmanufacturing.ame.services.ModelService;
-import io.openmanufacturing.ame.services.model.migration.Namespaces;
 import io.openmanufacturing.ame.web.utils.MediaTypeExtension;
-import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationError;
-import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReport;
 
 /**
  * Controller class where all the requests are mapped RequestMapping for the class is "aspect" generates a response
@@ -83,10 +82,10 @@ public class ModelResource {
     *
     * @param aspectModel The Aspect Model Data
     * @return Either a empty array if the model is syntactically correct and conforms to the Aspect Meta Model
-    *       semantics or provides a number of * {@link ValidationError}s that describe all validation violations.
+    *       semantics or provides a number of * {@link ViolationReport}s that describe all validation violations.
     */
    @PostMapping( "validate" )
-   public ResponseEntity<ValidationReport> validateModel( @RequestBody final String aspectModel ) {
+   public ResponseEntity<ViolationReport> validateModel( @RequestBody final String aspectModel ) {
       return ResponseEntity.ok(
             modelService.validateModel( aspectModel, ApplicationSettings.getMetaModelStoragePath() ) );
    }

@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import io.openmanufacturing.ame.repository.model.LocalPackageInfo;
+import io.openmanufacturing.ame.model.repository.LocalPackageInfo;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 public interface ModelResolverStrategy {

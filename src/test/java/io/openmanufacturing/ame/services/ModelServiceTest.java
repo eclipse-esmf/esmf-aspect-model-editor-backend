@@ -37,9 +37,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
+import io.openmanufacturing.ame.model.migration.Namespaces;
+import io.openmanufacturing.ame.model.validation.ViolationReport;
 import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
-import io.openmanufacturing.ame.services.model.migration.Namespaces;
-import io.openmanufacturing.sds.aspectmodel.validation.report.ValidationReport;
 
 @RunWith( SpringRunner.class )
 @SpringBootTest
@@ -95,9 +95,9 @@ public class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         final ValidationReport validationReport = modelService.validateModel(
+         final ViolationReport validateReport = modelService.validateModel(
                Files.readString( storagePath, StandardCharsets.UTF_8 ), storagePath.toString() );
-         assertEquals( "Validation report: Input model is valid", validationReport.toString() );
+         assertTrue( validateReport.getViolationErrors().isEmpty() );
       }
    }
 
@@ -163,7 +163,7 @@ public class ModelServiceTest {
    public void testGetAllNamespaces() {
       final Map<String, List<String>> result = modelService.getAllNamespaces( true,
             Optional.of( resourcesPath.toFile().getAbsolutePath() ) );
-      assertEquals( 7, result.size() );
+      assertEquals( 6, result.size() );
    }
 
    @Test( expected = FileNotFoundException.class )

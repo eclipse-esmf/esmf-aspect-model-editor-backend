@@ -112,7 +112,7 @@ public class LocalFolderResolverStrategyTest {
    @Test
    public void testDeleteModelWithTtlNamespace() {
       try ( final MockedStatic<FileUtils> utilities = Mockito.mockStatic( FileUtils.class ) ) {
-         utilities.when( () -> FileUtils.forceDelete( any( File.class ) ) )
+         utilities.when( () -> FileUtils.forceDeleteOnExit( any( File.class ) ) )
                   .thenAnswer( (Answer<Void>) invocation -> null );
 
          doReturn( true ).when( fileMock ).exists();
@@ -129,7 +129,7 @@ public class LocalFolderResolverStrategyTest {
    @Test
    public void testDeleteModelWithEmptyFolder() {
       try ( final MockedStatic<FileUtils> utilities = Mockito.mockStatic( FileUtils.class ) ) {
-         utilities.when( () -> FileUtils.forceDelete( any( File.class ) ) )
+         utilities.when( () -> FileUtils.forceDeleteOnExit( any( File.class ) ) )
                   .thenAnswer( (Answer<Void>) invocation -> null );
 
          final String namespaceWithoutTll = "com.test.example:1.0.0";
@@ -148,7 +148,7 @@ public class LocalFolderResolverStrategyTest {
    @Test
    public void testDeleteModelWithEmptyFolderWithoutVersion() {
       try ( final MockedStatic<FileUtils> utilities = Mockito.mockStatic( FileUtils.class ) ) {
-         utilities.when( () -> FileUtils.forceDelete( any( File.class ) ) )
+         utilities.when( () -> FileUtils.forceDeleteOnExit( any( File.class ) ) )
                   .thenAnswer( (Answer<Void>) invocation -> null );
 
          final String namespaceWithoutTllAndVersion = "com.test.example";

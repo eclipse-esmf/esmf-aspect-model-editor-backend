@@ -16,6 +16,7 @@ package io.openmanufacturing.ame.services.utils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -24,7 +25,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.multipart.MultipartFile;
 
 import io.openmanufacturing.ame.exceptions.CreateFileException;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
@@ -41,12 +41,12 @@ public class UnzipUtils {
    /**
     * This Method is used to unzip a zip package with aspect models.
     *
-    * @param zipFile - The zip file as multipart file
+    * @param zipFile - The zip file as InputStream
     * @param packagePath - The default package storage folder path
     */
    @SuppressWarnings( { "squid:S135", "squid:S5042" } )
-   public static void unzipPackageFile( final MultipartFile zipFile, final Path packagePath ) throws IOException {
-      try ( final ZipInputStream zipInputStream = new ZipInputStream( zipFile.getInputStream() ) ) {
+   public static void unzipPackageFile( final InputStream zipFile, final Path packagePath ) throws IOException {
+      try ( final ZipInputStream zipInputStream = new ZipInputStream( zipFile ) ) {
 
          ZipEntry zipEntry = zipInputStream.getNextEntry();
 

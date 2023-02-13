@@ -39,8 +39,7 @@ import io.openmanufacturing.sds.aspectmodel.generator.openapi.AspectModelOpenApi
 import io.openmanufacturing.sds.aspectmodel.generator.openapi.PagingOption;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.DataType;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
-import io.openmanufacturing.sds.metamodel.Aspect;
-import io.openmanufacturing.sds.metamodel.loader.AspectLoadingException;
+import io.openmanufacturing.sds.metamodel.AspectContext;
 import io.openmanufacturing.sds.metamodel.loader.AspectModelLoader;
 import io.vavr.control.Try;
 
@@ -55,9 +54,8 @@ public class GenerateService {
    }
 
    public byte[] generateHtmlDocument( final String aspectModel ) throws IOException {
-      final Optional<String> storagePath = Optional.of( ApplicationSettings.getMetaModelStoragePath() );
       final AspectModelDocumentationGenerator generator = new AspectModelDocumentationGenerator(
-            getVersionModel( aspectModel, storagePath ).get() );
+            generateAspectContext( aspectModel ) );
       final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
       generator.generate( artifactName -> byteArrayOutputStream,
@@ -68,16 +66,10 @@ public class GenerateService {
 
    public String jsonSchema( final String aspectModel ) {
       try {
-         final Optional<String> storagePath = Optional.of( ApplicationSettings.getMetaModelStoragePath() );
-         final Aspect aspect = AspectModelLoader.fromVersionedModel( getVersionModel( aspectModel, storagePath ).get() )
-                                                .getOrElseThrow( e -> {
-                                                   LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
-                                                   return new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL,
-                                                         e );
-                                                } );
-
+         final AspectContext aspectContext = generateAspectContext( aspectModel );
+         
          final AspectModelJsonSchemaGenerator generator = new AspectModelJsonSchemaGenerator();
-         final JsonNode jsonSchema = generator.apply( aspect, new Locale( "en", "EN" ) );
+         final JsonNode jsonSchema = generator.apply( aspectContext.aspect(), new Locale( "en", "EN" ) );
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
          final ObjectMapper objectMapper = new ObjectMapper();
@@ -93,18 +85,23 @@ public class GenerateService {
 
    public String sampleJSONPayload( final String aspectModel ) {
       try {
-         final Optional<String> storagePath = Optional.of( ApplicationSettings.getMetaModelStoragePath() );
-         final AspectModelJsonPayloadGenerator generator = new AspectModelJsonPayloadGenerator(
-               getVersionModel( aspectModel, storagePath ).get() );
-
-         return generator.generateJson();
-      } catch ( final AspectLoadingException e ) {
-         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
-         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL, e );
+         return new AspectModelJsonPayloadGenerator( generateAspectContext( aspectModel ) ).generateJson();
       } catch ( final IOException e ) {
          LOG.error( "Aspect Model could not be loaded correctly." );
          throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
       }
+   }
+
+   private AspectContext generateAspectContext( final String aspectModel ) {
+      final Optional<String> storagePath = Optional.of( ApplicationSettings.getMetaModelStoragePath() );
+      final VersionedModel versionedModel = getVersionModel( aspectModel, storagePath )
+            .getOrElseThrow( () -> {
+               LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
+               return new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL );
+            } );
+
+      return new AspectContext( versionedModel,
+            AspectModelLoader.getSingleAspectUnchecked( versionedModel ) );
    }
 
    private Try<VersionedModel> getVersionModel( final String aspectModel, final Optional<String> storagePath ) {

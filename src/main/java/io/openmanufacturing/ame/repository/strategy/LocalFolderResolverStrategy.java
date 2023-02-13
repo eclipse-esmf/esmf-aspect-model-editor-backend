@@ -41,12 +41,11 @@ import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.exceptions.FileReadException;
 import io.openmanufacturing.ame.exceptions.FileWriteException;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
-import io.openmanufacturing.ame.repository.model.LocalPackageInfo;
-import io.openmanufacturing.ame.repository.model.ValidFile;
+import io.openmanufacturing.ame.model.repository.LocalPackageInfo;
+import io.openmanufacturing.ame.model.repository.ValidFile;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.ExtendedXsdDataType;
-import io.openmanufacturing.sds.aspectmodel.resolver.services.SdsAspectMetaModelResourceResolver;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 @Service
@@ -163,7 +162,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final String namespace = namespaceDirectory.getName();
       final String aspectName = FilenameUtils.removeExtension( inputFile.getName() );
       final String urn = String.format( "urn:bamm:%s:%s#%s", namespace, version, aspectName );
-      return new SdsAspectMetaModelResourceResolver().getAspectModelUrn( urn ).getOrElse( () -> {
+      return AspectModelUrn.from( urn ).getOrElse( () -> {
          throw new InvalidAspectModelException(
                String.format( "The URN constructed from the input file path is invalid: %s", urn ) );
       } );
@@ -210,9 +209,9 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
          return paths.filter( this::isPathRelevant )
                      .map( Path::toString )
-                     .map( path -> path.replace( rootSharedFolder, StringUtils.EMPTY ) )
-                     .filter( this::isPathExcluded )
-                     .collect( toList() );
+                     .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) )
+                     .filter( StringUtils::isNotBlank )
+                     .toList();
       } catch ( final IOException e ) {
          throw new FileReadException( "Can not read shared folder file structure", e );
       }
@@ -229,22 +228,31 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
                         return !parentDir.isDirectory() && !path.toString().endsWith( ModelUtils.TTL_EXTENSION );
                      } )
                      .map( Path::toString )
-                     .map( path -> path.replace( rootSharedFolder, StringUtils.EMPTY ) )
-                     .filter( this::isPathExcluded )
-                     .collect( toList() );
+                     .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) )
+                     .filter( StringUtils::isNotBlank )
+                     .toList();
       } catch ( final IOException e ) {
          throw new FileReadException( "Can not read shared folder file structure", e );
       }
    }
 
    /**
-    * Method for excluding turtle files from user.
-    * For example latest.ttl is used internally AME and it should nt be modified or used by the user.
+    * Method for excluding standalone files without folder structure from user.
+    * For example latest.ttl is used internally AME, and it should not be modified or used by the user.
+    * In addition, aspect models should be available in their folder structure.
     *
-    * @param path - folder location that will be analyzed.
+    * @param rootSharedFolder - absolute path of the file.
+    * @param pathAsString - folder location that will be analyzed.
     */
-   private boolean isPathExcluded( @Nonnull final String path ) {
-      return !path.endsWith( "latest.ttl" );
+   private String excludeStandaloneFiles( final String rootSharedFolder, final String pathAsString ) {
+      final String relativePath = pathAsString.replace( rootSharedFolder, StringUtils.EMPTY );
+      final Path path = Path.of( relativePath );
+
+      if ( path.getParent() == null || path.getParent().getParent() == null || path.endsWith( "latest.ttl" ) ) {
+         return StringUtils.EMPTY;
+      }
+
+      return relativePath;
    }
 
    private List<ValidFile> getListOfLocalPackageInformation( final List<String> filePath, final String storagePath ) {
@@ -255,7 +263,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
                final String aspectModel = getModelAsString( aspectModelFile, storagePath );
                return new ValidFile( aspectModelFile, aspectModel );
             } )
-            .collect( toList() );
+            .toList();
    }
 
    /**
@@ -286,7 +294,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
                                            .map( value -> value.replace(
                                                  LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR,
                                                  StringUtils.EMPTY ) )
-                                           .collect( toList() );
+                                           .toList();
 
          entry.setValue( collect );
       }
@@ -437,7 +445,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    private void deleteFile( @Nonnull final File file ) {
       try {
-         FileUtils.forceDelete( file );
+         FileUtils.forceDeleteOnExit( file );
       } catch ( final IOException e ) {
          throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ),
                e );

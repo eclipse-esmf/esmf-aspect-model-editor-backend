@@ -11,14 +11,25 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package io.openmanufacturing.ame.repository.model;
+package io.openmanufacturing.ame.model.packaging;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ValidFile {
-   private String aspectModelFile;
-   private String aspectModel;
+public class MissingElement {
+   @JsonProperty( "analysedFileName" )
+   private String analysedFileName;
+
+   @JsonProperty( "element" )
+   private String element;
+
+   @JsonProperty( "missingFileName" )
+   private String missingFileName;
+
+   @JsonProperty( "errorMessage" )
+   private String errorMessage;
 }

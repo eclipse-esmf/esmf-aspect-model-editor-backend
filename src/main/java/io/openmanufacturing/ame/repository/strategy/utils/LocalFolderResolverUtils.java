@@ -1,13 +1,20 @@
 package io.openmanufacturing.ame.repository.strategy.utils;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.annotation.Nonnull;
+
+import org.apache.commons.io.FileUtils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 public class LocalFolderResolverUtils {
+
+   private LocalFolderResolverUtils() {
+   }
+
    public static final String NAMESPACE_VERSION_NAME_SEPARATOR = ":";
 
    /**
@@ -16,16 +23,12 @@ public class LocalFolderResolverUtils {
    public static FolderStructure extractFilePath( @Nonnull final String path ) {
       final String[] splitNamespace = path.split( NAMESPACE_VERSION_NAME_SEPARATOR );
 
-      switch ( splitNamespace.length ) {
-         case 1:
-            return new FolderStructure( path );
-         case 2:
-            return extractNamespaceVersion( splitNamespace );
-         case 3:
-            return extractNamespaceVersionName( splitNamespace );
-         default:
-            return new FolderStructure();
-      }
+      return switch ( splitNamespace.length ) {
+         case 1 -> new FolderStructure( path );
+         case 2 -> extractNamespaceVersion( splitNamespace );
+         case 3 -> extractNamespaceVersionName( splitNamespace );
+         default -> new FolderStructure();
+      };
    }
 
    /**
@@ -78,6 +81,14 @@ public class LocalFolderResolverUtils {
          }
 
          return fileRootPath;
+      }
+   }
+
+   public static void deleteDirectory( final String storagePath ) throws IOException {
+      final File storageDir = new File( storagePath );
+
+      if ( storageDir.exists() && storageDir.isDirectory() ) {
+         FileUtils.forceDeleteOnExit( storageDir );
       }
    }
 }
