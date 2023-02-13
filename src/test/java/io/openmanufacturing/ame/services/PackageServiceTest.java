@@ -90,12 +90,6 @@ public class PackageServiceTest {
 
          assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getMissingFileName()
                                              .contains( nameSpaceThreeArray[2] ) );
-
-         if ( OS.isFamilyWindows() ) {
-            FileUtils.deleteQuietly( exportedStoragePath.toFile() );
-         } else {
-            FileUtils.forceDelete( exportedStoragePath.toFile() );
-         }
       }
    }
 
