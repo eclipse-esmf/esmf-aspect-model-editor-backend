@@ -23,8 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.exec.OS;
-import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.junit.jupiter.api.Order;
 import org.junit.runner.RunWith;
@@ -110,12 +108,6 @@ public class PackageServiceTest {
                exportedStoragePath.toFile().getAbsolutePath() );
 
          assertTrue( bytes.length > 0 );
-
-         if ( OS.isFamilyWindows() ) {
-            FileUtils.deleteQuietly( exportedStoragePath.toFile() );
-         } else {
-            FileUtils.forceDelete( exportedStoragePath.toFile() );
-         }
       }
    }
 
