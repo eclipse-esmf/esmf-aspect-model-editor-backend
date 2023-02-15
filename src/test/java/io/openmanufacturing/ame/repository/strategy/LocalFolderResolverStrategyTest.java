@@ -43,6 +43,7 @@ import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.exceptions.FileReadException;
 import io.openmanufacturing.ame.exceptions.FileWriteException;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 @RunWith( MockitoJUnitRunner.class )
@@ -80,7 +81,7 @@ public class LocalFolderResolverStrategyTest {
    public void setUp() {
       localFolderResolverStrategy = spy( new LocalFolderResolverStrategy( applicationSettingsMock ) );
       doReturn( fileMock ).when( localFolderResolverStrategy ).getFileInstance( any() );
-      when( applicationSettingsMock.getEndFilePath() ).thenReturn( MODELS );
+      when( applicationSettingsMock.getEndFilePath() ).thenReturn( Path.of( MODELS ) );
    }
 
    @Test
@@ -190,12 +191,19 @@ public class LocalFolderResolverStrategyTest {
 
    @Test
    public void testGetFilePathBasedOnTurtleData() throws Exception {
-      final Path extRefAspectModel = Path.of( resourcesPath.toAbsolutePath().toString(), TTL_FILE_WITH_EXT_REF );
-      final AspectModelUrn aspectModelUrn = localFolderResolverStrategy.getAspectModelUrn(
-            Files.readString( extRefAspectModel ),
-            resourcesPath.toString() );
+      try ( final MockedStatic<ValidationProcess> utilities = Mockito.mockStatic( ValidationProcess.class ) ) {
+         final Path extRefAspectModel = Path.of( resourcesPath.toAbsolutePath().toString(), TTL_FILE_WITH_EXT_REF );
 
-      assertEquals( "urn:bamm:io.openmanufacturing:1.0.0#AspectModelWithExternalRef", aspectModelUrn.toString() );
+         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+         Mockito.when( validationProcess.getPath() ).thenReturn( extRefAspectModel );
+
+         utilities.when( () -> ValidationProcess.getEnum( any( String.class ) ) ).thenReturn( validationProcess );
+
+         final AspectModelUrn aspectModelUrn = localFolderResolverStrategy.getAspectModelUrn(
+               Files.readString( extRefAspectModel ), resourcesPath.toString() );
+
+         assertEquals( "urn:bamm:io.openmanufacturing:1.0.0#AspectModelWithExternalRef", aspectModelUrn.toString() );
+      }
    }
 
    @Test( expected = FileWriteException.class )
@@ -228,7 +236,7 @@ public class LocalFolderResolverStrategyTest {
                   .thenReturn( "com.test.example:1.0.0:AspectDefault.ttl" );
 
          final Map<String, List<String>> result = localFolderResolverStrategy.getAllNamespaces( true,
-               ApplicationSettings.getMetaModelStoragePath() );
+               ApplicationSettings.getMetaModelStoragePath().toString() );
 
          assertEquals( nameSpace, result );
       }
@@ -250,7 +258,7 @@ public class LocalFolderResolverStrategyTest {
                   .thenReturn( "com.test.example:1.2.0" );
 
          final Map<String, List<String>> result = localFolderResolverStrategy.getAllNamespaces( true,
-               ApplicationSettings.getMetaModelStoragePath() );
+               ApplicationSettings.getMetaModelStoragePath().toString() );
 
          assertEquals( expectedResult, result );
       }
@@ -261,14 +269,14 @@ public class LocalFolderResolverStrategyTest {
       when( fileMock.exists() ).thenReturn( true );
       doThrow( IOException.class ).when( localFolderResolverStrategy ).getAllSubFilePaths( any() );
 
-      localFolderResolverStrategy.getAllNamespaces( true, ApplicationSettings.getMetaModelStoragePath() );
+      localFolderResolverStrategy.getAllNamespaces( true, ApplicationSettings.getMetaModelStoragePath().toString() );
    }
 
    @Test( expected = FileNotFoundException.class )
    public void testGetAllNamespacesErrorNoSharedFolder() {
       when( fileMock.exists() ).thenReturn( false );
 
-      localFolderResolverStrategy.getAllNamespaces( true, ApplicationSettings.getMetaModelStoragePath() );
+      localFolderResolverStrategy.getAllNamespaces( true, ApplicationSettings.getMetaModelStoragePath().toString() );
    }
 
    @Test

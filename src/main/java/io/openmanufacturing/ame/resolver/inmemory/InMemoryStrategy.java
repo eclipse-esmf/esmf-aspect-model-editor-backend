@@ -13,25 +13,29 @@
 
 package io.openmanufacturing.ame.resolver.inmemory;
 
+import static org.apache.jena.http.auth.AuthEnv.LOG;
+
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.vocabulary.RDF;
 
 import io.openmanufacturing.ame.exceptions.UrnNotFoundException;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.sds.aspectmetamodel.KnownVersion;
-import io.openmanufacturing.sds.aspectmodel.resolver.FileSystemStrategy;
+import io.openmanufacturing.sds.aspectmodel.resolver.AbstractResolutionStrategy;
+import io.openmanufacturing.sds.aspectmodel.resolver.AspectModelResolver;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMM;
@@ -39,19 +43,24 @@ import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMMC;
 import io.vavr.NotImplementedError;
 import io.vavr.control.Try;
 
-public class InMemoryStrategy extends FileSystemStrategy {
-   public final Model model;
+public class InMemoryStrategy extends AbstractResolutionStrategy {
+   public final Path processingRootPath;
+   public final Model aspectModel;
 
-   public InMemoryStrategy( final String aspectModel, final Path modelsRoot ) throws RiotException {
-      super( modelsRoot );
-      final InputStream aspectModelStream = new ByteArrayInputStream( aspectModel.getBytes( StandardCharsets.UTF_8 ) );
-      final Try<Model> loadTurtle = TurtleLoader.loadTurtle( aspectModelStream );
+   public final ValidationProcess validationProcess;
 
-      if ( loadTurtle.isFailure() ) {
-         throw new RiotException( loadTurtle.getCause().getMessage(), loadTurtle.getCause() );
-      }
+   public InMemoryStrategy( final String aspectModel, final ValidationProcess validationProcess ) throws RiotException {
+      processingRootPath = validationProcess.getPath();
+      this.aspectModel = loadTurtle( aspectModel );
+      this.validationProcess = validationProcess;
+   }
 
-      model = loadTurtle.get();
+   private Model loadTurtle( final String aspectModel ) {
+      final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+            aspectModel.getBytes( StandardCharsets.UTF_8 ) );
+
+      return TurtleLoader.loadTurtle( byteArrayInputStream ).getOrElseThrow(
+            error -> new RiotException( error.getCause().getMessage(), error.getCause() ) );
    }
 
    @Override
@@ -60,63 +69,91 @@ public class InMemoryStrategy extends FileSystemStrategy {
          return Try.failure( new NotImplementedError( "AspectModelUrn is not set" ) );
       }
 
-      final Try<Model> isOnDirectory = getModelFromFileSystem( aspectModelUrn );
+      final Try<Model> modelFromFileSystem = getModelFromFileSystem( aspectModelUrn, processingRootPath );
 
-      if ( isOnDirectory.isSuccess() && !getAspectModelUrn().equals( aspectModelUrn ) ) {
-         return isOnDirectory;
-      }
-
-      final StmtIterator stmtIterator = model.listStatements(
-            ResourceFactory.createResource( aspectModelUrn.toString() ), null, (RDFNode) null );
-
-      if ( stmtIterator.hasNext() ) {
-         return Try.success( model );
-      }
-
-      return Try.failure(
-            new UrnNotFoundException( String.format( "%s cannot be resolved correctly.", aspectModelUrn ),
-                  aspectModelUrn ) );
+      return modelFromFileSystem.isSuccess() ?
+            tryOnSuccess( aspectModelUrn, modelFromFileSystem ) :
+            tryOnFailure( aspectModelUrn );
    }
 
-   /**
-    * Method needed for mocking
-    */
-   protected Try<Model> getModelFromFileSystem( final AspectModelUrn aspectModelUrn ) {
-      return super.apply( aspectModelUrn );
+   private Try<Model> tryOnSuccess( final AspectModelUrn aspectModelUrn, final Try<Model> modelFromFileSystem ) {
+      if ( !getAspectModelUrn().equals( aspectModelUrn ) ) {
+         return modelFromFileSystem;
+      }
+
+      return Try.success( aspectModel );
+   }
+
+   private Try<Model> tryOnFailure( final AspectModelUrn aspectModelUrn ) {
+      // Special case on importing models, ref. Aspect Model can be already imported
+      if ( validationProcess.equals( ValidationProcess.IMPORT ) ) {
+         return getModelFromFileSystem( aspectModelUrn, ValidationProcess.MODELS.getPath() );
+      }
+
+      if ( getSdsStatements().isPresent() ) {
+         return Try.success( aspectModel );
+      }
+
+      return Try.failure( new UrnNotFoundException( String.format( "%s cannot be resolved correctly.", aspectModelUrn ),
+            aspectModelUrn ) );
+   }
+
+   protected Try<Model> getModelFromFileSystem( final AspectModelUrn aspectModelUrn, final Path rootPath ) {
+      final Path directory = rootPath.resolve( aspectModelUrn.getNamespace() ).resolve( aspectModelUrn.getVersion() );
+
+      final File namedResourceFile = directory.resolve( aspectModelUrn.getName() + ".ttl" ).toFile();
+      if ( namedResourceFile.exists() ) {
+         return loadFromUri( namedResourceFile.toURI() );
+      }
+
+      LOG.warn( "Looking for {}, but no {}.ttl was found. Inspecting files in {}", aspectModelUrn.getName(),
+            aspectModelUrn.getName(), directory );
+
+      return Arrays.stream( Optional.ofNullable( directory.toFile().listFiles() ).orElse( new File[] {} ) )
+                   .filter( File::isFile ).filter( file -> file.getName().endsWith( ".ttl" ) ).map( File::toURI )
+                   .sorted().map( this::loadFromUri ).filter(
+                  tryModel -> tryModel.map( model -> AspectModelResolver.containsDefinition( model, aspectModelUrn ) )
+                                      .getOrElse( false ) ).findFirst().orElse( Try.failure( new FileNotFoundException(
+                  "No model file containing " + aspectModelUrn + " could be found in directory: " + directory ) ) );
    }
 
    public AspectModelUrn getAspectModelUrn() {
-      final Optional<StmtIterator> sdsStatements = getSdsStatements();
-
-      final String aspectModelUrn = sdsStatements.orElseThrow(
-            () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next().getSubject().getURI();
-
-      return AspectModelUrn.fromUrn( aspectModelUrn );
+      return AspectModelUrn.fromUrn(
+            getSdsStatements().orElseThrow( () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next()
+                              .getSubject().getURI() );
    }
 
    private Optional<StmtIterator> getSdsStatements() {
+      final List<StmtIterator> stmtIterators = new ArrayList<>();
 
-      for ( final KnownVersion version : KnownVersion.getVersions() ) {
-         final BAMM bamm = new BAMM( version );
-         final BAMMC bammc = new BAMMC( version );
+      KnownVersion.getVersions()
+                  .forEach( version -> stmtIterators.addAll( getListOfAllBAMMElements( version )
+                        .stream()
+                        .filter( resource -> aspectModel.listStatements( null, RDF.type, resource ).hasNext() )
+                        .map( resource -> aspectModel.listStatements( null, RDF.type, resource ) )
+                        .toList() ) );
 
-         final List<Resource> resources = new ArrayList<>();
+      return stmtIterators.isEmpty() ? Optional.empty() : stmtIterators.stream().findFirst();
+   }
 
-         resources.addAll( List.of( bamm.Aspect(), bamm.Property(), bamm.Operation(), bamm.Event(),
-               bamm.Entity(), bamm.Characteristic(), bamm.Constraint(), bamm.AbstractEntity(),
-               bamm.AbstractProperty() ) );
+   private List<Resource> getListOfAllBAMMElements( final KnownVersion version ) {
+      final BAMM bamm = new BAMM( version );
+      final BAMMC bammc = new BAMMC( version );
 
-         resources.addAll( bammc.allCharacteristics().toList() );
+      final List<Resource> resources = new ArrayList<>();
+      resources.add( bamm.Aspect() );
+      resources.add( bamm.Property() );
+      resources.add( bamm.Operation() );
+      resources.add( bamm.Event() );
+      resources.add( bamm.Entity() );
+      resources.add( bamm.Characteristic() );
+      resources.add( bamm.Constraint() );
+      resources.add( bamm.AbstractEntity() );
+      resources.add( bamm.AbstractProperty() );
+      resources.addAll( bammc.allCharacteristics().toList() );
+      resources.addAll( bammc.allConstraints().toList() );
+      resources.addAll( bammc.allCollections().toList() );
 
-         final List<StmtIterator> collect = resources.stream().filter(
-                                                           resource -> model.listStatements( null, RDF.type, resource ).hasNext() )
-                                                     .map( resource -> model.listStatements( null, RDF.type,
-                                                           resource ) ).toList();
-         if ( !collect.isEmpty() ) {
-            return collect.stream().findFirst();
-         }
-      }
-
-      return Optional.empty();
+      return resources;
    }
 }

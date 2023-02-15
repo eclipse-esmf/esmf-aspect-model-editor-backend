@@ -6,11 +6,16 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 public class LocalFolderResolverUtils {
+
+   private static final Logger LOG = LoggerFactory.getLogger( LocalFolderResolverUtils.class );
 
    private LocalFolderResolverUtils() {
    }
@@ -84,11 +89,19 @@ public class LocalFolderResolverUtils {
       }
    }
 
-   public static void deleteDirectory( final String storagePath ) throws IOException {
-      final File storageDir = new File( storagePath );
-
-      if ( storageDir.exists() && storageDir.isDirectory() ) {
-         FileUtils.forceDelete( storageDir );
+   /**
+    * This method will delete the given directory and all of its contents.
+    *
+    * @param storagePath - path of the directory to be deleted.
+    */
+   public static void deleteDirectory( final File storagePath ) {
+      try {
+         if ( storagePath.exists() && storagePath.isDirectory() ) {
+            FileUtils.forceDelete( storagePath );
+         }
+      } catch ( final IOException error ) {
+         LOG.error( "Cannot delete exported package folder." );
+         throw new FileNotFoundException( String.format( "Unable to delete folder on: %s", storagePath ), error );
       }
    }
 }

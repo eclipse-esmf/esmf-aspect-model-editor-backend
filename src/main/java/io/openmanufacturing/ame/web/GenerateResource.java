@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.services.GenerateService;
 import io.openmanufacturing.sds.aspectmodel.generator.openapi.PagingOption;
 
@@ -47,7 +48,7 @@ public class GenerateResource {
     */
    @PostMapping( "documentation" )
    public ResponseEntity<byte[]> generateHtml( @RequestBody final String aspectModel ) throws IOException {
-      return ResponseEntity.ok( generateService.generateHtmlDocument( aspectModel ) );
+      return ResponseEntity.ok( generateService.generateHtmlDocument( aspectModel, ValidationProcess.GENERATE ) );
    }
 
    /**
@@ -58,7 +59,7 @@ public class GenerateResource {
     */
    @PostMapping( "json-sample" )
    public ResponseEntity<Object> jsonSample( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( generateService.sampleJSONPayload( aspectModel ) );
+      return ResponseEntity.ok( generateService.sampleJSONPayload( aspectModel, ValidationProcess.GENERATE ) );
    }
 
    /**
@@ -69,7 +70,7 @@ public class GenerateResource {
     */
    @PostMapping( "json-schema" )
    public ResponseEntity<String> jsonSchema( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( generateService.jsonSchema( aspectModel ) );
+      return ResponseEntity.ok( generateService.jsonSchema( aspectModel, ValidationProcess.GENERATE ) );
    }
 
    /**

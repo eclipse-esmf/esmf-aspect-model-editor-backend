@@ -31,9 +31,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.migration.Namespaces;
 import io.openmanufacturing.ame.model.validation.ViolationReport;
 import io.openmanufacturing.ame.services.ModelService;
+import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.ame.web.utils.MediaTypeExtension;
 
 /**
@@ -86,8 +88,7 @@ public class ModelResource {
     */
    @PostMapping( "validate" )
    public ResponseEntity<ViolationReport> validateModel( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok(
-            modelService.validateModel( aspectModel, ApplicationSettings.getMetaModelStoragePath() ) );
+      return ResponseEntity.ok( modelService.validateModel( aspectModel, ValidationProcess.VALIDATION ) );
    }
 
    /**
@@ -98,8 +99,7 @@ public class ModelResource {
     */
    @PostMapping( path = "migrate", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public ResponseEntity<String> migrateModel( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok(
-            modelService.migrateModel( aspectModel, ApplicationSettings.getMetaModelStoragePath() ) );
+      return ResponseEntity.ok( ModelUtils.migrateModel( aspectModel, ValidationProcess.MIGRATE ) );
    }
 
    /**
@@ -122,7 +122,7 @@ public class ModelResource {
    public ResponseEntity<Map<String, List<String>>> getAllNamespaces(
          @RequestParam( value = "shouldRefresh", required = false, defaultValue = "false" )
          final boolean shouldRefresh ) {
-      return ResponseEntity.ok( modelService.getAllNamespaces( shouldRefresh, Optional.empty() ) );
+      return ResponseEntity.ok( modelService.getAllNamespaces( shouldRefresh, ValidationProcess.MODELS ) );
    }
 
    /**

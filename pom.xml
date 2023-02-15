@@ -55,7 +55,7 @@
         <commons-validator-version>1.7</commons-validator-version>
         <port-allocator-version>1.2</port-allocator-version>
         <process-exec-version>0.9</process-exec-version>
-        <mockito-inline-version>4.1.0</mockito-inline-version>
+        <mockito-inline-version>5.1.1</mockito-inline-version>
         <cglib-version>3.3.0</cglib-version>
         <classworlds-version>1.1</classworlds-version>
         <graal-svm-version>22.3.0</graal-svm-version>
@@ -64,7 +64,7 @@
         <native-maven-plugin-version>0.9.19</native-maven-plugin-version>
 
         <!-- Versions of plugins -->
-        <junit-version>4.13.2</junit-version>
+        <junit-version>5.9.2</junit-version>
         <npm-version>8.5.0</npm-version>
         <newman-version>5.2.0</newman-version>
         <node-version>16.14.2</node-version>
@@ -285,9 +285,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit-version}</version>
+            <version>RELEASE</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

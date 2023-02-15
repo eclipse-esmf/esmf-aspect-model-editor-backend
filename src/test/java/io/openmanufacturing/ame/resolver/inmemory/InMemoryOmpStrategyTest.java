@@ -13,105 +13,74 @@
 
 package io.openmanufacturing.ame.resolver.inmemory;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.rdf.model.StmtIterator;
-import org.apache.jena.riot.RiotException;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.MockedStatic;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import io.openmanufacturing.ame.config.ApplicationSettings;
-import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import io.vavr.control.Try;
 
-@RunWith( MockitoJUnitRunner.class )
-public class InMemoryOmpStrategyTest {
-   private InMemoryStrategy inMemoryStrategy;
+@ExtendWith( SpringExtension.class )
+class InMemoryOmpStrategyTest {
+   private static final Path resourcesPath = Path.of( "src", "test", "resources" );
 
-   @Mock
-   private Try<Model> tryModel;
+   private static final Path openManufacturingTestPath = Path.of( resourcesPath.toString(), "io.openmanufacturing",
+         "1.0.0" );
 
-   @Mock
-   private Model modelMock;
+   private static final String aspectModelFile = "AspectModel.ttl";
+   private static final String aspectModelFileWithRef = "AspectModelWithExternalRef.ttl";
 
-   @Mock
-   private AspectModelUrn aspectModelUrnMock;
+   private ValidationProcess validationProcess;
 
-   @Mock
-   private Resource resourceMock;
-
-   @Mock
-   private StmtIterator stmtIteratorMock;
-
-   @Mock
-   private Try<Model> isDirectory;
-
-   @Before
-   public void setUp() throws RiotException {
-      try ( final MockedStatic<TurtleLoader> turtleLoaderUtilities = Mockito.mockStatic( TurtleLoader.class ) ) {
-         turtleLoaderUtilities.when( () -> TurtleLoader.loadTurtle( any( InputStream.class ) ) ).thenReturn( tryModel );
-
-         when( tryModel.get() ).thenReturn( modelMock );
-         inMemoryStrategy = Mockito.spy( new InMemoryStrategy( "turtle file content",
-               Path.of( ApplicationSettings.getMetaModelStoragePath() ) ) );
-         doReturn( isDirectory ).when( inMemoryStrategy ).getModelFromFileSystem( aspectModelUrnMock );
-         when( isDirectory.isSuccess() ).thenReturn( false );
-      }
+   @BeforeEach
+   void setUp() {
+      validationProcess = Mockito.mock( ValidationProcess.class );
+      Mockito.when( validationProcess.getPath() ).thenReturn( resourcesPath );
    }
 
    @Test
-   public void testApplySuccess() {
-      try ( final MockedStatic<ResourceFactory> resourceFactoryUtilities = Mockito.mockStatic(
-            ResourceFactory.class ) ) {
-         resourceFactoryUtilities.when( () -> ResourceFactory.createResource( any( String.class ) ) )
-                                 .thenReturn( resourceMock );
+   void testApplySuccess() throws IOException {
+      final String fileToTest = Files.readString( openManufacturingTestPath.resolve( aspectModelFile ),
+            StandardCharsets.UTF_8 );
 
-         when( ResourceFactory.createResource( any() ) ).thenReturn( resourceMock );
-         when( modelMock.listStatements( resourceMock, null, (RDFNode) null ) ).thenReturn( stmtIteratorMock );
-         when( stmtIteratorMock.hasNext() ).thenReturn( true );
+      final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, validationProcess );
 
-         final Try<Model> result = inMemoryStrategy.apply( aspectModelUrnMock );
+      final Try<Model> apply = inMemoryStrategy.apply(
+            AspectModelUrn.fromUrn( "urn:bamm:io.openmanufacturing:1.0.0#AspectModel" ) );
 
-         assertEquals( result, Try.success( modelMock ) );
-      }
+      assertTrue( apply.isSuccess() );
    }
 
    @Test
-   public void testApplyFailureNullAspectModelUrn() {
+   void testApplyFailureNullAspectModelUrn() throws IOException {
+      final String fileToTest = Files.readString( openManufacturingTestPath.resolve( aspectModelFile ),
+            StandardCharsets.UTF_8 );
+
+      final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, validationProcess );
       final Try<Model> result = inMemoryStrategy.apply( null );
 
       assertTrue( result.isFailure() );
    }
 
    @Test
-   public void testApplyFailure() {
-      try ( final MockedStatic<ResourceFactory> resourceFactoryUtilities = Mockito.mockStatic(
-            ResourceFactory.class ) ) {
-         resourceFactoryUtilities.when( () -> ResourceFactory.createResource( any( String.class ) ) )
-                                 .thenReturn( resourceMock );
+   void testApplyFailure() throws IOException {
+      final String fileToTest = Files.readString( openManufacturingTestPath.resolve( aspectModelFileWithRef ),
+            StandardCharsets.UTF_8 );
 
-         when( ResourceFactory.createResource( any() ) ).thenReturn( resourceMock );
-         when( modelMock.listStatements( resourceMock, null, (RDFNode) null ) ).thenReturn( stmtIteratorMock );
-         when( stmtIteratorMock.hasNext() ).thenReturn( false );
+      final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, validationProcess );
+      final Try<Model> result = inMemoryStrategy.apply( null );
 
-         final Try<Model> result = inMemoryStrategy.apply( aspectModelUrnMock );
-
-         assertTrue( result.isFailure() );
-      }
+      assertTrue( result.isFailure() );
    }
 }

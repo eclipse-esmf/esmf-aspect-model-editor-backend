@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileReadException;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.packaging.ProcessPackage;
 import io.openmanufacturing.ame.services.PackageService;
 import io.openmanufacturing.ame.web.utils.MediaTypeExtension;
@@ -40,7 +41,6 @@ import io.openmanufacturing.ame.web.utils.MediaTypeExtension;
 @RestController
 @RequestMapping( "package" )
 public class PackageResource {
-
    private final PackageService packageService;
 
    public PackageResource( final PackageService packageService ) {
@@ -55,8 +55,8 @@ public class PackageResource {
     */
    @PostMapping( "/validate-models-for-export" )
    public ProcessPackage validateAspectModelsForExport( @RequestBody final List<String> aspectModelFiles ) {
-      return packageService.validateAspectModelsForExport( aspectModelFiles,
-            ApplicationSettings.getExportPackageStoragePath() );
+      return packageService.validateAspectModelsForExport( aspectModelFiles, ValidationProcess.EXPORT,
+            ValidationProcess.MODELS.getPath() );
    }
 
    /**
@@ -75,41 +75,37 @@ public class PackageResource {
          throw new FileReadException( "Selected file is not a ZIP file." );
       }
 
-      return ResponseEntity.ok(
-            packageService.validateImportAspectModelPackage( zipFile,
-                  ApplicationSettings.getImportPackageStoragePath() ) );
+      return ResponseEntity.ok( packageService.validateImportAspectModelPackage( zipFile, ValidationProcess.IMPORT,
+            ValidationProcess.MODELS.getPath() ) );
    }
 
    /**
-    * Method to import AspectModels into workspace
+    * Method to import a zip file with Aspect Models.
     *
     * @param aspectModelFiles - a list of Aspect Model file names.
-    * @return
+    * @return information which Aspect Models are valid/invalid or missing.
     */
    @PostMapping( "/import" )
    public ResponseEntity<List<String>> importAspectModelPackage( @RequestBody final List<String> aspectModelFiles ) {
-      return ResponseEntity.ok( packageService.importAspectModelPackage( aspectModelFiles,
-            ApplicationSettings.getImportPackageStoragePath() ) );
+      return ResponseEntity.ok( packageService.importAspectModelPackage( aspectModelFiles, ValidationProcess.IMPORT ) );
    }
 
    /**
-    * Method to export packaged Aspect Models.
+    * Method to export a zip file with Aspect Models.
     *
-    * @return the package as zip file as blob.
+    * @return the zip file as byte array.
     */
    @GetMapping( path = "/export-zip", produces = MediaTypeExtension.APPLICATION_ZIP_VALUE )
    public ResponseEntity<byte[]> exportAspectModelPackage() {
       final String zipFileName = "package.zip";
 
       return ResponseEntity.ok()
-                           .header( HttpHeaders.CONTENT_DISPOSITION,
-                                 "attachment; filename=\"" + zipFileName + "\"" )
-                           .body( packageService.exportAspectModelPackage( zipFileName,
-                                 ApplicationSettings.getExportPackageStoragePath() ) );
+                           .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + zipFileName + "\"" )
+                           .body( packageService.exportAspectModelPackage( zipFileName, ValidationProcess.EXPORT ) );
    }
 
    /**
-    * Method to backup workspace files into package.
+    * Method to back up workspace files into package.
     *
     * @return HttpState 200 if the backup succeeded.
     */

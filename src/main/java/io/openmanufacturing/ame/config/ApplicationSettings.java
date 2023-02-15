@@ -14,6 +14,7 @@
 package io.openmanufacturing.ame.config;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -35,28 +36,28 @@ public class ApplicationSettings {
 
    private String fileType;
 
-   public static String getAspectModelEditorStoragePath() {
-      return ASPECT_MODEL_PATH;
+   public static Path getAspectModelEditorStoragePath() {
+      return Path.of( ASPECT_MODEL_PATH );
    }
 
-   public static String getMetaModelStoragePath() {
-      return META_MODEL_PATH;
+   public static Path getMetaModelStoragePath() {
+      return Path.of( META_MODEL_PATH );
    }
 
-   public static String getImportPackageStoragePath() {
-      return IMPORT_PACKAGE_PATH;
+   public static Path getImportPackageStoragePath() {
+      return Path.of( IMPORT_PACKAGE_PATH );
    }
 
-   public static String getExportPackageStoragePath() {
-      return EXPORT_PACKAGE_PATH;
+   public static Path getExportPackageStoragePath() {
+      return Path.of( EXPORT_PACKAGE_PATH );
    }
 
-   public static String getMigrationStoragePath() {
-      return MIGRATION_PATH;
+   public static Path getMigrationStoragePath() {
+      return Path.of( MIGRATION_PATH );
    }
 
-   public String getEndFilePath() {
-      return END_FILE_PATH;
+   public Path getEndFilePath() {
+      return Path.of( END_FILE_PATH );
    }
 
    public String getFileType() {

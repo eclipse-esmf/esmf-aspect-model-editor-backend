@@ -28,9 +28,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
-import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
-import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
 import io.openmanufacturing.sds.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
@@ -46,6 +45,7 @@ import io.vavr.control.Try;
 @Service
 public class GenerateService {
    private static final Logger LOG = LoggerFactory.getLogger( GenerateService.class );
+
    private static final String COULD_NOT_LOAD_ASPECT = "Could not load Aspect";
    private static final String COULD_NOT_LOAD_ASPECT_MODEL = "Could not load Aspect model, please make sure the model is valid.";
 
@@ -53,9 +53,10 @@ public class GenerateService {
       DataType.setupTypeMapping();
    }
 
-   public byte[] generateHtmlDocument( final String aspectModel ) throws IOException {
+   public byte[] generateHtmlDocument( final String aspectModel, final ValidationProcess validationProcess )
+         throws IOException {
       final AspectModelDocumentationGenerator generator = new AspectModelDocumentationGenerator(
-            generateAspectContext( aspectModel ) );
+            generateAspectContext( aspectModel, validationProcess ) );
       final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
       generator.generate( artifactName -> byteArrayOutputStream,
@@ -64,10 +65,10 @@ public class GenerateService {
       return byteArrayOutputStream.toByteArray();
    }
 
-   public String jsonSchema( final String aspectModel ) {
+   public String jsonSchema( final String aspectModel, final ValidationProcess validationProcess ) {
       try {
-         final AspectContext aspectContext = generateAspectContext( aspectModel );
-         
+         final AspectContext aspectContext = generateAspectContext( aspectModel, validationProcess );
+
          final AspectModelJsonSchemaGenerator generator = new AspectModelJsonSchemaGenerator();
          final JsonNode jsonSchema = generator.apply( aspectContext.aspect(), new Locale( "en", "EN" ) );
 
@@ -83,31 +84,28 @@ public class GenerateService {
       }
    }
 
-   public String sampleJSONPayload( final String aspectModel ) {
+   public String sampleJSONPayload( final String aspectModel, final ValidationProcess validationProcess ) {
       try {
-         return new AspectModelJsonPayloadGenerator( generateAspectContext( aspectModel ) ).generateJson();
+         return new AspectModelJsonPayloadGenerator(
+               generateAspectContext( aspectModel, validationProcess ) ).generateJson();
       } catch ( final IOException e ) {
          LOG.error( "Aspect Model could not be loaded correctly." );
          throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
       }
    }
 
-   private AspectContext generateAspectContext( final String aspectModel ) {
-      final Optional<String> storagePath = Optional.of( ApplicationSettings.getMetaModelStoragePath() );
-      final VersionedModel versionedModel = getVersionModel( aspectModel, storagePath )
+   private AspectContext generateAspectContext( final String aspectModel, final ValidationProcess validationProcess ) {
+      final VersionedModel versionedModel = getVersionModel( aspectModel, validationProcess )
             .getOrElseThrow( () -> {
                LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
                return new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL );
             } );
 
-      return new AspectContext( versionedModel,
-            AspectModelLoader.getSingleAspectUnchecked( versionedModel ) );
+      return new AspectContext( versionedModel, AspectModelLoader.getSingleAspectUnchecked( versionedModel ) );
    }
 
-   private Try<VersionedModel> getVersionModel( final String aspectModel, final Optional<String> storagePath ) {
-      final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel,
-            storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
-      return ModelUtils.fetchVersionModel( inMemoryStrategy );
+   private Try<VersionedModel> getVersionModel( final String aspectModel, final ValidationProcess validationProcess ) {
+      return ModelUtils.fetchVersionModel( inMemoryStrategy( aspectModel, validationProcess ) );
    }
 
    public String generateYamlOpenApiSpec( final String aspectModel, final String baseUrl, final boolean includeQueryApi,
@@ -115,8 +113,8 @@ public class GenerateService {
       try {
          final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
 
-         return generator.applyForYaml( ModelUtils.resolveAspectFromModel( aspectModel ), useSemanticVersion, baseUrl,
-               Optional.empty(), Optional.empty(), includeQueryApi, pagingOption );
+         return generator.applyForYaml( ModelUtils.resolveAspectFromModel( aspectModel, ValidationProcess.MODELS ),
+               useSemanticVersion, baseUrl, Optional.empty(), Optional.empty(), includeQueryApi, pagingOption );
       } catch ( final IOException e ) {
          LOG.error( "YAML OpenAPI specification could not be generated." );
          throw new InvalidAspectModelException( "Error generating YAML OpenAPI specification", e );
@@ -128,8 +126,9 @@ public class GenerateService {
       try {
          final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
 
-         final JsonNode json = generator.applyForJson( ModelUtils.resolveAspectFromModel( aspectModel ),
-               useSemanticVersion, baseUrl, Optional.empty(), Optional.empty(), includeQueryApi, pagingOption );
+         final JsonNode json = generator.applyForJson(
+               ModelUtils.resolveAspectFromModel( aspectModel, ValidationProcess.MODELS ), useSemanticVersion, baseUrl,
+               Optional.empty(), Optional.empty(), includeQueryApi, pagingOption );
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
          final ObjectMapper objectMapper = new ObjectMapper();

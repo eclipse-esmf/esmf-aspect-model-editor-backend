@@ -41,6 +41,7 @@ import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.exceptions.FileReadException;
 import io.openmanufacturing.ame.exceptions.FileWriteException;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.repository.LocalPackageInfo;
 import io.openmanufacturing.ame.model.repository.ValidFile;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
@@ -375,7 +376,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    protected AspectModelUrn getAspectModelUrn( @Nonnull final String turtleData,
          final @Nonnull String storagePath ) {
-      return inMemoryStrategy( turtleData, storagePath ).getAspectModelUrn();
+      return inMemoryStrategy( turtleData, ValidationProcess.getEnum( storagePath ) ).getAspectModelUrn();
    }
 
    /**
