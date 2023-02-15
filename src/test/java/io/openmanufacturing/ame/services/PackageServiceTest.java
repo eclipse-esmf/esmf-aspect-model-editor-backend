@@ -71,8 +71,14 @@ class PackageServiceTest {
       final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
       final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo );
 
+      final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+      Mockito.when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
+
+      ModelUtils.copyAspectModelToDirectory( List.of( nameSpaceThree ), resourcesPath.toString(),
+            exportedStoragePath.toString() );
+
       final ProcessPackage processedExportedPackage = packageService.validateAspectModelsForExport( aspectModelFiles,
-            ValidationProcess.EXPORT, resourcesPath );
+            validationProcess, resourcesPath );
 
       assertEquals( 2, processedExportedPackage.getValidFiles().size() );
       assertEquals( 1, processedExportedPackage.getMissingElements().size() );

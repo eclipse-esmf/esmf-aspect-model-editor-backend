@@ -74,8 +74,7 @@ public class PackageService {
          ModelUtils.copyAspectModelToDirectory( aspectModelFiles, modelStoragePath.toString(),
                validationProcess.getPath().toString() );
 
-         return validateAspectModelsFromDirectory( aspectModelFiles, strategy, validationProcess.getPath(),
-               modelStoragePath );
+         return validateAspectModelsFromDirectory( aspectModelFiles, strategy, validationProcess, modelStoragePath );
       } catch ( final Exception error ) {
          FileUtils.deleteQuietly( new File( validationProcess.getPath().toString() ) );
          throw new InvalidAspectModelException( error.getMessage() );
@@ -83,13 +82,14 @@ public class PackageService {
    }
 
    private ProcessPackage validateAspectModelsFromDirectory( final List<String> aspectModelFiles,
-         final ModelResolverStrategy strategy, final Path exportStoragePath, final Path modelStoragePath ) {
+         final ModelResolverStrategy strategy, final ValidationProcess validationProcess,
+         final Path modelStoragePath ) {
       final ProcessPackage processPackage = new ProcessPackage();
 
       aspectModelFiles.forEach( fileName -> {
-         final String aspectModel = strategy.getModelAsString( fileName, exportStoragePath.toString() );
+         final String aspectModel = strategy.getModelAsString( fileName, validationProcess.getPath().toString() );
          final ViolationReport violationReport = ModelUtils.validateModel( aspectModel, aspectModelValidator,
-               ValidationProcess.EXPORT );
+               validationProcess );
          processPackage.addValidFiles( new ValidFile( fileName, violationReport ) );
          getMissingAspectModelFiles( violationReport, fileName, modelStoragePath.toString() ).forEach(
                processPackage::addMissingElement );

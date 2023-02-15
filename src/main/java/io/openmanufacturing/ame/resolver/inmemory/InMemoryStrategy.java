@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.vocabulary.RDF;
@@ -90,7 +92,11 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
          return getModelFromFileSystem( aspectModelUrn, ValidationProcess.MODELS.getPath() );
       }
 
-      if ( getSdsStatements().isPresent() ) {
+      // TODO check if we can change this logic for elements that can not be resolved ...
+      final StmtIterator stmtIterator = aspectModel.listStatements(
+            ResourceFactory.createResource( aspectModelUrn.toString() ), null, (RDFNode) null );
+
+      if ( stmtIterator.hasNext() ) {
          return Try.success( aspectModel );
       }
 
