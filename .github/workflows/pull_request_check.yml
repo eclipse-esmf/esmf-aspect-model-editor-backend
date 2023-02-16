@@ -37,6 +37,7 @@ jobs:
           version: '22.3.1'
           java-version: '17'
           components: 'native-image,js'
+          cache: 'maven'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache maven packages
