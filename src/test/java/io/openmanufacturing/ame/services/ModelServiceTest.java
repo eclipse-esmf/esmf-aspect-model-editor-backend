@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.exec.OS;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
@@ -172,15 +171,11 @@ class ModelServiceTest {
    void testGetAllNamespaces() {
       final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
 
-      Mockito.when( validationProcess.getPath() ).thenReturn( resourcesPath );
+      Mockito.when( validationProcess.getPath() ).thenReturn( migrationWorkspacePath );
 
       final Map<String, List<String>> result = modelService.getAllNamespaces( true, validationProcess );
 
-      if ( OS.isFamilyWindows() ) {
-         assertEquals( 8, result.size() );
-      } else {
-         assertEquals( 6, result.size() );
-      }
+      assertEquals( 2, result.size() );
    }
 
    @Test()

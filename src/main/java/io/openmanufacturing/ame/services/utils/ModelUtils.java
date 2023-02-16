@@ -38,6 +38,7 @@ import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
 import io.openmanufacturing.ame.model.ValidationProcess;
+import io.openmanufacturing.ame.model.resolver.FolderStructure;
 import io.openmanufacturing.ame.model.validation.ViolationReport;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import io.openmanufacturing.ame.resolver.inmemory.InMemoryStrategy;
@@ -212,7 +213,7 @@ public class ModelUtils {
    public static List<String> copyAspectModelToDirectory( final List<String> aspectModelFiles,
          final String sourceStorage, final String destStorage ) {
       return aspectModelFiles.stream().map( file -> {
-         final LocalFolderResolverUtils.FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath(
+         final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath(
                file );
          final String absoluteAspectModelPath = sourceStorage + File.separator + folderStructure.toString();
          final File aspectModelStoragePath = Paths.get( destStorage, folderStructure.getFileRootPath(),

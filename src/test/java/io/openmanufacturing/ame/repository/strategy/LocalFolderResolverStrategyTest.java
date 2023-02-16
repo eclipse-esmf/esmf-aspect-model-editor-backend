@@ -20,11 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.exec.OS;
 import org.apache.jena.riot.RiotException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,11 +60,6 @@ class LocalFolderResolverStrategyTest {
    private static final String TTL_FILE_WITH_EXT_REF =
          "io.openmanufacturing" + File.separator + "1.0.0" + File.separator + "AspectModelWithExternalRef"
                + TTL_FILE_EXTENSION;
-   private static final String COM_TEST_EXAMPLE_1_2_0 =
-         "com" + File.separator + "test" + File.separator + "example" + File.separator + "1.2.0";
-   private static final String COM_TEST_EXAMPLE_1_0_0_ASPECT_DEFAULT =
-         "com" + File.separator + "test" + File.separator + "example" + File.separator + "1.0.0" + File.separator
-               + "AspectDefault";
 
    @BeforeEach
    void setUp() {
@@ -129,18 +121,6 @@ class LocalFolderResolverStrategyTest {
 
          assertThrows( RiotException.class, () -> localFolderResolverStrategy.saveModel( Optional.empty(),
                TTL_FILE_CONTENT, RESOURCE_PATH.toString() ) );
-      }
-   }
-
-   @Test
-   void testGetAllNamespacesWithTtlFile() throws IOException {
-      final Map<String, List<String>> result = localFolderResolverStrategy.getAllNamespaces( true,
-            RESOURCE_PATH.toString() );
-
-      if ( OS.isFamilyWindows() ) {
-         assertEquals( 8, result.size() );
-      } else {
-         assertEquals( 6, result.size() );
       }
    }
 
