@@ -240,6 +240,11 @@
             <artifactId>native-maven-plugin</artifactId>
             <version>${native-maven-plugin-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven.surefire</groupId>
+            <artifactId>surefire-report-parser</artifactId>
+            <version>${maven-surefire-report-plugin-version}</version>
+        </dependency>
 
         <!-- Third party dependencies for testing -->
         <dependency>
