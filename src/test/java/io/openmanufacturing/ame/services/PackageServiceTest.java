@@ -16,7 +16,6 @@ package io.openmanufacturing.ame.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
@@ -99,8 +99,9 @@ class PackageServiceTest {
       if ( OS.isFamilyWindows() ) {
          try ( final MockedStatic<LocalFolderResolverUtils> utilities = Mockito.mockStatic(
                LocalFolderResolverUtils.class ) ) {
-
-            utilities.when( () -> LocalFolderResolverUtils.deleteDirectory( any( File.class ) ) );
+            
+            utilities.when( () -> LocalFolderResolverUtils.deleteDirectory( any() ) )
+                     .thenAnswer( (Answer<Void>) invocation -> null );
          }
       }
 
