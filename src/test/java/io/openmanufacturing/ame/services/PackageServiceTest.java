@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -90,9 +91,12 @@ class PackageServiceTest {
    }
 
    @Test
-   void testExportAspectModelPackage() {
+   void testExportAspectModelPackage() throws IOException {
       final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
       final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo, nameSpaceThree );
+
+      // Workaround for Windows: Delete the folder if it already exists
+      FileUtils.forceDelete( exportedStoragePath.toFile() );
 
       final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
       Mockito.when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
