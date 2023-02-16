@@ -33,7 +33,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.packaging.ProcessPackage;
-import io.openmanufacturing.ame.services.utils.ModelUtils;
 
 @ExtendWith( SpringExtension.class )
 @SpringBootTest
@@ -74,9 +73,6 @@ class PackageServiceTest {
       final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
       Mockito.when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
 
-      ModelUtils.copyAspectModelToDirectory( List.of( nameSpaceThree ), resourcesPath.toString(),
-            exportedStoragePath.toString() );
-
       final ProcessPackage processedExportedPackage = packageService.validateAspectModelsForExport( aspectModelFiles,
             validationProcess, resourcesPath );
 
@@ -100,9 +96,6 @@ class PackageServiceTest {
 
       final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
       Mockito.when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
-
-      ModelUtils.copyAspectModelToDirectory( List.of( nameSpaceThree ), resourcesPath.toString(),
-            exportedStoragePath.toString() );
 
       packageService.validateAspectModelsForExport( aspectModelFiles, validationProcess, resourcesPath );
 
