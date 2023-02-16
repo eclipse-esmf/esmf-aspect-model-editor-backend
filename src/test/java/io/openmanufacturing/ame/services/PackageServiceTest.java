@@ -101,7 +101,7 @@ class PackageServiceTest {
                LocalFolderResolverUtils.class ) ) {
 
             utilities.when( () -> LocalFolderResolverUtils.deleteDirectory( any( File.class ) ) )
-                     .thenReturn( true );
+                     .thenReturn( Void.TYPE );
          }
       }
 
