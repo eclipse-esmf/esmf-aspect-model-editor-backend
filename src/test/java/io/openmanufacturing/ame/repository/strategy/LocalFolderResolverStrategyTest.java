@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.apache.commons.exec.OS;
 import org.apache.jena.riot.RiotException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -136,7 +137,11 @@ class LocalFolderResolverStrategyTest {
       final Map<String, List<String>> result = localFolderResolverStrategy.getAllNamespaces( true,
             RESOURCE_PATH.toString() );
 
-      assertEquals( 6, result.size() );
+      if ( OS.isFamilyWindows() ) {
+         assertEquals( 8, result.size() );
+      } else {
+         assertEquals( 6, result.size() );
+      }
    }
 
    @Test

@@ -14,7 +14,9 @@
 package io.openmanufacturing.ame.services;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,9 +25,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.exec.OS;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.packaging.ProcessPackage;
+import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 
 @ExtendWith( SpringExtension.class )
 @SpringBootTest
@@ -91,12 +95,18 @@ class PackageServiceTest {
    }
 
    @Test
-   void testExportAspectModelPackage() throws IOException {
+   void testExportAspectModelPackage() {
+      if ( OS.isFamilyWindows() ) {
+         try ( final MockedStatic<LocalFolderResolverUtils> utilities = Mockito.mockStatic(
+               LocalFolderResolverUtils.class ) ) {
+
+            utilities.when( () -> LocalFolderResolverUtils.deleteDirectory( any( File.class ) ) )
+                     .thenReturn( true );
+         }
+      }
+
       final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
       final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo, nameSpaceThree );
-
-      // Workaround for Windows: Delete the folder if it already exists
-      FileUtils.deleteQuietly( exportedStoragePath.toFile() );
 
       final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
       Mockito.when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
