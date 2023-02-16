@@ -100,8 +100,7 @@ class PackageServiceTest {
          try ( final MockedStatic<LocalFolderResolverUtils> utilities = Mockito.mockStatic(
                LocalFolderResolverUtils.class ) ) {
 
-            utilities.when( () -> LocalFolderResolverUtils.deleteDirectory( any( File.class ) ) )
-                     .thenReturn( Void.TYPE );
+            utilities.when( () -> LocalFolderResolverUtils.deleteDirectory( any( File.class ) ) );
          }
       }
 
