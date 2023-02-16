@@ -37,7 +37,6 @@ jobs:
           version: '22.3.1'
           java-version: '17'
           components: 'native-image,js'
-          cache: 'maven'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache maven packages
@@ -62,7 +61,7 @@ jobs:
 
       - name: Creating native image (Win)
         if: matrix.os == 'windows-latest'
-        run: mvn install -P native-image -D os.platform=win
+        run: mvn install -P native-image -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
