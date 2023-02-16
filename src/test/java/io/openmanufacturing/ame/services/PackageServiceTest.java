@@ -96,7 +96,7 @@ class PackageServiceTest {
       final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo, nameSpaceThree );
 
       // Workaround for Windows: Delete the folder if it already exists
-      FileUtils.forceDelete( exportedStoragePath.toFile() );
+      FileUtils.deleteQuietly( exportedStoragePath.toFile() );
 
       final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
       Mockito.when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
