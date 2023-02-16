@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.exec.OS;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,7 +98,11 @@ public class LocalFolderResolverUtils {
    public static void deleteDirectory( final File storagePath ) {
       try {
          if ( storagePath.exists() && storagePath.isDirectory() ) {
-            FileUtils.forceDelete( storagePath );
+            if ( OS.isFamilyWindows() ) {
+               FileUtils.forceDeleteOnExit( storagePath );
+            } else {
+               FileUtils.forceDelete( storagePath );
+            }
          }
       } catch ( final IOException error ) {
          LOG.error( "Cannot delete exported package folder." );
