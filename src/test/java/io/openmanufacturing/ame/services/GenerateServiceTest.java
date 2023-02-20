@@ -80,7 +80,7 @@ class GenerateServiceTest {
          Mockito.when( validationProcess.getPath() ).thenReturn( resourcesPath );
 
          final String payload = generateService.jsonSchema( Files.readString( storagePath, StandardCharsets.UTF_8 ),
-               validationProcess );
+               validationProcess, "en-EN" );
          assertTrue( payload.contains( "#/components/schemas/urn_bamm_io.openmanufacturing_1.0.0_Characteristic" ) );
       }
    }
@@ -94,7 +94,7 @@ class GenerateServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         final String payload = generateService.generateJsonOpenApiSpec(
+         final String payload = generateService.generateJsonOpenApiSpec( "en",
                Files.readString( storagePath, StandardCharsets.UTF_8 ), "https://test.com", false, false,
                Optional.of( PagingOption.TIME_BASED_PAGING ) );
 
@@ -114,7 +114,7 @@ class GenerateServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         final String payload = generateService.generateYamlOpenApiSpec(
+         final String payload = generateService.generateYamlOpenApiSpec( "en",
                Files.readString( storagePath, StandardCharsets.UTF_8 ), "https://test.com", false, false,
                Optional.of( PagingOption.TIME_BASED_PAGING ) );
 

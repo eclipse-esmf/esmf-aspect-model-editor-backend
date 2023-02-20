@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.apache.commons.lang3.LocaleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -53,10 +54,11 @@ public class GenerateService {
       DataType.setupTypeMapping();
    }
 
-   public byte[] generateHtmlDocument( final String aspectModel, final ValidationProcess validationProcess )
-         throws IOException {
-      final AspectModelDocumentationGenerator generator = new AspectModelDocumentationGenerator(
+   public byte[] generateHtmlDocument( final String aspectModel, final String language,
+         final ValidationProcess validationProcess ) throws IOException {
+      final AspectModelDocumentationGenerator generator = new AspectModelDocumentationGenerator( language,
             generateAspectContext( aspectModel, validationProcess ) );
+
       final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
       generator.generate( artifactName -> byteArrayOutputStream,
@@ -65,12 +67,13 @@ public class GenerateService {
       return byteArrayOutputStream.toByteArray();
    }
 
-   public String jsonSchema( final String aspectModel, final ValidationProcess validationProcess ) {
+   public String jsonSchema( final String aspectModel, final ValidationProcess validationProcess,
+         final String language ) {
       try {
          final AspectContext aspectContext = generateAspectContext( aspectModel, validationProcess );
 
          final AspectModelJsonSchemaGenerator generator = new AspectModelJsonSchemaGenerator();
-         final JsonNode jsonSchema = generator.apply( aspectContext.aspect(), new Locale( "en", "EN" ) );
+         final JsonNode jsonSchema = generator.apply( aspectContext.aspect(), Locale.forLanguageTag( language ) );
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
          final ObjectMapper objectMapper = new ObjectMapper();
@@ -95,11 +98,10 @@ public class GenerateService {
    }
 
    private AspectContext generateAspectContext( final String aspectModel, final ValidationProcess validationProcess ) {
-      final VersionedModel versionedModel = getVersionModel( aspectModel, validationProcess )
-            .getOrElseThrow( () -> {
-               LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
-               return new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL );
-            } );
+      final VersionedModel versionedModel = getVersionModel( aspectModel, validationProcess ).getOrElseThrow( () -> {
+         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
+         return new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL );
+      } );
 
       return new AspectContext( versionedModel, AspectModelLoader.getSingleAspectUnchecked( versionedModel ) );
    }
@@ -108,27 +110,28 @@ public class GenerateService {
       return ModelUtils.fetchVersionModel( inMemoryStrategy( aspectModel, validationProcess ) );
    }
 
-   public String generateYamlOpenApiSpec( final String aspectModel, final String baseUrl, final boolean includeQueryApi,
-         final boolean useSemanticVersion, final Optional<PagingOption> pagingOption ) {
+   public String generateYamlOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
+         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption ) {
       try {
          final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
 
          return generator.applyForYaml( ModelUtils.resolveAspectFromModel( aspectModel, ValidationProcess.MODELS ),
-               useSemanticVersion, baseUrl, Optional.empty(), Optional.empty(), includeQueryApi, pagingOption );
+               useSemanticVersion, baseUrl, Optional.empty(), Optional.empty(), includeQueryApi, pagingOption,
+               Locale.forLanguageTag( language ) );
       } catch ( final IOException e ) {
          LOG.error( "YAML OpenAPI specification could not be generated." );
          throw new InvalidAspectModelException( "Error generating YAML OpenAPI specification", e );
       }
    }
 
-   public String generateJsonOpenApiSpec( final String aspectModel, final String baseUrl,
+   public String generateJsonOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
          final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption ) {
       try {
          final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
 
          final JsonNode json = generator.applyForJson(
                ModelUtils.resolveAspectFromModel( aspectModel, ValidationProcess.MODELS ), useSemanticVersion, baseUrl,
-               Optional.empty(), Optional.empty(), includeQueryApi, pagingOption );
+               Optional.empty(), Optional.empty(), includeQueryApi, pagingOption, LocaleUtils.toLocale( language ) );
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
          final ObjectMapper objectMapper = new ObjectMapper();
