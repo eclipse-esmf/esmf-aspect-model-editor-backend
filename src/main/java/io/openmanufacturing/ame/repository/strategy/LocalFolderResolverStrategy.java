@@ -446,7 +446,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    private void deleteFile( @Nonnull final File file ) {
       try {
-         FileUtils.forceDeleteOnExit( file );
+         FileUtils.forceDelete( file );
       } catch ( final IOException e ) {
          throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ),
                e );
