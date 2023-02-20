@@ -438,10 +438,12 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    private void deleteFile( @Nonnull final File file ) {
       try {
-         file.createNewFile();
-         final FileChannel channel = FileChannel.open( file.toPath(), StandardOpenOption.WRITE );
-         channel.lock().release();
-         channel.close();
+         if ( !file.isDirectory() ) {
+            file.createNewFile();
+            final FileChannel channel = FileChannel.open( file.toPath(), StandardOpenOption.WRITE );
+            channel.lock().release();
+            channel.close();
+         }
          FileUtils.forceDelete( file );
       } catch ( final IOException e ) {
          throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ), e );
@@ -454,7 +456,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * @param file - that will be removed.
     */
    private void deleteEmptyFiles( @Nonnull final File file ) {
-      if ( !applicationSettings.getEndFilePath().equals( file.getName() ) ) {
+      if ( !applicationSettings.getEndFilePath().toFile().getName().equals( file.getName() ) ) {
          final File parentFile = file.getParentFile();
          deleteFile( file );
          if ( Objects.requireNonNull( parentFile.listFiles() ).length == 0 ) {
