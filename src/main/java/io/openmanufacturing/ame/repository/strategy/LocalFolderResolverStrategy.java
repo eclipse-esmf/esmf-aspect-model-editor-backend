@@ -22,10 +22,12 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -459,9 +461,17 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       if ( !applicationSettings.getEndFilePath().toFile().getName().equals( file.getName() ) ) {
          final File parentFile = file.getParentFile();
          deleteFile( file );
-         if ( Objects.requireNonNull( parentFile.listFiles() ).length == 0 ) {
+
+         final List<File> fileList = Arrays.stream( Objects.requireNonNull( parentFile.listFiles() ) )
+                                           .filter( f -> filterOutUnVisibleFiles().test( f ) ).toList();
+
+         if ( fileList.isEmpty() ) {
             deleteEmptyFiles( parentFile );
          }
       }
+   }
+
+   private Predicate<File> filterOutUnVisibleFiles() {
+      return file -> !file.getName().equals( ".DS_Store" );
    }
 }
