@@ -18,8 +18,10 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +31,6 @@ import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.exec.OS;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -437,11 +438,11 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    private void deleteFile( @Nonnull final File file ) {
       try {
-         if ( OS.isFamilyWindows() ) {
-            FileUtils.forceDeleteOnExit( file );
-         } else {
-            FileUtils.forceDelete( file );
-         }
+         file.createNewFile();
+         final FileChannel channel = FileChannel.open( file.toPath(), StandardOpenOption.WRITE );
+         channel.lock().release();
+         channel.close();
+         FileUtils.forceDelete( file );
       } catch ( final IOException e ) {
          throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ), e );
       }
