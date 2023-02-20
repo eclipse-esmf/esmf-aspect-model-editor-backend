@@ -68,11 +68,12 @@ public class GenerateResource {
     * This Method is used to generate a JSON Schema of the aspect model
     *
     * @param aspectModel The Aspect Model Data
+    * @param language of the generated json schema
     * @return The JSON Schema
     */
    @PostMapping( "json-schema" )
    public ResponseEntity<String> jsonSchema( @RequestBody final String aspectModel,
-         @RequestParam( name = "language" ) final String language ) {
+         @RequestParam( name = "language", defaultValue = "en" ) final String language ) {
       return ResponseEntity.ok( generateService.jsonSchema( aspectModel, ValidationProcess.GENERATE, language ) );
    }
 
@@ -80,6 +81,7 @@ public class GenerateResource {
     * This method is used to generate an OpenAPI specification of the Aspect Model
     *
     * @param aspectModel the Aspect Model Data
+    * @param language of the generated OpenAPI specification
     * @param output of the OpenAPI specification
     * @param baseUrl the base URL for the Aspect API
     * @param includeQueryApi if set to true, a path section for the Query API Endpoint of the Aspect API will be
@@ -92,7 +94,7 @@ public class GenerateResource {
     */
    @PostMapping( "open-api-spec" )
    public ResponseEntity<String> openApiSpec( @RequestBody final String aspectModel,
-         @RequestParam( name = "language" ) final String language,
+         @RequestParam( name = "language", defaultValue = "en" ) final String language,
          @RequestParam( name = "output", defaultValue = "yaml" ) final String output,
          @RequestParam( name = "baseUrl", defaultValue = "https://open-manufacturing.org" ) final String baseUrl,
          @RequestParam( name = "includeQueryApi", defaultValue = "false" ) final boolean includeQueryApi,

@@ -64,13 +64,13 @@ jobs:
 
       - name: Creating native image (Mac)
         if: matrix.os == 'macos-latest'
-        run: mvn install -P native-image -DskipTests -Dos.platform=mac
+        run: mvn install -P native-image -DskipTests -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: mvn install -P native-image -DskipTests -Dos.platform=linux
+        run: mvn install -P native-image -DskipTests -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
 
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
