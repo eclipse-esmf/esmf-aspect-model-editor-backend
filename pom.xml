@@ -716,7 +716,7 @@
                         <executions>
                             <execution>
                                 <id>Add execution right´s on native-image</id>
-                                <phase>package</phase>
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>exec</goal>
                                 </goals>
