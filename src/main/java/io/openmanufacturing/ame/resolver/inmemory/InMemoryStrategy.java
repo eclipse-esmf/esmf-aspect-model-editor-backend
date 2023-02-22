@@ -42,6 +42,7 @@ import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMM;
 import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMMC;
+import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMME;
 import io.vavr.NotImplementedError;
 import io.vavr.control.Try;
 
@@ -92,7 +93,6 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
          return getModelFromFileSystem( aspectModelUrn, ValidationProcess.MODELS.getPath() );
       }
 
-      // TODO check if we can change this logic for elements that can not be resolved ...
       final StmtIterator stmtIterator = aspectModel.listStatements(
             ResourceFactory.createResource( aspectModelUrn.toString() ), null, (RDFNode) null );
 
@@ -145,6 +145,7 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
    private List<Resource> getListOfAllBAMMElements( final KnownVersion version ) {
       final BAMM bamm = new BAMM( version );
       final BAMMC bammc = new BAMMC( version );
+      final BAMME bamme = new BAMME( version, bamm );
 
       final List<Resource> resources = new ArrayList<>();
       resources.add( bamm.Aspect() );
@@ -156,6 +157,8 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
       resources.add( bamm.Constraint() );
       resources.add( bamm.AbstractEntity() );
       resources.add( bamm.AbstractProperty() );
+      resources.add( bamme.TimeSeriesEntity() );
+      resources.add( bamme.ThreeDimensionalPosition() );
       resources.addAll( bammc.allCharacteristics().toList() );
       resources.addAll( bammc.allConstraints().toList() );
       resources.addAll( bammc.allCollections().toList() );

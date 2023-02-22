@@ -64,8 +64,6 @@ class LocalFolderResolverStrategyTest {
    @BeforeEach
    void setUp() {
       localFolderResolverStrategy = new LocalFolderResolverStrategy( applicationSettingsMock );
-      //      doReturn( fileMock ).when( localFolderResolverStrategy ).getFileInstance( any() );
-      //      when( applicationSettingsMock.getEndFilePath() ).thenReturn( Path.of( MODELS ) );
    }
 
    @Test
