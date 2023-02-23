@@ -157,8 +157,7 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
       resources.add( bamm.Constraint() );
       resources.add( bamm.AbstractEntity() );
       resources.add( bamm.AbstractProperty() );
-      resources.add( bamme.TimeSeriesEntity() );
-      resources.add( bamme.ThreeDimensionalPosition() );
+      resources.addAll( bamme.allEntities().toList() );
       resources.addAll( bammc.allCharacteristics().toList() );
       resources.addAll( bammc.allConstraints().toList() );
       resources.addAll( bammc.allCollections().toList() );
