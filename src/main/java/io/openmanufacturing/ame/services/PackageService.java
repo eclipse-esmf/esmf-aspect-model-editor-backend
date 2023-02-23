@@ -28,8 +28,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
+import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.packaging.MissingElement;
 import io.openmanufacturing.ame.model.packaging.ProcessPackage;
 import io.openmanufacturing.ame.model.packaging.ValidFile;
@@ -64,45 +65,43 @@ public class PackageService {
    }
 
    public ProcessPackage validateAspectModelsForExport( final List<String> aspectModelFiles,
-         final String storagePath ) {
+         final ValidationProcess validationProcess, final Path modelStoragePath ) {
       try {
-         // Folder will be deleted when the validation starts.
-         LocalFolderResolverUtils.deleteDirectory( storagePath );
-
+         LocalFolderResolverUtils.deleteDirectory( validationProcess.getPath().toFile() );
          final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(
                LocalFolderResolverStrategy.class );
 
-         // Save all Aspect Models to export storage path
-         ModelUtils.copyAspectModelToDirectory( aspectModelFiles, ApplicationSettings.getMetaModelStoragePath(),
-               storagePath );
+         ModelUtils.copyAspectModelToDirectory( aspectModelFiles, modelStoragePath.toString(),
+               validationProcess.getPath().toString() );
 
-         // Validate all Aspect Models from export storage path and create export package model
-         return validateAspectModelsFromDirectory( aspectModelFiles, strategy, storagePath );
-      } catch ( final IOException e ) {
-         LOG.error( "Cannot delete exported package folder." );
-         throw new FileNotFoundException( String.format( "Unable to delete folder: %s", storagePath ), e );
+         return validateAspectModelsFromDirectory( aspectModelFiles, strategy, validationProcess, modelStoragePath );
+      } catch ( final Exception error ) {
+         FileUtils.deleteQuietly( new File( validationProcess.getPath().toString() ) );
+         throw new InvalidAspectModelException( error.getMessage() );
       }
    }
 
    private ProcessPackage validateAspectModelsFromDirectory( final List<String> aspectModelFiles,
-         final ModelResolverStrategy strategy, final String storagePath ) {
+         final ModelResolverStrategy strategy, final ValidationProcess validationProcess,
+         final Path modelStoragePath ) {
       final ProcessPackage processPackage = new ProcessPackage();
 
       aspectModelFiles.forEach( fileName -> {
-         final String aspectModel = strategy.getModelAsString( fileName, storagePath );
-         final ViolationReport violationReport = new ViolationReport();
-         ModelUtils.validateModel( aspectModel, storagePath, aspectModelValidator, violationReport );
+         final String aspectModel = strategy.getModelAsString( fileName, validationProcess.getPath().toString() );
+         final ViolationReport violationReport = ModelUtils.validateModel( aspectModel, aspectModelValidator,
+               validationProcess );
          processPackage.addValidFiles( new ValidFile( fileName, violationReport ) );
-         getMissingAspectModelFiles( violationReport, fileName ).forEach( processPackage::addMissingElement );
+         getMissingAspectModelFiles( violationReport, fileName, modelStoragePath.toString() ).forEach(
+               processPackage::addMissingElement );
       } );
 
       return processPackage;
    }
 
-   public byte[] exportAspectModelPackage( final String zipFileName, final String storagePath ) {
+   public byte[] exportAspectModelPackage( final String zipFileName, final ValidationProcess validationProcess ) {
       try {
-         final byte[] zipFile = ZipUtils.createZipFile( zipFileName, storagePath );
-         LocalFolderResolverUtils.deleteDirectory( storagePath );
+         final byte[] zipFile = ZipUtils.createZipFile( zipFileName, validationProcess.getPath().toString() );
+         LocalFolderResolverUtils.deleteDirectory( new File( validationProcess.getPath().toString() ) );
          return zipFile;
       } catch ( final IOException e ) {
          LOG.error( "Cannot create exported package file." );
@@ -111,26 +110,27 @@ public class PackageService {
       }
    }
 
-   public ProcessPackage validateImportAspectModelPackage( final MultipartFile zipFile, final String storagePath ) {
+   public ProcessPackage validateImportAspectModelPackage( final MultipartFile zipFile,
+         final ValidationProcess validationProcess, final Path modelStoragePath ) {
       try {
-         // Delete directory for importing new Aspect Models.
-         LocalFolderResolverUtils.deleteDirectory( storagePath );
+         LocalFolderResolverUtils.deleteDirectory( validationProcess.getPath().toFile() );
 
-         final Path packagePath = Path.of( storagePath );
-         unzipPackageFile( zipFile, packagePath );
+         unzipPackageFile( zipFile, validationProcess.getPath() );
 
          final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(
                LocalFolderResolverStrategy.class );
-         final LocalPackageInfo localPackageInfo = strategy.getLocalPackageInformation( storagePath );
+         final LocalPackageInfo localPackageInfo = strategy.getLocalPackageInformation(
+               validationProcess.getPath().toString() );
          final ProcessPackage processPackage = new ProcessPackage( localPackageInfo.getInValidFiles() );
 
-         validateValidFiles( localPackageInfo, strategy, storagePath, processPackage );
+         validateValidFiles( localPackageInfo, strategy, processPackage, validationProcess,
+               modelStoragePath.toString() );
 
          return processPackage;
-      } catch ( final IOException e ) {
-         LOG.error( "Cannot delete imported package folder." );
-         throw new FileNotFoundException(
-               String.format( "Package folder: %s was not deleted successfully.", storagePath ), e );
+      } catch ( final Exception e ) {
+         LOG.error( "Cannot unzip package file." );
+         throw new IllegalArgumentException(
+               String.format( "Package file: %s was not unzipped successfully.", zipFile.getOriginalFilename() ), e );
       }
    }
 
@@ -142,37 +142,36 @@ public class PackageService {
    }
 
    private void validateValidFiles( final LocalPackageInfo localPackageInfo, final ModelResolverStrategy strategy,
-         final String storagePath, final ProcessPackage processPackage ) {
+         final ProcessPackage processPackage, final ValidationProcess validationProcess,
+         final String modelStoragePath ) {
+
       localPackageInfo.getValidFiles().forEach( fileInfo -> {
          final String aspectModelFile = fileInfo.getAspectModelFile();
          final Boolean modelExist = strategy.checkModelExist( aspectModelFile,
-               ApplicationSettings.getMetaModelStoragePath() );
+               ValidationProcess.MODELS.getPath().toString() );
 
-         final ViolationReport violationReport = new ViolationReport();
-         ModelUtils.validateModel( fileInfo.getAspectModel(), storagePath, aspectModelValidator, violationReport );
+         final ViolationReport violationReport = ModelUtils.validateModel( fileInfo.getAspectModel(),
+               aspectModelValidator, validationProcess );
 
          processPackage.addValidFiles( new ValidFile( aspectModelFile, violationReport, modelExist ) );
-         getMissingAspectModelFiles( violationReport, aspectModelFile ).forEach( processPackage::addMissingElement );
+         getMissingAspectModelFiles( violationReport, aspectModelFile, modelStoragePath ).forEach(
+               processPackage::addMissingElement );
       } );
    }
 
-   public List<String> importAspectModelPackage( final List<String> aspectModelFiles, final String storagePath ) {
-      try {
-         final List<String> fileLocations = ModelUtils.copyAspectModelToDirectory( aspectModelFiles, storagePath,
-               ApplicationSettings.getMetaModelStoragePath() );
+   public List<String> importAspectModelPackage( final List<String> aspectModelFiles,
+         final ValidationProcess validationProcess ) {
+      final List<String> fileLocations = ModelUtils.copyAspectModelToDirectory( aspectModelFiles,
+            validationProcess.getPath().toString(),
+            ValidationProcess.MODELS.getPath().toString() );
 
-         LocalFolderResolverUtils.deleteDirectory( storagePath );
+      LocalFolderResolverUtils.deleteDirectory( validationProcess.getPath().toFile() );
 
-         return fileLocations;
-      } catch ( final IOException e ) {
-         LOG.error( "Cannot delete imported package folder." );
-         throw new FileNotFoundException(
-               String.format( "Package folder: %s was not deleted successfully.", storagePath ), e );
-      }
+      return fileLocations;
    }
 
    private List<MissingElement> getMissingAspectModelFiles( final ViolationReport violationReport,
-         final String fileName ) {
+         final String fileName, final String modelStoragePath ) {
       final List<ViolationError> violationErrors = violationReport.getViolationErrors().stream()
                                                                   .filter( violation -> violation.getErrorCode() != null
                                                                         && violation.getErrorCode().equals(
@@ -186,8 +185,8 @@ public class PackageService {
       return violationErrors.stream().map( validation -> {
          final AspectModelUrn focusNode = validation.getFocusNode() != null ? validation.getFocusNode() : null;
 
-         final String missingAspectModelFile = ModelUtils.getAspectModelFile(
-               ApplicationSettings.getMetaModelStoragePath(), focusNode );
+         final String missingAspectModelFile = ModelUtils.getAspectModelFile( modelStoragePath,
+               focusNode );
 
          final String errorMessage = String.format(
                "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", focusNode, fileName );
@@ -196,15 +195,15 @@ public class PackageService {
       } ).toList();
    }
 
-   public void backupWorkspace( final String sourceStoragePath, final String destStoragePath ) {
+   public void backupWorkspace( final Path sourceStoragePath, final Path destStoragePath ) {
       try {
          final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy.MM.dd-HH.mm.ss" );
          final String timestamp = sdf.format( new Timestamp( System.currentTimeMillis() ) );
          final String fileName = "backup-" + timestamp + ".zip";
-         final byte[] zipFile = ZipUtils.createZipFile( fileName, sourceStoragePath );
+         final byte[] zipFile = ZipUtils.createZipFile( fileName, sourceStoragePath.toString() );
 
-         final File file = new File( sourceStoragePath + File.separator + fileName );
-         final File destStorageFile = new File( destStoragePath + File.separator + fileName );
+         final File file = sourceStoragePath.resolve( fileName ).toFile();
+         final File destStorageFile = destStoragePath.resolve( fileName ).toFile();
 
          FileUtils.writeByteArrayToFile( destStorageFile, zipFile );
          Files.deleteIfExists( file.toPath() );

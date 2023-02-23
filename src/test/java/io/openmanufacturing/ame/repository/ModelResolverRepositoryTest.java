@@ -13,40 +13,40 @@
 
 package io.openmanufacturing.ame.repository;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 import java.util.Collections;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
 import io.openmanufacturing.ame.repository.strategy.ModelResolverStrategy;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ModelResolverRepositoryTest {
+@ExtendWith( MockitoExtension.class )
+class ModelResolverRepositoryTest {
 
-    private ModelResolverRepository modelResolverRepository;
+   private ModelResolverRepository modelResolverRepository;
 
-    @Test
-    public void testGetStrategy() {
+   @Test
+   void testGetStrategy() {
+      final LocalFolderResolverStrategy localFolderResolverStrategy = new LocalFolderResolverStrategy(
+            mock( ApplicationSettings.class ) );
+      modelResolverRepository = new ModelResolverRepository( Collections.singletonList( localFolderResolverStrategy ) );
 
-        final LocalFolderResolverStrategy localFolderResolverStrategy = new LocalFolderResolverStrategy(mock(ApplicationSettings.class));
-        modelResolverRepository = new ModelResolverRepository(Collections.singletonList(localFolderResolverStrategy));
+      final ModelResolverStrategy result = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-        final ModelResolverStrategy result = modelResolverRepository.getStrategy(LocalFolderResolverStrategy.class);
+      assertEquals( result, localFolderResolverStrategy );
+   }
 
-        assertEquals(result, localFolderResolverStrategy);
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testGetStrategyHasEmptyStrategyList() {
-
-        modelResolverRepository = new ModelResolverRepository(Collections.emptyList());
-
-        modelResolverRepository.getStrategy(LocalFolderResolverStrategy.class);
-    }
+   @Test()
+   void testGetStrategyHasEmptyStrategyList() {
+      modelResolverRepository = new ModelResolverRepository( Collections.emptyList() );
+      
+      assertThrows( RuntimeException.class,
+            () -> modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class ) );
+   }
 }

@@ -13,267 +13,118 @@
 
 package io.openmanufacturing.ame.repository.strategy;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Stream;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
+import org.apache.jena.riot.RiotException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
-import io.openmanufacturing.ame.exceptions.FileReadException;
-import io.openmanufacturing.ame.exceptions.FileWriteException;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
-@RunWith( MockitoJUnitRunner.class )
-public class LocalFolderResolverStrategyTest {
-
+@ExtendWith( SpringExtension.class )
+@SpringBootTest
+class LocalFolderResolverStrategyTest {
+   @Autowired
+   private ApplicationSettings applicationSettingsMock;
    private LocalFolderResolverStrategy localFolderResolverStrategy;
 
-   @Mock
-   private ApplicationSettings applicationSettingsMock;
-
-   @Mock
-   private File fileMock;
-
-   @Mock
-   private File parentFileMock;
-
-   public static final String MODELS = "workspace-to-migrate";
-
-   private static final Path resourcesPath = Path.of( "src", "test", "resources" );
-   private static final String STORAGE_PATH =
-         System.getProperty( "user.home" ) + File.separator + "aspect-model-editor" + File.separator + MODELS;
-   private static final String NAMESPACE = "com.test.example:1.0.0:AspectDefault.ttl";
+   private static final String NAMESPACE = "io.openmanufacturing";
+   private static final String MODEL = "AspectModel.ttl";
+   private static final String MODEL_WITH_EXT_REF = "AspectModelWithExternalRef";
+   private static final String MODEL_NOT_EXIST = "AspectModelNotExist.ttl";
+   private static final String VERSION = "1.0.0";
+   private static final String FILE_PATH_AS_STRING = NAMESPACE + ":" + VERSION + ":" + MODEL;
+   private static final String ASPECT_MODEL_URN_WITH_EXT_REF_AS_STRING =
+         "urn:bamm:" + NAMESPACE + ":" + VERSION + "#" + MODEL_WITH_EXT_REF;
+   private static final String FILE_PATH_NOT_EXIST_AS_STRING = NAMESPACE + ":" + VERSION + ":" + MODEL_NOT_EXIST;
+   private static final Path RESOURCE_PATH = Path.of( "src", "test", "resources" );
    private static final String TTL_FILE_CONTENT = "new result ttl file";
    private static final String TTL_FILE_EXTENSION = ".ttl";
    private static final String TTL_FILE_WITH_EXT_REF =
-         "io.openmanufacturing" + File.separator + "1.0.0" + File.separator
-               + "AspectModelWithExternalRef" + TTL_FILE_EXTENSION;
-   private static final String COM_TEST_EXAMPLE_1_2_0 =
-         "com" + File.separator + "test" + File.separator + "example" + File.separator + "1.2.0";
-   private static final String COM_TEST_EXAMPLE_1_0_0_ASPECT_DEFAULT =
-         "com" + File.separator + "test" + File.separator + "example" + File.separator + "1.0.0" + File.separator
-               + "AspectDefault";
+         "io.openmanufacturing" + File.separator + "1.0.0" + File.separator + "AspectModelWithExternalRef"
+               + TTL_FILE_EXTENSION;
 
-   @Before
-   public void setUp() {
-      localFolderResolverStrategy = spy( new LocalFolderResolverStrategy( applicationSettingsMock ) );
-      doReturn( fileMock ).when( localFolderResolverStrategy ).getFileInstance( any() );
-      when( applicationSettingsMock.getEndFilePath() ).thenReturn( MODELS );
+   @BeforeEach
+   void setUp() {
+      localFolderResolverStrategy = new LocalFolderResolverStrategy( applicationSettingsMock );
    }
 
    @Test
-   public void testCheckModelExists() {
-      final boolean result = localFolderResolverStrategy.checkModelExist( NAMESPACE,
-            STORAGE_PATH + File.separator + NAMESPACE );
-
-      assertFalse( result );
+   void testCheckModelExists() {
+      assertTrue( localFolderResolverStrategy.checkModelExist( FILE_PATH_AS_STRING, RESOURCE_PATH.toString() ) );
    }
 
    @Test
-   public void testGetModel() {
-      doReturn( true ).when( fileMock ).exists();
-      doReturn( TTL_FILE_CONTENT ).when( localFolderResolverStrategy ).getFileContent( any() );
-
-      final String result = localFolderResolverStrategy.getModelAsString( NAMESPACE,
-            STORAGE_PATH + File.separator + NAMESPACE );
-
-      assertEquals( TTL_FILE_CONTENT, result );
-   }
-
-   @Test( expected = FileNotFoundException.class )
-   public void testGetModelModelNotFound() {
-      doReturn( false ).when( fileMock ).exists();
-
-      localFolderResolverStrategy.getModelAsString( NAMESPACE, STORAGE_PATH + File.separator + NAMESPACE );
+   void testCheckModelNotExists() {
+      assertFalse(
+            localFolderResolverStrategy.checkModelExist( FILE_PATH_NOT_EXIST_AS_STRING, RESOURCE_PATH.toString() ) );
    }
 
    @Test
-   public void testDeleteModelWithTtlNamespace() {
-      try ( final MockedStatic<FileUtils> utilities = Mockito.mockStatic( FileUtils.class ) ) {
-         utilities.when( () -> FileUtils.forceDeleteOnExit( any( File.class ) ) )
-                  .thenAnswer( (Answer<Void>) invocation -> null );
+   void testGetModelFileNotFound() {
+      assertThrows( FileNotFoundException.class,
+            () -> localFolderResolverStrategy.getModelAsString( FILE_PATH_NOT_EXIST_AS_STRING,
+                  RESOURCE_PATH.toString() ) );
+   }
 
-         doReturn( true ).when( fileMock ).exists();
-         doReturn( "test" ).when( fileMock ).getName();
-         doReturn( parentFileMock ).when( fileMock ).getParentFile();
-         doReturn( new File[1] ).when( parentFileMock ).listFiles();
+   @Test
+   void testGetModel() {
+      final String result = localFolderResolverStrategy.getModelAsString( FILE_PATH_AS_STRING,
+            RESOURCE_PATH.toString() );
 
-         localFolderResolverStrategy.deleteModel( NAMESPACE, STORAGE_PATH + File.separator + NAMESPACE );
+      assertTrue( result.contains( "<urn:bamm:io.openmanufacturing:meta-model:2.0.0#>" ) );
+   }
 
-         verify( localFolderResolverStrategy ).deleteModel( NAMESPACE, STORAGE_PATH + File.separator + NAMESPACE );
+   @Test
+   void testGetFilePathBasedOnTurtleData() throws IOException {
+      try ( final MockedStatic<ValidationProcess> utilities = Mockito.mockStatic( ValidationProcess.class ) ) {
+         final Path extRefAspectModel = Path.of( RESOURCE_PATH.toAbsolutePath().toString(), TTL_FILE_WITH_EXT_REF );
+
+         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+         Mockito.when( validationProcess.getPath() ).thenReturn( extRefAspectModel );
+
+         utilities.when( () -> ValidationProcess.getEnum( any( String.class ) ) ).thenReturn( validationProcess );
+
+         final AspectModelUrn aspectModelUrn = localFolderResolverStrategy.getAspectModelUrn(
+               Files.readString( extRefAspectModel ), RESOURCE_PATH.toString() );
+
+         assertEquals( ASPECT_MODEL_URN_WITH_EXT_REF_AS_STRING, aspectModelUrn.toString() );
+      }
+   }
+
+   @Test()
+   void testSaveModelCanNotWriteToFile() {
+      try ( final MockedStatic<ValidationProcess> utilities = Mockito.mockStatic( ValidationProcess.class ) ) {
+         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+         Mockito.when( validationProcess.getPath() ).thenReturn( RESOURCE_PATH );
+
+         utilities.when( () -> ValidationProcess.getEnum( any() ) ).thenReturn( validationProcess );
+
+         assertThrows( RiotException.class, () -> localFolderResolverStrategy.saveModel( Optional.empty(),
+               TTL_FILE_CONTENT, RESOURCE_PATH.toString() ) );
       }
    }
 
    @Test
-   public void testDeleteModelWithEmptyFolder() {
-      try ( final MockedStatic<FileUtils> utilities = Mockito.mockStatic( FileUtils.class ) ) {
-         utilities.when( () -> FileUtils.forceDeleteOnExit( any( File.class ) ) )
-                  .thenAnswer( (Answer<Void>) invocation -> null );
-
-         final String namespaceWithoutTll = "com.test.example:1.0.0";
-         doReturn( true ).when( fileMock ).exists();
-         doReturn( "test" ).when( fileMock ).getName();
-         doReturn( parentFileMock ).when( fileMock ).getParentFile();
-         doReturn( new File[1] ).when( parentFileMock ).listFiles();
-
-         localFolderResolverStrategy.deleteModel( namespaceWithoutTll, STORAGE_PATH + File.separator + NAMESPACE );
-
-         verify( localFolderResolverStrategy ).deleteModel( namespaceWithoutTll,
-               STORAGE_PATH + File.separator + NAMESPACE );
-      }
-   }
-
-   @Test
-   public void testDeleteModelWithEmptyFolderWithoutVersion() {
-      try ( final MockedStatic<FileUtils> utilities = Mockito.mockStatic( FileUtils.class ) ) {
-         utilities.when( () -> FileUtils.forceDeleteOnExit( any( File.class ) ) )
-                  .thenAnswer( (Answer<Void>) invocation -> null );
-
-         final String namespaceWithoutTllAndVersion = "com.test.example";
-         doReturn( true ).when( fileMock ).exists();
-         doReturn( "test" ).when( fileMock ).getName();
-         doReturn( parentFileMock ).when( fileMock ).getParentFile();
-         doReturn( new File[1] ).when( parentFileMock ).listFiles();
-
-         localFolderResolverStrategy.deleteModel( namespaceWithoutTllAndVersion,
-               STORAGE_PATH + File.separator + NAMESPACE );
-
-         verify( localFolderResolverStrategy ).deleteModel( namespaceWithoutTllAndVersion,
-               STORAGE_PATH + File.separator + NAMESPACE );
-      }
-   }
-
-   @Test( expected = FileNotFoundException.class )
-   public void testDeleteModelDoesNotExist() {
-      doReturn( false ).when( fileMock ).exists();
-
-      localFolderResolverStrategy.deleteModel( NAMESPACE, STORAGE_PATH + File.separator + NAMESPACE );
-
-      verify( localFolderResolverStrategy ).deleteModel( NAMESPACE, STORAGE_PATH + File.separator + NAMESPACE );
-   }
-
-   @Test
-   public void testSaveModel() throws Exception {
-      doReturn( COM_TEST_EXAMPLE_1_0_0_ASPECT_DEFAULT ).when( localFolderResolverStrategy )
-                                                       .getFilePathBasedOnTurtleData( TTL_FILE_CONTENT,
-                                                             STORAGE_PATH + File.separator + NAMESPACE );
-      when( applicationSettingsMock.getFileType() ).thenReturn( TTL_FILE_EXTENSION );
-      doNothing().when( localFolderResolverStrategy ).writeToFile( any(), any() );
-
-      final String result = localFolderResolverStrategy.saveModel( Optional.empty(), TTL_FILE_CONTENT,
-            STORAGE_PATH + File.separator + NAMESPACE );
-
-      assertEquals( COM_TEST_EXAMPLE_1_0_0_ASPECT_DEFAULT + TTL_FILE_EXTENSION, result );
-   }
-
-   @Test
-   public void testGetFilePathBasedOnTurtleData() throws Exception {
-      final Path extRefAspectModel = Path.of( resourcesPath.toAbsolutePath().toString(), TTL_FILE_WITH_EXT_REF );
-      final AspectModelUrn aspectModelUrn = localFolderResolverStrategy.getAspectModelUrn(
-            Files.readString( extRefAspectModel ),
-            resourcesPath.toString() );
-
-      assertEquals( "urn:bamm:io.openmanufacturing:1.0.0#AspectModelWithExternalRef", aspectModelUrn.toString() );
-   }
-
-   @Test( expected = FileWriteException.class )
-   public void testSaveModelCanNotWriteToFile() throws Exception {
-      doReturn( COM_TEST_EXAMPLE_1_0_0_ASPECT_DEFAULT ).when( localFolderResolverStrategy )
-                                                       .getFilePathBasedOnTurtleData( TTL_FILE_CONTENT,
-                                                             STORAGE_PATH + File.separator + NAMESPACE );
-      when( applicationSettingsMock.getFileType() ).thenReturn( TTL_FILE_EXTENSION );
-      doThrow( IOException.class ).when( localFolderResolverStrategy ).writeToFile( any(), any() );
-
-      localFolderResolverStrategy.saveModel( Optional.empty(), TTL_FILE_CONTENT,
-            STORAGE_PATH + File.separator + NAMESPACE );
-   }
-
-   @Test
-   public void testGetAllNamespacesWithTtlFile() throws IOException {
-      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
-         final Map<String, List<String>> nameSpace = Map.of( "com.test.example:1.0.0",
-               Collections.singletonList( "AspectDefault.ttl" ) );
-
-         final Path ttlEndFile = Paths.get(
-               STORAGE_PATH + File.separator + COM_TEST_EXAMPLE_1_0_0_ASPECT_DEFAULT + TTL_FILE_EXTENSION );
-         final Stream<Path> filePaths = Stream.of( ttlEndFile );
-
-         when( fileMock.exists() ).thenReturn( true );
-         doReturn( filePaths ).when( localFolderResolverStrategy ).getAllSubFilePaths( any() );
-
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( "com.test.example:1.0.0:AspectDefault.ttl" );
-
-         final Map<String, List<String>> result = localFolderResolverStrategy.getAllNamespaces( true,
-               ApplicationSettings.getMetaModelStoragePath() );
-
-         assertEquals( nameSpace, result );
-      }
-   }
-
-   @Test
-   public void testGetAllNamespacesWithEmptyFolder() throws IOException {
-      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
-
-         final Map<String, List<String>> expectedResult = Map.of( "com.test.example:1.2.0", Collections.emptyList() );
-         final Path emptyFolder = Paths.get( STORAGE_PATH + File.separator + COM_TEST_EXAMPLE_1_2_0 );
-         final Stream<Path> filePaths = Stream.of( emptyFolder );
-         when( fileMock.exists() ).thenReturn( true );
-         doReturn( filePaths ).when( localFolderResolverStrategy ).getAllSubFilePaths( any() );
-         doReturn( true ).when( localFolderResolverStrategy ).isPathRelevant( any() );
-
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( "com.test.example:1.2.0" );
-
-         final Map<String, List<String>> result = localFolderResolverStrategy.getAllNamespaces( true,
-               ApplicationSettings.getMetaModelStoragePath() );
-
-         assertEquals( expectedResult, result );
-      }
-   }
-
-   @Test( expected = FileReadException.class )
-   public void testGetAllNamespacesErrorWhenCallGetFolders() throws IOException {
-      when( fileMock.exists() ).thenReturn( true );
-      doThrow( IOException.class ).when( localFolderResolverStrategy ).getAllSubFilePaths( any() );
-
-      localFolderResolverStrategy.getAllNamespaces( true, ApplicationSettings.getMetaModelStoragePath() );
-   }
-
-   @Test( expected = FileNotFoundException.class )
-   public void testGetAllNamespacesErrorNoSharedFolder() {
-      when( fileMock.exists() ).thenReturn( false );
-
-      localFolderResolverStrategy.getAllNamespaces( true, ApplicationSettings.getMetaModelStoragePath() );
-   }
-
-   @Test
-   public void testConvertFileToUrn() {
-      final Path openManufacturingTestPath = Path.of( resourcesPath.toString(), "io.openmanufacturing", "1.0.0" );
+   void testConvertFileToUrn() {
+      final Path openManufacturingTestPath = RESOURCE_PATH.resolve( Path.of( "io.openmanufacturing", "1.0.0" ) );
       final String expectedResult = "urn:bamm:io.openmanufacturing:1.0.0#AspectModel";
       final File testFile = new File( openManufacturingTestPath + File.separator + "AspectModel.ttl" );
 
@@ -282,10 +133,10 @@ public class LocalFolderResolverStrategyTest {
       assertEquals( expectedResult, aspectModelUrn.getUrn().toString() );
    }
 
-   @Test( expected = InvalidAspectModelException.class )
-   public void testConvertFileToUrnErrorInvalidUrn() {
-      final File testFile = new File( resourcesPath + File.separator + "NoDefinedFolderStructure.ttl" );
+   @Test()
+   void testConvertFileToUrnErrorInvalidUrn() {
+      final File testFile = RESOURCE_PATH.resolve( Path.of( "NoDefinedFolderStructure.ttl" ) ).toFile();
 
-      localFolderResolverStrategy.convertFileToUrn( testFile );
+      assertThrows( InvalidAspectModelException.class, () -> localFolderResolverStrategy.convertFileToUrn( testFile ) );
    }
 }

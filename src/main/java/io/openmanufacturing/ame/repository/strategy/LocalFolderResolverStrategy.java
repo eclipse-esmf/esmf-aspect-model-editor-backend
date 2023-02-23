@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -18,12 +18,16 @@ import static java.util.stream.Collectors.toList;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,6 +45,7 @@ import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.exceptions.FileReadException;
 import io.openmanufacturing.ame.exceptions.FileWriteException;
 import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.repository.LocalPackageInfo;
 import io.openmanufacturing.ame.model.repository.ValidFile;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
@@ -114,8 +119,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       }
 
       final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn( urn );
-      return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator +
-            aspectModelUrn.getName() + applicationSettings.getFileType();
+      return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator
+            + aspectModelUrn.getName() + applicationSettings.getFileType();
    }
 
    @Override
@@ -191,10 +196,11 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
       final List<String> endFilePaths = getEndFilePaths( rootSharedFolder, file );
 
-      final Map<String, List<String>> namespacePathMapping = endFilePaths
-            .stream()
-            .map( LocalFolderResolverStrategy::transformToValidModelDirectory )
-            .collect( Collectors.groupingBy( this::extractNamespaceAndVersion, toList() ) );
+      final Map<String, List<String>> namespacePathMapping = endFilePaths.stream()
+                                                                         .map( LocalFolderResolverStrategy::transformToValidModelDirectory )
+                                                                         .collect( Collectors.groupingBy(
+                                                                               this::extractNamespaceAndVersion,
+                                                                               toList() ) );
 
       retainOnlyTurtleFileName( namespacePathMapping );
 
@@ -207,10 +213,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    private List<String> getEndFilePaths( @Nonnull final String rootSharedFolder, @Nonnull final File file ) {
       try ( final Stream<Path> paths = getAllSubFilePaths( file.toPath() ) ) {
 
-         return paths.filter( this::isPathRelevant )
-                     .map( Path::toString )
-                     .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) )
-                     .filter( StringUtils::isNotBlank )
+         return paths.filter( this::isPathRelevant ).map( Path::toString )
+                     .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) ).filter( StringUtils::isNotBlank )
                      .toList();
       } catch ( final IOException e ) {
          throw new FileReadException( "Can not read shared folder file structure", e );
@@ -226,11 +230,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
          return paths.filter( path -> {
                         final File parentDir = getFileInstance( path.toString() );
                         return !parentDir.isDirectory() && !path.toString().endsWith( ModelUtils.TTL_EXTENSION );
-                     } )
-                     .map( Path::toString )
-                     .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) )
-                     .filter( StringUtils::isNotBlank )
-                     .toList();
+                     } ).map( Path::toString ).map( path -> excludeStandaloneFiles( rootSharedFolder, path ) )
+                     .filter( StringUtils::isNotBlank ).toList();
       } catch ( final IOException e ) {
          throw new FileReadException( "Can not read shared folder file structure", e );
       }
@@ -256,14 +257,11 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    private List<ValidFile> getListOfLocalPackageInformation( final List<String> filePath, final String storagePath ) {
-      return filePath
-            .stream()
-            .map( path -> {
-               final String aspectModelFile = transformToValidModelDirectory( path );
-               final String aspectModel = getModelAsString( aspectModelFile, storagePath );
-               return new ValidFile( aspectModelFile, aspectModel );
-            } )
-            .toList();
+      return filePath.stream().map( path -> {
+         final String aspectModelFile = transformToValidModelDirectory( path );
+         final String aspectModel = getModelAsString( aspectModelFile, storagePath );
+         return new ValidFile( aspectModelFile, aspectModel );
+      } ).toList();
    }
 
    /**
@@ -288,13 +286,11 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    private void retainOnlyTurtleFileName( @Nonnull final Map<String, List<String>> pathTurtleFilesMap ) {
       for ( final Map.Entry<String, List<String>> entry : pathTurtleFilesMap.entrySet() ) {
-         final List<String> collect = entry.getValue().stream()
-                                           .filter( value -> !value.equals( entry.getKey() ) )
+         final List<String> collect = entry.getValue().stream().filter( value -> !value.equals( entry.getKey() ) )
                                            .map( value -> value.replaceAll( entry.getKey(), StringUtils.EMPTY ) )
                                            .map( value -> value.replace(
                                                  LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR,
-                                                 StringUtils.EMPTY ) )
-                                           .toList();
+                                                 StringUtils.EMPTY ) ).toList();
 
          entry.setValue( collect );
       }
@@ -373,9 +369,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * @param storagePath - path to storage files.
     * @return Aspect Model urn
     */
-   protected AspectModelUrn getAspectModelUrn( @Nonnull final String turtleData,
-         final @Nonnull String storagePath ) {
-      return inMemoryStrategy( turtleData, storagePath ).getAspectModelUrn();
+   protected AspectModelUrn getAspectModelUrn( @Nonnull final String turtleData, final @Nonnull String storagePath ) {
+      return inMemoryStrategy( turtleData, ValidationProcess.getEnum( storagePath ) ).getAspectModelUrn();
    }
 
    /**
@@ -389,8 +384,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
          final @Nonnull String storagePath ) {
       final AspectModelUrn aspectModelUrn = getAspectModelUrn( turtleData, storagePath );
 
-      return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator +
-            aspectModelUrn.getName();
+      return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator
+            + aspectModelUrn.getName();
    }
 
    /**
@@ -432,8 +427,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       try {
          return new String( Files.readAllBytes( storeFile.toPath() ) );
       } catch ( final IOException e ) {
-         throw new FileNotFoundException( String.format( "Cannot read file at the following path: %s",
-               storeFile.toPath() ), e );
+         throw new FileNotFoundException(
+               String.format( "Cannot read file at the following path: %s", storeFile.toPath() ), e );
       }
    }
 
@@ -445,10 +440,15 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    private void deleteFile( @Nonnull final File file ) {
       try {
-         FileUtils.forceDeleteOnExit( file );
+         if ( !file.isDirectory() ) {
+            file.createNewFile();
+            final FileChannel channel = FileChannel.open( file.toPath(), StandardOpenOption.WRITE );
+            channel.lock().release();
+            channel.close();
+         }
+         FileUtils.forceDelete( file );
       } catch ( final IOException e ) {
-         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ),
-               e );
+         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ), e );
       }
    }
 
@@ -458,12 +458,20 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * @param file - that will be removed.
     */
    private void deleteEmptyFiles( @Nonnull final File file ) {
-      if ( !applicationSettings.getEndFilePath().equals( file.getName() ) ) {
+      if ( !applicationSettings.getEndFilePath().toFile().getName().equals( file.getName() ) ) {
          final File parentFile = file.getParentFile();
          deleteFile( file );
-         if ( Objects.requireNonNull( parentFile.listFiles() ).length == 0 ) {
+
+         final List<File> fileList = Arrays.stream( Objects.requireNonNull( parentFile.listFiles() ) )
+                                           .filter( f -> filterOutUnVisibleFiles().test( f ) ).toList();
+
+         if ( fileList.isEmpty() ) {
             deleteEmptyFiles( parentFile );
          }
       }
+   }
+
+   private Predicate<File> filterOutUnVisibleFiles() {
+      return file -> !file.getName().equals( ".DS_Store" );
    }
 }

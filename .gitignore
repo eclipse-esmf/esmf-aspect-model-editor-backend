@@ -15,3 +15,6 @@ IDEA
 lsp
 
 *.gz
+
+backup*
+test-packages/

@@ -1,3 +1,16 @@
+/*
+ * Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
+ *
+ * See the AUTHORS file(s) distributed with this work for
+ * additional information regarding authorship.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
+
 package io.openmanufacturing.ame.repository.strategy.utils;
 
 import java.io.File;
@@ -6,11 +19,15 @@ import java.io.IOException;
 import javax.annotation.Nonnull;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import io.openmanufacturing.ame.exceptions.FileNotFoundException;
+import io.openmanufacturing.ame.model.resolver.FolderStructure;
 
 public class LocalFolderResolverUtils {
+
+   private static final Logger LOG = LoggerFactory.getLogger( LocalFolderResolverUtils.class );
 
    private LocalFolderResolverUtils() {
    }
@@ -51,44 +68,19 @@ public class LocalFolderResolverUtils {
       return new FolderStructure( path[0], path[1], path[2] );
    }
 
-   @Data
-   @AllArgsConstructor
-   public static class FolderStructure {
-      private String fileRootPath;
-      private String version;
-      private String fileName;
-
-      FolderStructure() {
-      }
-
-      FolderStructure( final String fileRootPath ) {
-         this.fileRootPath = fileRootPath;
-      }
-
-      public FolderStructure( final String fileRootPath, final String version ) {
-         this.fileRootPath = fileRootPath;
-         this.version = version;
-      }
-
-      @Override
-      public String toString() {
-         if ( fileName != null ) {
-            return fileRootPath + File.separator + version + File.separator + fileName;
+   /**
+    * This method will delete the given directory and all of its contents.
+    *
+    * @param storagePath - path of the directory to be deleted.
+    */
+   public static void deleteDirectory( final File storagePath ) {
+      try {
+         if ( storagePath.exists() && storagePath.isDirectory() ) {
+            FileUtils.forceDelete( storagePath );
          }
-
-         if ( version != null ) {
-            return fileRootPath + File.separator + version;
-         }
-
-         return fileRootPath;
-      }
-   }
-
-   public static void deleteDirectory( final String storagePath ) throws IOException {
-      final File storageDir = new File( storagePath );
-
-      if ( storageDir.exists() && storageDir.isDirectory() ) {
-         FileUtils.forceDeleteOnExit( storageDir );
+      } catch ( final IOException error ) {
+         LOG.error( "Cannot delete exported package folder." );
+         throw new FileNotFoundException( String.format( "Unable to delete folder on: %s", storagePath ), error );
       }
    }
 }

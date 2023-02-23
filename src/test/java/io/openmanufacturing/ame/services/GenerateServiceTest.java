@@ -13,7 +13,7 @@
 
 package io.openmanufacturing.ame.services;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
 import java.io.IOException;
@@ -22,20 +22,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
 import io.openmanufacturing.sds.aspectmodel.generator.openapi.PagingOption;
 
-@RunWith( SpringRunner.class )
+@ExtendWith( SpringExtension.class )
 @SpringBootTest
-public class GenerateServiceTest {
+@DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
+class GenerateServiceTest {
 
    @Autowired
    private GenerateService generateService;
@@ -47,7 +50,7 @@ public class GenerateServiceTest {
    private static final String aspectModelFile = "AspectModel.ttl";
 
    @Test
-   public void testAspectModelJsonSample() throws IOException {
+   void testAspectModelJsonSample() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
@@ -55,14 +58,17 @@ public class GenerateServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
+         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+         Mockito.when( validationProcess.getPath() ).thenReturn( resourcesPath );
+
          final String payload = generateService.sampleJSONPayload(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ) );
+               Files.readString( storagePath, StandardCharsets.UTF_8 ), validationProcess );
          assertEquals( "{\"property\":\"eOMtThyhVNLWUZNRcBaQKxI\"}", payload );
       }
    }
 
    @Test
-   public void testAspectModelJsonSchema() throws IOException {
+   void testAspectModelJsonSchema() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
@@ -70,14 +76,17 @@ public class GenerateServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         final String payload = generateService.jsonSchema(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ) );
+         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+         Mockito.when( validationProcess.getPath() ).thenReturn( resourcesPath );
+
+         final String payload = generateService.jsonSchema( Files.readString( storagePath, StandardCharsets.UTF_8 ),
+               validationProcess, "en-EN" );
          assertTrue( payload.contains( "#/components/schemas/urn_bamm_io.openmanufacturing_1.0.0_Characteristic" ) );
       }
    }
 
    @Test
-   public void testAspectModelJsonOpenApiSpec() throws IOException {
+   void testAspectModelJsonOpenApiSpec() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
@@ -85,7 +94,7 @@ public class GenerateServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         final String payload = generateService.generateJsonOpenApiSpec(
+         final String payload = generateService.generateJsonOpenApiSpec( "en",
                Files.readString( storagePath, StandardCharsets.UTF_8 ), "https://test.com", false, false,
                Optional.of( PagingOption.TIME_BASED_PAGING ) );
 
@@ -97,7 +106,7 @@ public class GenerateServiceTest {
    }
 
    @Test
-   public void testAspectModelYamlOpenApiSpec() throws IOException {
+   void testAspectModelYamlOpenApiSpec() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
@@ -105,7 +114,7 @@ public class GenerateServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         final String payload = generateService.generateYamlOpenApiSpec(
+         final String payload = generateService.generateYamlOpenApiSpec( "en",
                Files.readString( storagePath, StandardCharsets.UTF_8 ), "https://test.com", false, false,
                Optional.of( PagingOption.TIME_BASED_PAGING ) );
 

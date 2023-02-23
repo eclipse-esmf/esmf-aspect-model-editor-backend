@@ -14,6 +14,7 @@
 package io.openmanufacturing.ame.services;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 
 import io.openmanufacturing.ame.config.ApplicationSettings;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.migration.AspectModelFile;
 import io.openmanufacturing.ame.model.migration.Namespace;
 import io.openmanufacturing.ame.model.migration.Namespaces;
@@ -55,13 +57,14 @@ public class ModelService {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
       return strategy.getModelAsString( namespace,
-            storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
+            storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() ) );
    }
 
    public String saveModel( final Optional<String> urn, final String turtleData, final Optional<String> storagePath ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      return strategy.saveModel( urn, turtleData, storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
+      return strategy.saveModel( urn, turtleData,
+            storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() ) );
    }
 
    private void saveVersionedModel( final VersionedModel versionedModel, final AspectModelUrn aspectModelUrn,
@@ -74,27 +77,26 @@ public class ModelService {
    public void deleteModel( final String namespace ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      strategy.deleteModel( namespace, ApplicationSettings.getMetaModelStoragePath() );
+      strategy.deleteModel( namespace, ApplicationSettings.getMetaModelStoragePath().toString() );
    }
 
    public Map<String, List<String>> getAllNamespaces( final boolean shouldRefresh,
-         final Optional<String> storagePath ) {
+         final ValidationProcess validationProcess ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-      return strategy.getAllNamespaces( shouldRefresh,
-            storagePath.orElse( ApplicationSettings.getMetaModelStoragePath() ) );
+      return strategy.getAllNamespaces( shouldRefresh, validationProcess.getPath().toString() );
    }
 
-   public ViolationReport validateModel( final String aspectModel, final String storagePath ) {
-      return ModelUtils.validateModel( aspectModel, storagePath, aspectModelValidator, new ViolationReport() );
+   public ViolationReport validateModel( final String aspectModel, final ValidationProcess validationProcess ) {
+      return ModelUtils.validateModel( aspectModel, aspectModelValidator, validationProcess );
    }
 
-   public String migrateModel( final String aspectModel, final String storagePath ) {
-      return ModelUtils.migrateModel( aspectModel, storagePath );
+   public String migrateModel( final String aspectModel, final ValidationProcess validationProcess ) {
+      return ModelUtils.migrateModel( aspectModel, validationProcess );
    }
 
-   public Namespaces migrateWorkspace( final String storagePath ) {
+   public Namespaces migrateWorkspace( final Path storagePath ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-      final File storageDirectory = new File( storagePath );
+      final File storageDirectory = storagePath.toFile();
 
       final String[] extensions = { "ttl" };
 
@@ -106,7 +108,7 @@ public class ModelService {
                      final Try<VersionedModel> versionedModels = updateModelVersion( inputFile );
                      final AspectModelUrn aspectModelUrn = strategy.convertFileToUrn( inputFile );
                      final Namespace namespace = resolveNamespace( namespaces, aspectModelUrn );
-                     namespaceFileInfo( namespace, versionedModels, aspectModelUrn, storagePath );
+                     namespaceFileInfo( namespace, versionedModels, aspectModelUrn, storagePath.toString() );
                   }
                } );
 

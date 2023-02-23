@@ -13,8 +13,10 @@
 
 package io.openmanufacturing.ame.services;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,24 +25,24 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import org.apache.commons.exec.OS;
-import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import org.junit.jupiter.api.Order;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import io.openmanufacturing.ame.config.ApplicationSettings;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.packaging.ProcessPackage;
+import io.openmanufacturing.ame.model.resolver.FolderStructure;
+import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 
-@RunWith( SpringRunner.class )
+@ExtendWith( SpringExtension.class )
 @SpringBootTest
-public class PackageServiceTest {
+class PackageServiceTest {
 
    @Autowired
    private PackageService packageService;
@@ -52,84 +54,83 @@ public class PackageServiceTest {
    private static final String nameSpaceThree = "io.openmanufacturing.test:1.0.0:TestFileThree.ttl";
 
    @Test
-   @Order( 1 )
-   public void testValidateImportAspectModelPackage() throws IOException {
+   void testValidateImportAspectModelPackage() throws IOException {
       final Path storagePath = Paths.get( resourcesPath.toString(), "test-packages", "io.openmanufacturing.1.0.0" );
       final Path zipFilePath = Paths.get( resourcesPath.toString(), "TestArchive.zip" );
 
       final MockMultipartFile mockedZipFile = new MockMultipartFile( "TestArchive.zip",
             Files.readAllBytes( zipFilePath ) );
 
+      final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+      Mockito.when( validationProcess.getPath() ).thenReturn( storagePath );
+
       final ProcessPackage importPackage = packageService.validateImportAspectModelPackage( mockedZipFile,
-            storagePath.toFile().getAbsolutePath() );
+            validationProcess, resourcesPath );
 
       assertEquals( importPackage.getValidFiles().size(), 2 );
       assertEquals( importPackage.getInvalidFiles().size(), 1 );
    }
 
    @Test
-   @Order( 2 )
-   public void testValidateAspectModels() throws IOException {
-      try ( final MockedStatic<ApplicationSettings> utilities = Mockito.mockStatic( ApplicationSettings.class ) ) {
-         utilities.when( ApplicationSettings::getMetaModelStoragePath )
-                  .thenReturn( resourcesPath.toFile().getAbsolutePath() );
+   void testValidateAspectModels() {
+      final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
+      final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo );
 
-         final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
-         final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo );
-         final ProcessPackage processedExportedPackage = packageService.validateAspectModelsForExport( aspectModelFiles,
-               exportedStoragePath.toFile().getAbsolutePath() );
+      final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+      Mockito.when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
 
-         assertEquals( 2, processedExportedPackage.getValidFiles().size() );
-         assertEquals( 1, processedExportedPackage.getMissingElements().size() );
+      final ProcessPackage processedExportedPackage = packageService.validateAspectModelsForExport( aspectModelFiles,
+            validationProcess, resourcesPath );
 
-         final String[] nameSpaceOneArray = nameSpaceOne.split( ":" );
-         final String[] nameSpaceThreeArray = nameSpaceThree.split( ":" );
+      assertEquals( 2, processedExportedPackage.getValidFiles().size() );
+      assertEquals( 1, processedExportedPackage.getMissingElements().size() );
 
-         assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getAnalysedFileName()
-                                             .contains( nameSpaceOneArray[2] ) );
+      final String[] nameSpaceOneArray = nameSpaceOne.split( ":" );
+      final String[] nameSpaceThreeArray = nameSpaceThree.split( ":" );
 
-         assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getMissingFileName()
-                                             .contains( nameSpaceThreeArray[2] ) );
+      assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getAnalysedFileName()
+                                          .contains( nameSpaceOneArray[2] ) );
 
-         if ( OS.isFamilyWindows() ) {
-            FileUtils.deleteQuietly( exportedStoragePath.toFile() );
-         } else {
-            FileUtils.forceDelete( exportedStoragePath.toFile() );
-         }
-      }
+      assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getMissingFileName()
+                                          .contains( nameSpaceThreeArray[2] ) );
    }
 
    @Test
-   @Order( 3 )
-   public void testExportAspectModelPackage() throws IOException {
-      try ( final MockedStatic<ApplicationSettings> utilities = Mockito.mockStatic( ApplicationSettings.class ) ) {
-         utilities.when( ApplicationSettings::getMetaModelStoragePath )
-                  .thenReturn( resourcesPath.toFile().getAbsolutePath() );
+   void testExportAspectModelPackage() {
+      try ( final MockedStatic<LocalFolderResolverUtils> utilities = Mockito.mockStatic(
+            LocalFolderResolverUtils.class ) ) {
+
+         final FolderStructure one = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
+               "TestFileOne.ttl" );
+         final FolderStructure two = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
+               "TestFileTwo.ttl" );
+         final FolderStructure three = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
+               "TestFileThree.ttl" );
+
+         utilities.when( () -> LocalFolderResolverUtils.deleteDirectory( any( File.class ) ) )
+                  .thenAnswer( (Answer<Void>) invocation -> null );
+
+         utilities.when( () -> LocalFolderResolverUtils.extractFilePath( any( String.class ) ) )
+                  .thenReturn( one, two, three );
 
          final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
          final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo, nameSpaceThree );
 
-         packageService.validateAspectModelsForExport( aspectModelFiles,
-               exportedStoragePath.toFile().getAbsolutePath() );
+         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+         Mockito.when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
+
+         packageService.validateAspectModelsForExport( aspectModelFiles, validationProcess, resourcesPath );
 
          final byte[] bytes = packageService.exportAspectModelPackage( "TestExportArchive.zip",
-               exportedStoragePath.toFile().getAbsolutePath() );
+               validationProcess );
 
          assertTrue( bytes.length > 0 );
-
-         if ( OS.isFamilyWindows() ) {
-            FileUtils.deleteQuietly( exportedStoragePath.toFile() );
-         } else {
-            FileUtils.forceDelete( exportedStoragePath.toFile() );
-         }
       }
    }
 
    @Test
-   @Order( 4 )
-   public void testBackupWorkspace() {
-      packageService.backupWorkspace( workspaceToBackupPath.toAbsolutePath().toString(),
-            resourcesPath.toAbsolutePath().toString() );
+   void testBackupWorkspace() {
+      packageService.backupWorkspace( workspaceToBackupPath.toAbsolutePath(), resourcesPath.toAbsolutePath() );
 
       assertTrue( Arrays.stream( Objects.requireNonNull( resourcesPath.toFile().list() ) )
                         .anyMatch( file -> file.contains( "backup" ) ) );

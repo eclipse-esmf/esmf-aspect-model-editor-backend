@@ -13,7 +13,7 @@
 
 package io.openmanufacturing.ame.services;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 
 import java.io.File;
@@ -28,22 +28,25 @@ import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
+import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.migration.Namespaces;
 import io.openmanufacturing.ame.model.validation.ViolationReport;
 import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
 
-@RunWith( SpringRunner.class )
+@ExtendWith( SpringExtension.class )
 @SpringBootTest
-public class ModelServiceTest {
+@DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
+class ModelServiceTest {
 
    @Autowired
    private ModelService modelService;
@@ -62,7 +65,7 @@ public class ModelServiceTest {
    private static final String oldAspectModelFile = "OldAspectModel.ttl";
 
    @Test
-   public void testGetModel() throws IOException {
+   void testGetModel() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
@@ -74,20 +77,21 @@ public class ModelServiceTest {
       }
    }
 
-   @Test( expected = FileNotFoundException.class )
-   public void testGetModelThrowsIOException() {
+   @Test()
+   void testGetModelThrowsIOException() {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( openManufacturingTestPath.toString(), "NoFile.ttl" );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
-         modelService.getModel( namespace, Optional.empty() );
+
+         assertThrows( FileNotFoundException.class, () -> modelService.getModel( namespace, Optional.empty() ) );
       }
    }
 
    @Test
-   public void testValidateNewModel() throws IOException {
+   void testValidateNewModel() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
@@ -95,14 +99,18 @@ public class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
+         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+
+         Mockito.when( validationProcess.getPath() ).thenReturn( resourcesPath );
+
          final ViolationReport validateReport = modelService.validateModel(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), storagePath.toString() );
+               Files.readString( storagePath, StandardCharsets.UTF_8 ), validationProcess );
          assertTrue( validateReport.getViolationErrors().isEmpty() );
       }
    }
 
    @Test
-   public void testSaveModel() throws IOException {
+   void testSaveModel() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
          final Path fileToReplace = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
@@ -120,8 +128,8 @@ public class ModelServiceTest {
       }
    }
 
-   @Test( expected = FileNotFoundException.class )
-   public void testDeleteModel() throws IOException {
+   @Test()
+   void testDeleteModel() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
          final Path fileToReplace = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
@@ -155,25 +163,33 @@ public class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         modelService.getModel( namespace, Optional.empty() );
+         assertThrows( FileNotFoundException.class, () -> modelService.getModel( namespace, Optional.empty() ) );
       }
    }
 
    @Test
-   public void testGetAllNamespaces() {
-      final Map<String, List<String>> result = modelService.getAllNamespaces( true,
-            Optional.of( resourcesPath.toFile().getAbsolutePath() ) );
-      assertEquals( 6, result.size() );
+   void testGetAllNamespaces() {
+      final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+
+      Mockito.when( validationProcess.getPath() ).thenReturn( migrationWorkspacePath );
+
+      final Map<String, List<String>> result = modelService.getAllNamespaces( true, validationProcess );
+
+      assertEquals( 2, result.size() );
    }
 
-   @Test( expected = FileNotFoundException.class )
-   public void testGetAllNamespacesThrowsIOException() {
+   @Test()
+   void testGetAllNamespacesThrowsIOException() {
       final Path storagePath = Paths.get( "src", "test", "noResources" );
-      modelService.getAllNamespaces( true, Optional.of( storagePath.toFile().getAbsolutePath() ) );
+      final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+
+      Mockito.when( validationProcess.getPath() ).thenReturn( storagePath );
+
+      assertThrows( FileNotFoundException.class, () -> modelService.getAllNamespaces( true, validationProcess ) );
    }
 
    @Test
-   public void testMigrateModel() throws IOException {
+   void testMigrateModel() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( openManufacturingTestPath.toString(), oldAspectModelFile );
@@ -181,19 +197,22 @@ public class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
+         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+         Mockito.when( validationProcess.getPath() ).thenReturn( storagePath );
+
          final String migratedModel = modelService.migrateModel(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), storagePath.toString() );
+               Files.readString( storagePath, StandardCharsets.UTF_8 ), validationProcess );
 
          checkMigratedModel( migratedModel );
       }
    }
 
    @Test
-   public void testMigrateWorkspaceWithoutVersionUpgrade() throws IOException {
+   void testMigrateWorkspaceWithoutVersionUpgrade() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> strategyUtilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class );
             final MockedStatic<FileUtils> fileUtilities = Mockito.mockStatic( FileUtils.class ) ) {
-         final String storagePath = migrationWorkspacePath.toAbsolutePath().toString();
+         final Path storagePath = migrationWorkspacePath.toAbsolutePath();
          final File OneToMigrateOne = new File( toMigrationWorkspaceOne + File.separator + "ToMigrateOne.ttl" );
          final File OneToMigrateTwo = new File( toMigrationWorkspaceOne + File.separator + "ToMigrateTwo.ttl" );
          final File TwoToMigrateOne = new File( toMigrationWorkspaceTwo + File.separator + "ToMigrateOne.ttl" );
@@ -203,7 +222,7 @@ public class ModelServiceTest {
                       .thenReturn( List.of( OneToMigrateOne, OneToMigrateTwo, TwoToMigrateOne, TwoToMigrateTwo ) );
 
          strategyUtilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                          .thenReturn( storagePath );
+                          .thenReturn( storagePath.toString() );
 
          final Namespaces namespaces = modelService.migrateWorkspace( storagePath );
 
