@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
+  ~ Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
   ~
   ~ See the AUTHORS file(s) distributed with this work for
   ~ additional information regarding authorship.
@@ -16,13 +16,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.openmanufacturing</groupId>
-    <artifactId>sds-aspect-model-editor-backend</artifactId>
-    <name>SDS Aspect Model Editor - Backend</name>
+    <groupId>org.eclipse.esmf</groupId>
+    <artifactId>esmf-aspect-model-editor-backend</artifactId>
+    <name>ESMF Aspect Model Editor - Backend</name>
     <version>DEV-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <description>OMP SDS Aspect Model Editor Backend</description>
+    <description>ESMF Aspect Model Editor Backend</description>
     <licenses>
         <license>
             <name>MPL-2.0</name>
@@ -43,7 +43,7 @@
 
     <properties>
         <os.platform/>
-        <main.class>io.openmanufacturing.ame.Application</main.class>
+        <main.class>org.eclipse.esmf.ame.Application</main.class>
 
         <!-- Internal sds dependencies -->
         <sds-sdk-version>2.1.3</sds-sdk-version>
