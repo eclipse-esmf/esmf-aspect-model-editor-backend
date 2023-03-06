@@ -63,7 +63,7 @@ public class ModelService {
    public String saveModel( final Optional<String> urn, final String aspectModel, final Optional<String> storagePath ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      return strategy.saveModel( urn, ModelUtils.getPrettyPrintedModel( aspectModel ),
+      return strategy.saveModel( urn, ModelUtils.getPrettyPrintedModel( aspectModel, ValidationProcess.MODELS ),
             storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() ) );
    }
 
@@ -150,6 +150,6 @@ public class ModelService {
    }
 
    public String getFormattedModel( final String aspectModel ) {
-      return ModelUtils.getPrettyPrintedModel( aspectModel );
+      return ModelUtils.getPrettyPrintedModel( aspectModel, ValidationProcess.MODELS );
    }
 }

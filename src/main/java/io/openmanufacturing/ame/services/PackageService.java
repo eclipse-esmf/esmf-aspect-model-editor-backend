@@ -91,7 +91,8 @@ public class PackageService {
          final String modelAsString = strategy.getModelAsString( fileName, validationProcess.getPath().toString() );
          final AspectModelUrn aspectModelUrn = strategy.convertAspectModelFileNameToUrn( fileName );
          strategy.saveModel( Optional.of( aspectModelUrn.toString() ),
-               ModelUtils.getPrettyPrintedModel( modelAsString ), validationProcess.getPath().toString() );
+               ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
+               validationProcess.getPath().toString() );
          final ViolationReport violationReport = ModelUtils.validateModel( modelAsString, aspectModelValidator,
                validationProcess );
          processPackage.addValidFiles( new ValidFile( fileName, violationReport ) );
@@ -179,7 +180,8 @@ public class PackageService {
          final AspectModelUrn aspectModelUrn = strategy.convertAspectModelFileNameToUrn( fileName );
 
          strategy.saveModel( Optional.of( aspectModelUrn.toString() ),
-               ModelUtils.getPrettyPrintedModel( modelAsString ), modelsProcess.getPath().toString() );
+               ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
+               modelsProcess.getPath().toString() );
       } );
 
       strategy.deleteDirectory( validationProcess.getPath().toFile() );
