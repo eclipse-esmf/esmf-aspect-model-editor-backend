@@ -15,6 +15,9 @@ package io.openmanufacturing.ame.repository.strategy.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.file.StandardOpenOption;
+import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
@@ -91,11 +94,25 @@ public class LocalFolderResolverUtils {
    public static void deleteDirectory( final File storagePath ) {
       try {
          if ( storagePath.exists() && storagePath.isDirectory() ) {
+            handleFiles( storagePath );
             FileUtils.forceDelete( storagePath );
          }
       } catch ( final IOException error ) {
          LOG.error( "Cannot delete exported package folder." );
          throw new FileNotFoundException( String.format( "Unable to delete folder on: %s", storagePath ), error );
+      }
+   }
+
+   private static void handleFiles( final File storagePath ) throws IOException {
+      for ( final File file : Objects.requireNonNull( storagePath.listFiles() ) ) {
+         if ( file.isDirectory() ) {
+            handleFiles( file );
+         } else {
+            file.createNewFile();
+            final FileChannel channel = FileChannel.open( file.toPath(), StandardOpenOption.WRITE );
+            channel.lock().release();
+            channel.close();
+         }
       }
    }
 }
