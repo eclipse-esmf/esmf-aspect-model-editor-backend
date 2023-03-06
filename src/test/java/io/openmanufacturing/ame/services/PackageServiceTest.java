@@ -14,8 +14,10 @@
 package io.openmanufacturing.ame.services;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +28,9 @@ import java.util.Objects;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
@@ -36,6 +40,8 @@ import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.packaging.ProcessPackage;
 import io.openmanufacturing.ame.model.resolver.FolderStructure;
 import io.openmanufacturing.ame.repository.ModelResolverRepository;
+import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
+import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 @ExtendWith( SpringExtension.class )
 @SpringBootTest
@@ -97,25 +103,46 @@ class PackageServiceTest {
 
    @Test
    void testExportAspectModelPackage() {
-      final FolderStructure one = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
-            "TestFileOne.ttl" );
-      final FolderStructure two = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
-            "TestFileTwo.ttl" );
-      final FolderStructure three = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
-            "TestFileThree.ttl" );
+      try ( final MockedStatic<LocalFolderResolverUtils> utilities = Mockito.mockStatic(
+            LocalFolderResolverUtils.class ) ) {
 
-      final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
-      final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo, nameSpaceThree );
+         final FolderStructure one = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
+               "TestFileOne.ttl" );
+         final FolderStructure two = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
+               "TestFileTwo.ttl" );
+         final FolderStructure three = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
+               "TestFileThree.ttl" );
 
-      final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
-      when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
+         final AspectModelUrn one_urn = AspectModelUrn.from( "urn:bamm:io.openmanufacturing.test:1.0.0#TestFileOne" )
+                                                      .get();
+         final AspectModelUrn two_urn = AspectModelUrn.from( "urn:bamm:io.openmanufacturing.test:1.0.0#TestFileTwo" )
+                                                      .get();
+         final AspectModelUrn three_urn = AspectModelUrn.from(
+                                                              "urn:bamm:io.openmanufacturing.test:1.0.0#TestFileThree" )
+                                                        .get();
 
-      packageService.validateAspectModelsForExport( aspectModelFiles, validationProcess, resourcesPath );
+         utilities.when( () -> LocalFolderResolverUtils.deleteDirectory( any( File.class ) ) )
+                  .thenAnswer( (Answer<Void>) invocation -> null );
 
-      final byte[] bytes = packageService.exportAspectModelPackage( "TestExportArchive.zip",
-            validationProcess );
+         utilities.when( () -> LocalFolderResolverUtils.extractFilePath( any( String.class ) ) )
+                  .thenReturn( one, two, three );
 
-      assertTrue( bytes.length > 0 );
+         utilities.when( () -> LocalFolderResolverUtils.convertToAspectModelUrn( any( String.class ) ) )
+                  .thenReturn( one_urn, two_urn, three_urn );
+
+         final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
+         final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo, nameSpaceThree );
+
+         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+         when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
+
+         packageService.validateAspectModelsForExport( aspectModelFiles, validationProcess, resourcesPath );
+
+         final byte[] bytes = packageService.exportAspectModelPackage( "TestExportArchive.zip",
+               validationProcess );
+
+         assertTrue( bytes.length > 0 );
+      }
    }
 
    @Test

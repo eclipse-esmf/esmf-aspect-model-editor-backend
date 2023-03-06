@@ -103,6 +103,12 @@ public class LocalFolderResolverUtils {
       }
    }
 
+   /**
+    * This method will unlock all files in the given directory.
+    *
+    * @param storagePath path of the directory to be deleted.
+    * @throws IOException if an I/O error occurs.
+    */
    private static void handleFiles( final File storagePath ) throws IOException {
       for ( final File file : Objects.requireNonNull( storagePath.listFiles() ) ) {
          if ( file.isDirectory() ) {
