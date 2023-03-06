@@ -23,7 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
+import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
 import io.openmanufacturing.ame.model.resolver.FolderStructure;
+import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 public class LocalFolderResolverUtils {
 
@@ -66,6 +68,19 @@ public class LocalFolderResolverUtils {
     */
    private static FolderStructure extractNamespaceVersionName( final String[] path ) {
       return new FolderStructure( path[0], path[1], path[2] );
+   }
+
+   /**
+    * This method will convert the given urn to AspectModelUrn.
+    *
+    * @param urn - urn of the aspect model.
+    * @return AspectModelUrn.
+    */
+   public static AspectModelUrn convertToAspectModelUrn( final String urn ) {
+      return AspectModelUrn.from( urn ).getOrElse( () -> {
+         throw new InvalidAspectModelException(
+               String.format( "The URN constructed from the input file path is invalid: %s", urn ) );
+      } );
    }
 
    /**

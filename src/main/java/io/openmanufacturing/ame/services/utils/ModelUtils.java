@@ -93,6 +93,12 @@ public class ModelUtils {
       return buffer.toString();
    }
 
+   public static String getPrettyPrintedModel( final String aspectModel ) {
+      final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel, ValidationProcess.MODELS );
+      final Try<VersionedModel> versionedModel = ModelUtils.fetchVersionModel( inMemoryStrategy );
+      return getPrettyPrintedVersionedModel( versionedModel.get(), inMemoryStrategy.getAspectModelUrn().getUrn() );
+   }
+
    /**
     * Method to resolve a given AspectModelUrn using a suitable ResolutionStrategy.
     *

@@ -60,10 +60,10 @@ public class ModelService {
             storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() ) );
    }
 
-   public String saveModel( final Optional<String> urn, final String turtleData, final Optional<String> storagePath ) {
+   public String saveModel( final Optional<String> urn, final String aspectModel, final Optional<String> storagePath ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      return strategy.saveModel( urn, turtleData,
+      return strategy.saveModel( urn, ModelUtils.getPrettyPrintedModel( aspectModel ),
             storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() ) );
    }
 
@@ -147,5 +147,9 @@ public class ModelService {
             modelIsSuccess );
 
       namespace.addAspectModelFile( aspectModelFile );
+   }
+
+   public String getFormattedModel( final String aspectModel ) {
+      return ModelUtils.getPrettyPrintedModel( aspectModel );
    }
 }
