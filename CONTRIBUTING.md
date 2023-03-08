@@ -1,7 +1,7 @@
 # Contribution Guideline Aspect Model Editor backend
 
-Thank you for your interest in contributing to the ESMF Aspect Model Editor backend. Use this repository to contribute
-to the Aspect Model Editor backend as easy and
+Thank you for your interest in contributing to the SDS Aspect Model Editor backend. Use this repository to contribute to
+the Aspect Model Editor backend as easy and
 transparent as possible, whether it is:
 
 * Reporting a bug
@@ -9,20 +9,20 @@ transparent as possible, whether it is:
 * Proposing new features
 * other
 
-## ESMF and Roles
+## OMP SDS and Roles
 
-The ESMF Aspect Model Editor backend is developed in the context of the ESMF WG (Open Manufacturing Platform -
+The SDS Aspect Model Editor backend is developed in the context of the OMP SDS WG (Open Manufacturing Platform -
 Semantic Data Structuring - Working Group).
-More information about the such as its goals or members is available under
-[eclipse.org](https://www.eclipse.org/).
-The overall goal of the ESMF WG within the is to work on a Semantic Data Structuring Layer that addresses the needs
+More information about the OMP such as its goals or members is available under
+[open-manufacturing.org](https://open-manufacturing.org).
+The overall goal of the SDS WG within the OMP is to work on a Semantic Data Structuring Layer that addresses the needs
 to share, join, and reuse heterogeneous data of the manufacturing.
-The ESMF Aspect Model Editor backend is based on the SAMM Aspect Meta Model and supports its use.
+The SDS Aspect Model Editor backend is based on the BAMM Aspect Meta Model and supports its use.
 
 ### Roles
 
-The work on the ESMF Aspect Model Editor backend is organized within the ESMF WG to which this document simply
-refers as "`working group`"
+The work on the SDS Aspect Model Editor backend is organized within the OMP SDS WG to which this document simply refers
+as "`working group`"
 in the following. The `working group` is currently meeting regularly and may decide on the acceptance of Pull Requests
 (`PR's`) and `Issues`. Before a release of the specification, the `working group` further needs to agree on a state of
 the Aspect Model Editor backend as a release candidate.
@@ -38,7 +38,7 @@ working group. The `Chair` is also a `maintainer` of this repository.
 
 * We use this GitHub repository to track issues and feature requests, as well as discuss and manage all PR's related to
   this project.
-* Opening `Issues` and `PRs` in GitHub is the preferred way to interact with the community around the ESMF Aspect Model
+* Opening `Issues` and `PRs` in GitHub is the preferred way to interact with the community around the SDS Aspect Model
   Editor backend.
 
 ## Branching
@@ -51,8 +51,8 @@ More specifically the repository has the following branches:
  name of branch                           | description                                                                                                                                                                                                                                                           
 ------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  `main`                                   | Contains the latest state of the repository                                                                                                                                                                                                                           
- `v{version_number}-RC{rc_number}`        | A state on which the working group agreed on as a release candidate but which is missing the approval by the ESMF.                                                                                                                                                    
- `v{version_number}`                      | A release of the respective version which is approved by the working group and the ESMF.                                                                                                                                                                              
+ `v{version_number}-RC{rc_number}`        | A state on which the working group agreed on as a release candidate but which is missing the approval by the OMP.                                                                                                                                                     
+ `v{version_number}`                      | A release of the respective version which is approved by the working group and the OMP.                                                                                                                                                                               
  `feature/#{issue_number}-{feature_name}` | Contains the development on a specific feature and is intended to be merged back into the `main` branch as soon as possible. Note, that it is recommended for contributors to create and develop feature branches in a personal fork and not the upstream repository. 
  `bug/#{issue_number}-{bug_name}`         | Contains the development of (usually smaller) changes in files of the repository that do not introduce new functionality but fix mistakes, errors or inconsistencies. These branches should be merged back into the `main`branch as soon as possible.                 
 
@@ -98,7 +98,7 @@ When opening a `PR` please consider the following topics:
 
 ## Paperwork and DCO
 
-The is a [JDF project (Joint Developement Foundation)](https://www.jointdevelopment.org/) following the project and
+The OMP is a [JDF project (Joint Developement Foundation)](https://www.jointdevelopment.org/) following the project and
 working group charters as defined in JDF charter template 4.0.1
 
 For source code contribution the project charter requests for non-working group participants the following:
@@ -111,18 +111,18 @@ subject to each Non-Working Group Participant executing the Feedback Agreement s
 
 ``Appendix B`` with the placeholders set to:
 
-- [Project Name] = "ESMF"
+- [Project Name] = "OMP"
 - [Projects’s Source Code License] = "MPL 2.0"
-- [name of deliverable] = "ESMF Aspect Model Editor backend"
+- [name of deliverable] = "SDS Aspect Model Editor backend"
 
 states:
 
-> ### Feedback Agreement
+> ### OMP Feedback Agreement
 >**
 >
 >Feedback
 >
->The (“Project”) is developing the ESMF Aspect Model Editor backend (the “Materials”). Project would like to receive
+>The OMP (“Project”) is developing the SDS Aspect Model Editor backend (the “Materials”). Project would like to receive
 > input,
 > suggestions and other feedback (“Feedback”) on the Materials. By signing below,
 > you (on behalf of yourself if you are an individual and your company if you are providing Feedback
@@ -142,7 +142,7 @@ states:
 >Any source code you provide to the Project is subject to the Developer Certificate of Origin version 1.1,
 > available at http://developercertificate.org/ and the MPL 2.0.
 
-This means, before making a pull request or providing an issue please sign the Feedback Agreement for the
+This means, before making a pull request or providing an issue please sign the OMP Feedback Agreement for the
 working group “Semantic Data Structuring”.
 
 ## Labeling
@@ -239,26 +239,26 @@ E.g. software licensed under GPL, AGPL or, a similar strong copy-left license ca
 
 # Code Conventions
 
-The ESMF Aspect Model Editor backend is written in the Java Programming Language. Please have a look into
+The SDS Aspect Model Editor backend is written in the Java Programming Language. Please have a look into
 our [Code Conventions](CONVENTIONS.md).
 
 # Release Process
 
 The working group may decide that it reached a stable state for the contents of the repository.
-To settle an agreement on this and provide downstream users with a stable version of the SAMM Aspect Model Editor
+To settle an agreement on this and provide downstream users with a stable version of the BAMM Aspect Model Editor
 backend,
 a release process can be triggered.
 
 For such a release the `working group` must approve the current state of the `main` branch as agreement.
 A `maintainer` of the repository then forks the `main` branch into a new branch that follows the naming
-convention `v{version_number}-RC`. The organization team of the is then asked to `review & approve`
-the `v{version_number}-RC` branch. If the organization agrees on the approval the steering committee needs to be
+convention `v{version_number}-RC`. The organization team of the OMP is then asked to `review & approve`
+the `v{version_number}-RC` branch. If the organization agrees on the approval the OMP steering committee needs to be
 notified. After that notification, a `maintainer` triggers the release feature from GitHub based on the commit on
 which the `v{version_number}-RC` branch is based.
 
 ## Versioning
 
-We use Semantic Versioning to identify released versions of the ESMF Aspect Model Editor backend. Semantic Versioning is
+We use Semantic Versioning to identify released versions of the SDS Aspect Model Editor backend. Semantic Versioning is
 documented
 [here](https://semver.org). It proposes to have a versioning number with the following elements:
 
@@ -300,4 +300,3 @@ v1.0.0-RC1, v1.0.0
 * [For a Repo](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request-from-a-fork)
 * [Issue Creation](https://help.github.com/en/github/managing-your-work-on-github/creating-an-issue)
 * [PR Creation](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request)
-

@@ -26,7 +26,8 @@ Are you having trouble with Aspect Model Editor backend? We want to help!
 
 ## Setup
 
-* Download and install [JDK 11](https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_windows-x64_bin.zip)
+* Download and
+  install [GraalVm 22.3.1 and JDK 17](https://github.com/graalvm/graalvm-ce-builds/releases/tag/vm-22.3.1)
 * Download and Install [Maven](https://maven.apache.org/download.cgi)
 * Environment Settings
     * Add "{JAVA_HOME}/bin" to PATH
