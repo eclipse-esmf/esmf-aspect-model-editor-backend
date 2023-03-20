@@ -1,7 +1,7 @@
-# Aspect Model Editor backend Code Conventions
+# ESMF Aspect Model Editor backend Code Conventions
 
-The following document contains a compilation of conventions and guidelines to format, structure and write code for the
-ESMF Aspect Model Editor backend.
+The following document contains a compilation of conventions and guidelines to format, structure and
+write code for the ESMF Aspect Model Editor backend.
 
 ## General Conventions
 
@@ -16,11 +16,10 @@ See [CONTRIBUTING](CONTRIBUTING.md)
 
 ### Utility Classes
 
-[Utility classes](https://wiki.c2.com/?UtilityClasses) as such should be avoided - domain concepts must be expressed in
-domain classes.
-Thus, only for "real", non-domain operations not belonging to any class, utility methods and classes may be used.
-However, chances are pretty close to 100% that all of everyday utility needs are already covered by high-quality
-3rd-party libraries.
+[Utility classes](https://wiki.c2.com/?UtilityClasses) as such should be avoided - domain concepts
+must be expressed in domain classes. Thus, only for "real", non-domain operations not belonging to
+any class, utility methods and classes may be used. However, chances are pretty close to 100% that
+all of everyday utility needs are already covered by high-quality 3rd-party libraries.
 
 Usually we apply the following rule to decide on the introduction of new libraries
 
@@ -31,13 +30,13 @@ Usually we apply the following rule to decide on the introduction of new librari
 
 ### Optional<> usage
 
-The Optional<> type, common for some time in Guava and in the Java core since Version 8, has found widespread use for
-return values, however still a lot of discussions emerge concerning a fitting scope of usage.
-You may not return null where an Optional<> is expected.
-Whenever an Optional<> is passed, you may safely assume it to be non-null.
-So the following snippet must never appear anywhere:
+The Optional<> type, common for some time in Guava and in the Java core since Version 8, has found
+widespread use for return values, however still a lot of discussions emerge concerning a fitting
+scope of usage. You may not return null where an Optional<> is expected Whenever an Optional<> is
+passed, you may safely assume it to be non-null. So the following snippet must never appear
+anywhere:
 
-```java
+```
 if (someOptional != null && someOptional.isPresent()) ...
 ```
 
@@ -46,8 +45,8 @@ if (someOptional != null && someOptional.isPresent()) ...
 * Using Optional<> for method parameters is fine (see notes about "Avoid optionality" though)
 * Writing if-Statements checking for a present instance (and calling .get() explicitly) is considered an anti-pattern.
   You should
-  1. Use .map() or .ifPresent() functional style patterns
-  2. Use .orElse*() methods for clearly defined fallbacks (or exceptions)
+    1. Use .map() or .ifPresent() functional style patterns
+    2. Use .orElse*() methods for clearly defined fallbacks (or exceptions)
 * When having collections/streams of Optionals use .filter(Optional::isPresent) accordingly
 * Using Optional.ofNullable(someValue).orElseThrow() to create one-liner check/assignment combinations is considered an
   anti-pattern.
@@ -56,22 +55,22 @@ if (someOptional != null && someOptional.isPresent()) ...
 
 ### Lombok
 
-We use Lombok in the ESMF Aspect Model Editor backend.
-Project Lombok is a Java library that automatically plugs into your editor and build tools.
-It removes the burden to write getter or equals methods, adds fully featured builders to a class with one annotation,
-automates logging variables, and much more.
-Consider using its features if you are in the need to do something like that.
+We use Lombok in the ESMF Aspect Model Editor backend. Project Lombok is a Java library that automatically plugs into
+your
+editor and build tools. It removes the burden to write getter or equals methods, adds fully featured
+builders to a class with one annotation, automates logging variables, and much more. Consider using
+its features if you are in the need to do something like that.
 
 ## Documentation
 
 ### Source Code Documentation
 
-Public classes and interfaces should carry appropriate JavaDoc explaining the responsibility of the class.
-All public methods except getters/setters/toString etc. must be documented as well.
-Private methods should be simple enough and well-named such that they don't need documentation. If appropriate they of
-course may be documented as well. Inline comments, especially those that merely separate logical blocks of code, must be
-avoided as they are usually an indicator that a private method can be extracted or that bad naming was used that needs
-explaining.
+Public classes and interfaces should carry appropriate JavaDoc explaining the responsibility of the
+class. All public methods except getters/setters/toString etc. must be documented as well. Private
+methods should be simple enough and well-named such that they don't need documentation. If
+appropriate they of course may be documented as well. Inline comments, especially those that merely
+separate logical blocks of code, must be avoided as they are usually an indicator that a private
+method can be extracted or that bad naming was used that needs explaining.
 
 ### Developer Documentation
 
