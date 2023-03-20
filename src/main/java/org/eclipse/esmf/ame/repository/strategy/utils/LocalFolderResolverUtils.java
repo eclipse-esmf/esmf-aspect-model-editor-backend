@@ -23,10 +23,12 @@ import javax.annotation.Nonnull;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
+import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.model.resolver.FolderStructure;
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 public class LocalFolderResolverUtils {
 
