@@ -45,7 +45,7 @@ public class UnzipUtils {
     * @param packagePath - The default package storage folder path
     */
    @SuppressWarnings( { "squid:S135", "squid:S5042" } )
-   public static void unzipPackageFile( final InputStream zipFile, final Path packagePath ) throws IOException {
+   public static void unzipPackageFile( final InputStream zipFile, final Path packagePath ) {
       try ( final ZipInputStream zipInputStream = new ZipInputStream( zipFile ) ) {
 
          ZipEntry zipEntry = zipInputStream.getNextEntry();
@@ -105,7 +105,7 @@ public class UnzipUtils {
     *
     * @param file - to create.
     */
-   private static void createNewDirectory( final File file ) throws IOException {
+   private static void createNewDirectory( final File file ) {
       if ( !file.isDirectory() && !file.mkdirs() ) {
          LOG.error( "Cannot create directory." );
          throw new CreateFileException( "Failed to create directory " + file );

@@ -15,6 +15,7 @@ package io.openmanufacturing.ame.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +39,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.packaging.ProcessPackage;
 import io.openmanufacturing.ame.model.resolver.FolderStructure;
+import io.openmanufacturing.ame.repository.ModelResolverRepository;
 import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
+import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 @ExtendWith( SpringExtension.class )
 @SpringBootTest
@@ -46,6 +49,9 @@ class PackageServiceTest {
 
    @Autowired
    private PackageService packageService;
+
+   @Autowired
+   private ModelResolverRepository modelResolverRepository;
 
    private static final Path resourcesPath = Path.of( "src", "test", "resources" );
    private static final Path workspaceToBackupPath = Path.of( resourcesPath.toString(), "workspace-to-backup" );
@@ -62,7 +68,7 @@ class PackageServiceTest {
             Files.readAllBytes( zipFilePath ) );
 
       final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
-      Mockito.when( validationProcess.getPath() ).thenReturn( storagePath );
+      when( validationProcess.getPath() ).thenReturn( storagePath );
 
       final ProcessPackage importPackage = packageService.validateImportAspectModelPackage( mockedZipFile,
             validationProcess, resourcesPath );
@@ -107,17 +113,28 @@ class PackageServiceTest {
          final FolderStructure three = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
                "TestFileThree.ttl" );
 
+         final AspectModelUrn one_urn = AspectModelUrn.from( "urn:bamm:io.openmanufacturing.test:1.0.0#TestFileOne" )
+                                                      .get();
+         final AspectModelUrn two_urn = AspectModelUrn.from( "urn:bamm:io.openmanufacturing.test:1.0.0#TestFileTwo" )
+                                                      .get();
+         final AspectModelUrn three_urn = AspectModelUrn.from(
+                                                              "urn:bamm:io.openmanufacturing.test:1.0.0#TestFileThree" )
+                                                        .get();
+
          utilities.when( () -> LocalFolderResolverUtils.deleteDirectory( any( File.class ) ) )
                   .thenAnswer( (Answer<Void>) invocation -> null );
 
          utilities.when( () -> LocalFolderResolverUtils.extractFilePath( any( String.class ) ) )
                   .thenReturn( one, two, three );
 
+         utilities.when( () -> LocalFolderResolverUtils.convertToAspectModelUrn( any( String.class ) ) )
+                  .thenReturn( one_urn, two_urn, three_urn );
+
          final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
          final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo, nameSpaceThree );
 
          final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
-         Mockito.when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
+         when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
 
          packageService.validateAspectModelsForExport( aspectModelFiles, validationProcess, resourcesPath );
 

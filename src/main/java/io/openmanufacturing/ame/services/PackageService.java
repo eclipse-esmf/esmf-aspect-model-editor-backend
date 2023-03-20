@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -40,7 +41,6 @@ import io.openmanufacturing.ame.model.validation.ViolationReport;
 import io.openmanufacturing.ame.repository.ModelResolverRepository;
 import io.openmanufacturing.ame.repository.strategy.LocalFolderResolverStrategy;
 import io.openmanufacturing.ame.repository.strategy.ModelResolverStrategy;
-import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.ame.services.utils.UnzipUtils;
 import io.openmanufacturing.ame.services.utils.ZipUtils;
@@ -67,9 +67,10 @@ public class PackageService {
    public ProcessPackage validateAspectModelsForExport( final List<String> aspectModelFiles,
          final ValidationProcess validationProcess, final Path modelStoragePath ) {
       try {
-         LocalFolderResolverUtils.deleteDirectory( validationProcess.getPath().toFile() );
          final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(
                LocalFolderResolverStrategy.class );
+
+         strategy.deleteDirectory( validationProcess.getPath().toFile() );
 
          ModelUtils.copyAspectModelToDirectory( aspectModelFiles, modelStoragePath.toString(),
                validationProcess.getPath().toString() );
@@ -87,8 +88,12 @@ public class PackageService {
       final ProcessPackage processPackage = new ProcessPackage();
 
       aspectModelFiles.forEach( fileName -> {
-         final String aspectModel = strategy.getModelAsString( fileName, validationProcess.getPath().toString() );
-         final ViolationReport violationReport = ModelUtils.validateModel( aspectModel, aspectModelValidator,
+         final String modelAsString = strategy.getModelAsString( fileName, validationProcess.getPath().toString() );
+         final AspectModelUrn aspectModelUrn = strategy.convertAspectModelFileNameToUrn( fileName );
+         strategy.saveModel( Optional.of( aspectModelUrn.toString() ),
+               ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
+               validationProcess.getPath().toString() );
+         final ViolationReport violationReport = ModelUtils.validateModel( modelAsString, aspectModelValidator,
                validationProcess );
          processPackage.addValidFiles( new ValidFile( fileName, violationReport ) );
          getMissingAspectModelFiles( violationReport, fileName, modelStoragePath.toString() ).forEach(
@@ -101,7 +106,9 @@ public class PackageService {
    public byte[] exportAspectModelPackage( final String zipFileName, final ValidationProcess validationProcess ) {
       try {
          final byte[] zipFile = ZipUtils.createZipFile( zipFileName, validationProcess.getPath().toString() );
-         LocalFolderResolverUtils.deleteDirectory( new File( validationProcess.getPath().toString() ) );
+         final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(
+               LocalFolderResolverStrategy.class );
+         strategy.deleteDirectory( new File( validationProcess.getPath().toString() ) );
          return zipFile;
       } catch ( final IOException e ) {
          LOG.error( "Cannot create exported package file." );
@@ -113,12 +120,12 @@ public class PackageService {
    public ProcessPackage validateImportAspectModelPackage( final MultipartFile zipFile,
          final ValidationProcess validationProcess, final Path modelStoragePath ) {
       try {
-         LocalFolderResolverUtils.deleteDirectory( validationProcess.getPath().toFile() );
+         final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(
+               LocalFolderResolverStrategy.class );
+         strategy.deleteDirectory( validationProcess.getPath().toFile() );
 
          unzipPackageFile( zipFile, validationProcess.getPath() );
 
-         final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(
-               LocalFolderResolverStrategy.class );
          final LocalPackageInfo localPackageInfo = strategy.getLocalPackageInformation(
                validationProcess.getPath().toString() );
          final ProcessPackage processPackage = new ProcessPackage( localPackageInfo.getInValidFiles() );
@@ -161,11 +168,23 @@ public class PackageService {
 
    public List<String> importAspectModelPackage( final List<String> aspectModelFiles,
          final ValidationProcess validationProcess ) {
-      final List<String> fileLocations = ModelUtils.copyAspectModelToDirectory( aspectModelFiles,
-            validationProcess.getPath().toString(),
-            ValidationProcess.MODELS.getPath().toString() );
+      final ValidationProcess modelsProcess = ValidationProcess.MODELS;
 
-      LocalFolderResolverUtils.deleteDirectory( validationProcess.getPath().toFile() );
+      final List<String> fileLocations = ModelUtils.copyAspectModelToDirectory( aspectModelFiles,
+            validationProcess.getPath().toString(), modelsProcess.getPath().toString() );
+
+      final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
+
+      aspectModelFiles.forEach( fileName -> {
+         final String modelAsString = strategy.getModelAsString( fileName, modelsProcess.getPath().toString() );
+         final AspectModelUrn aspectModelUrn = strategy.convertAspectModelFileNameToUrn( fileName );
+
+         strategy.saveModel( Optional.of( aspectModelUrn.toString() ),
+               ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
+               modelsProcess.getPath().toString() );
+      } );
+
+      strategy.deleteDirectory( validationProcess.getPath().toFile() );
 
       return fileLocations;
    }

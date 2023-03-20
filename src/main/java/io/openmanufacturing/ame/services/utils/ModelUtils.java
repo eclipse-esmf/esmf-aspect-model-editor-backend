@@ -93,6 +93,13 @@ public class ModelUtils {
       return buffer.toString();
    }
 
+   public static String getPrettyPrintedModel( final String aspectModel, final ValidationProcess validationProcess ) {
+      final InMemoryStrategy inMemoryStrategy = inMemoryStrategy( aspectModel, validationProcess );
+      final VersionedModel versionedModel = ModelUtils.loadModelFromStoragePath( inMemoryStrategy );
+
+      return getPrettyPrintedVersionedModel( versionedModel, inMemoryStrategy.getAspectModelUrn().getUrn() );
+   }
+
    /**
     * Method to resolve a given AspectModelUrn using a suitable ResolutionStrategy.
     *
@@ -112,8 +119,9 @@ public class ModelUtils {
    public static String migrateModel( final String aspectModel, final ValidationProcess validationProcess )
          throws InvalidAspectModelException {
       final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel, validationProcess );
-      final Try<VersionedModel> migratedFile = loadModelFromStoragePath( inMemoryStrategy ).flatMap(
-            new MigratorService()::updateMetaModelVersion );
+      
+      final Try<VersionedModel> migratedFile = new MigratorService().updateMetaModelVersion(
+            loadModelFromStoragePath( inMemoryStrategy ) );
 
       final VersionedModel versionedModel = migratedFile.getOrElseThrow(
             error -> new InvalidAspectModelException( "Aspect Model cannot be migrated.", error ) );
@@ -131,10 +139,7 @@ public class ModelUtils {
          throws InvalidAspectModelException {
       final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel,
             validationProcess );
-
-      final VersionedModel versionedModel = ModelUtils.loadModelFromStoragePath( inMemoryStrategy ).getOrElseThrow(
-            e -> new InvalidAspectModelException( "Cannot resolve Aspect Model.", e ) );
-
+      final VersionedModel versionedModel = ModelUtils.loadModelFromStoragePath( inMemoryStrategy );
       return AspectModelLoader.getSingleAspectUnchecked( versionedModel );
    }
 
@@ -144,8 +149,9 @@ public class ModelUtils {
     * @param inMemoryStrategy for the given storage path.
     * @return the resulting {@link VersionedModel} that corresponds to the input Aspect model.
     */
-   public static Try<VersionedModel> loadModelFromStoragePath( final InMemoryStrategy inMemoryStrategy ) {
-      return resolveModel( inMemoryStrategy.aspectModel );
+   public static VersionedModel loadModelFromStoragePath( final InMemoryStrategy inMemoryStrategy ) {
+      return resolveModel( inMemoryStrategy.aspectModel ).getOrElseThrow(
+            e -> new InvalidAspectModelException( "Cannot resolve Aspect Model.", e ) );
    }
 
    /**

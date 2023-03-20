@@ -74,6 +74,13 @@ public interface ModelResolverStrategy {
    void deleteModel( @Nonnull final String namespace, final String storagePath );
 
    /**
+    * Deletes the whole storage directory.
+    *
+    * @param storagePath - path to storage.
+    */
+   void deleteDirectory( @Nonnull final File storagePath );
+
+   /**
     * Returns a map of key = namespace + version and value = list of turtle files that are present in that namespace.
     *
     * @param shouldRefresh - boolean when the list have to refresh.
@@ -94,4 +101,12 @@ public interface ModelResolverStrategy {
     * @param inputFile - file from workspace.
     */
    AspectModelUrn convertFileToUrn( final File inputFile );
+
+   /**
+    * Returns the converted {@link AspectModelUrn} from the file name that is provided.
+    *
+    * @param aspectFileName - file name of the aspect.
+    * @return the converted {@link AspectModelUrn} from the file name that is provided.
+    */
+   AspectModelUrn convertAspectModelFileNameToUrn( final String aspectFileName );
 }

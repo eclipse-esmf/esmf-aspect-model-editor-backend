@@ -83,7 +83,7 @@ public class ModelResource {
     * This Method is used to validate a Turtle file
     *
     * @param aspectModel The Aspect Model Data
-    * @return Either a empty array if the model is syntactically correct and conforms to the Aspect Meta Model
+    * @return Either an empty array if the model is syntactically correct and conforms to the Aspect Meta Model
     *       semantics or provides a number of * {@link ViolationReport}s that describe all validation violations.
     */
    @PostMapping( "validate" )
@@ -100,6 +100,17 @@ public class ModelResource {
    @PostMapping( path = "migrate", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public ResponseEntity<String> migrateModel( @RequestBody final String aspectModel ) {
       return ResponseEntity.ok( ModelUtils.migrateModel( aspectModel, ValidationProcess.MIGRATE ) );
+   }
+
+   /**
+    * This Method is used to format a Turtle file.
+    *
+    * @param aspectModel - The Aspect Model Data
+    * @return A formatted version of the Aspect Model
+    */
+   @PostMapping( path = "format", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
+   public ResponseEntity<String> getFormattedModel( @RequestBody final String aspectModel ) {
+      return ResponseEntity.ok( modelService.getFormattedModel( aspectModel ) );
    }
 
    /**

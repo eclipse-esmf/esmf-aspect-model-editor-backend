@@ -44,7 +44,6 @@ import io.openmanufacturing.ame.config.ApplicationSettings;
 import io.openmanufacturing.ame.exceptions.FileNotFoundException;
 import io.openmanufacturing.ame.exceptions.FileReadException;
 import io.openmanufacturing.ame.exceptions.FileWriteException;
-import io.openmanufacturing.ame.exceptions.InvalidAspectModelException;
 import io.openmanufacturing.ame.model.ValidationProcess;
 import io.openmanufacturing.ame.model.repository.LocalPackageInfo;
 import io.openmanufacturing.ame.model.repository.ValidFile;
@@ -52,6 +51,7 @@ import io.openmanufacturing.ame.repository.strategy.utils.LocalFolderResolverUti
 import io.openmanufacturing.ame.services.utils.ModelUtils;
 import io.openmanufacturing.sds.aspectmodel.resolver.services.ExtendedXsdDataType;
 import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
+import lombok.NonNull;
 
 @Service
 public class LocalFolderResolverStrategy implements ModelResolverStrategy {
@@ -106,6 +106,16 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       } catch ( final IOException e ) {
          throw new FileWriteException( "File cannot be written", e );
       }
+   }
+
+   /**
+    * Deletes a directory and all its contents.
+    *
+    * @param storagePath - path to storage.
+    */
+   @Override
+   public void deleteDirectory( @NonNull final File storagePath ) {
+      LocalFolderResolverUtils.deleteDirectory( storagePath );
    }
 
    private String getFilePath( final String urn, final String turtleData, final String storagePath ) {
@@ -167,10 +177,13 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final String namespace = namespaceDirectory.getName();
       final String aspectName = FilenameUtils.removeExtension( inputFile.getName() );
       final String urn = String.format( "urn:bamm:%s:%s#%s", namespace, version, aspectName );
-      return AspectModelUrn.from( urn ).getOrElse( () -> {
-         throw new InvalidAspectModelException(
-               String.format( "The URN constructed from the input file path is invalid: %s", urn ) );
-      } );
+      return LocalFolderResolverUtils.convertToAspectModelUrn( urn );
+   }
+
+   @Override
+   public AspectModelUrn convertAspectModelFileNameToUrn( final String aspectFileName ) {
+      final String urn = replaceLastColon( aspectFileName ).replace( ".ttl", "" );
+      return LocalFolderResolverUtils.convertToAspectModelUrn( String.format( "urn:bamm:%s", urn ) );
    }
 
    private synchronized Optional<Map<String, List<String>>> getNamespaces() {
@@ -269,6 +282,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * ex: io.openmanufacturing\1.0.0\AspectDefault.ttl - io.openmanufacturing:1.0.0:AspectDefault.ttl
     *
     * @param path - folder location that will be analyzed.
+    * @return transformed path.
     */
    public static String transformToValidModelDirectory( @Nonnull final String path ) {
       String result = replaceLastFileSeparator( path );
@@ -301,6 +315,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * io\openmanufacturing\1.0.0\AspectDefaultTeast.ttl - io\openmanufacturing\1.0.0:AspectDefault.ttl
     *
     * @param path - folder location that will be analyzed.
+    * @return folder location with replaced file separator with ':'.
     */
    private static String replaceLastFileSeparator( @Nonnull final String path ) {
       final int lastFileSeparatorIndex = path.lastIndexOf( File.separator );
@@ -314,10 +329,28 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    /**
+    * This method will replace the last ':' with '#'. This is needed because ':' is not allowed in the namespace.
+    * io.openmanufacturing:1.0.0:AspectDefaultTeast.ttl - io.openmanufacturing.1.0.0#AspectDefault.ttl
+    *
+    * @param aspectFileName - filename of the Aspect Model.
+    * @return filename of the Aspect Model with replaced ':' with '#'.
+    */
+   private static String replaceLastColon( @Nonnull final String aspectFileName ) {
+      final int lastStringIndex = aspectFileName.lastIndexOf( ":" );
+
+      if ( lastStringIndex != -1 ) {
+         return aspectFileName.substring( 0, lastStringIndex ) + "#" + aspectFileName.substring( lastStringIndex + 1 );
+      }
+
+      return aspectFileName;
+   }
+
+   /**
     * This method will extract namespace and version from the modelIdentifier.
     * ex: io.openmanufacturing:1.0.0:AspectDefault.ttl - io.openmanufacturing:1.0.0
     *
     * @param modelIdentifier - folder location that will be analyzed.
+    * @return namespace and version.
     */
    private String extractNamespaceAndVersion( @Nonnull final String modelIdentifier ) {
       if ( modelIdentifier.lastIndexOf( LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR ) == -1 ) {
