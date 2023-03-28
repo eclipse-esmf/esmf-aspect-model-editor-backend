@@ -21,40 +21,23 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.jena.rdf.model.Model;
-<<<<<<<< Updated upstream:src/test/java/org/eclipse/esmf/ame/resolver/inmemory/InMemoryOmpStrategyTest.java
-import org.eclipse.esmf.ame.model.ValidationProcess;
-========
-<<<<<<<< Updated upstream:src/test/java/io/openmanufacturing/ame/resolver/inmemory/InMemoryOmpStrategyTest.java
-========
 import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
->>>>>>>> Stashed changes:src/test/java/io/openmanufacturing/ame/resolver/inmemory/InMemoryStrategyTest.java
->>>>>>>> Stashed changes:src/test/java/org/eclipse/esmf/ame/resolver/inmemory/InMemoryStrategyTest.java
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-<<<<<<<< Updated upstream:src/test/java/org/eclipse/esmf/ame/resolver/inmemory/InMemoryOmpStrategyTest.java
-========
-<<<<<<<< Updated upstream:src/test/java/io/openmanufacturing/ame/resolver/inmemory/InMemoryOmpStrategyTest.java
->>>>>>>> Stashed changes:src/test/java/org/eclipse/esmf/ame/resolver/inmemory/InMemoryStrategyTest.java
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
-========
->>>>>>>> Stashed changes:src/test/java/io/openmanufacturing/ame/resolver/inmemory/InMemoryStrategyTest.java
 import io.vavr.control.Try;
 
 @ExtendWith( SpringExtension.class )
 class InMemoryStrategyTest {
    private static final Path resourcesPath = Path.of( "src", "test", "resources" );
-
    private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example",
          "1.0.0" );
-
    private static final String aspectModelFile = "AspectModel.ttl";
    private static final String aspectModelFileWithRef = "AspectModelWithExternalRef.ttl";
-
    private ValidationProcess validationProcess;
 
    @BeforeEach
