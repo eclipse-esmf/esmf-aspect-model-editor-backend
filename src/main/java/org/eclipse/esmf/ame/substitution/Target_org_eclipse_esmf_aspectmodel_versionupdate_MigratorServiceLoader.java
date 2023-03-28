@@ -12,12 +12,9 @@
  */
 
 package org.eclipse.esmf.ame.substitution;
-<<<<<<<< Updated upstream:src/main/java/org/eclipse/esmf/ame/substitution/Target_io_openmanufacturing_sds_aspectmodel_versionupdate_MigratorServiceLoader.java
-========
 
 import org.eclipse.esmf.aspectmodel.versionupdate.MigratorService;
 import org.eclipse.esmf.aspectmodel.versionupdate.MigratorServiceLoader;
->>>>>>>> Stashed changes:src/main/java/org/eclipse/esmf/ame/substitution/Target_org_eclipse_esmf_aspectmodel_versionupdate_MigratorServiceLoader.java
 
 import com.oracle.svm.core.annotate.Alias;
 import com.oracle.svm.core.annotate.Substitute;
