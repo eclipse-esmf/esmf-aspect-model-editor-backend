@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -14,33 +14,34 @@
 package org.eclipse.esmf.ame.config;
 
 import org.eclipse.esmf.ame.repository.ModelResolverRepository;
-import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
-import org.eclipse.esmf.ame.services.ModelService;
 import org.mockito.Mockito;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
+import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
+import org.eclipse.esmf.ame.services.ModelService;
+
 @Profile( "test" )
 @Configuration
 public class ModelServiceConfig {
 
-   @Bean
-   @Primary
-   public ModelService modelService() {
-      return Mockito.mock( ModelService.class );
-   }
+    @Bean
+    @Primary
+    public ModelService modelService() {
+        return Mockito.mock( ModelService.class );
+    }
 
-   @Bean
-   @Primary
-   public ModelResolverRepository modelResolverRepository() {
-      return Mockito.mock( ModelResolverRepository.class );
-   }
+    @Bean
+    @Primary
+    public ModelResolverRepository modelResolverRepository() {
+        return Mockito.mock( ModelResolverRepository.class );
+    }
 
-   @Bean
-   @Primary
-   public ModelResolverStrategy modelResolverStrategy() {
-      return Mockito.mock( ModelResolverStrategy.class );
-   }
+    @Bean
+    @Primary
+    public ModelResolverStrategy modelResolverStrategy() {
+        return Mockito.mock( ModelResolverStrategy.class );
+    }
 }

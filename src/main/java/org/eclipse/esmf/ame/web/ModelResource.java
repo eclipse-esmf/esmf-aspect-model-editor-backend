@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -22,8 +22,6 @@ import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.model.migration.Namespaces;
 import org.eclipse.esmf.ame.model.validation.ViolationReport;
-import org.eclipse.esmf.ame.services.ModelService;
-import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.ame.web.utils.MediaTypeExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -36,6 +34,9 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import org.eclipse.esmf.ame.services.ModelService;
+import org.eclipse.esmf.ame.services.utils.ModelUtils;
 
 /**
  * Controller class where all the requests are mapped RequestMapping for the class is "aspect" generates a response

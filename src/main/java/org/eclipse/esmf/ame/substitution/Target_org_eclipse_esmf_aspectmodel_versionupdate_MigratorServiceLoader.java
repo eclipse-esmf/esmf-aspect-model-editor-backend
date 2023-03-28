@@ -12,13 +12,16 @@
  */
 
 package org.eclipse.esmf.ame.substitution;
+<<<<<<<< Updated upstream:src/main/java/org/eclipse/esmf/ame/substitution/Target_io_openmanufacturing_sds_aspectmodel_versionupdate_MigratorServiceLoader.java
+========
+
+import org.eclipse.esmf.aspectmodel.versionupdate.MigratorService;
+import org.eclipse.esmf.aspectmodel.versionupdate.MigratorServiceLoader;
+>>>>>>>> Stashed changes:src/main/java/org/eclipse/esmf/ame/substitution/Target_org_eclipse_esmf_aspectmodel_versionupdate_MigratorServiceLoader.java
 
 import com.oracle.svm.core.annotate.Alias;
 import com.oracle.svm.core.annotate.Substitute;
 import com.oracle.svm.core.annotate.TargetClass;
-
-import io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorService;
-import io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorServiceLoader;
 
 /**
  * This is a <a href="https://build-native-java-apps.cc/developer-guide/substitution/">GraalVM substitution class</a>
@@ -33,11 +36,11 @@ import io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorServiceLoader;
       "squid:S00101" // Class name uses GraalVM substitution class naming schema, see
       // https://github.com/oracle/graal/tree/master/substratevm/src/com.oracle.svm.core/src/com/oracle/svm/core/jdk
 } )
-public final class Target_io_openmanufacturing_sds_aspectmodel_versionupdate_MigratorServiceLoader {
+public final class Target_org_eclipse_esmf_aspectmodel_versionupdate_MigratorServiceLoader {
    @Alias
    private MigratorService migratorService;
 
-   private Target_io_openmanufacturing_sds_aspectmodel_versionupdate_MigratorServiceLoader() {
+   private Target_org_eclipse_esmf_aspectmodel_versionupdate_MigratorServiceLoader() {
    }
 
    @Substitute

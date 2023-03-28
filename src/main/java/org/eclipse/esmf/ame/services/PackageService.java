@@ -36,19 +36,17 @@ import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import org.eclipse.esmf.ame.repository.ModelResolverRepository;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
 import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
-import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.ame.services.utils.UnzipUtils;
 import org.eclipse.esmf.ame.services.utils.ZipUtils;
+import org.eclipse.esmf.aspectmodel.resolver.services.DataType;
+import org.eclipse.esmf.aspectmodel.shacl.violation.ProcessingViolation;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import io.openmanufacturing.sds.aspectmodel.resolver.services.DataType;
-import io.openmanufacturing.sds.aspectmodel.shacl.violation.ProcessingViolation;
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
-import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
 
 @Service
 public class PackageService {

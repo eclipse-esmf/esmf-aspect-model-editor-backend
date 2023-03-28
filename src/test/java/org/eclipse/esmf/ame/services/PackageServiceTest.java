@@ -31,6 +31,7 @@ import org.eclipse.esmf.ame.model.packaging.ProcessPackage;
 import org.eclipse.esmf.ame.model.resolver.FolderStructure;
 import org.eclipse.esmf.ame.repository.ModelResolverRepository;
 import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
@@ -40,8 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 @ExtendWith( SpringExtension.class )
 @SpringBootTest
@@ -55,13 +54,13 @@ class PackageServiceTest {
 
    private static final Path resourcesPath = Path.of( "src", "test", "resources" );
    private static final Path workspaceToBackupPath = Path.of( resourcesPath.toString(), "workspace-to-backup" );
-   private static final String nameSpaceOne = "io.openmanufacturing.test:1.0.0:TestFileOne.ttl";
-   private static final String nameSpaceTwo = "io.openmanufacturing.test:1.0.0:TestFileTwo.ttl";
-   private static final String nameSpaceThree = "io.openmanufacturing.test:1.0.0:TestFileThree.ttl";
+   private static final String nameSpaceOne = "org.eclipse.esmf.test:1.0.0:TestFileOne.ttl";
+   private static final String nameSpaceTwo = "org.eclipse.esmf.test:1.0.0:TestFileTwo.ttl";
+   private static final String nameSpaceThree = "org.eclipse.esmf.test:1.0.0:TestFileThree.ttl";
 
    @Test
    void testValidateImportAspectModelPackage() throws IOException {
-      final Path storagePath = Paths.get( resourcesPath.toString(), "test-packages", "io.openmanufacturing.1.0.0" );
+      final Path storagePath = Paths.get( resourcesPath.toString(), "test-packages" );
       final Path zipFilePath = Paths.get( resourcesPath.toString(), "TestArchive.zip" );
 
       final MockMultipartFile mockedZipFile = new MockMultipartFile( "TestArchive.zip",
@@ -106,19 +105,19 @@ class PackageServiceTest {
       try ( final MockedStatic<LocalFolderResolverUtils> utilities = Mockito.mockStatic(
             LocalFolderResolverUtils.class ) ) {
 
-         final FolderStructure one = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
+         final FolderStructure one = new FolderStructure( "org.eclipse.esmf.test", "1.0.0",
                "TestFileOne.ttl" );
-         final FolderStructure two = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
+         final FolderStructure two = new FolderStructure( "org.eclipse.esmf.test", "1.0.0",
                "TestFileTwo.ttl" );
-         final FolderStructure three = new FolderStructure( "io.openmanufacturing.test", "1.0.0",
+         final FolderStructure three = new FolderStructure( "org.eclipse.esmf.test", "1.0.0",
                "TestFileThree.ttl" );
 
-         final AspectModelUrn one_urn = AspectModelUrn.from( "urn:bamm:io.openmanufacturing.test:1.0.0#TestFileOne" )
+         final AspectModelUrn one_urn = AspectModelUrn.from( "urn:samm:org.eclipse.esmf.test:1.0.0#TestFileOne" )
                                                       .get();
-         final AspectModelUrn two_urn = AspectModelUrn.from( "urn:bamm:io.openmanufacturing.test:1.0.0#TestFileTwo" )
+         final AspectModelUrn two_urn = AspectModelUrn.from( "urn:samm:org.eclipse.esmf.test:1.0.0#TestFileTwo" )
                                                       .get();
          final AspectModelUrn three_urn = AspectModelUrn.from(
-                                                              "urn:bamm:io.openmanufacturing.test:1.0.0#TestFileThree" )
+                                                              "urn:samm:org.eclipse.esmf.test:1.0.0#TestFileThree" )
                                                         .get();
 
          utilities.when( () -> LocalFolderResolverUtils.deleteDirectory( any( File.class ) ) )

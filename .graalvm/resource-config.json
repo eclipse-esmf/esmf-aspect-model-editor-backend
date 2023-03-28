@@ -1,43 +1,43 @@
 {
   "resources": [
     {
-      "pattern": "\\Qbamm/characteristic/2.0.0/characteristic-definitions.ttl\\E"
+      "pattern": "\\Qsamm/characteristic/2.0.0/characteristic-definitions.ttl\\E"
     },
     {
-      "pattern": "\\Qbamm/characteristic/2.0.0/characteristic-instances.ttl\\E"
+      "pattern": "\\Qsamm/characteristic/2.0.0/characteristic-instances.ttl\\E"
     },
     {
-      "pattern": "\\Qbamm/characteristic/2.0.0/characteristic-shapes.ttl\\E"
+      "pattern": "\\Qsamm/characteristic/2.0.0/characteristic-shapes.ttl\\E"
     },
     {
-      "pattern": "\\Qbamm/characteristic/2.0.0/characteristic-validations.js\\E"
+      "pattern": "\\Qsamm/characteristic/2.0.0/characteristic-validations.js\\E"
     },
     {
-      "pattern": "\\Qbamm/entity/2.0.0/FileResource.ttl\\E"
+      "pattern": "\\Qsamm/entity/2.0.0/FileResource.ttl\\E"
     },
     {
-      "pattern": "\\Qbamm/entity/2.0.0/Point3d.ttl\\E"
+      "pattern": "\\Qsamm/entity/2.0.0/Point3d.ttl\\E"
     },
     {
-      "pattern": "\\Qbamm/entity/2.0.0/TimeSeriesEntity.ttl\\E"
+      "pattern": "\\Qsamm/entity/2.0.0/TimeSeriesEntity.ttl\\E"
     },
     {
-      "pattern": "\\Qbamm/meta-model/2.0.0/aspect-meta-model-definitions.ttl\\E"
+      "pattern": "\\Qsamm/meta-model/2.0.0/aspect-meta-model-definitions.ttl\\E"
     },
     {
-      "pattern": "\\Qbamm/meta-model/2.0.0/aspect-meta-model-shapes.ttl\\E"
+      "pattern": "\\Qsamm/meta-model/2.0.0/aspect-meta-model-shapes.ttl\\E"
     },
     {
-      "pattern": "\\Qbamm/meta-model/2.0.0/prefix-declarations.ttl\\E"
+      "pattern": "\\Qsamm/meta-model/2.0.0/prefix-declarations.ttl\\E"
     },
     {
-      "pattern": "\\Qbamm/meta-model/2.0.0/type-conversions.ttl\\E"
+      "pattern": "\\Qsamm/meta-model/2.0.0/type-conversions.ttl\\E"
     },
     {
-      "pattern": "\\Qbamm/unit/2.0.0/units.ttl\\E"
+      "pattern": "\\Qsamm/unit/2.0.0/units.ttl\\E"
     },
     {
-      "pattern": "\\Qbamm/scripts/language-registry.js\\E"
+      "pattern": "\\Qsamm/scripts/language-registry.js\\E"
     },
     {
       "pattern": "\\Qrdf/\\E.*.(ttl)$"

@@ -16,6 +16,7 @@ package org.eclipse.esmf.ame.exceptions;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
 import org.eclipse.esmf.ame.exceptions.model.ErrorResponse;
+import org.eclipse.esmf.metamodel.loader.AspectLoadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -28,7 +29,6 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import io.openmanufacturing.sds.metamodel.loader.AspectLoadingException;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**

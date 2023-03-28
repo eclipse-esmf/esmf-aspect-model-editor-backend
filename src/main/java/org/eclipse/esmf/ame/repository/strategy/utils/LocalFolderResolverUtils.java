@@ -25,10 +25,9 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.model.resolver.FolderStructure;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 
 public class LocalFolderResolverUtils {
 
@@ -55,7 +54,7 @@ public class LocalFolderResolverUtils {
 
    /**
     * Split the given path in path, version and filename based on ':'.
-    * ex: io.openmanufacturing:1.0.0
+    * ex: org.eclipse.esmf.samm:1.0.0
     *
     * @param path - path of the current ttl.
     */
@@ -65,7 +64,7 @@ public class LocalFolderResolverUtils {
 
    /**
     * Split the given path in path, version and filename based on ':'.
-    * ex: io.openmanufacturing:1.0.0:AspectDefault.ttl
+    * ex: org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl
     *
     * @param path - path of the current ttl.
     */

@@ -18,14 +18,13 @@ import java.util.Optional;
 
 import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.services.GenerateService;
+import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.openmanufacturing.sds.aspectmodel.generator.openapi.PagingOption;
 
 /**
  * Controller class that supports the generation of the aspect model into other formats.

@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
+import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
@@ -32,8 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import io.openmanufacturing.sds.aspectmodel.generator.openapi.PagingOption;
 
 @ExtendWith( SpringExtension.class )
 @SpringBootTest
@@ -44,7 +43,7 @@ class GenerateServiceTest {
    private GenerateService generateService;
 
    private static final Path resourcesPath = Path.of( "src", "test", "resources" );
-   private static final Path openManufacturingTestPath = Path.of( resourcesPath.toString(), "io.openmanufacturing",
+   private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example",
          "1.0.0" );
 
    private static final String aspectModelFile = "AspectModel.ttl";
@@ -53,7 +52,7 @@ class GenerateServiceTest {
    void testAspectModelJsonSample() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+         final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
@@ -71,7 +70,7 @@ class GenerateServiceTest {
    void testAspectModelJsonSchema() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+         final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
@@ -81,7 +80,8 @@ class GenerateServiceTest {
 
          final String payload = generateService.jsonSchema( Files.readString( storagePath, StandardCharsets.UTF_8 ),
                validationProcess, "en-EN" );
-         assertTrue( payload.contains( "#/components/schemas/urn_bamm_io.openmanufacturing_1.0.0_Characteristic" ) );
+         assertTrue(
+               payload.contains( "#/components/schemas/urn_samm_org.eclipse.esmf.example_1.0.0_Characteristic" ) );
       }
    }
 
@@ -89,7 +89,7 @@ class GenerateServiceTest {
    void testAspectModelJsonOpenApiSpec() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+         final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
@@ -109,7 +109,7 @@ class GenerateServiceTest {
    void testAspectModelYamlOpenApiSpec() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+         final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );

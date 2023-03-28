@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -13,11 +13,10 @@
 
 package org.eclipse.esmf.ame.model.packaging;
 
-import org.eclipse.esmf.ame.model.validation.ViolationReport;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

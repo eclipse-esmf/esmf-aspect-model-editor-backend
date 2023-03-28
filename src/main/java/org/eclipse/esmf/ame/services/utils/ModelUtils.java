@@ -42,20 +42,20 @@ import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import org.eclipse.esmf.ame.resolver.inmemory.InMemoryStrategy;
 import org.eclipse.esmf.ame.validation.ViolationFormatter;
+import org.eclipse.esmf.aspectmodel.resolver.AspectModelResolver;
+import org.eclipse.esmf.aspectmodel.resolver.services.SammAspectMetaModelResourceResolver;
+import org.eclipse.esmf.aspectmodel.resolver.services.TurtleLoader;
+import org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel;
+import org.eclipse.esmf.aspectmodel.serializer.PrettyPrinter;
+import org.eclipse.esmf.aspectmodel.shacl.violation.InvalidSyntaxViolation;
+import org.eclipse.esmf.aspectmodel.shacl.violation.ProcessingViolation;
+import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
+import org.eclipse.esmf.aspectmodel.versionupdate.MigratorService;
+import org.eclipse.esmf.metamodel.Aspect;
+import org.eclipse.esmf.metamodel.loader.AspectModelLoader;
 
-import io.openmanufacturing.sds.aspectmodel.resolver.AspectModelResolver;
-import io.openmanufacturing.sds.aspectmodel.resolver.services.SdsAspectMetaModelResourceResolver;
-import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
-import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
-import io.openmanufacturing.sds.aspectmodel.serializer.PrettyPrinter;
-import io.openmanufacturing.sds.aspectmodel.shacl.violation.InvalidSyntaxViolation;
-import io.openmanufacturing.sds.aspectmodel.shacl.violation.ProcessingViolation;
-import io.openmanufacturing.sds.aspectmodel.shacl.violation.Violation;
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
-import io.openmanufacturing.sds.aspectmodel.validation.services.AspectModelValidator;
-import io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorService;
-import io.openmanufacturing.sds.metamodel.Aspect;
-import io.openmanufacturing.sds.metamodel.loader.AspectModelLoader;
 import io.vavr.control.Try;
 
 public class ModelUtils {
@@ -119,7 +119,7 @@ public class ModelUtils {
    public static String migrateModel( final String aspectModel, final ValidationProcess validationProcess )
          throws InvalidAspectModelException {
       final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel, validationProcess );
-      
+
       final Try<VersionedModel> migratedFile = new MigratorService().updateMetaModelVersion(
             loadModelFromStoragePath( inMemoryStrategy ) );
 
@@ -169,10 +169,10 @@ public class ModelUtils {
    }
 
    private static Try<VersionedModel> resolveModel( final Model model ) {
-      final SdsAspectMetaModelResourceResolver metaModelResourceResolver = new SdsAspectMetaModelResourceResolver();
+      final SammAspectMetaModelResourceResolver resourceResolver = new SammAspectMetaModelResourceResolver();
 
-      return metaModelResourceResolver.getBammVersion( model ).flatMap(
-            metaModelVersion -> metaModelResourceResolver.mergeMetaModelIntoRawModel( model, metaModelVersion ) );
+      return resourceResolver.getMetaModelVersion( model ).flatMap(
+            metaModelVersion -> resourceResolver.mergeMetaModelIntoRawModel( model, metaModelVersion ) );
    }
 
    /**

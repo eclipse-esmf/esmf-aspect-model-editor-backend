@@ -15,10 +15,11 @@ package org.eclipse.esmf.ame.model.validation;
 
 import java.util.List;
 
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

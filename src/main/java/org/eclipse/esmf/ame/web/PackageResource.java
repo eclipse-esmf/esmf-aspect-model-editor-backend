@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -21,7 +21,6 @@ import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.model.packaging.ProcessPackage;
-import org.eclipse.esmf.ame.services.PackageService;
 import org.eclipse.esmf.ame.web.utils.MediaTypeExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,6 +32,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import org.eclipse.esmf.ame.services.PackageService;
 
 /**
  * Controller class that supports the importing and exporting of the Aspect Model packages.

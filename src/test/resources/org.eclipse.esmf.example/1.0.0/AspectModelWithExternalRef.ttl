@@ -16,14 +16,14 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix : <urn:samm:io.backup-workspace-two:1.0.0#> .
+@prefix : <urn:samm:org.eclipse.esmf.example:1.0.0#> .
+@prefix ext-one: <urn:samm:org.eclipse.esmf.test.one:1.0.0#> .
+@prefix ext-two: <urn:samm:org.eclipse.esmf.test.two:1.0.0#> .
+@prefix ext-three: <urn:samm:org.eclipse.esmf.test.three:1.0.0#> .
 
-:ToBackupOne a samm:Aspect ;
-    samm:properties (:property1) ;
+:AspectModelWithExternalRef a samm:Aspect ;
+    samm:properties (:property ext-one:property2 ext-two:property3) ;
     samm:operations () .
 
-:property1 a samm:Property;
-    samm:characteristic :Characteristic1 .
-
-:Characteristic1 a samm:Characteristic ;
-    samm:dataType xsd:string .
+:property a samm:Property;
+    samm:characteristic ext-three:Characteristic .

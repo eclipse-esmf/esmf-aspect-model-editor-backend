@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -28,10 +28,11 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.esmf.ame.exceptions.CreateFileException;
-import org.eclipse.esmf.ame.exceptions.FileWriteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.eclipse.esmf.ame.exceptions.CreateFileException;
+import org.eclipse.esmf.ame.exceptions.FileWriteException;
 
 public class ZipUtils {
    private static final Logger LOG = LoggerFactory.getLogger( ZipUtils.class );
