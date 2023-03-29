@@ -64,7 +64,7 @@ public class UnzipUtils {
 
                   if ( createdFile.getName().endsWith( ".ttl" ) && containsSpecialChar( createdFile.getName() ) ) {
                      throw new CreateFileException(
-                           "The file name contains special characters. Please ensure that the file name does not contain any special characters and try again." );
+                           "The file name contains special characters. Please ensure that the file name does not contain any special characters and try again. (Will be supported soon)";
                   }
 
                   // To create directory for Windows
