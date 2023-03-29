@@ -91,6 +91,19 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    }
 
    /**
+    * Method for handling exception to type {@link IllegalArgumentException}
+    *
+    * @param request the Http request
+    * @param e the exception which occurred
+    * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
+    */
+   @ExceptionHandler( IllegalArgumentException.class )
+   public ResponseEntity<Object> handleInvalidStateTransitionException( final WebRequest request,
+         final IllegalArgumentException e ) {
+      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
+   }
+
+   /**
     * Method for handling exception to type {@link AspectModelPrintDocumentationException}
     *
     * @param request the Http request

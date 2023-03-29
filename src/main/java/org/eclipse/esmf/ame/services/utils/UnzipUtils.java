@@ -18,18 +18,19 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.FileWriteException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UnzipUtils {
    private static final Logger LOG = LoggerFactory.getLogger( UnzipUtils.class );
@@ -60,6 +61,12 @@ public class UnzipUtils {
                if ( zipEntry.isDirectory() ) {
                   UnzipUtils.createNewDirectory( createdFile );
                } else {
+
+                  if ( createdFile.getName().endsWith( ".ttl" ) && containsSpecialChar( createdFile.getName() ) ) {
+                     throw new CreateFileException(
+                           "The file name contains special characters. Please ensure that the file name does not contain any special characters and try again." );
+                  }
+
                   // To create directory for Windows
                   UnzipUtils.createNewDirectory( createdFile.getParentFile() );
                   // create aspect model file content and close output stream
@@ -98,6 +105,19 @@ public class UnzipUtils {
       }
 
       return destFile;
+   }
+
+   /**
+    * This Method checks if the file name contains special characters.
+    *
+    * @param str - file name.
+    * @return true if the file name contains special characters.
+    */
+   private static boolean containsSpecialChar( final String str ) {
+      final String regex = "[^a-zA-Z0-9.]";
+      final Pattern pattern = Pattern.compile( regex );
+      final Matcher matcher = pattern.matcher( str );
+      return matcher.find();
    }
 
    /**

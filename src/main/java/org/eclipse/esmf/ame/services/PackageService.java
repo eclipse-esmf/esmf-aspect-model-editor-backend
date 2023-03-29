@@ -123,6 +123,7 @@ public class PackageService {
                LocalFolderResolverStrategy.class );
          strategy.deleteDirectory( validationProcess.getPath().toFile() );
 
+         // TODO check if fileName have special character ..
          unzipPackageFile( zipFile, validationProcess.getPath() );
 
          final LocalPackageInfo localPackageInfo = strategy.getLocalPackageInformation(
@@ -136,7 +137,8 @@ public class PackageService {
       } catch ( final Exception e ) {
          LOG.error( "Cannot unzip package file." );
          throw new IllegalArgumentException(
-               String.format( "Package file: %s was not unzipped successfully.", zipFile.getOriginalFilename() ), e );
+               String.format( "Package file %s was not unzipped successfully. %s.", zipFile.getOriginalFilename(),
+                     e.getMessage() ), e );
       }
    }
 
