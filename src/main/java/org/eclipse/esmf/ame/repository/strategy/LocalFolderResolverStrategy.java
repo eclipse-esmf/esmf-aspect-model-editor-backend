@@ -39,18 +39,17 @@ import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.FileWriteException;
-import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.model.repository.LocalPackageInfo;
 import org.eclipse.esmf.ame.model.repository.ValidFile;
 import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
+import org.eclipse.esmf.aspectmodel.resolver.services.ExtendedXsdDataType;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import io.openmanufacturing.sds.aspectmodel.resolver.services.ExtendedXsdDataType;
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import lombok.NonNull;
 
 @Service
@@ -176,14 +175,14 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final File namespaceDirectory = versionDirectory.getParentFile();
       final String namespace = namespaceDirectory.getName();
       final String aspectName = FilenameUtils.removeExtension( inputFile.getName() );
-      final String urn = String.format( "urn:bamm:%s:%s#%s", namespace, version, aspectName );
+      final String urn = String.format( "urn:samm:%s:%s#%s", namespace, version, aspectName );
       return LocalFolderResolverUtils.convertToAspectModelUrn( urn );
    }
 
    @Override
    public AspectModelUrn convertAspectModelFileNameToUrn( final String aspectFileName ) {
       final String urn = replaceLastColon( aspectFileName ).replace( ".ttl", "" );
-      return LocalFolderResolverUtils.convertToAspectModelUrn( String.format( "urn:bamm:%s", urn ) );
+      return LocalFolderResolverUtils.convertToAspectModelUrn( String.format( "urn:samm:%s", urn ) );
    }
 
    private synchronized Optional<Map<String, List<String>>> getNamespaces() {
@@ -279,7 +278,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    /**
     * This method will transform the path in namespace:version:turtleFileName.
-    * ex: io.openmanufacturing\1.0.0\AspectDefault.ttl - io.openmanufacturing:1.0.0:AspectDefault.ttl
+    * ex: org.eclipse.esmf\1.0.0\AspectDefault.ttl - org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl
     *
     * @param path - folder location that will be analyzed.
     * @return transformed path.
@@ -296,7 +295,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    /**
     * Recreate list of values only with turtle file names if any.
-    * ex: list value io.openmanufacturing:1.0.0:AspectDefault.ttl - AspectDefault.ttl
+    * ex: list value org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl - AspectDefault.ttl
     */
    private void retainOnlyTurtleFileName( @Nonnull final Map<String, List<String>> pathTurtleFilesMap ) {
       for ( final Map.Entry<String, List<String>> entry : pathTurtleFilesMap.entrySet() ) {
@@ -312,7 +311,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    /**
     * This method will separate turtle file name and the rest of the path with ':'.
-    * io\openmanufacturing\1.0.0\AspectDefaultTeast.ttl - io\openmanufacturing\1.0.0:AspectDefault.ttl
+    * org\eclipse\esmf\1.0.0\AspectDefaultTeast.ttl - org\eclipse\esmf\1.0.0:AspectDefault.ttl
     *
     * @param path - folder location that will be analyzed.
     * @return folder location with replaced file separator with ':'.
@@ -330,7 +329,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    /**
     * This method will replace the last ':' with '#'. This is needed because ':' is not allowed in the namespace.
-    * io.openmanufacturing:1.0.0:AspectDefaultTeast.ttl - io.openmanufacturing.1.0.0#AspectDefault.ttl
+    * org.eclipse.esmf.samm:1.0.0:AspectDefaultTeast.ttl - org.eclipse.esmf.1.0.0#AspectDefault.ttl
     *
     * @param aspectFileName - filename of the Aspect Model.
     * @return filename of the Aspect Model with replaced ':' with '#'.
@@ -347,7 +346,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    /**
     * This method will extract namespace and version from the modelIdentifier.
-    * ex: io.openmanufacturing:1.0.0:AspectDefault.ttl - io.openmanufacturing:1.0.0
+    * ex: org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl - org.eclipse.esmf.samm:1.0.0
     *
     * @param modelIdentifier - folder location that will be analyzed.
     * @return namespace and version.
@@ -408,7 +407,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    /**
     * Extract file path from turtle file - namespace.
-    * ex: @prefix : urn:bamm:io.openmanufacturing:1.0.0#.
+    * ex: @prefix : urn:samm:org.eclipse.esmf.samm:1.0.0#.
     *
     * @param turtleData - file used to extract filePath.
     * @param storagePath - path to storage files.
@@ -423,7 +422,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    /**
     * Get full file path based on the local file path + namespace.
-    * ex: C:\Users\{myUser}\ame\models + \org\openmanufacturing
+    * ex: C:\Users\{myUser}\ame\models + \org\eclipse\esmf
     *
     * @param namespace - namespace of the current ttl.
     * @param storagePath - path of the workspace storage.

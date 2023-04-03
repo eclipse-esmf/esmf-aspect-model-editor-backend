@@ -27,6 +27,7 @@ import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,8 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
-
 @ExtendWith( SpringExtension.class )
 @SpringBootTest
 class LocalFolderResolverStrategyTest {
@@ -45,20 +44,20 @@ class LocalFolderResolverStrategyTest {
    private ApplicationSettings applicationSettingsMock;
    private LocalFolderResolverStrategy localFolderResolverStrategy;
 
-   private static final String NAMESPACE = "io.openmanufacturing";
+   private static final String NAMESPACE = "org.eclipse.esmf.example";
    private static final String MODEL = "AspectModel.ttl";
    private static final String MODEL_WITH_EXT_REF = "AspectModelWithExternalRef";
    private static final String MODEL_NOT_EXIST = "AspectModelNotExist.ttl";
    private static final String VERSION = "1.0.0";
    private static final String FILE_PATH_AS_STRING = NAMESPACE + ":" + VERSION + ":" + MODEL;
    private static final String ASPECT_MODEL_URN_WITH_EXT_REF_AS_STRING =
-         "urn:bamm:" + NAMESPACE + ":" + VERSION + "#" + MODEL_WITH_EXT_REF;
+         "urn:samm:" + NAMESPACE + ":" + VERSION + "#" + MODEL_WITH_EXT_REF;
    private static final String FILE_PATH_NOT_EXIST_AS_STRING = NAMESPACE + ":" + VERSION + ":" + MODEL_NOT_EXIST;
    private static final Path RESOURCE_PATH = Path.of( "src", "test", "resources" );
    private static final String TTL_FILE_CONTENT = "new result ttl file";
    private static final String TTL_FILE_EXTENSION = ".ttl";
    private static final String TTL_FILE_WITH_EXT_REF =
-         "io.openmanufacturing" + File.separator + "1.0.0" + File.separator + "AspectModelWithExternalRef"
+         "org.eclipse.esmf.example" + File.separator + "1.0.0" + File.separator + "AspectModelWithExternalRef"
                + TTL_FILE_EXTENSION;
 
    @BeforeEach
@@ -89,7 +88,7 @@ class LocalFolderResolverStrategyTest {
       final String result = localFolderResolverStrategy.getModelAsString( FILE_PATH_AS_STRING,
             RESOURCE_PATH.toString() );
 
-      assertTrue( result.contains( "<urn:bamm:io.openmanufacturing:meta-model:2.0.0#>" ) );
+      assertTrue( result.contains( "<urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#>" ) );
    }
 
    @Test
@@ -124,9 +123,9 @@ class LocalFolderResolverStrategyTest {
 
    @Test
    void testConvertFileToUrn() {
-      final Path openManufacturingTestPath = RESOURCE_PATH.resolve( Path.of( "io.openmanufacturing", "1.0.0" ) );
-      final String expectedResult = "urn:bamm:io.openmanufacturing:1.0.0#AspectModel";
-      final File testFile = new File( openManufacturingTestPath + File.separator + "AspectModel.ttl" );
+      final Path eclipseTestPath = RESOURCE_PATH.resolve( Path.of( "org.eclipse.esmf.example", "1.0.0" ) );
+      final String expectedResult = "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModel";
+      final File testFile = new File( eclipseTestPath + File.separator + "AspectModel.ttl" );
 
       final AspectModelUrn aspectModelUrn = localFolderResolverStrategy.convertFileToUrn( testFile );
 

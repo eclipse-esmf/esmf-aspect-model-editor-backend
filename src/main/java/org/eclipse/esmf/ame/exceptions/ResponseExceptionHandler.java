@@ -16,6 +16,7 @@ package org.eclipse.esmf.ame.exceptions;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
 import org.eclipse.esmf.ame.exceptions.model.ErrorResponse;
+import org.eclipse.esmf.metamodel.loader.AspectLoadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -28,7 +29,6 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import io.openmanufacturing.sds.metamodel.loader.AspectLoadingException;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
@@ -87,6 +87,19 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    @ExceptionHandler( CreateFileException.class )
    public ResponseEntity<Object> handleInvalidStateTransitionException( final WebRequest request,
          final CreateFileException e ) {
+      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
+   }
+
+   /**
+    * Method for handling exception to type {@link IllegalArgumentException}
+    *
+    * @param request the Http request
+    * @param e the exception which occurred
+    * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
+    */
+   @ExceptionHandler( IllegalArgumentException.class )
+   public ResponseEntity<Object> handleInvalidStateTransitionException( final WebRequest request,
+         final IllegalArgumentException e ) {
       return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
    }
 

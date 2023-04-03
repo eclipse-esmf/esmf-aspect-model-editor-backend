@@ -33,6 +33,7 @@ import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.model.migration.Namespaces;
 import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
@@ -52,7 +53,7 @@ class ModelServiceTest {
 
    private final String namespace = StringUtils.EMPTY;
    private static final Path resourcesPath = Path.of( "src", "test", "resources" );
-   private static final Path openManufacturingTestPath = Path.of( resourcesPath.toString(), "io.openmanufacturing",
+   private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example",
          "1.0.0" );
    private static final Path migrationWorkspacePath = Path.of( resourcesPath.toString(), "workspace-to-migrate" );
    private static final Path toMigrationWorkspaceOne = Path.of( migrationWorkspacePath.toString(),
@@ -61,13 +62,12 @@ class ModelServiceTest {
          "io.migrate-workspace-two", "1.0.0" );
 
    private static final String aspectModelFile = "AspectModel.ttl";
-   private static final String oldAspectModelFile = "OldAspectModel.ttl";
 
    @Test
    void testGetModel() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+         final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
@@ -80,7 +80,7 @@ class ModelServiceTest {
    void testGetModelThrowsIOException() {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( openManufacturingTestPath.toString(), "NoFile.ttl" );
+         final Path storagePath = Path.of( eclipseTestPath.toString(), "NoFile.ttl" );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
@@ -93,7 +93,7 @@ class ModelServiceTest {
    void testValidateNewModel() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+         final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
@@ -112,7 +112,7 @@ class ModelServiceTest {
    void testSaveModel() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path fileToReplace = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+         final Path fileToReplace = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          final String turtleData = Files.readString( fileToReplace, StandardCharsets.UTF_8 );
 
@@ -123,7 +123,7 @@ class ModelServiceTest {
                   .thenReturn( fileToReplace.toString() );
 
          final String result = modelService.saveModel( Optional.of( "" ), turtleData, Optional.empty() );
-         assertEquals( result, Path.of( "io.openmanufacturing", "1.0.0", aspectModelFile ).toString() );
+         assertEquals( result, Path.of( "org.eclipse.esmf.example", "1.0.0", aspectModelFile ).toString() );
       }
    }
 
@@ -131,7 +131,7 @@ class ModelServiceTest {
    void testDeleteModel() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path fileToReplace = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+         final Path fileToReplace = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          final String turtleData = Files.readString( fileToReplace, StandardCharsets.UTF_8 )
                                         .replace( "AspectModel", "SavedModel" );
@@ -147,7 +147,7 @@ class ModelServiceTest {
 
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+         final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
@@ -157,7 +157,7 @@ class ModelServiceTest {
 
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( openManufacturingTestPath.toString(), aspectModelFile );
+         final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
@@ -187,11 +187,12 @@ class ModelServiceTest {
       assertThrows( FileNotFoundException.class, () -> modelService.getAllNamespaces( true, validationProcess ) );
    }
 
+   @Disabled( "Should be reactivated as soon as there is something to migrate again." )
    @Test
    void testMigrateModel() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
             LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( openManufacturingTestPath.toString(), oldAspectModelFile );
+         final Path storagePath = Path.of( eclipseTestPath.toString(), "OldAspectModel.ttl" );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
@@ -253,9 +254,9 @@ class ModelServiceTest {
    }
 
    private void checkMigratedModel( final String migratedModel ) {
-      assertTrue( migratedModel.contains( "@prefix bamm: <urn:bamm:io.openmanufacturing:meta-model:2.0.0#>" ) );
-      assertTrue( migratedModel.contains( "@prefix bamm-c: <urn:bamm:io.openmanufacturing:characteristic:2.0.0#>" ) );
-      assertTrue( migratedModel.contains( "@prefix bamm-e: <urn:bamm:io.openmanufacturing:entity:2.0.0#>" ) );
-      assertTrue( migratedModel.contains( "@prefix unit: <urn:bamm:io.openmanufacturing:unit:2.0.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#>" ) );
    }
 }

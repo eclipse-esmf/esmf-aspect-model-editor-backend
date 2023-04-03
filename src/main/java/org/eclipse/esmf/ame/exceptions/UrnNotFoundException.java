@@ -15,7 +15,7 @@ package org.eclipse.esmf.ame.exceptions;
 
 import java.io.IOException;
 
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import lombok.Getter;
 
 @Getter

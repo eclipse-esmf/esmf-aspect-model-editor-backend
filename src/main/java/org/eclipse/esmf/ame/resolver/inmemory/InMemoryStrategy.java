@@ -34,15 +34,15 @@ import org.apache.jena.riot.RiotException;
 import org.apache.jena.vocabulary.RDF;
 import org.eclipse.esmf.ame.exceptions.UrnNotFoundException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.aspectmodel.resolver.AbstractResolutionStrategy;
+import org.eclipse.esmf.aspectmodel.resolver.AspectModelResolver;
+import org.eclipse.esmf.aspectmodel.resolver.services.TurtleLoader;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+import org.eclipse.esmf.aspectmodel.vocabulary.SAMM;
+import org.eclipse.esmf.aspectmodel.vocabulary.SAMMC;
+import org.eclipse.esmf.aspectmodel.vocabulary.SAMME;
+import org.eclipse.esmf.samm.KnownVersion;
 
-import io.openmanufacturing.sds.aspectmetamodel.KnownVersion;
-import io.openmanufacturing.sds.aspectmodel.resolver.AbstractResolutionStrategy;
-import io.openmanufacturing.sds.aspectmodel.resolver.AspectModelResolver;
-import io.openmanufacturing.sds.aspectmodel.resolver.services.TurtleLoader;
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
-import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMM;
-import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMMC;
-import io.openmanufacturing.sds.aspectmodel.vocabulary.BAMME;
 import io.vavr.NotImplementedError;
 import io.vavr.control.Try;
 
@@ -125,11 +125,11 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
 
    public AspectModelUrn getAspectModelUrn() {
       return AspectModelUrn.fromUrn(
-            getSdsStatements().orElseThrow( () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next()
-                              .getSubject().getURI() );
+            getEsmfStatements().orElseThrow( () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next()
+                               .getSubject().getURI() );
    }
 
-   private Optional<StmtIterator> getSdsStatements() {
+   private Optional<StmtIterator> getEsmfStatements() {
       final List<StmtIterator> stmtIterators = new ArrayList<>();
 
       KnownVersion.getVersions()
@@ -143,9 +143,9 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
    }
 
    private List<Resource> getListOfAllSAMMElements( final KnownVersion version ) {
-      final BAMM samm = new BAMM( version );
-      final BAMMC sammc = new BAMMC( version );
-      final BAMME samme = new BAMME( version, samm );
+      final SAMM samm = new SAMM( version );
+      final SAMMC sammc = new SAMMC( version );
+      final SAMME samme = new SAMME( version, samm );
 
       final List<Resource> resources = new ArrayList<>();
       resources.add( samm.Aspect() );

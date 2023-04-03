@@ -1,334 +1,334 @@
 [
   {
-    "name": "io.openmanufacturing.sds.aspectmodel.versionupdate.MigratorServiceLoader",
+    "name": "org.eclipse.esmf.aspectmodel.versionupdate.MigratorServiceLoader",
     "allDeclaredFields": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.AspectInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.AspectInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.CharacteristicInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.CharacteristicInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.CodeInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.CodeInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.CollectionInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.CollectionInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.ConstraintInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.ConstraintInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.DurationInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.DurationInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.EitherInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.EitherInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.EventInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.EventInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.AbstractEntityInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.AbstractEntityInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.EncodingConstraintInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.EncodingConstraintInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.EntityInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.EntityInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.EnumerationInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.EnumerationInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.FixedPointConstraintInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.FixedPointConstraintInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.LanguageConstraintInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.LanguageConstraintInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.LengthConstraintInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.LengthConstraintInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.ListInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.ListInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.LocaleConstraintInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.LocaleConstraintInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.MeasurementInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.MeasurementInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.OperationInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.OperationInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.PropertyInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.PropertyInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.QuantifiableInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.QuantifiableInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.RangeConstraintInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.RangeConstraintInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.RegularExpressionConstraintInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.RegularExpressionConstraintInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.SetInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.SetInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.SingleEntityInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.SingleEntityInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.SortedSetInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.SortedSetInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.StateInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.StateInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.StructuredValueInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.StructuredValueInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.TimeSeriesInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.TimeSeriesInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.loader.instantiator.TraitInstantiator",
+    "name": "org.eclipse.esmf.metamodel.loader.instantiator.TraitInstantiator",
     "methods": [
       {
         "name": "<init>",
         "parameterTypes": [
-          "io.openmanufacturing.sds.metamodel.loader.ModelElementFactory"
+          "org.eclipse.esmf.metamodel.loader.ModelElementFactory"
         ]
       }
     ]
@@ -389,7 +389,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.aspectmodel.generator.I18nLanguageBundle",
+    "name": "org.eclipse.esmf.aspectmodel.generator.I18nLanguageBundle",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -398,7 +398,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel",
+    "name": "org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -407,7 +407,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.aspectmodel.generator.AspectModelHelper",
+    "name": "org.eclipse.esmf.aspectmodel.generator.AspectModelHelper",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -416,7 +416,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.BaseImpl",
+    "name": "org.eclipse.esmf.metamodel.impl.BaseImpl",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -425,7 +425,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.BoundDefinition",
+    "name": "org.eclipse.esmf.metamodel.impl.BoundDefinition",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -434,7 +434,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultAspect",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultAspect",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -443,7 +443,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultCharacteristic",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultCharacteristic",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -452,7 +452,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultCode",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultCode",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -461,7 +461,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultCollection",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultCollection",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -470,7 +470,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultConstraint",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -479,7 +479,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultDuration",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultDuration",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -488,7 +488,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultEither",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultEither",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -497,7 +497,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultEncodingConstraint",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultEncodingConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -506,7 +506,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultEntity",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultEntity",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -515,7 +515,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultEnumeration",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultEnumeration",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -524,7 +524,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultFixedPointConstraint",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultFixedPointConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -533,7 +533,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultLanguageConstraint",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultLanguageConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -542,7 +542,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultLengthConstraint",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultLengthConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -551,7 +551,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultList",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultList",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -560,7 +560,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultLocaleConstraint",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultLocaleConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -569,7 +569,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultMeasurement",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultMeasurement",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -578,7 +578,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultOperation",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultOperation",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -587,7 +587,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultProperty",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultProperty",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -596,7 +596,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultQuantifiable",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultQuantifiable",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -605,7 +605,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultRangeConstraint",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultRangeConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -614,7 +614,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultRegularExpressionConstraint",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultRegularExpressionConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -623,7 +623,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultScalar",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultScalar",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -632,7 +632,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultSet",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultSet",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -641,7 +641,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultSingleEntity",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultSingleEntity",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -650,7 +650,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultSortedSet",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultSortedSet",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -659,7 +659,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultState",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultState",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -668,7 +668,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultStructuredValue",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultStructuredValue",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -677,7 +677,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultTimeSeries",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultTimeSeries",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -686,7 +686,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultTrait",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultTrait",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -695,7 +695,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.impl.DefaultUnit",
+    "name": "org.eclipse.esmf.metamodel.impl.DefaultUnit",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -704,7 +704,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Aspect",
+    "name": "org.eclipse.esmf.metamodel.Aspect",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -713,7 +713,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Base",
+    "name": "org.eclipse.esmf.metamodel.Base",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -722,7 +722,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.CanRefine",
+    "name": "org.eclipse.esmf.metamodel.CanRefine",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -731,7 +731,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Characteristic",
+    "name": "org.eclipse.esmf.metamodel.Characteristic",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -740,7 +740,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Code",
+    "name": "org.eclipse.esmf.metamodel.Code",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -749,7 +749,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Collection",
+    "name": "org.eclipse.esmf.metamodel.Collection",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -758,7 +758,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Constraint",
+    "name": "org.eclipse.esmf.metamodel.Constraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -767,7 +767,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Duration",
+    "name": "org.eclipse.esmf.metamodel.Duration",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -776,7 +776,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Either",
+    "name": "org.eclipse.esmf.metamodel.Either",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -785,7 +785,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.EncodingConstraint",
+    "name": "org.eclipse.esmf.metamodel.EncodingConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -794,7 +794,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Entity",
+    "name": "org.eclipse.esmf.metamodel.Entity",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -803,7 +803,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Enumeration",
+    "name": "org.eclipse.esmf.metamodel.Enumeration",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -812,7 +812,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.FixedPointConstraint",
+    "name": "org.eclipse.esmf.metamodel.FixedPointConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -821,7 +821,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.HasProperties",
+    "name": "org.eclipse.esmf.metamodel.HasProperties",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -830,7 +830,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.IsDescribed",
+    "name": "org.eclipse.esmf.metamodel.IsDescribed",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -839,7 +839,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.LanguageConstraint",
+    "name": "org.eclipse.esmf.metamodel.LanguageConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -848,7 +848,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.LengthConstraint",
+    "name": "org.eclipse.esmf.metamodel.LengthConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -857,7 +857,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.List",
+    "name": "org.eclipse.esmf.metamodel.List",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -866,7 +866,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.LocaleConstraint",
+    "name": "org.eclipse.esmf.metamodel.LocaleConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -875,7 +875,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Measurement",
+    "name": "org.eclipse.esmf.metamodel.Measurement",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -884,7 +884,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Operation",
+    "name": "org.eclipse.esmf.metamodel.Operation",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -893,7 +893,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Property",
+    "name": "org.eclipse.esmf.metamodel.Property",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -902,7 +902,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Quantifiable",
+    "name": "org.eclipse.esmf.metamodel.Quantifiable",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -911,7 +911,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.QuantityKind",
+    "name": "org.eclipse.esmf.metamodel.QuantityKind",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -920,7 +920,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.QuantityKinds",
+    "name": "org.eclipse.esmf.metamodel.QuantityKinds",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -929,7 +929,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.RangeConstraint",
+    "name": "org.eclipse.esmf.metamodel.RangeConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -938,7 +938,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.RegularExpressionConstraint",
+    "name": "org.eclipse.esmf.metamodel.RegularExpressionConstraint",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -947,7 +947,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Scalar",
+    "name": "org.eclipse.esmf.metamodel.Scalar",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -956,7 +956,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Set",
+    "name": "org.eclipse.esmf.metamodel.Set",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -965,7 +965,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.SingleEntity",
+    "name": "org.eclipse.esmf.metamodel.SingleEntity",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -974,7 +974,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.SortedSet",
+    "name": "org.eclipse.esmf.metamodel.SortedSet",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -983,7 +983,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.State",
+    "name": "org.eclipse.esmf.metamodel.State",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -992,7 +992,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.StructuredValue",
+    "name": "org.eclipse.esmf.metamodel.StructuredValue",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -1001,7 +1001,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.TimeSeries",
+    "name": "org.eclipse.esmf.metamodel.TimeSeries",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -1010,7 +1010,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Trait",
+    "name": "org.eclipse.esmf.metamodel.Trait",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -1019,7 +1019,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Type",
+    "name": "org.eclipse.esmf.metamodel.Type",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -1028,7 +1028,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Unit",
+    "name": "org.eclipse.esmf.metamodel.Unit",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -1037,7 +1037,7 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.metamodel.Units",
+    "name": "org.eclipse.esmf.metamodel.Units",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -1208,12 +1208,12 @@
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.aspectmodel.generator.I18nLanguageBundle",
+    "name": "org.eclipse.esmf.aspectmodel.generator.I18nLanguageBundle",
     "allDeclaredClasses": true,
     "allPublicClasses": true
   },
   {
-    "name": "io.openmanufacturing.sds.aspectmodel.generator.AspectModelHelper",
+    "name": "org.eclipse.esmf.aspectmodel.generator.AspectModelHelper",
     "allDeclaredClasses": true,
     "allPublicClasses": true
   },

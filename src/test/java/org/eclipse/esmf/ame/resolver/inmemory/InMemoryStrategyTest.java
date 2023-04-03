@@ -22,25 +22,22 @@ import java.nio.file.Path;
 
 import org.apache.jena.rdf.model.Model;
 import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
 import io.vavr.control.Try;
 
 @ExtendWith( SpringExtension.class )
-class InMemoryOmpStrategyTest {
+class InMemoryStrategyTest {
    private static final Path resourcesPath = Path.of( "src", "test", "resources" );
-
-   private static final Path openManufacturingTestPath = Path.of( resourcesPath.toString(), "io.openmanufacturing",
+   private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example",
          "1.0.0" );
-
    private static final String aspectModelFile = "AspectModel.ttl";
    private static final String aspectModelFileWithRef = "AspectModelWithExternalRef.ttl";
-
    private ValidationProcess validationProcess;
 
    @BeforeEach
@@ -51,20 +48,20 @@ class InMemoryOmpStrategyTest {
 
    @Test
    void testApplySuccess() throws IOException {
-      final String fileToTest = Files.readString( openManufacturingTestPath.resolve( aspectModelFile ),
+      final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ),
             StandardCharsets.UTF_8 );
 
       final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, validationProcess );
 
       final Try<Model> apply = inMemoryStrategy.apply(
-            AspectModelUrn.fromUrn( "urn:bamm:io.openmanufacturing:1.0.0#AspectModel" ) );
+            AspectModelUrn.fromUrn( "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModel" ) );
 
       assertTrue( apply.isSuccess() );
    }
 
    @Test
    void testApplyFailureNullAspectModelUrn() throws IOException {
-      final String fileToTest = Files.readString( openManufacturingTestPath.resolve( aspectModelFile ),
+      final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ),
             StandardCharsets.UTF_8 );
 
       final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, validationProcess );
@@ -75,7 +72,7 @@ class InMemoryOmpStrategyTest {
 
    @Test
    void testApplyFailure() throws IOException {
-      final String fileToTest = Files.readString( openManufacturingTestPath.resolve( aspectModelFileWithRef ),
+      final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFileWithRef ),
             StandardCharsets.UTF_8 );
 
       final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, validationProcess );

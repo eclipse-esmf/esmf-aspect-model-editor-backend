@@ -18,9 +18,9 @@ create [SAMM](https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model) s
 
 Are you having trouble with Aspect Model Editor backend? We want to help!
 
-* Check the [developer documentation](https://openmanufacturingplatform.github.io)
+* Check the [developer documentation](https://eclipse-esmf.github.io)
 * Check the
-  BAMM [specification](https://openmanufacturingplatform.github.io/sds-documentation/bamm-specification/2.0.0/index.html)
+  SAMM [specification](https://eclipse-esmf.github.io/samm-specification/2.0.0/index.html)
 * Having issues with the Aspect Model Editor backend? Open
   a [GitHub issue](https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/issues).
 
@@ -40,7 +40,7 @@ Are you having trouble with Aspect Model Editor backend? We want to help!
 
 ```
 mvn clean package
-mvn exec:java -Dexec.mainClass="io.openmanufacturing.ame.Application"
+mvn exec:java -Dexec.mainClass="org.eclipse.esmf.ame.Application"
 ```
 
 We are always looking forward to your contributions. For more details on how to contribute just take a look at the

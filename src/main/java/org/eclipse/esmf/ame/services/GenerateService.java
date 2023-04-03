@@ -13,8 +13,6 @@
 
 package org.eclipse.esmf.ame.services;
 
-import static org.eclipse.esmf.ame.services.utils.ModelUtils.inMemoryStrategy;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Locale;
@@ -24,6 +22,15 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
+import org.eclipse.esmf.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
+import org.eclipse.esmf.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
+import org.eclipse.esmf.aspectmodel.generator.jsonschema.AspectModelJsonSchemaGenerator;
+import org.eclipse.esmf.aspectmodel.generator.openapi.AspectModelOpenApiGenerator;
+import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
+import org.eclipse.esmf.aspectmodel.resolver.services.DataType;
+import org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel;
+import org.eclipse.esmf.metamodel.AspectContext;
+import org.eclipse.esmf.metamodel.loader.AspectModelLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -32,15 +39,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 
-import io.openmanufacturing.sds.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
-import io.openmanufacturing.sds.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
-import io.openmanufacturing.sds.aspectmodel.generator.jsonschema.AspectModelJsonSchemaGenerator;
-import io.openmanufacturing.sds.aspectmodel.generator.openapi.AspectModelOpenApiGenerator;
-import io.openmanufacturing.sds.aspectmodel.generator.openapi.PagingOption;
-import io.openmanufacturing.sds.aspectmodel.resolver.services.DataType;
-import io.openmanufacturing.sds.aspectmodel.resolver.services.VersionedModel;
-import io.openmanufacturing.sds.metamodel.AspectContext;
-import io.openmanufacturing.sds.metamodel.loader.AspectModelLoader;
 import io.vavr.control.Try;
 
 @Service
@@ -107,7 +105,7 @@ public class GenerateService {
    }
 
    private Try<VersionedModel> getVersionModel( final String aspectModel, final ValidationProcess validationProcess ) {
-      return ModelUtils.fetchVersionModel( inMemoryStrategy( aspectModel, validationProcess ) );
+      return ModelUtils.fetchVersionModel( ModelUtils.inMemoryStrategy( aspectModel, validationProcess ) );
    }
 
    public String generateYamlOpenApiSpec( final String language, final String aspectModel, final String baseUrl,

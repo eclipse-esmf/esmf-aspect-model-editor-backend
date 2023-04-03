@@ -21,8 +21,7 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 
 import org.eclipse.esmf.ame.model.repository.LocalPackageInfo;
-
-import io.openmanufacturing.sds.aspectmodel.urn.AspectModelUrn;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 public interface ModelResolverStrategy {
 
@@ -36,7 +35,7 @@ public interface ModelResolverStrategy {
 
    /**
     * Returns turtleData based on received namespace.
-    * ex: io.openmanufacturing:1.0.0:AspectDefault.ttl
+    * ex: org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl
     *
     * @param namespace - used to extract file path.
     * @param storagePath - path to storage files.
@@ -46,7 +45,7 @@ public interface ModelResolverStrategy {
 
    /**
     * Returns the path of the Aspect Model.
-    * ex: io.openmanufacturing/1.0.0/AspectDefault.ttl
+    * ex: org.eclipse.esmf/1.0.0/AspectDefault.ttl
     *
     * @param namespace - used to extract file path.
     * @param storagePath - path to storage files.
@@ -67,7 +66,7 @@ public interface ModelResolverStrategy {
 
    /**
     * Deletes the folder from the given namespace.
-    * ex: io.openmanufacturing:1.0.0:AspectDefault.ttl
+    * ex: org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl
     *
     * @param namespace - used to extract filePath.
     * @param storagePath - path to storage files.
