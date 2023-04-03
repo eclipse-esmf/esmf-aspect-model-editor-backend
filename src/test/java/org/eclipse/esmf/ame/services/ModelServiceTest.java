@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -28,6 +28,12 @@ import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
+import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.ame.model.migration.Namespaces;
+import org.eclipse.esmf.ame.model.validation.ViolationReport;
+import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
@@ -36,12 +42,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
-import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
-import org.eclipse.esmf.ame.model.ValidationProcess;
-import org.eclipse.esmf.ame.model.migration.Namespaces;
-import org.eclipse.esmf.ame.model.validation.ViolationReport;
-import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
 
 @ExtendWith( SpringExtension.class )
 @SpringBootTest
@@ -187,25 +187,25 @@ class ModelServiceTest {
       assertThrows( FileNotFoundException.class, () -> modelService.getAllNamespaces( true, validationProcess ) );
    }
 
-   //   TODO should be reactivated as soon as there is something to migrate again.
-   //   @Test
-   //   void testMigrateModel() throws IOException {
-   //      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-   //            LocalFolderResolverStrategy.class ) ) {
-   //         final Path storagePath = Path.of( eclipseTestPath.toString(), "OldAspectModel.ttl" );
-   //
-   //         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-   //                  .thenReturn( storagePath.toString() );
-   //
-   //         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
-   //         Mockito.when( validationProcess.getPath() ).thenReturn( storagePath );
-   //
-   //         final String migratedModel = modelService.migrateModel(
-   //               Files.readString( storagePath, StandardCharsets.UTF_8 ), validationProcess );
-   //
-   //         checkMigratedModel( migratedModel );
-   //      }
-   //   }
+   @Disabled( "Should be reactivated as soon as there is something to migrate again." )
+   @Test
+   void testMigrateModel() throws IOException {
+      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
+            LocalFolderResolverStrategy.class ) ) {
+         final Path storagePath = Path.of( eclipseTestPath.toString(), "OldAspectModel.ttl" );
+
+         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
+                  .thenReturn( storagePath.toString() );
+
+         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+         Mockito.when( validationProcess.getPath() ).thenReturn( storagePath );
+
+         final String migratedModel = modelService.migrateModel(
+               Files.readString( storagePath, StandardCharsets.UTF_8 ), validationProcess );
+
+         checkMigratedModel( migratedModel );
+      }
+   }
 
    @Test
    void testMigrateWorkspaceWithoutVersionUpgrade() throws IOException {

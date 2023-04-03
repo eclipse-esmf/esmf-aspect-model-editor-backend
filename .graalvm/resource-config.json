@@ -1,43 +1,7 @@
 {
   "resources": [
     {
-      "pattern": "\\Qsamm/characteristic/2.0.0/characteristic-definitions.ttl\\E"
-    },
-    {
-      "pattern": "\\Qsamm/characteristic/2.0.0/characteristic-instances.ttl\\E"
-    },
-    {
-      "pattern": "\\Qsamm/characteristic/2.0.0/characteristic-shapes.ttl\\E"
-    },
-    {
-      "pattern": "\\Qsamm/characteristic/2.0.0/characteristic-validations.js\\E"
-    },
-    {
-      "pattern": "\\Qsamm/entity/2.0.0/FileResource.ttl\\E"
-    },
-    {
-      "pattern": "\\Qsamm/entity/2.0.0/Point3d.ttl\\E"
-    },
-    {
-      "pattern": "\\Qsamm/entity/2.0.0/TimeSeriesEntity.ttl\\E"
-    },
-    {
-      "pattern": "\\Qsamm/meta-model/2.0.0/aspect-meta-model-definitions.ttl\\E"
-    },
-    {
-      "pattern": "\\Qsamm/meta-model/2.0.0/aspect-meta-model-shapes.ttl\\E"
-    },
-    {
-      "pattern": "\\Qsamm/meta-model/2.0.0/prefix-declarations.ttl\\E"
-    },
-    {
-      "pattern": "\\Qsamm/meta-model/2.0.0/type-conversions.ttl\\E"
-    },
-    {
-      "pattern": "\\Qsamm/unit/2.0.0/units.ttl\\E"
-    },
-    {
-      "pattern": "\\Qsamm/scripts/language-registry.js\\E"
+      "pattern": "samm/[^/]*/([^/]*/)?[a-zA-Z0-9-]+\\.(ttl|js)"
     },
     {
       "pattern": "\\Qrdf/\\E.*.(ttl)$"
