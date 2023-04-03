@@ -60,7 +60,7 @@ class PackageServiceTest {
 
    @Test
    void testValidateImportAspectModelPackage() throws IOException {
-      final Path storagePath = Paths.get( resourcesPath.toString(), "test-packages" );
+      final Path storagePath = Paths.get( resourcesPath.toString(), "test-packages-import" );
       final Path zipFilePath = Paths.get( resourcesPath.toString(), "TestArchive.zip" );
 
       final MockMultipartFile mockedZipFile = new MockMultipartFile( "TestArchive.zip",
@@ -78,7 +78,7 @@ class PackageServiceTest {
 
    @Test
    void testValidateAspectModels() {
-      final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
+      final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages-export" );
       final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo );
 
       final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
