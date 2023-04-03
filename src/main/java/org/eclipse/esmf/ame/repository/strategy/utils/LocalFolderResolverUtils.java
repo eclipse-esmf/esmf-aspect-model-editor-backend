@@ -112,11 +112,13 @@ public class LocalFolderResolverUtils {
       for ( final File file : Objects.requireNonNull( storagePath.listFiles() ) ) {
          if ( file.isDirectory() ) {
             handleFiles( file );
+            FileUtils.forceDelete( file );
          } else {
             file.createNewFile();
             final FileChannel channel = FileChannel.open( file.toPath(), StandardOpenOption.WRITE );
             channel.lock().release();
             channel.close();
+            FileUtils.forceDelete( file );
          }
       }
    }

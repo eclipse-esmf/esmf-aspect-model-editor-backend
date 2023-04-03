@@ -123,7 +123,6 @@ public class PackageService {
                LocalFolderResolverStrategy.class );
          strategy.deleteDirectory( validationProcess.getPath().toFile() );
 
-         // TODO check if fileName have special character ..
          unzipPackageFile( zipFile, validationProcess.getPath() );
 
          final LocalPackageInfo localPackageInfo = strategy.getLocalPackageInformation(
