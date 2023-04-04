@@ -45,8 +45,12 @@ public class ZipUtils {
    public static byte[] createZipFile( final String zipFileName, final String sourceStoragePath ) throws IOException {
       final String zipFile = sourceStoragePath + File.separator + zipFileName;
 
-      try ( final FileOutputStream fos = new FileOutputStream( zipFile );
-            final ZipOutputStream zos = new ZipOutputStream( fos ) ) {
+      FileOutputStream fos = null;
+      ZipOutputStream zos = null;
+
+      try {
+         fos = new FileOutputStream(zipFile);
+         zos = new ZipOutputStream(fos);
 
          final List<File> fileList = getFileList( new File( sourceStoragePath ), new ArrayList<>(), sourceStoragePath );
 
@@ -73,6 +77,9 @@ public class ZipUtils {
       } catch ( final IOException e ) {
          LOG.error( "Cannot create zip file." );
          throw new CreateFileException( "Error creating the zip file.", e );
+      }finally {
+         IOUtils.closeQuietly( fos );
+         IOUtils.closeQuietly( zos );
       }
 
       return Files.readAllBytes( Paths.get( zipFile ) );

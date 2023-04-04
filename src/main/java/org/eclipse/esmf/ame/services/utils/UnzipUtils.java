@@ -47,8 +47,10 @@ public class UnzipUtils {
     */
    @SuppressWarnings( { "squid:S135", "squid:S5042" } )
    public static void unzipPackageFile( final InputStream zipFile, final Path packagePath ) {
-      try ( final ZipInputStream zipInputStream = new ZipInputStream( zipFile ) ) {
+      ZipInputStream zipInputStream = null;
 
+      try {
+         zipInputStream = new ZipInputStream( zipFile );
          ZipEntry zipEntry = zipInputStream.getNextEntry();
 
          while ( zipEntry != null ) {
@@ -76,12 +78,15 @@ public class UnzipUtils {
 
             zipEntry = zipInputStream.getNextEntry();
          }
+
          zipInputStream.closeEntry();
 
-         IOUtils.closeQuietly( zipInputStream );
       } catch ( final IOException e ) {
          LOG.error( "Cannot read file." );
          throw new FileReadException( "Error reading the zip file.", e );
+      } finally {
+         IOUtils.closeQuietly( zipFile );
+         IOUtils.closeQuietly( zipInputStream );
       }
    }
 
