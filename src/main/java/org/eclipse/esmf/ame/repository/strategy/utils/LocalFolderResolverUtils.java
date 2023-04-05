@@ -109,7 +109,6 @@ public class LocalFolderResolverUtils {
       for ( final File file : Objects.requireNonNull( storagePath.listFiles() ) ) {
          if ( file.isDirectory() ) {
             handleFiles( file );
-            FileUtils.forceDelete( file );
          }
 
          FileUtils.forceDelete( file );
