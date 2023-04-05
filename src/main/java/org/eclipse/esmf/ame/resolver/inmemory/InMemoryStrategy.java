@@ -13,23 +13,10 @@
 
 package org.eclipse.esmf.ame.resolver.inmemory;
 
-import static org.apache.jena.http.auth.AuthEnv.LOG;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.RDFNode;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.rdf.model.StmtIterator;
+import io.vavr.NotImplementedError;
+import io.vavr.control.Try;
+import org.apache.commons.io.IOUtils;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.vocabulary.RDF;
 import org.eclipse.esmf.ame.exceptions.UrnNotFoundException;
@@ -43,8 +30,15 @@ import org.eclipse.esmf.aspectmodel.vocabulary.SAMMC;
 import org.eclipse.esmf.aspectmodel.vocabulary.SAMME;
 import org.eclipse.esmf.samm.KnownVersion;
 
-import io.vavr.NotImplementedError;
-import io.vavr.control.Try;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.apache.jena.http.auth.AuthEnv.LOG;
 
 public class InMemoryStrategy extends AbstractResolutionStrategy {
    public final Path processingRootPath;
@@ -62,8 +56,11 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
       final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
             aspectModel.getBytes( StandardCharsets.UTF_8 ) );
 
-      return TurtleLoader.loadTurtle( byteArrayInputStream ).getOrElseThrow(
-            error -> new RiotException( error.getCause().getMessage(), error.getCause() ) );
+       Model model = TurtleLoader.loadTurtle( byteArrayInputStream ).getOrElseThrow(
+               error -> new RiotException( error.getCause().getMessage(), error.getCause() ) );
+
+       IOUtils.closeQuietly( byteArrayInputStream );
+       return model;
    }
 
    @Override
@@ -109,7 +106,7 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
 
       final File namedResourceFile = directory.resolve( aspectModelUrn.getName() + ".ttl" ).toFile();
       if ( namedResourceFile.exists() ) {
-         return loadFromUri( namedResourceFile.toURI() );
+         return loadTurtle( new File( namedResourceFile.toURI() ) );
       }
 
       LOG.warn( "Looking for {}, but no {}.ttl was found. Inspecting files in {}", aspectModelUrn.getName(),
@@ -121,6 +118,16 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
                   tryModel -> tryModel.map( model -> AspectModelResolver.containsDefinition( model, aspectModelUrn ) )
                                       .getOrElse( false ) ).findFirst().orElse( Try.failure( new FileNotFoundException(
                   "No model file containing " + aspectModelUrn + " could be found in directory: " + directory ) ) );
+   }
+
+   private Try<Model> loadTurtle( final File aspectModel ) {
+      try ( final InputStream inputStream = new FileInputStream( aspectModel ) ) {
+         final Try<Model> model = TurtleLoader.loadTurtle( inputStream );
+         IOUtils.closeQuietly( inputStream );
+         return model;
+      } catch ( final IOException exception ) {
+         return Try.failure( exception );
+      }
    }
 
    public AspectModelUrn getAspectModelUrn() {

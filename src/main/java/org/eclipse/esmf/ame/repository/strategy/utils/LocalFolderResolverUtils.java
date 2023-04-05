@@ -13,14 +13,6 @@
 
 package org.eclipse.esmf.ame.repository.strategy.utils;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.file.StandardOpenOption;
-import java.util.Objects;
-
-import javax.annotation.Nonnull;
-
 import org.apache.commons.io.FileUtils;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
@@ -28,6 +20,11 @@ import org.eclipse.esmf.ame.model.resolver.FolderStructure;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.io.IOException;
+import java.util.Objects;
 
 public class LocalFolderResolverUtils {
 
@@ -113,13 +110,9 @@ public class LocalFolderResolverUtils {
          if ( file.isDirectory() ) {
             handleFiles( file );
             FileUtils.forceDelete( file );
-         } else {
-            file.createNewFile();
-            final FileChannel channel = FileChannel.open( file.toPath(), StandardOpenOption.WRITE );
-            channel.lock().release();
-            channel.close();
-            FileUtils.forceDelete( file );
          }
+
+         FileUtils.forceDelete( file );
       }
    }
 }
