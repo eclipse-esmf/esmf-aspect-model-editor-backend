@@ -59,7 +59,7 @@ jobs:
           release_branch_name=${release_version%.*}.x
           echo "release_branch_name=$release_branch_name" >> $GITHUB_ENV
 
-      - name: Set maven version on Mac
+      - name: Set maven version
         run: mvn versions:set -DnewVersion=${{ github.event.inputs.release_version }}
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
