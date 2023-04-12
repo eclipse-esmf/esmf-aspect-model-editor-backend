@@ -157,8 +157,20 @@ public class PackageService {
          final Boolean modelExist = strategy.checkModelExist( aspectModelFile,
                ValidationProcess.MODELS.getPath().toString() );
 
-         final ViolationReport violationReport = ModelUtils.validateModel( fileInfo.getAspectModel(),
-               aspectModelValidator, validationProcess );
+         String aspectModel = fileInfo.getAspectModel();
+
+         // TODO: remove this workaround when bamm is completely replaced by samm
+         if ( aspectModel.contains( "bamm" ) ) {
+            aspectModel = fileInfo.getAspectModel().replaceAll( "bamm", "samm" )
+                                  .replaceAll( "io.openmanufacturing", "org.eclipse.esmf.samm" );
+
+            strategy.saveModel( Optional.empty(),
+                  ModelUtils.getPrettyPrintedModel( aspectModel, ValidationProcess.IMPORT ),
+                  ValidationProcess.IMPORT.getPath().toString() );
+         }
+
+         final ViolationReport violationReport = ModelUtils.validateModel( aspectModel, aspectModelValidator,
+               validationProcess );
 
          processPackage.addValidFiles( new ValidFile( aspectModelFile, violationReport, modelExist ) );
          getMissingAspectModelFiles( violationReport, aspectModelFile, modelStoragePath ).forEach(
@@ -191,10 +203,9 @@ public class PackageService {
 
    private List<MissingElement> getMissingAspectModelFiles( final ViolationReport violationReport,
          final String fileName, final String modelStoragePath ) {
-      final List<ViolationError> violationErrors = violationReport.getViolationErrors().stream()
-                                                                  .filter( violation -> violation.getErrorCode() != null
-                                                                        && violation.getErrorCode().equals(
-                                                                        ProcessingViolation.ERROR_CODE ) )
+      final List<ViolationError> violationErrors = violationReport.getViolationErrors().stream().filter(
+                                                                        violation -> violation.getErrorCode() != null && violation.getErrorCode()
+                                                                                                                                  .equals( ProcessingViolation.ERROR_CODE ) )
                                                                   .toList();
 
       if ( violationErrors.isEmpty() ) {
@@ -204,8 +215,7 @@ public class PackageService {
       return violationErrors.stream().map( validation -> {
          final AspectModelUrn focusNode = validation.getFocusNode() != null ? validation.getFocusNode() : null;
 
-         final String missingAspectModelFile = ModelUtils.getAspectModelFile( modelStoragePath,
-               focusNode );
+         final String missingAspectModelFile = ModelUtils.getAspectModelFile( modelStoragePath, focusNode );
 
          final String errorMessage = String.format(
                "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", focusNode, fileName );
