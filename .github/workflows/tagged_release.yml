@@ -83,6 +83,15 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # License report is executed only once on Windows, because it is identical for all.
+      - name: Creating native image (Win)
+        if: matrix.os == 'windows-latest'
+        run: |
+          mvn license:download-licenses -Dlicense.excludedScopes=test
+          Compress-Archive -Path target/generated-resources/licenses/, target/license.xml, target/bom.xml -DestinationPath Third-Party-Disclosure-Document.zip
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: "Create GitHub release Mac (full)"
         if: ${{ (matrix.os == 'macos-latest') &&  (!contains( github.ref, '-rc' )) }}
         uses: softprops/action-gh-release@v1
@@ -149,7 +158,9 @@ jobs:
           target_commitish: ${{ env.release_branch_name }}
           draft: false
           prerelease: false
-          files: target/ame-backend!(*.txt)-win.exe
+          files: |
+            target/ame-backend!(*.txt)-win.exe
+            Third-Party-Disclosure-Document.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
 
@@ -163,6 +174,8 @@ jobs:
           target_commitish: ${{ env.release_branch_name }}
           draft: false
           prerelease: true
-          files: target/ame-backend!(*.txt)-win.exe
+          files: |
+            target/ame-backend!(*.txt)-win.exe
+            Third-Party-Disclosure-Document.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
