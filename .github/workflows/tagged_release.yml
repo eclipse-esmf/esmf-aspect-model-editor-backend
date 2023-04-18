@@ -60,14 +60,13 @@ jobs:
           release_branch_name=${release_version%.*}.x
           echo "release_branch_name=$release_branch_name" >> $GITHUB_ENV
 
-      - name: Commit version changes and push to upstream repository
+      - name: Create Release branch
         if: matrix.os == 'ubuntu-latest'
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          branch: ${{ env.release_branch_name }}
-          commit_user_name: github-actions
-          commit_user_email: github-actions@github.com
-          commit_author: Author <actions@github.com>
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions"
+          git checkout -b ${{ env.release_branch_name }}
+          git push origin ${{ env.release_branch_name }}
 
       - name: Set maven version
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
@@ -100,95 +99,68 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # License report is executed only once on Windows, because it is identical for all.
-      - name: Creating native image (Win)
-        if: matrix.os == 'windows-latest'
-        run: |
-          mvn license:download-licenses -Dlicense.excludedScopes=test
-          Compress-Archive -Path target/generated-resources/licenses/, target/license.xml, target/bom.xml -DestinationPath Third-Party-Disclosure-Document.zip
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: "Create GitHub release Mac (full)"
-        if: ${{ (matrix.os == 'macos-latest') &&  (!contains( github.ref, '-rc' )) }}
-        uses: softprops/action-gh-release@v1
-        id: esmf_ame_mac_release_full
+      - name: Create GitHub release (Mac)
+        if: ${{ (matrix.os == 'macos-latest') &&  (!contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
         with:
-          body: "Release version ${{ github.event.inputs.release_version }}."
-          tag_name: v${{ github.event.inputs.release_version }}
-          draft: false
+          file_glob: true
+          overwrite: true
           prerelease: false
-          files: target/ame-backend!(*.txt)-mac
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-mac
+          tag: v${{ github.event.inputs.release_version }}
 
-      - name: "Create GitHub pre-release Mac"
-        if: ${{ (matrix.os == 'macos-latest') &&  (contains( github.ref, '-rc' )) }}
-        uses: softprops/action-gh-release@v1
-        id: esmf_ame_mac_release_rc
+      - name: Create GitHub pre-release (Mac)
+        if: ${{ (matrix.os == 'macos-latest') &&  (contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
         with:
-          body: "Release version ${{ github.event.inputs.release_version }}."
-          tag_name: v${{ github.event.inputs.release_version }}
-          draft: false
+          file_glob: true
+          overwrite: true
           prerelease: true
-          files: target/ame-backend!(*.txt)-mac
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-mac
+          tag: v${{ github.event.inputs.release_version }}
 
-      - name: "Create GitHub release Linux (full)"
-        if: ${{ (matrix.os == 'ubuntu-latest') &&  (!contains( github.ref, '-rc' )) }}
-        uses: softprops/action-gh-release@v1
-        id: esmf_ame_linux_release_full
+      - name: Create GitHub release (Linux)
+        if: ${{ (matrix.os == 'ubuntu-latest') &&  (!contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
         with:
-          body: "Release version ${{ github.event.inputs.release_version }}."
-          tag_name: v${{ github.event.inputs.release_version }}
-          target_commitish: ${{ env.release_branch_name }}
-          draft: false
+          file_glob: true
+          overwrite: true
           prerelease: false
-          files: target/ame-backend!(*.txt)-linux
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-linux
+          tag: v${{ github.event.inputs.release_version }}
 
-      - name: "Create GitHub pre-release Linux"
-        if: ${{ (matrix.os == 'ubuntu-latest') &&  (contains( github.ref, '-rc' )) }}
-        uses: softprops/action-gh-release@v1
-        id: esmf_ame_linux_release_rc
+      - name: Create GitHub pre-release (Linux)
+        if: ${{ (matrix.os == 'ubuntu-latest') &&  (contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
         with:
-          body: "Release version ${{ github.event.inputs.release_version }}."
-          tag_name: v${{ github.event.inputs.release_version }}
-          target_commitish: ${{ env.release_branch_name }}
-          draft: false
+          file_glob: true
+          overwrite: true
           prerelease: true
-          files: target/ame-backend!(*.txt)-linux
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-linux
+          tag: v${{ github.event.inputs.release_version }}
 
-      - name: "Create GitHub release Windows (full)"
-        if: ${{ (matrix.os == 'windows-latest') && (!contains( github.ref, '-rc' )) }}
-        uses: softprops/action-gh-release@v1
-        id: esmf_ame_win_release_full
+      - name: Create GitHub release (Windows)
+        if: ${{ (matrix.os == 'windows-latest') && (!contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
         with:
-          body: "Release version ${{ github.event.inputs.release_version }}."
-          tag_name: v${{ github.event.inputs.release_version }}
-          draft: false
+          file_glob: true
+          overwrite: true
           prerelease: false
-          files: |
-            target/ame-backend!(*.txt)-win.exe
-            Third-Party-Disclosure-Document.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-win.exe
+          tag: v${{ github.event.inputs.release_version }}
 
-      - name: "Create GitHub pre-release Windows"
-        if: ${{ (matrix.os == 'windows-latest') && (contains( github.ref, '-rc' )) }}
-        uses: softprops/action-gh-release@v1
-        id: esmf_ame_win_release_rc
+      - name: Create GitHub pre-release (Windows)
+        if: ${{ (matrix.os == 'windows-latest') && (contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@latest
         with:
-          body: "Release version ${{ github.event.inputs.release_version }}."
-          tag_name: v${{ github.event.inputs.release_version }}
-          draft: false
+          file_glob: true
+          overwrite: true
           prerelease: true
-          files: |
-            target/ame-backend!(*.txt)-win.exe
-            Third-Party-Disclosure-Document.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN  }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/ame-backend!(*.txt)-win.exe
+          tag: v${{ github.event.inputs.release_version }}
