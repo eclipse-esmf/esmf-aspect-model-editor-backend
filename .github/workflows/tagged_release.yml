@@ -61,7 +61,14 @@ jobs:
           echo "release_branch_name=$release_branch_name" >> $GITHUB_ENV
 
       - name: Set maven version
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         run: mvn versions:set -DnewVersion=${{ github.event.inputs.release_version }}
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set maven version on Windows
+        if: matrix.os == 'windows-latest'
+        run: mvn versions:set -DnewVersion="${{ github.event.inputs.release_version }}"
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
