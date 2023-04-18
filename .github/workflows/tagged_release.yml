@@ -60,6 +60,15 @@ jobs:
           release_branch_name=${release_version%.*}.x
           echo "release_branch_name=$release_branch_name" >> $GITHUB_ENV
 
+      - name: Commit version changes and push to upstream repository
+        if: matrix.os == 'ubuntu-latest'
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: ${{ env.release_branch_name }}
+          commit_user_name: github-actions
+          commit_user_email: github-actions@github.com
+          commit_author: Author <actions@github.com>
+
       - name: Set maven version
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         run: mvn versions:set -DnewVersion=${{ github.event.inputs.release_version }}
