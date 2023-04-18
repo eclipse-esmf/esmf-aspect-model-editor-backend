@@ -54,6 +54,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Set versions
+        if: matrix.os == 'ubuntu-latest'
         run: |
           release_version=${{ github.event.inputs.release_version }}
           release_branch_name=${release_version%.*}.x
@@ -99,7 +100,6 @@ jobs:
         with:
           body: "Release version ${{ github.event.inputs.release_version }}."
           tag_name: v${{ github.event.inputs.release_version }}
-          target_commitish: ${{ env.release_branch_name }}
           draft: false
           prerelease: false
           files: target/ame-backend!(*.txt)-mac
@@ -113,7 +113,6 @@ jobs:
         with:
           body: "Release version ${{ github.event.inputs.release_version }}."
           tag_name: v${{ github.event.inputs.release_version }}
-          target_commitish: ${{ env.release_branch_name }}
           draft: false
           prerelease: true
           files: target/ame-backend!(*.txt)-mac
@@ -155,7 +154,6 @@ jobs:
         with:
           body: "Release version ${{ github.event.inputs.release_version }}."
           tag_name: v${{ github.event.inputs.release_version }}
-          target_commitish: ${{ env.release_branch_name }}
           draft: false
           prerelease: false
           files: |
@@ -171,7 +169,6 @@ jobs:
         with:
           body: "Release version ${{ github.event.inputs.release_version }}."
           tag_name: v${{ github.event.inputs.release_version }}
-          target_commitish: ${{ env.release_branch_name }}
           draft: false
           prerelease: true
           files: |
