@@ -104,13 +104,15 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    @Override
-   public String saveModel( final Optional<String> urn, final Optional<String> fileName,
+   public String saveModel( final Optional<String> namespace, final Optional<String> fileName,
          final @Nonnull String turtleData, final String storagePath ) {
       try {
          ExtendedXsdDataType.setChecking( false );
 
-         final String filePath = getFilePath( urn.orElse( StringUtils.EMPTY ), fileName.orElse( StringUtils.EMPTY ),
-               turtleData, storagePath );
+         final String name = fileName.orElse( StringUtils.EMPTY );
+         final String space = namespace.orElse( StringUtils.EMPTY );
+
+         final String filePath = isLatest( name ) ? name : getFilePath( space, name, turtleData, storagePath );
          final File storeFile = getFileInstance( getQualifiedFilePath( filePath, storagePath ) );
 
          writeToFile( turtleData, storeFile );

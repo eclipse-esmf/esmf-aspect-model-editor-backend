@@ -60,13 +60,13 @@ public class ModelService {
             storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() ) );
    }
 
-   public String saveModel( final Optional<String> urn, final Optional<String> fileName, final String aspectModel,
+   public String saveModel( final Optional<String> namespace, final Optional<String> fileName, final String aspectModel,
          final Optional<String> storagePath ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
       final String prettyPrintedModel = ModelUtils.getPrettyPrintedModel( aspectModel, ValidationProcess.MODELS );
       final String path = storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() );
 
-      return strategy.saveModel( urn, fileName, prettyPrintedModel, path );
+      return strategy.saveModel( namespace, fileName, prettyPrintedModel, path );
    }
 
    private void saveVersionedModel( final VersionedModel versionedModel, final AspectModelUrn aspectModelUrn,

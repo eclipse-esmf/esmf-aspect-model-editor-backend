@@ -76,9 +76,9 @@ public class ModelResource {
    @PostMapping( consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public ResponseEntity<String> createModel( @RequestHeader final Map<String, String> headers,
          @RequestBody final String turtleData ) {
-      final Optional<String> urn = Optional.ofNullable( headers.get( NAMESPACE ) );
+      final Optional<String> namespace = Optional.ofNullable( headers.get( NAMESPACE ) );
       final Optional<String> fileName = Optional.ofNullable( headers.get( FILE_NAME ) );
-      modelService.saveModel( urn, fileName, turtleData, Optional.empty() );
+      modelService.saveModel( namespace, fileName, turtleData, Optional.empty() );
 
       return new ResponseEntity<>( HttpStatus.CREATED );
    }
