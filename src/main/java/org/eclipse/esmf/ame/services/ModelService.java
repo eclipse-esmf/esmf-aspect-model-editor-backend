@@ -53,25 +53,27 @@ public class ModelService {
       DataType.setupTypeMapping();
    }
 
-   public String getModel( final String namespace, final Optional<String> storagePath ) {
+   public String getModel( final String namespace, final String filename, final Optional<String> storagePath ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      return strategy.getModelAsString( namespace,
+      return strategy.getModelAsString( namespace, filename,
             storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() ) );
    }
 
-   public String saveModel( final Optional<String> urn, final String aspectModel, final Optional<String> storagePath ) {
+   public String saveModel( final Optional<String> urn, final Optional<String> fileName, final String aspectModel,
+         final Optional<String> storagePath ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
+      final String prettyPrintedModel = ModelUtils.getPrettyPrintedModel( aspectModel, ValidationProcess.MODELS );
+      final String path = storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() );
 
-      return strategy.saveModel( urn, ModelUtils.getPrettyPrintedModel( aspectModel, ValidationProcess.MODELS ),
-            storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() ) );
+      return strategy.saveModel( urn, fileName, prettyPrintedModel, path );
    }
 
    private void saveVersionedModel( final VersionedModel versionedModel, final AspectModelUrn aspectModelUrn,
          final String path ) {
       final String prettyPrintedVersionedModel = ModelUtils.getPrettyPrintedVersionedModel( versionedModel,
             aspectModelUrn.getUrn() );
-      saveModel( Optional.of( aspectModelUrn.getUrn().toString() ), prettyPrintedVersionedModel, Optional.of( path ) );
+      // saveModel( Optional.of( aspectModelUrn.getUrn().toString() ), prettyPrintedVersionedModel, Optional.of( path ) );
    }
 
    public void deleteModel( final String namespace ) {
@@ -134,13 +136,13 @@ public class ModelService {
    private void namespaceFileInfo( final Namespace namespace, final Try<VersionedModel> model,
          final AspectModelUrn aspectModelUrn, final String storagePath ) {
 
-      boolean modelIsSuccess = false;
+      final boolean modelIsSuccess = false;
 
       if ( model.isSuccess() ) {
          saveVersionedModel( model.get(), aspectModelUrn, storagePath );
-         modelIsSuccess = !getModel(
-               namespace.versionedNamespace + ':' + aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,
-               Optional.of( storagePath ) ).contains( "undefined:" );
+         //         modelIsSuccess = !getModel(
+         //               namespace.versionedNamespace + ':' + aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,
+         //               Optional.of( storagePath ) ).contains( "undefined:" );
       }
 
       final AspectModelFile aspectModelFile = new AspectModelFile( aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,

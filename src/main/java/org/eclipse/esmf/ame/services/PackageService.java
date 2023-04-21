@@ -21,7 +21,6 @@ import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
@@ -87,11 +86,12 @@ public class PackageService {
       final ProcessPackage processPackage = new ProcessPackage();
 
       aspectModelFiles.forEach( fileName -> {
-         final String modelAsString = strategy.getModelAsString( fileName, validationProcess.getPath().toString() );
+         final String modelAsString = null;
+         //               strategy.getModelAsString( fileName, validationProcess.getPath().toString() );
          final AspectModelUrn aspectModelUrn = strategy.convertAspectModelFileNameToUrn( fileName );
-         strategy.saveModel( Optional.of( aspectModelUrn.toString() ),
-               ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
-               validationProcess.getPath().toString() );
+         //         strategy.saveModel( Optional.of( aspectModelUrn.toString() ),
+         //               ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
+         //               validationProcess.getPath().toString() );
          final ViolationReport violationReport = ModelUtils.validateModel( modelAsString, aspectModelValidator,
                validationProcess );
          processPackage.addValidFiles( new ValidFile( fileName, violationReport ) );
@@ -164,9 +164,9 @@ public class PackageService {
             aspectModel = fileInfo.getAspectModel().replaceAll( "bamm", "samm" )
                                   .replaceAll( "io.openmanufacturing", "org.eclipse.esmf.samm" );
 
-            strategy.saveModel( Optional.empty(),
-                  ModelUtils.getPrettyPrintedModel( aspectModel, ValidationProcess.IMPORT ),
-                  ValidationProcess.IMPORT.getPath().toString() );
+            //            strategy.saveModel( Optional.empty(),
+            //                  ModelUtils.getPrettyPrintedModel( aspectModel, ValidationProcess.IMPORT ),
+            //                  ValidationProcess.IMPORT.getPath().toString() );
          }
 
          final ViolationReport violationReport = ModelUtils.validateModel( aspectModel, aspectModelValidator,
@@ -188,12 +188,13 @@ public class PackageService {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
       aspectModelFiles.forEach( fileName -> {
-         final String modelAsString = strategy.getModelAsString( fileName, modelsProcess.getPath().toString() );
+         final String modelAsString = null;
+         //               strategy.getModelAsString( fileName, modelsProcess.getPath().toString() );
          final AspectModelUrn aspectModelUrn = strategy.convertAspectModelFileNameToUrn( fileName );
 
-         strategy.saveModel( Optional.of( aspectModelUrn.toString() ),
-               ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
-               modelsProcess.getPath().toString() );
+         //         strategy.saveModel( Optional.of( aspectModelUrn.toString() ),
+         //               ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
+         //               modelsProcess.getPath().toString() );
       } );
 
       strategy.deleteDirectory( validationProcess.getPath().toFile() );

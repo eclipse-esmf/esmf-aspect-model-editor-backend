@@ -29,6 +29,7 @@ public interface ModelResolverStrategy {
     * Returns true or false if model exist.
     *
     * @param namespace - used to extract file path.
+    * @param filename - file name of the file.y
     * @param storagePath - path to storage files.
     */
    Boolean checkModelExist( @Nonnull final String namespace, final String storagePath );
@@ -38,31 +39,35 @@ public interface ModelResolverStrategy {
     * ex: org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl
     *
     * @param namespace - used to extract file path.
+    * @param filename - file name of the file.
     * @param storagePath - path to storage files.
     * @return the Aspect Model turtleData as {@link String}.
     */
-   String getModelAsString( @Nonnull final String namespace, final String storagePath );
+   String getModelAsString( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
 
    /**
     * Returns the path of the Aspect Model.
     * ex: org.eclipse.esmf/1.0.0/AspectDefault.ttl
     *
     * @param namespace - used to extract file path.
+    * @param filename - file name of the file.
     * @param storagePath - path to storage files.
     * @return the file location of the saved turtleData.
     */
-   File getModelAsFile( @Nonnull final String namespace, final String storagePath );
+   File getModelAsFile( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
 
    /**
     * Save given turtleData into repository. File path will be decided based on urn if exists, if not it will be
     * extracted from turtleData.
     *
     * @param urn - used to extract file path.
+    * @param fileName - file name of the Aspect Model.
     * @param turtleData - content of the saved file.
     * @param storagePath - path to storage files.
     * @return the file location of the saved turtleData.
     */
-   String saveModel( Optional<String> urn, @Nonnull final String turtleData, final String storagePath );
+   String saveModel( Optional<String> urn, Optional<String> fileName, @Nonnull final String turtleData,
+         final String storagePath );
 
    /**
     * Deletes the folder from the given namespace.

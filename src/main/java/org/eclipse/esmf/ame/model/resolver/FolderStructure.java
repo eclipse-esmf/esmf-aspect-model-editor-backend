@@ -37,6 +37,10 @@ public class FolderStructure {
       this.version = version;
    }
 
+   public void setFileName( final String fileName ) {
+      this.fileName = fileName;
+   }
+
    @Override
    public String toString() {
       if ( fileName != null ) {

@@ -13,8 +13,6 @@
 
 package org.eclipse.esmf.ame.repository.strategy;
 
-import static java.util.stream.Collectors.toList;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -42,8 +40,10 @@ import org.eclipse.esmf.ame.exceptions.FileWriteException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.model.repository.LocalPackageInfo;
 import org.eclipse.esmf.ame.model.repository.ValidFile;
+import org.eclipse.esmf.ame.model.resolver.FolderStructure;
 import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
+import org.eclipse.esmf.aspectmodel.resolver.exceptions.InvalidNamespaceException;
 import org.eclipse.esmf.aspectmodel.resolver.services.ExtendedXsdDataType;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.slf4j.Logger;
@@ -73,29 +73,44 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    @Override
-   public String getModelAsString( final @Nonnull String namespace, final String storagePath ) {
-      return getFileContent( getModelAsFile( namespace, storagePath ) );
+   public String getModelAsString( final @Nonnull String namespace, final @Nonnull String filename,
+         final String storagePath ) {
+      return getFileContent( getModelAsFile( namespace, filename, storagePath ) );
    }
 
    @Override
-   public File getModelAsFile( final @Nonnull String namespace, final String storagePath ) {
-      final String filePath = LocalFolderResolverUtils.extractFilePath( namespace ).toString();
+   public File getModelAsFile( final @Nonnull String namespace, final @Nonnull String filename,
+         final String storagePath ) {
+
+      final String filePath = isLatest( filename ) ? filename : buildFilePath( namespace, filename );
       final String qualifiedFilePath = getQualifiedFilePath( filePath, storagePath );
       final File storeFile = getFileInstance( qualifiedFilePath );
 
-      if ( storeFile.exists() ) {
-         return storeFile;
-      } else {
+      if ( !storeFile.exists() ) {
          throw new FileNotFoundException( String.format( TTL_FILE_DOES_NOT_EXISTS, namespace ) );
       }
+
+      return storeFile;
+   }
+
+   private boolean isLatest( final String fileName ) {
+      return "latest.ttl".equals( fileName );
+   }
+
+   private String buildFilePath( final String namespace, final String filename ) {
+      final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( namespace );
+      folderStructure.setFileName( filename );
+      return folderStructure.toString();
    }
 
    @Override
-   public String saveModel( final Optional<String> urn, final @Nonnull String turtleData, final String storagePath ) {
+   public String saveModel( final Optional<String> urn, final Optional<String> fileName,
+         final @Nonnull String turtleData, final String storagePath ) {
       try {
          ExtendedXsdDataType.setChecking( false );
 
-         final String filePath = getFilePath( urn.orElse( StringUtils.EMPTY ), turtleData, storagePath );
+         final String filePath = getFilePath( urn.orElse( StringUtils.EMPTY ), fileName.orElse( StringUtils.EMPTY ),
+               turtleData, storagePath );
          final File storeFile = getFileInstance( getQualifiedFilePath( filePath, storagePath ) );
 
          writeToFile( turtleData, storeFile );
@@ -117,19 +132,23 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       LocalFolderResolverUtils.deleteDirectory( storagePath );
    }
 
-   private String getFilePath( final String urn, final String turtleData, final String storagePath ) {
+   private String getFilePath( final String namespace, final String fileName, final String turtleData,
+         final String storagePath ) {
 
-      if ( urn.isEmpty() ) {
+      if ( namespace.contains( applicationSettings.getFileType() ) ) {
+         throw new InvalidNamespaceException( "Namespace does not contain filename" );
+      }
+
+      if ( namespace.isEmpty() ) {
          return getFilePathBasedOnTurtleData( turtleData, storagePath ) + applicationSettings.getFileType();
       }
 
-      if ( ":latest.ttl".equalsIgnoreCase( urn ) || urn.contains( applicationSettings.getFileType() ) ) {
-         return LocalFolderResolverUtils.extractFilePath( urn ).toString();
+      if ( isLatest( fileName ) ) {
+         return fileName;
       }
 
-      final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn( urn );
-      return aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator
-            + aspectModelUrn.getName() + applicationSettings.getFileType();
+      final String[] splitedUrn = namespace.replace( "urn:samm:", "" ).replace( "#", "" ).split( ":" );
+      return splitedUrn[0] + File.separator + splitedUrn[1] + File.separator + fileName;
    }
 
    @Override
@@ -210,9 +229,9 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
       final Map<String, List<String>> namespacePathMapping = endFilePaths.stream()
                                                                          .map( LocalFolderResolverStrategy::transformToValidModelDirectory )
-                                                                         .collect( Collectors.groupingBy(
-                                                                               this::extractNamespaceAndVersion,
-                                                                               toList() ) );
+                                                                         .map( s -> s.split( ":" ) ).collect(
+                  Collectors.groupingBy( arr -> arr[0] + ":" + arr[1],
+                        Collectors.mapping( arr -> arr[2], Collectors.toList() ) ) );
 
       retainOnlyTurtleFileName( namespacePathMapping );
 
@@ -271,7 +290,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    private List<ValidFile> getListOfLocalPackageInformation( final List<String> filePath, final String storagePath ) {
       return filePath.stream().map( path -> {
          final String aspectModelFile = transformToValidModelDirectory( path );
-         final String aspectModel = getModelAsString( aspectModelFile, storagePath );
+         final String aspectModel = null;
+         //               getModelAsString( aspectModelFile, storagePath );
          return new ValidFile( aspectModelFile, aspectModel );
       } ).toList();
    }
@@ -351,18 +371,18 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * @param modelIdentifier - folder location that will be analyzed.
     * @return namespace and version.
     */
-   private String extractNamespaceAndVersion( @Nonnull final String modelIdentifier ) {
-      if ( modelIdentifier.lastIndexOf( LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR ) == -1 ) {
-         return StringUtils.EMPTY;
-      }
-
-      if ( modelIdentifier.endsWith( ModelUtils.TTL_EXTENSION ) ) {
-         return modelIdentifier.substring( 0,
-               modelIdentifier.lastIndexOf( LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR ) );
-      }
-
-      return modelIdentifier;
-   }
+   //   private String extractNamespaceAndVersion( @Nonnull final String modelIdentifier ) {
+   //      if ( modelIdentifier.lastIndexOf( LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR ) == -1 ) {
+   //         return StringUtils.EMPTY;
+   //      }
+   //
+   //      if ( modelIdentifier.endsWith( ModelUtils.TTL_EXTENSION ) ) {
+   //         return modelIdentifier.substring( 0,
+   //               modelIdentifier.lastIndexOf( LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR ) );
+   //      }
+   //
+   //      return modelIdentifier;
+   //   }
 
    /**
     * This method will be used to identify the end folders (with no content in it) or the path which ends with a turtle
