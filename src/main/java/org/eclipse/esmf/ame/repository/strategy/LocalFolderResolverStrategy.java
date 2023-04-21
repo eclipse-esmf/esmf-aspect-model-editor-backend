@@ -40,6 +40,7 @@ import org.eclipse.esmf.ame.exceptions.FileWriteException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.model.repository.LocalPackageInfo;
 import org.eclipse.esmf.ame.model.repository.ValidFile;
+import org.eclipse.esmf.ame.model.resolver.FolderStructure;
 import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.InvalidNamespaceException;
@@ -49,13 +50,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import lombok.NonNull;
 
 @Service
 public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    private static final Logger LOG = LoggerFactory.getLogger( LocalFolderResolverStrategy.class );
-   private static final String TTL_FILE_DOES_NOT_EXISTS = "File %s does not exists.";
+   private static final String TTL_FILE_DOES_NOT_EXISTS = "File %s on namespace %s does not exists.";
+   private static final String STORAGE_FOLDER_NOT_EXISTS = "Folder/File %s does not exists.";
    private final ApplicationSettings applicationSettings;
    private Optional<Map<String, List<String>>> namespaces = Optional.empty();
 
@@ -64,9 +68,11 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    @Override
-   public Boolean checkModelExist( final @Nonnull String namespace, final String storagePath ) {
-      final String filePath = LocalFolderResolverUtils.extractFilePath( namespace ).toString();
-      final String qualifiedFilePath = getQualifiedFilePath( filePath, storagePath );
+   public Boolean checkModelExist( final @Nonnull String namespace, final @Nonnull String fileName,
+         final String storagePath ) {
+      final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( namespace );
+      folderStructure.setFileName( fileName );
+      final String qualifiedFilePath = getQualifiedFilePath( folderStructure.toString(), storagePath );
 
       return new File( qualifiedFilePath ).exists();
    }
@@ -88,7 +94,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final File storeFile = getFileInstance( qualifiedFilePath );
 
       if ( !storeFile.exists() ) {
-         throw new FileNotFoundException( String.format( TTL_FILE_DOES_NOT_EXISTS, namespace ) );
+         throw new FileNotFoundException( String.format( TTL_FILE_DOES_NOT_EXISTS, fileName, namespace ) );
       }
 
       return storeFile;
@@ -156,7 +162,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final File file = getFileInstance( qualifiedFilePath );
 
       if ( !file.exists() ) {
-         throw new FileNotFoundException( String.format( TTL_FILE_DOES_NOT_EXISTS, namespace ) );
+         throw new FileNotFoundException( String.format( TTL_FILE_DOES_NOT_EXISTS, fileName, namespace ) );
       }
 
       deleteEmptyFiles( file );
@@ -177,7 +183,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final File file = getFileInstance( storagePath );
 
       if ( !file.exists() ) {
-         throw new FileNotFoundException( String.format( TTL_FILE_DOES_NOT_EXISTS, storagePath ) );
+         throw new FileNotFoundException( String.format( STORAGE_FOLDER_NOT_EXISTS, storagePath ) );
       }
 
       return new LocalPackageInfo(
@@ -186,20 +192,14 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    @Override
-   public AspectModelUrn convertFileToUrn( final File inputFile ) {
+   public Tuple2<String, String> convertFileToTuple( final File inputFile ) {
       final File versionDirectory = inputFile.getParentFile();
       final String version = versionDirectory.getName();
       final File namespaceDirectory = versionDirectory.getParentFile();
       final String namespace = namespaceDirectory.getName();
       final String aspectName = FilenameUtils.removeExtension( inputFile.getName() );
-      final String urn = String.format( "urn:samm:%s:%s#%s", namespace, version, aspectName );
-      return LocalFolderResolverUtils.convertToAspectModelUrn( urn );
-   }
-
-   @Override
-   public AspectModelUrn convertAspectModelFileNameToUrn( final String aspectFileName ) {
-      final String urn = replaceLastColon( aspectFileName ).replace( ".ttl", "" );
-      return LocalFolderResolverUtils.convertToAspectModelUrn( String.format( "urn:samm:%s", urn ) );
+      final String versionedNamespace = String.format( "%s:%s", namespace, version );
+      return Tuple.of( aspectName, versionedNamespace );
    }
 
    private synchronized Optional<Map<String, List<String>>> getNamespaces() {
@@ -220,7 +220,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final File file = getFileInstance( rootSharedFolder );
 
       if ( !file.exists() ) {
-         throw new FileNotFoundException( String.format( TTL_FILE_DOES_NOT_EXISTS, rootSharedFolder ) );
+         throw new FileNotFoundException( String.format( STORAGE_FOLDER_NOT_EXISTS, rootSharedFolder ) );
       }
 
       final List<String> endFilePaths = getEndFilePaths( rootSharedFolder, file );

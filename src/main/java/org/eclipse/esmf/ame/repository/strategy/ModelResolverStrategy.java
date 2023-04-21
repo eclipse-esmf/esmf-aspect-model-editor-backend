@@ -23,6 +23,8 @@ import javax.annotation.Nonnull;
 import org.eclipse.esmf.ame.model.repository.LocalPackageInfo;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
+import io.vavr.Tuple2;
+
 public interface ModelResolverStrategy {
 
    /**
@@ -32,7 +34,7 @@ public interface ModelResolverStrategy {
     * @param filename - file name of the file.y
     * @param storagePath - path to storage files.
     */
-   Boolean checkModelExist( @Nonnull final String namespace, final String storagePath );
+   Boolean checkModelExist( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
 
    /**
     * Returns turtleData based on received namespace.
@@ -106,13 +108,5 @@ public interface ModelResolverStrategy {
     *
     * @param inputFile - file from workspace.
     */
-   AspectModelUrn convertFileToUrn( final File inputFile );
-
-   /**
-    * Returns the converted {@link AspectModelUrn} from the file name that is provided.
-    *
-    * @param aspectFileName - file name of the aspect.
-    * @return the converted {@link AspectModelUrn} from the file name that is provided.
-    */
-   AspectModelUrn convertAspectModelFileNameToUrn( final String aspectFileName );
+   Tuple2<String, String> convertFileToTuple( final File inputFile );
 }

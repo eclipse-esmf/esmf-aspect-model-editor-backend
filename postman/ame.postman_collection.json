@@ -22,7 +22,18 @@
 			],
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "NAMESPACE",
+						"value": "io.aspectmodel:1.0.0",
+						"type": "default"
+					},
+					{
+						"key": "FILE-NAME",
+						"value": "AspectDefault.ttl",
+						"type": "default"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
@@ -63,8 +74,8 @@
 				"method": "POST",
 				"header": [
 					{
-						"key": "Ame-Model-Urn",
-						"value": ":latest.ttl",
+						"key": "FILE-NAME",
+						"value": "latest.ttl",
 						"type": "text"
 					}
 				],
@@ -109,9 +120,14 @@
 				"method": "GET",
 				"header": [
 					{
-						"key": "Ame-Model-Urn",
-						"value": "io.aspectmodel:1.0.0:AspectDefault.ttl",
+						"key": "NAMESPACE",
+						"value": "io.aspectmodel:1.0.0",
 						"type": "text"
+					},
+					{
+						"key": "FILE-NAME",
+						"value": "AspectDefault.ttl",
+						"type": "default"
 					}
 				],
 				"url": {
@@ -150,8 +166,8 @@
 				"method": "GET",
 				"header": [
 					{
-						"key": "Ame-Model-Urn",
-						"value": ":latest.ttl",
+						"key": "FILE-NAME",
+						"value": "latest.ttl",
 						"type": "text"
 					}
 				],
@@ -396,9 +412,14 @@
 				"method": "DELETE",
 				"header": [
 					{
-						"key": "Ame-Model-Urn",
-						"value": "io.aspectmodel:1.0.0:AspectDefault.ttl",
+						"key": "NAMESPACE",
+						"value": "io.aspectmodel:1.0.0",
 						"type": "text"
+					},
+					{
+						"key": "FILE-NAME",
+						"value": "AspectDefault.ttl",
+						"type": "default"
 					}
 				],
 				"url": {

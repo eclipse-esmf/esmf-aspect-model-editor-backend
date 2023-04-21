@@ -157,7 +157,8 @@ public class PackageService {
 
       localPackageInfo.getValidFiles().forEach( fileInfo -> {
          final String fileName = fileInfo.getFileName();
-         final Boolean modelExist = strategy.checkModelExist( fileName, ValidationProcess.MODELS.getPath().toString() );
+         final Boolean modelExist = strategy.checkModelExist( fileInfo.getNamespace(), fileName,
+               ValidationProcess.MODELS.getPath().toString() );
 
          String aspectModel = fileInfo.getAspectModel();
 
@@ -194,7 +195,7 @@ public class PackageService {
          data.getFiles().forEach( fileName -> {
             final String modelAsString = strategy.getModelAsString( data.getNamespace(), fileName,
                   modelsProcess.getPath().toString() );
-            
+
             strategy.saveModel( Optional.of( data.getNamespace() ), Optional.of( fileName ),
                   ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
                   modelsProcess.getPath().toString() );
@@ -224,7 +225,7 @@ public class PackageService {
 
          final String errorMessage = String.format(
                "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", focusNode, fileName );
-         return new MissingElement( fileName.split( ":" )[2], (focusNode != null ? focusNode.toString() : ""),
+         return new MissingElement( fileName, (focusNode != null ? focusNode.toString() : ""),
                missingAspectModelFile, errorMessage );
       } ).toList();
    }

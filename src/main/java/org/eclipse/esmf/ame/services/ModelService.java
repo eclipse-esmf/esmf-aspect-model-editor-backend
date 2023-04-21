@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.model.migration.FileInformation;
@@ -30,6 +31,7 @@ import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import org.eclipse.esmf.ame.repository.ModelResolverRepository;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
 import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
+import org.eclipse.esmf.ame.resolver.inmemory.InMemoryStrategy;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.aspectmodel.resolver.services.DataType;
 import org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel;
@@ -38,6 +40,8 @@ import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.aspectmodel.versionupdate.MigratorService;
 import org.springframework.stereotype.Service;
 
+import io.vavr.NotImplementedError;
+import io.vavr.Tuple2;
 import io.vavr.control.Try;
 
 @Service
@@ -69,11 +73,21 @@ public class ModelService {
       return strategy.saveModel( namespace, fileName, prettyPrintedModel, path );
    }
 
-   private void saveVersionedModel( final VersionedModel versionedModel, final AspectModelUrn aspectModelUrn,
+   private void saveVersionedModel( final VersionedModel versionedModel, final String namespace, final String fileName,
          final String path ) {
+
+      final Optional<StmtIterator> esmfStatements = InMemoryStrategy.getEsmfStatements( versionedModel.getModel() );
+
+      final String uri = esmfStatements.stream().findFirst()
+                                       .orElseThrow(
+                                             () -> new NotImplementedError( "AspectModelUrn cannot be found." ) )
+                                       .next()
+                                       .getSubject().getURI();
+
       final String prettyPrintedVersionedModel = ModelUtils.getPrettyPrintedVersionedModel( versionedModel,
-            aspectModelUrn.getUrn() );
-      // saveModel( Optional.of( aspectModelUrn.getUrn().toString() ), prettyPrintedVersionedModel, Optional.of( path ) );
+            AspectModelUrn.fromUrn( uri ).getUrn() );
+
+      saveModel( Optional.of( namespace ), Optional.of( fileName ), prettyPrintedVersionedModel, Optional.of( path ) );
    }
 
    public void deleteModel( final String namespace, final String fileName ) {
@@ -108,9 +122,9 @@ public class ModelService {
                .forEach( inputFile -> {
                   if ( !inputFile.getName().equals( "latest.ttl" ) ) {
                      final Try<VersionedModel> versionedModels = updateModelVersion( inputFile );
-                     final AspectModelUrn aspectModelUrn = strategy.convertFileToUrn( inputFile );
-                     final Namespace namespace = resolveNamespace( namespaces, aspectModelUrn );
-                     namespaceFileInfo( namespace, versionedModels, aspectModelUrn, storagePath.toString() );
+                     final Tuple2<String, String> fileInfo = strategy.convertFileToTuple( inputFile );
+                     final Namespace namespace = resolveNamespace( namespaces, fileInfo._2 );
+                     namespaceFileInfo( namespace, versionedModels, fileInfo._1, fileInfo._2, storagePath.toString() );
                   }
                } );
 
@@ -121,8 +135,7 @@ public class ModelService {
       return ModelUtils.loadModelFromFile( inputFile ).flatMap( new MigratorService()::updateMetaModelVersion );
    }
 
-   private Namespace resolveNamespace( final List<Namespace> namespaces, final AspectModelUrn aspectModelUrn ) {
-      final String versionedNamespace = aspectModelUrn.getNamespace() + ":" + aspectModelUrn.getVersion();
+   private Namespace resolveNamespace( final List<Namespace> namespaces, final String versionedNamespace ) {
       final Optional<Namespace> first = namespaces.stream().filter(
             namespace -> namespace.versionedNamespace.equals( versionedNamespace ) ).findFirst();
 
@@ -134,18 +147,17 @@ public class ModelService {
    }
 
    private void namespaceFileInfo( final Namespace namespace, final Try<VersionedModel> model,
-         final AspectModelUrn aspectModelUrn, final String storagePath ) {
+         final String fileName, final String versionedNamespace, final String storagePath ) {
 
-      final boolean modelIsSuccess = false;
+      boolean modelIsSuccess = false;
 
       if ( model.isSuccess() ) {
-         saveVersionedModel( model.get(), aspectModelUrn, storagePath );
-         //         modelIsSuccess = !getModel(
-         //               namespace.versionedNamespace + ':' + aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,
-         //               Optional.of( storagePath ) ).contains( "undefined:" );
+         saveVersionedModel( model.get(), versionedNamespace, fileName + ModelUtils.TTL_EXTENSION, storagePath );
+         modelIsSuccess = !getModel( namespace.versionedNamespace, fileName + ModelUtils.TTL_EXTENSION,
+               Optional.of( storagePath ) ).contains( "undefined:" );
       }
 
-      final FileInformation aspectModelFile = new FileInformation( aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,
+      final FileInformation aspectModelFile = new FileInformation( fileName + ModelUtils.TTL_EXTENSION,
             modelIsSuccess );
 
       namespace.addAspectModelFile( aspectModelFile );
