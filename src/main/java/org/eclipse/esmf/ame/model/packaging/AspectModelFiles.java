@@ -13,32 +13,23 @@
 
 package org.eclipse.esmf.ame.model.packaging;
 
-import org.eclipse.esmf.ame.model.validation.ViolationReport;
+import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
-public class ValidFile {
-   @JsonProperty( "namespace" )
-   private final String namespace;
-   @JsonProperty( "fileName" )
-   private final String fileName;
-
-   @JsonProperty( "violationReport" )
-   private final ViolationReport validationReport;
-
+public class AspectModelFiles {
    @JsonInclude( JsonInclude.Include.NON_NULL )
-   @JsonProperty( "fileAlreadyDefined" )
-   private Boolean fileAlreadyDefined;
-
-   public ValidFile( final String namespace, final String fileName, final ViolationReport validationReport ) {
-      this.namespace = namespace;
-      this.fileName = fileName;
-      this.validationReport = validationReport;
-   }
+   @JsonProperty( "namespace" )
+   private String namespace;
+   @JsonInclude( JsonInclude.Include.NON_NULL )
+   @JsonProperty( "files" )
+   private List<String> files;
 }

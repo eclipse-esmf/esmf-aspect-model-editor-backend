@@ -37,6 +37,7 @@ import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.ame.model.packaging.AspectModelFiles;
 import org.eclipse.esmf.ame.model.resolver.FolderStructure;
 import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
@@ -137,8 +138,7 @@ public class ModelUtils {
     */
    public static Aspect resolveAspectFromModel( final String aspectModel, final ValidationProcess validationProcess )
          throws InvalidAspectModelException {
-      final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel,
-            validationProcess );
+      final InMemoryStrategy inMemoryStrategy = ModelUtils.inMemoryStrategy( aspectModel, validationProcess );
       final VersionedModel versionedModel = ModelUtils.loadModelFromStoragePath( inMemoryStrategy );
       return AspectModelLoader.getSingleAspectUnchecked( versionedModel );
    }
@@ -216,15 +216,15 @@ public class ModelUtils {
                                                                     .equals( ProcessingViolation.ERROR_CODE );
    }
 
-   public static List<String> copyAspectModelToDirectory( final List<String> aspectModelFiles,
+   public static List<String> copyAspectModelToDirectory( final List<AspectModelFiles> aspectModelFiles,
          final String sourceStorage, final String destStorage ) {
-      return aspectModelFiles.stream().map( file -> {
-         final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath(
-               file );
-         final String absoluteAspectModelPath = sourceStorage + File.separator + folderStructure.toString();
+
+      return aspectModelFiles.stream().flatMap( data -> data.getFiles().stream().map( fileName -> {
+         final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( data.getNamespace() );
+         folderStructure.setFileName( fileName );
+         final String absoluteAspectModelPath = sourceStorage + File.separator + folderStructure;
          final File aspectModelStoragePath = Paths.get( destStorage, folderStructure.getFileRootPath(),
                folderStructure.getVersion() ).toFile();
-
          try {
             FileUtils.copyFileToDirectory( new File( absoluteAspectModelPath ), aspectModelStoragePath );
             return folderStructure.toString();
@@ -232,7 +232,7 @@ public class ModelUtils {
             throw new FileNotFoundException(
                   String.format( "Cannot copy file %s to %s", folderStructure.getFileName(), aspectModelStoragePath ) );
          }
-      } ).toList();
+      } ) ).toList();
    }
 
    /**
@@ -250,16 +250,11 @@ public class ModelUtils {
                                  .resolve( aspectModelUrn.getVersion() );
 
       final String fileInformation = Arrays.stream(
-                                                 Optional.ofNullable( directory.toFile().listFiles() ).orElse( new File[] {} ) )
-                                           .filter( File::isFile )
-                                           .filter( file -> file.getName().endsWith( ".ttl" ) )
-                                           .map( File::toURI )
-                                           .sorted()
-                                           .filter( uri -> AspectModelResolver.containsDefinition(
-                                                 loadFromUri( uri ).get(), aspectModelUrn ) )
-                                           .map( URI::getPath )
-                                           .findFirst()
-                                           .orElse( "NO CORRESPONDING FILE FOUND" );
+                                                 Optional.ofNullable( directory.toFile().listFiles() ).orElse( new File[] {} ) ).filter( File::isFile )
+                                           .filter( file -> file.getName().endsWith( ".ttl" ) ).map( File::toURI )
+                                           .sorted().filter(
+                  uri -> AspectModelResolver.containsDefinition( loadFromUri( uri ).get(), aspectModelUrn ) )
+                                           .map( URI::getPath ).findFirst().orElse( "NO CORRESPONDING FILE FOUND" );
 
       final File filePath = new File( fileInformation );
 
@@ -267,8 +262,7 @@ public class ModelUtils {
          return fileInformation;
       }
 
-      return filePath.getPath().replace(
-            ApplicationSettings.getMetaModelStoragePath() + File.separator, "" );
+      return filePath.getPath().replace( ApplicationSettings.getMetaModelStoragePath() + File.separator, "" );
    }
 
    /**

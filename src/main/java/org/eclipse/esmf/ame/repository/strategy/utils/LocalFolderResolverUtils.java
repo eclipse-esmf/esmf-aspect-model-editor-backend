@@ -60,6 +60,19 @@ public class LocalFolderResolverUtils {
    }
 
    /**
+    * This method will build the path of the file.
+    *
+    * @param namespace - namespace of the aspect model.
+    * @param fileName - name of the file.
+    * @return path of the file.
+    */
+   public static String buildFilePath( final String namespace, final String fileName ) {
+      final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( namespace );
+      folderStructure.setFileName( fileName );
+      return folderStructure.toString();
+   }
+
+   /**
     * This method will convert the given urn to AspectModelUrn.
     *
     * @param urn - urn of the aspect model.

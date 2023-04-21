@@ -60,13 +60,13 @@ public interface ModelResolverStrategy {
     * Save given turtleData into repository. File path will be decided based on urn if exists, if not it will be
     * extracted from turtleData.
     *
-    * @param urn - used to extract file path.
+    * @param namespace - used to extract file path.
     * @param fileName - file name of the Aspect Model.
     * @param turtleData - content of the saved file.
     * @param storagePath - path to storage files.
     * @return the file location of the saved turtleData.
     */
-   String saveModel( Optional<String> urn, Optional<String> fileName, @Nonnull final String turtleData,
+   String saveModel( Optional<String> namespace, Optional<String> fileName, @Nonnull final String turtleData,
          final String storagePath );
 
    /**

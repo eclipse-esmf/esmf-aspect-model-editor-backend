@@ -14,20 +14,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Namespace {
-
    @JsonInclude( JsonInclude.Include.NON_NULL )
    @JsonProperty( "namespace" )
    public String versionedNamespace;
 
    @JsonInclude( JsonInclude.Include.NON_NULL )
    @JsonProperty( "files" )
-   public List<AspectModelFile> files = new ArrayList<>();
+   public List<FileInformation> files = new ArrayList<>();
 
    public Namespace( final String versionedNamespace ) {
       this.versionedNamespace = versionedNamespace;
    }
 
-   public void addAspectModelFile( final AspectModelFile file ) {
+   public void addAspectModelFile( final FileInformation file ) {
       files.add( file );
    }
 }

@@ -40,7 +40,6 @@ import org.eclipse.esmf.ame.exceptions.FileWriteException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.model.repository.LocalPackageInfo;
 import org.eclipse.esmf.ame.model.repository.ValidFile;
-import org.eclipse.esmf.ame.model.resolver.FolderStructure;
 import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.InvalidNamespaceException;
@@ -79,10 +78,12 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    @Override
-   public File getModelAsFile( final @Nonnull String namespace, final @Nonnull String filename,
+   public File getModelAsFile( final @Nonnull String namespace, final @Nonnull String fileName,
          final String storagePath ) {
 
-      final String filePath = isLatest( filename ) ? filename : buildFilePath( namespace, filename );
+      final String filePath = isLatest( fileName ) ?
+            fileName :
+            LocalFolderResolverUtils.buildFilePath( namespace, fileName );
       final String qualifiedFilePath = getQualifiedFilePath( filePath, storagePath );
       final File storeFile = getFileInstance( qualifiedFilePath );
 
@@ -95,12 +96,6 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    private boolean isLatest( final String fileName ) {
       return "latest.ttl".equals( fileName );
-   }
-
-   private String buildFilePath( final String namespace, final String filename ) {
-      final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( namespace );
-      folderStructure.setFileName( filename );
-      return folderStructure.toString();
    }
 
    @Override
@@ -156,7 +151,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    @Override
    public void deleteModel( final @Nonnull String namespace, final @Nonnull String fileName,
          final String storagePath ) {
-      final String filePath = buildFilePath( namespace, fileName );
+      final String filePath = LocalFolderResolverUtils.buildFilePath( namespace, fileName );
       final String qualifiedFilePath = getQualifiedFilePath( filePath, storagePath );
       final File file = getFileInstance( qualifiedFilePath );
 
@@ -292,10 +287,10 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
 
    private List<ValidFile> getListOfLocalPackageInformation( final List<String> filePath, final String storagePath ) {
       return filePath.stream().map( path -> {
-         final String aspectModelFile = transformToValidModelDirectory( path );
-         final String aspectModel = null;
-         //               getModelAsString( aspectModelFile, storagePath );
-         return new ValidFile( aspectModelFile, aspectModel );
+         final String[] arg = transformToValidModelDirectory( path ).split( ":" );
+         final String namespace = arg[0] + ":" + arg[1];
+         final String fileName = arg[2];
+         return new ValidFile( namespace, fileName, getModelAsString( namespace, fileName, storagePath ) );
       } ).toList();
    }
 

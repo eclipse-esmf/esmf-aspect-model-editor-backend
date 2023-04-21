@@ -23,7 +23,7 @@ import java.util.Optional;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.model.ValidationProcess;
-import org.eclipse.esmf.ame.model.migration.AspectModelFile;
+import org.eclipse.esmf.ame.model.migration.FileInformation;
 import org.eclipse.esmf.ame.model.migration.Namespace;
 import org.eclipse.esmf.ame.model.migration.Namespaces;
 import org.eclipse.esmf.ame.model.validation.ViolationReport;
@@ -145,7 +145,7 @@ public class ModelService {
          //               Optional.of( storagePath ) ).contains( "undefined:" );
       }
 
-      final AspectModelFile aspectModelFile = new AspectModelFile( aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,
+      final FileInformation aspectModelFile = new FileInformation( aspectModelUrn.getName() + ModelUtils.TTL_EXTENSION,
             modelIsSuccess );
 
       namespace.addAspectModelFile( aspectModelFile );

@@ -20,7 +20,9 @@ import org.apache.commons.io.FilenameUtils;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.ame.model.packaging.AspectModelFiles;
 import org.eclipse.esmf.ame.model.packaging.ProcessPackage;
+import org.eclipse.esmf.ame.services.PackageService;
 import org.eclipse.esmf.ame.web.utils.MediaTypeExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,8 +34,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import org.eclipse.esmf.ame.services.PackageService;
 
 /**
  * Controller class that supports the importing and exporting of the Aspect Model packages.
@@ -54,7 +54,7 @@ public class PackageResource {
     * @return information which Aspect Models are valid/invalid or missing.
     */
    @PostMapping( "/validate-models-for-export" )
-   public ProcessPackage validateAspectModelsForExport( @RequestBody final List<String> aspectModelFiles ) {
+   public ProcessPackage validateAspectModelsForExport( @RequestBody final List<AspectModelFiles> aspectModelFiles ) {
       return packageService.validateAspectModelsForExport( aspectModelFiles, ValidationProcess.EXPORT,
             ValidationProcess.MODELS.getPath() );
    }
@@ -86,7 +86,8 @@ public class PackageResource {
     * @return information which Aspect Models are valid/invalid or missing.
     */
    @PostMapping( "/import" )
-   public ResponseEntity<List<String>> importAspectModelPackage( @RequestBody final List<String> aspectModelFiles ) {
+   public ResponseEntity<List<String>> importAspectModelPackage(
+         @RequestBody final List<AspectModelFiles> aspectModelFiles ) {
       return ResponseEntity.ok( packageService.importAspectModelPackage( aspectModelFiles, ValidationProcess.IMPORT ) );
    }
 

@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class AspectModelFile {
+public class FileInformation {
 
    @JsonInclude( JsonInclude.Include.NON_NULL )
    @JsonProperty( "name" )
