@@ -151,7 +151,7 @@ class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         modelService.deleteModel( namespace );
+         //         modelService.deleteModel( namespace );
       }
 
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(

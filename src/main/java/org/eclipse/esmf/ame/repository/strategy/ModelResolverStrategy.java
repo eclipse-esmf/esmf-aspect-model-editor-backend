@@ -74,9 +74,10 @@ public interface ModelResolverStrategy {
     * ex: org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl
     *
     * @param namespace - used to extract filePath.
+    * @param fileName - file name of the Aspect Model.
     * @param storagePath - path to storage files.
     */
-   void deleteModel( @Nonnull final String namespace, final String storagePath );
+   void deleteModel( @Nonnull final String namespace, final String fileName, final String storagePath );
 
    /**
     * Deletes the whole storage directory.

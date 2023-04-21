@@ -154,8 +154,9 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    @Override
-   public void deleteModel( final @Nonnull String namespace, final String storagePath ) {
-      final String filePath = LocalFolderResolverUtils.extractFilePath( namespace ).toString();
+   public void deleteModel( final @Nonnull String namespace, final @Nonnull String fileName,
+         final String storagePath ) {
+      final String filePath = buildFilePath( namespace, fileName );
       final String qualifiedFilePath = getQualifiedFilePath( filePath, storagePath );
       final File file = getFileInstance( qualifiedFilePath );
 

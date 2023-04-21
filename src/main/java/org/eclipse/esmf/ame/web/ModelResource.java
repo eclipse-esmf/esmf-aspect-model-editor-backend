@@ -148,9 +148,13 @@ public class ModelResource {
    public void deleteModel( @RequestHeader final Map<String, String> headers ) {
       final Optional<String> optionalNameSpace = Optional.ofNullable( headers.get( NAMESPACE ) );
       final Optional<String> optionalFilename = Optional.ofNullable( headers.get( FILE_NAME ) );
+
       final String namespace = optionalNameSpace.orElseThrow(
             () -> new FileNotFoundException( "Please specify a namespace" ) );
 
-      modelService.deleteModel( namespace );
+      final String filename = optionalFilename.orElseThrow(
+            () -> new FileNotFoundException( "Please specify a file name" ) );
+
+      modelService.deleteModel( namespace, filename );
    }
 }

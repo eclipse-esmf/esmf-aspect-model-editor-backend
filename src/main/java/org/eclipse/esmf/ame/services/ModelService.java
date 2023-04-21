@@ -76,10 +76,10 @@ public class ModelService {
       // saveModel( Optional.of( aspectModelUrn.getUrn().toString() ), prettyPrintedVersionedModel, Optional.of( path ) );
    }
 
-   public void deleteModel( final String namespace ) {
+   public void deleteModel( final String namespace, final String fileName ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      strategy.deleteModel( namespace, ApplicationSettings.getMetaModelStoragePath().toString() );
+      strategy.deleteModel( namespace, fileName, ApplicationSettings.getMetaModelStoragePath().toString() );
    }
 
    public Map<String, List<String>> getAllNamespaces( final boolean shouldRefresh,
