@@ -363,26 +363,6 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    /**
-    * This method will extract namespace and version from the modelIdentifier.
-    * ex: org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl - org.eclipse.esmf.samm:1.0.0
-    *
-    * @param modelIdentifier - folder location that will be analyzed.
-    * @return namespace and version.
-    */
-   //   private String extractNamespaceAndVersion( @Nonnull final String modelIdentifier ) {
-   //      if ( modelIdentifier.lastIndexOf( LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR ) == -1 ) {
-   //         return StringUtils.EMPTY;
-   //      }
-   //
-   //      if ( modelIdentifier.endsWith( ModelUtils.TTL_EXTENSION ) ) {
-   //         return modelIdentifier.substring( 0,
-   //               modelIdentifier.lastIndexOf( LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR ) );
-   //      }
-   //
-   //      return modelIdentifier;
-   //   }
-
-   /**
     * This method will be used to identify the end folders (with no content in it) or the path which ends with a turtle
     * file.
     *
