@@ -13,6 +13,12 @@
 
 package org.eclipse.esmf.ame.repository.strategy.utils;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Objects;
+
+import javax.annotation.Nonnull;
+
 import org.apache.commons.io.FileUtils;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
@@ -20,11 +26,6 @@ import org.eclipse.esmf.ame.model.resolver.FolderStructure;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nonnull;
-import java.io.File;
-import java.io.IOException;
-import java.util.Objects;
 
 public class LocalFolderResolverUtils {
 
@@ -44,7 +45,6 @@ public class LocalFolderResolverUtils {
       return switch ( splitNamespace.length ) {
          case 1 -> new FolderStructure( path );
          case 2 -> extractNamespaceVersion( splitNamespace );
-         case 3 -> extractNamespaceVersionName( splitNamespace );
          default -> new FolderStructure();
       };
    }
@@ -60,13 +60,16 @@ public class LocalFolderResolverUtils {
    }
 
    /**
-    * Split the given path in path, version and filename based on ':'.
-    * ex: org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl
+    * This method will build the path of the file.
     *
-    * @param path - path of the current ttl.
+    * @param namespace - namespace of the aspect model.
+    * @param fileName - name of the file.
+    * @return path of the file.
     */
-   private static FolderStructure extractNamespaceVersionName( final String[] path ) {
-      return new FolderStructure( path[0], path[1], path[2] );
+   public static String buildFilePath( final String namespace, final String fileName ) {
+      final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( namespace );
+      folderStructure.setFileName( fileName );
+      return folderStructure.toString();
    }
 
    /**

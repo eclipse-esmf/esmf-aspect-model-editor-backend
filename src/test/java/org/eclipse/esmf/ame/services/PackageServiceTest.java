@@ -27,11 +27,10 @@ import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.ame.model.packaging.AspectModelFiles;
 import org.eclipse.esmf.ame.model.packaging.ProcessPackage;
 import org.eclipse.esmf.ame.model.resolver.FolderStructure;
-import org.eclipse.esmf.ame.repository.ModelResolverRepository;
 import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
-import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
@@ -45,23 +44,22 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith( SpringExtension.class )
 @SpringBootTest
 class PackageServiceTest {
-
    @Autowired
    private PackageService packageService;
 
-   @Autowired
-   private ModelResolverRepository modelResolverRepository;
-
-   private static final Path resourcesPath = Path.of( "src", "test", "resources" );
-   private static final Path workspaceToBackupPath = Path.of( resourcesPath.toString(), "workspace-to-backup" );
-   private static final String nameSpaceOne = "org.eclipse.esmf.test:1.0.0:TestFileOne.ttl";
-   private static final String nameSpaceTwo = "org.eclipse.esmf.test:1.0.0:TestFileTwo.ttl";
-   private static final String nameSpaceThree = "org.eclipse.esmf.test:1.0.0:TestFileThree.ttl";
+   private static final Path RESOURCE_PATH = Path.of( "src", "test", "resources" );
+   private static final Path WORKSPACE_TO_BACKUP_PATH = Path.of( RESOURCE_PATH.toString(), "workspace-to-backup" );
+   private static final String VERSION = "1.0.0";
+   private static final String NAMESPACE = "org.eclipse.esmf.test";
+   private static final String NAMESPACE_VERSION = NAMESPACE + ":" + VERSION;
+   private static final String FILE_ONE = "TestFileOne.ttl";
+   private static final String FILE_TWO = "TestFileTwo.ttl";
+   private static final String FILE_THREE = "TestFileThree.ttl";
 
    @Test
    void testValidateImportAspectModelPackage() throws IOException {
-      final Path storagePath = Paths.get( resourcesPath.toString(), "test-packages-import" );
-      final Path zipFilePath = Paths.get( resourcesPath.toString(), "TestArchive.zip" );
+      final Path storagePath = Paths.get( RESOURCE_PATH.toString(), "test-packages-import" );
+      final Path zipFilePath = Paths.get( RESOURCE_PATH.toString(), "TestArchive.zip" );
 
       final MockMultipartFile mockedZipFile = new MockMultipartFile( "TestArchive.zip",
             Files.readAllBytes( zipFilePath ) );
@@ -70,7 +68,7 @@ class PackageServiceTest {
       when( validationProcess.getPath() ).thenReturn( storagePath );
 
       final ProcessPackage importPackage = packageService.validateImportAspectModelPackage( mockedZipFile,
-            validationProcess, resourcesPath );
+            validationProcess, RESOURCE_PATH );
 
       assertEquals( importPackage.getValidFiles().size(), 2 );
       assertEquals( importPackage.getInvalidFiles().size(), 1 );
@@ -78,26 +76,22 @@ class PackageServiceTest {
 
    @Test
    void testValidateAspectModels() {
-      final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages-export" );
-      final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo );
+      final Path exportedStoragePath = Paths.get( RESOURCE_PATH.toString(), "test-packages-export" );
+      final List<AspectModelFiles> aspectModelFiles = List.of(
+            new AspectModelFiles( NAMESPACE_VERSION, List.of( FILE_ONE, FILE_TWO ) ) );
 
       final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
       Mockito.when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
 
       final ProcessPackage processedExportedPackage = packageService.validateAspectModelsForExport( aspectModelFiles,
-            validationProcess, resourcesPath );
+            validationProcess, RESOURCE_PATH );
 
       assertEquals( 2, processedExportedPackage.getValidFiles().size() );
       assertEquals( 1, processedExportedPackage.getMissingElements().size() );
 
-      final String[] nameSpaceOneArray = nameSpaceOne.split( ":" );
-      final String[] nameSpaceThreeArray = nameSpaceThree.split( ":" );
+      assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getAnalysedFileName().contains( FILE_ONE ) );
 
-      assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getAnalysedFileName()
-                                          .contains( nameSpaceOneArray[2] ) );
-
-      assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getMissingFileName()
-                                          .contains( nameSpaceThreeArray[2] ) );
+      assertTrue( processedExportedPackage.getMissingElements().get( 0 ).getMissingFileName().contains( FILE_THREE ) );
    }
 
    @Test
@@ -105,40 +99,29 @@ class PackageServiceTest {
       try ( final MockedStatic<LocalFolderResolverUtils> utilities = Mockito.mockStatic(
             LocalFolderResolverUtils.class ) ) {
 
-         final FolderStructure one = new FolderStructure( "org.eclipse.esmf.test", "1.0.0",
-               "TestFileOne.ttl" );
-         final FolderStructure two = new FolderStructure( "org.eclipse.esmf.test", "1.0.0",
-               "TestFileTwo.ttl" );
-         final FolderStructure three = new FolderStructure( "org.eclipse.esmf.test", "1.0.0",
-               "TestFileThree.ttl" );
-
-         final AspectModelUrn one_urn = AspectModelUrn.from( "urn:samm:org.eclipse.esmf.test:1.0.0#TestFileOne" )
-                                                      .get();
-         final AspectModelUrn two_urn = AspectModelUrn.from( "urn:samm:org.eclipse.esmf.test:1.0.0#TestFileTwo" )
-                                                      .get();
-         final AspectModelUrn three_urn = AspectModelUrn.from(
-                                                              "urn:samm:org.eclipse.esmf.test:1.0.0#TestFileThree" )
-                                                        .get();
-
+         final FolderStructure one = new FolderStructure( NAMESPACE, VERSION, FILE_ONE );
+         final FolderStructure two = new FolderStructure( NAMESPACE, VERSION, FILE_TWO );
+         final FolderStructure three = new FolderStructure( NAMESPACE, VERSION, FILE_THREE );
+         
          utilities.when( () -> LocalFolderResolverUtils.deleteDirectory( any( File.class ) ) )
                   .thenAnswer( (Answer<Void>) invocation -> null );
 
          utilities.when( () -> LocalFolderResolverUtils.extractFilePath( any( String.class ) ) )
                   .thenReturn( one, two, three );
 
-         utilities.when( () -> LocalFolderResolverUtils.convertToAspectModelUrn( any( String.class ) ) )
-                  .thenReturn( one_urn, two_urn, three_urn );
+         utilities.when( () -> LocalFolderResolverUtils.buildFilePath( any( String.class ), any( String.class ) ) )
+                  .thenReturn( one.toString(), two.toString(), three.toString() );
 
-         final Path exportedStoragePath = Paths.get( resourcesPath.toString(), "test-packages" );
-         final List<String> aspectModelFiles = List.of( nameSpaceOne, nameSpaceTwo, nameSpaceThree );
+         final Path exportedStoragePath = Paths.get( RESOURCE_PATH.toString(), "test-packages-export" );
+         final List<AspectModelFiles> aspectModelFiles = List.of(
+               new AspectModelFiles( NAMESPACE_VERSION, List.of( FILE_ONE, FILE_TWO, FILE_THREE ) ) );
 
          final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
          when( validationProcess.getPath() ).thenReturn( exportedStoragePath );
 
-         packageService.validateAspectModelsForExport( aspectModelFiles, validationProcess, resourcesPath );
+         packageService.validateAspectModelsForExport( aspectModelFiles, validationProcess, RESOURCE_PATH );
 
-         final byte[] bytes = packageService.exportAspectModelPackage( "TestExportArchive.zip",
-               validationProcess );
+         final byte[] bytes = packageService.exportAspectModelPackage( "TestExportArchive.zip", validationProcess );
 
          assertTrue( bytes.length > 0 );
       }
@@ -146,9 +129,9 @@ class PackageServiceTest {
 
    @Test
    void testBackupWorkspace() {
-      packageService.backupWorkspace( workspaceToBackupPath.toAbsolutePath(), resourcesPath.toAbsolutePath() );
+      packageService.backupWorkspace( WORKSPACE_TO_BACKUP_PATH.toAbsolutePath(), RESOURCE_PATH.toAbsolutePath() );
 
-      assertTrue( Arrays.stream( Objects.requireNonNull( resourcesPath.toFile().list() ) )
+      assertTrue( Arrays.stream( Objects.requireNonNull( RESOURCE_PATH.toFile().list() ) )
                         .anyMatch( file -> file.contains( "backup" ) ) );
    }
 }

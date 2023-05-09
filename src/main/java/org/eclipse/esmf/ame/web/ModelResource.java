@@ -45,7 +45,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping( "models" )
 public class ModelResource {
 
-   public static final String AME_MODEL_URN = "ame-model-urn";
+   public static final String FILE_NAME = "file-name";
+   public static final String NAMESPACE = "namespace";
    private final ModelService modelService;
 
    public ModelResource( final ModelService modelService ) {
@@ -58,11 +59,13 @@ public class ModelResource {
     */
    @GetMapping()
    public ResponseEntity<String> getModel( @RequestHeader final Map<String, String> headers ) {
-      final Optional<String> optionalNameSpace = Optional.ofNullable( headers.get( AME_MODEL_URN ) );
-      final String namespace = optionalNameSpace.orElseThrow(
-            () -> new FileNotFoundException( "Please specify a namespace" ) );
+      final Optional<String> optionalNameSpace = Optional.ofNullable( headers.get( NAMESPACE ) );
+      final Optional<String> optionalFilename = Optional.ofNullable( headers.get( FILE_NAME ) );
 
-      return ResponseEntity.ok( modelService.getModel( namespace, Optional.empty() ) );
+      final String filename = optionalFilename.orElseThrow(
+            () -> new FileNotFoundException( "Please specify a file name" ) );
+
+      return ResponseEntity.ok( modelService.getModel( optionalNameSpace.orElse( "" ), filename, Optional.empty() ) );
    }
 
    /**
@@ -73,7 +76,9 @@ public class ModelResource {
    @PostMapping( consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public ResponseEntity<String> createModel( @RequestHeader final Map<String, String> headers,
          @RequestBody final String turtleData ) {
-      modelService.saveModel( Optional.ofNullable( headers.get( AME_MODEL_URN ) ), turtleData, Optional.empty() );
+      final Optional<String> namespace = Optional.ofNullable( headers.get( NAMESPACE ) );
+      final Optional<String> fileName = Optional.ofNullable( headers.get( FILE_NAME ) );
+      modelService.saveModel( namespace, fileName, turtleData, Optional.empty() );
 
       return new ResponseEntity<>( HttpStatus.CREATED );
    }
@@ -141,10 +146,15 @@ public class ModelResource {
     */
    @DeleteMapping()
    public void deleteModel( @RequestHeader final Map<String, String> headers ) {
-      final Optional<String> optionalNameSpace = Optional.ofNullable( headers.get( AME_MODEL_URN ) );
+      final Optional<String> optionalNameSpace = Optional.ofNullable( headers.get( NAMESPACE ) );
+      final Optional<String> optionalFilename = Optional.ofNullable( headers.get( FILE_NAME ) );
+
       final String namespace = optionalNameSpace.orElseThrow(
             () -> new FileNotFoundException( "Please specify a namespace" ) );
 
-      modelService.deleteModel( namespace );
+      final String filename = optionalFilename.orElseThrow(
+            () -> new FileNotFoundException( "Please specify a file name" ) );
+
+      modelService.deleteModel( namespace, filename );
    }
 }

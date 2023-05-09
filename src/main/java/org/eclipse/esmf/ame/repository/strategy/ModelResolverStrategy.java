@@ -23,55 +23,63 @@ import javax.annotation.Nonnull;
 import org.eclipse.esmf.ame.model.repository.LocalPackageInfo;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
+import io.vavr.Tuple2;
+
 public interface ModelResolverStrategy {
 
    /**
     * Returns true or false if model exist.
     *
     * @param namespace - used to extract file path.
+    * @param filename - file name of the file.y
     * @param storagePath - path to storage files.
     */
-   Boolean checkModelExist( @Nonnull final String namespace, final String storagePath );
+   Boolean checkModelExist( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
 
    /**
     * Returns turtleData based on received namespace.
     * ex: org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl
     *
     * @param namespace - used to extract file path.
+    * @param filename - file name of the file.
     * @param storagePath - path to storage files.
     * @return the Aspect Model turtleData as {@link String}.
     */
-   String getModelAsString( @Nonnull final String namespace, final String storagePath );
+   String getModelAsString( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
 
    /**
     * Returns the path of the Aspect Model.
     * ex: org.eclipse.esmf/1.0.0/AspectDefault.ttl
     *
     * @param namespace - used to extract file path.
+    * @param filename - file name of the file.
     * @param storagePath - path to storage files.
     * @return the file location of the saved turtleData.
     */
-   File getModelAsFile( @Nonnull final String namespace, final String storagePath );
+   File getModelAsFile( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
 
    /**
     * Save given turtleData into repository. File path will be decided based on urn if exists, if not it will be
     * extracted from turtleData.
     *
-    * @param urn - used to extract file path.
+    * @param namespace - used to extract file path.
+    * @param fileName - file name of the Aspect Model.
     * @param turtleData - content of the saved file.
     * @param storagePath - path to storage files.
     * @return the file location of the saved turtleData.
     */
-   String saveModel( Optional<String> urn, @Nonnull final String turtleData, final String storagePath );
+   String saveModel( Optional<String> namespace, Optional<String> fileName, @Nonnull final String turtleData,
+         final String storagePath );
 
    /**
     * Deletes the folder from the given namespace.
     * ex: org.eclipse.esmf.samm:1.0.0:AspectDefault.ttl
     *
     * @param namespace - used to extract filePath.
+    * @param fileName - file name of the Aspect Model.
     * @param storagePath - path to storage files.
     */
-   void deleteModel( @Nonnull final String namespace, final String storagePath );
+   void deleteModel( @Nonnull final String namespace, final String fileName, final String storagePath );
 
    /**
     * Deletes the whole storage directory.
@@ -100,13 +108,5 @@ public interface ModelResolverStrategy {
     *
     * @param inputFile - file from workspace.
     */
-   AspectModelUrn convertFileToUrn( final File inputFile );
-
-   /**
-    * Returns the converted {@link AspectModelUrn} from the file name that is provided.
-    *
-    * @param aspectFileName - file name of the aspect.
-    * @return the converted {@link AspectModelUrn} from the file name that is provided.
-    */
-   AspectModelUrn convertAspectModelFileNameToUrn( final String aspectFileName );
+   Tuple2<String, String> convertFileToTuple( final File inputFile );
 }

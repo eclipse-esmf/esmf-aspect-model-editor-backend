@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.ame.model.packaging.AspectModelFiles;
 import org.eclipse.esmf.ame.model.packaging.MissingElement;
 import org.eclipse.esmf.ame.model.packaging.ProcessPackage;
 import org.eclipse.esmf.ame.model.packaging.ValidFile;
@@ -63,7 +64,7 @@ public class PackageService {
       DataType.setupTypeMapping();
    }
 
-   public ProcessPackage validateAspectModelsForExport( final List<String> aspectModelFiles,
+   public ProcessPackage validateAspectModelsForExport( final List<AspectModelFiles> aspectModelFiles,
          final ValidationProcess validationProcess, final Path modelStoragePath ) {
       try {
          final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(
@@ -81,23 +82,25 @@ public class PackageService {
       }
    }
 
-   private ProcessPackage validateAspectModelsFromDirectory( final List<String> aspectModelFiles,
+   private ProcessPackage validateAspectModelsFromDirectory( final List<AspectModelFiles> aspectModelFiles,
          final ModelResolverStrategy strategy, final ValidationProcess validationProcess,
          final Path modelStoragePath ) {
       final ProcessPackage processPackage = new ProcessPackage();
 
-      aspectModelFiles.forEach( fileName -> {
-         final String modelAsString = strategy.getModelAsString( fileName, validationProcess.getPath().toString() );
-         final AspectModelUrn aspectModelUrn = strategy.convertAspectModelFileNameToUrn( fileName );
-         strategy.saveModel( Optional.of( aspectModelUrn.toString() ),
-               ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
-               validationProcess.getPath().toString() );
-         final ViolationReport violationReport = ModelUtils.validateModel( modelAsString, aspectModelValidator,
-               validationProcess );
-         processPackage.addValidFiles( new ValidFile( fileName, violationReport ) );
-         getMissingAspectModelFiles( violationReport, fileName, modelStoragePath.toString() ).forEach(
-               processPackage::addMissingElement );
-      } );
+      for ( final AspectModelFiles data : aspectModelFiles ) {
+         data.getFiles().forEach( fileName -> {
+            final String modelAsString = strategy.getModelAsString( data.getNamespace(), fileName,
+                  validationProcess.getPath().toString() );
+            strategy.saveModel( Optional.of( data.getNamespace() ), Optional.of( fileName ),
+                  ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
+                  validationProcess.getPath().toString() );
+            final ViolationReport violationReport = ModelUtils.validateModel( modelAsString, aspectModelValidator,
+                  validationProcess );
+            processPackage.addValidFiles( new ValidFile( data.getNamespace(), fileName, violationReport ) );
+            getMissingAspectModelFiles( violationReport, fileName, modelStoragePath.toString() ).forEach(
+                  processPackage::addMissingElement );
+         } );
+      }
 
       return processPackage;
    }
@@ -153,8 +156,8 @@ public class PackageService {
          final String modelStoragePath ) {
 
       localPackageInfo.getValidFiles().forEach( fileInfo -> {
-         final String aspectModelFile = fileInfo.getAspectModelFile();
-         final Boolean modelExist = strategy.checkModelExist( aspectModelFile,
+         final String fileName = fileInfo.getFileName();
+         final Boolean modelExist = strategy.checkModelExist( fileInfo.getNamespace(), fileName,
                ValidationProcess.MODELS.getPath().toString() );
 
          String aspectModel = fileInfo.getAspectModel();
@@ -164,7 +167,7 @@ public class PackageService {
             aspectModel = fileInfo.getAspectModel().replaceAll( "bamm", "samm" )
                                   .replaceAll( "io.openmanufacturing", "org.eclipse.esmf.samm" );
 
-            strategy.saveModel( Optional.empty(),
+            strategy.saveModel( Optional.of( fileInfo.getNamespace() ), Optional.of( fileInfo.getFileName() ),
                   ModelUtils.getPrettyPrintedModel( aspectModel, ValidationProcess.IMPORT ),
                   ValidationProcess.IMPORT.getPath().toString() );
          }
@@ -172,13 +175,14 @@ public class PackageService {
          final ViolationReport violationReport = ModelUtils.validateModel( aspectModel, aspectModelValidator,
                validationProcess );
 
-         processPackage.addValidFiles( new ValidFile( aspectModelFile, violationReport, modelExist ) );
-         getMissingAspectModelFiles( violationReport, aspectModelFile, modelStoragePath ).forEach(
+         processPackage.addValidFiles(
+               new ValidFile( fileInfo.getNamespace(), fileName, violationReport, modelExist ) );
+         getMissingAspectModelFiles( violationReport, fileName, modelStoragePath ).forEach(
                processPackage::addMissingElement );
       } );
    }
 
-   public List<String> importAspectModelPackage( final List<String> aspectModelFiles,
+   public List<String> importAspectModelPackage( final List<AspectModelFiles> aspectModelFiles,
          final ValidationProcess validationProcess ) {
       final ValidationProcess modelsProcess = ValidationProcess.MODELS;
 
@@ -187,14 +191,16 @@ public class PackageService {
 
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      aspectModelFiles.forEach( fileName -> {
-         final String modelAsString = strategy.getModelAsString( fileName, modelsProcess.getPath().toString() );
-         final AspectModelUrn aspectModelUrn = strategy.convertAspectModelFileNameToUrn( fileName );
+      for ( final AspectModelFiles data : aspectModelFiles ) {
+         data.getFiles().forEach( fileName -> {
+            final String modelAsString = strategy.getModelAsString( data.getNamespace(), fileName,
+                  modelsProcess.getPath().toString() );
 
-         strategy.saveModel( Optional.of( aspectModelUrn.toString() ),
-               ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
-               modelsProcess.getPath().toString() );
-      } );
+            strategy.saveModel( Optional.of( data.getNamespace() ), Optional.of( fileName ),
+                  ModelUtils.getPrettyPrintedModel( modelAsString, validationProcess ),
+                  modelsProcess.getPath().toString() );
+         } );
+      }
 
       strategy.deleteDirectory( validationProcess.getPath().toFile() );
 
@@ -219,7 +225,7 @@ public class PackageService {
 
          final String errorMessage = String.format(
                "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", focusNode, fileName );
-         return new MissingElement( fileName.split( ":" )[2], (focusNode != null ? focusNode.toString() : ""),
+         return new MissingElement( fileName, (focusNode != null ? focusNode.toString() : ""),
                missingAspectModelFile, errorMessage );
       } ).toList();
    }

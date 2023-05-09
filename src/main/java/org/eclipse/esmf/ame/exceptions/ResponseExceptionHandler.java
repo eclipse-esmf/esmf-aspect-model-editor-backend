@@ -16,6 +16,7 @@ package org.eclipse.esmf.ame.exceptions;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
 import org.eclipse.esmf.ame.exceptions.model.ErrorResponse;
+import org.eclipse.esmf.aspectmodel.resolver.exceptions.InvalidNamespaceException;
 import org.eclipse.esmf.metamodel.loader.AspectLoadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,6 +141,19 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    public ResponseEntity<Object> handleInvalidAspectModelException( final WebRequest request,
          final InvalidAspectModelException e ) {
       return error( HttpStatus.BAD_REQUEST, request, e, e.getMessage() );
+   }
+
+   /**
+    * Method for handling exception to type {@link InvalidNamespaceException}
+    *
+    * @param request the Http request
+    * @param e the exception which occurred
+    * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
+    */
+   @ExceptionHandler( InvalidNamespaceException.class )
+   public ResponseEntity<Object> handleInvalidAspectModelException( final WebRequest request,
+         final InvalidNamespaceException e ) {
+      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
    }
 
    private ResponseEntity<Object> error( final HttpStatus responseCode, final WebRequest request,

@@ -13,10 +13,27 @@
 
 package org.eclipse.esmf.ame.resolver.inmemory;
 
-import io.vavr.NotImplementedError;
-import io.vavr.control.Try;
+import static org.apache.jena.http.auth.AuthEnv.LOG;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 import org.apache.commons.io.IOUtils;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.vocabulary.RDF;
 import org.eclipse.esmf.ame.exceptions.UrnNotFoundException;
@@ -30,15 +47,8 @@ import org.eclipse.esmf.aspectmodel.vocabulary.SAMMC;
 import org.eclipse.esmf.aspectmodel.vocabulary.SAMME;
 import org.eclipse.esmf.samm.KnownVersion;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.apache.jena.http.auth.AuthEnv.LOG;
+import io.vavr.NotImplementedError;
+import io.vavr.control.Try;
 
 public class InMemoryStrategy extends AbstractResolutionStrategy {
    public final Path processingRootPath;
@@ -56,11 +66,11 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
       final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
             aspectModel.getBytes( StandardCharsets.UTF_8 ) );
 
-       Model model = TurtleLoader.loadTurtle( byteArrayInputStream ).getOrElseThrow(
-               error -> new RiotException( error.getCause().getMessage(), error.getCause() ) );
+      final Model model = TurtleLoader.loadTurtle( byteArrayInputStream ).getOrElseThrow(
+            error -> new RiotException( error.getCause().getMessage(), error.getCause() ) );
 
-       IOUtils.closeQuietly( byteArrayInputStream );
-       return model;
+      IOUtils.closeQuietly( byteArrayInputStream );
+      return model;
    }
 
    @Override
@@ -132,11 +142,13 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
 
    public AspectModelUrn getAspectModelUrn() {
       return AspectModelUrn.fromUrn(
-            getEsmfStatements().orElseThrow( () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next()
-                               .getSubject().getURI() );
+            getEsmfStatements( aspectModel ).orElseThrow(
+                                                  () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next()
+                                            .getSubject().getURI() );
    }
 
-   private Optional<StmtIterator> getEsmfStatements() {
+   //TODO move to utils class
+   public static Optional<StmtIterator> getEsmfStatements( final Model aspectModel ) {
       final List<StmtIterator> stmtIterators = new ArrayList<>();
 
       KnownVersion.getVersions()
@@ -149,7 +161,8 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
       return stmtIterators.isEmpty() ? Optional.empty() : stmtIterators.stream().findFirst();
    }
 
-   private List<Resource> getListOfAllSAMMElements( final KnownVersion version ) {
+   //TODO move to utils class
+   private static List<Resource> getListOfAllSAMMElements( final KnownVersion version ) {
       final SAMM samm = new SAMM( version );
       final SAMMC sammc = new SAMMC( version );
       final SAMME samme = new SAMME( version, samm );
