@@ -26,19 +26,20 @@ import lombok.Data;
 public class ValidFile {
    @JsonProperty( "namespace" )
    private final String namespace;
+
    @JsonProperty( "fileName" )
    private final String fileName;
 
    @JsonProperty( "violationReport" )
-   private final ViolationReport validationReport;
+   private final ViolationReport violationReport;
 
    @JsonInclude( JsonInclude.Include.NON_NULL )
    @JsonProperty( "fileAlreadyDefined" )
    private Boolean fileAlreadyDefined;
 
-   public ValidFile( final String namespace, final String fileName, final ViolationReport validationReport ) {
+   public ValidFile( final String namespace, final String fileName, final ViolationReport violationReport ) {
       this.namespace = namespace;
       this.fileName = fileName;
-      this.validationReport = validationReport;
+      this.violationReport = violationReport;
    }
 }

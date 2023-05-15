@@ -17,9 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.apache.commons.io.FilenameUtils;
-import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
-import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.model.packaging.AspectModelFiles;
 import org.eclipse.esmf.ame.model.packaging.ProcessPackage;
 import org.eclipse.esmf.ame.services.PackageService;
@@ -55,8 +53,7 @@ public class PackageResource {
     */
    @PostMapping( "/validate-models-for-export" )
    public ProcessPackage validateAspectModelsForExport( @RequestBody final List<AspectModelFiles> aspectModelFiles ) {
-      return packageService.validateAspectModelsForExport( aspectModelFiles, ValidationProcess.EXPORT,
-            ValidationProcess.MODELS.getPath() );
+      return packageService.validateAspectModelsForExport( aspectModelFiles );
    }
 
    /**
@@ -75,8 +72,7 @@ public class PackageResource {
          throw new FileReadException( "Selected file is not a ZIP file." );
       }
 
-      return ResponseEntity.ok( packageService.validateImportAspectModelPackage( zipFile, ValidationProcess.IMPORT,
-            ValidationProcess.MODELS.getPath() ) );
+      return ResponseEntity.ok( packageService.validateImportAspectModelPackage( zipFile ) );
    }
 
    /**
@@ -88,7 +84,7 @@ public class PackageResource {
    @PostMapping( "/import" )
    public ResponseEntity<List<String>> importAspectModelPackage(
          @RequestBody final List<AspectModelFiles> aspectModelFiles ) {
-      return ResponseEntity.ok( packageService.importAspectModelPackage( aspectModelFiles, ValidationProcess.IMPORT ) );
+      return ResponseEntity.ok( packageService.importAspectModelPackage( aspectModelFiles ) );
    }
 
    /**
@@ -102,7 +98,7 @@ public class PackageResource {
 
       return ResponseEntity.ok()
                            .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + zipFileName + "\"" )
-                           .body( packageService.exportAspectModelPackage( zipFileName, ValidationProcess.EXPORT ) );
+                           .body( packageService.exportAspectModelPackage( zipFileName ) );
    }
 
    /**
@@ -112,8 +108,7 @@ public class PackageResource {
     */
    @GetMapping( path = "/backup-workspace" )
    public ResponseEntity<Void> backupWorkspace() {
-      packageService.backupWorkspace( ApplicationSettings.getMetaModelStoragePath(),
-            ApplicationSettings.getAspectModelEditorStoragePath() );
+      packageService.backupWorkspace();
       return new ResponseEntity<>( HttpStatus.CREATED );
    }
 }

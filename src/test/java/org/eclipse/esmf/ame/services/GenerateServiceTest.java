@@ -22,7 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 import org.junit.jupiter.api.Test;
@@ -44,24 +44,23 @@ class GenerateServiceTest {
 
    private static final Path resourcesPath = Path.of( "src", "test", "resources" );
    private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example",
-         "1.0.0" );
+           "1.0.0" );
 
    private static final String aspectModelFile = "AspectModel.ttl";
 
    @Test
    void testAspectModelJsonSample() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
+              LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( storagePath.toString() );
+                 .thenReturn( storagePath.toString() );
 
-         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
-         Mockito.when( validationProcess.getPath() ).thenReturn( resourcesPath );
+         final ProcessPath processPath = Mockito.mock( ProcessPath.class );
+         Mockito.when( processPath.getPath() ).thenReturn( resourcesPath );
 
-         final String payload = generateService.sampleJSONPayload(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), validationProcess );
+         final String payload = generateService.sampleJSONPayload( Files.readString( storagePath, StandardCharsets.UTF_8 ) );
          assertEquals( "{\"property\":\"eOMtThyhVNLWUZNRcBaQKxI\"}", payload );
       }
    }
@@ -69,34 +68,33 @@ class GenerateServiceTest {
    @Test
    void testAspectModelJsonSchema() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
+              LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( storagePath.toString() );
+                 .thenReturn( storagePath.toString() );
 
-         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
-         Mockito.when( validationProcess.getPath() ).thenReturn( resourcesPath );
+         final ProcessPath processPath = Mockito.mock( ProcessPath.class );
+         Mockito.when( processPath.getPath() ).thenReturn( resourcesPath );
 
-         final String payload = generateService.jsonSchema( Files.readString( storagePath, StandardCharsets.UTF_8 ),
-               validationProcess, "en-EN" );
+         final String payload = generateService.jsonSchema( Files.readString( storagePath, StandardCharsets.UTF_8 ), "en-EN" );
          assertTrue(
-               payload.contains( "#/components/schemas/urn_samm_org.eclipse.esmf.example_1.0.0_Characteristic" ) );
+                 payload.contains( "#/components/schemas/urn_samm_org.eclipse.esmf.example_1.0.0_Characteristic" ) );
       }
    }
 
    @Test
    void testAspectModelJsonOpenApiSpec() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
+              LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( storagePath.toString() );
+                 .thenReturn( storagePath.toString() );
 
          final String payload = generateService.generateJsonOpenApiSpec( "en",
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), "https://test.com", false, false,
-               Optional.of( PagingOption.TIME_BASED_PAGING ) );
+                 Files.readString( storagePath, StandardCharsets.UTF_8 ), "https://test.com", false, false,
+                 Optional.of( PagingOption.TIME_BASED_PAGING ) );
 
          assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
          assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
@@ -108,15 +106,15 @@ class GenerateServiceTest {
    @Test
    void testAspectModelYamlOpenApiSpec() throws IOException {
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
+              LocalFolderResolverStrategy.class ) ) {
          final Path storagePath = Path.of( eclipseTestPath.toString(), aspectModelFile );
 
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( storagePath.toString() );
+                 .thenReturn( storagePath.toString() );
 
          final String payload = generateService.generateYamlOpenApiSpec( "en",
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), "https://test.com", false, false,
-               Optional.of( PagingOption.TIME_BASED_PAGING ) );
+                 Files.readString( storagePath, StandardCharsets.UTF_8 ), "https://test.com", false, false,
+                 Optional.of( PagingOption.TIME_BASED_PAGING ) );
 
          assertTrue( payload.contains( "openapi: 3.0.3" ) );
          assertTrue( payload.contains( "title: AspectModel" ) );

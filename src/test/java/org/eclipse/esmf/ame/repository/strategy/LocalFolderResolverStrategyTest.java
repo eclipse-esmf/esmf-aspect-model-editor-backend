@@ -25,7 +25,7 @@ import java.util.Optional;
 import org.apache.jena.riot.RiotException;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
-import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,7 +61,9 @@ class LocalFolderResolverStrategyTest {
 
    @BeforeEach
    void setUp() {
+/*
       localFolderResolverStrategy = new LocalFolderResolverStrategy( applicationSettingsMock );
+*/
    }
 
    @Test
@@ -93,16 +95,16 @@ class LocalFolderResolverStrategyTest {
 
    @Test
    void testGetFilePathBasedOnTurtleData() throws IOException {
-      try ( final MockedStatic<ValidationProcess> utilities = Mockito.mockStatic( ValidationProcess.class ) ) {
+      try ( final MockedStatic<ProcessPath> utilities = Mockito.mockStatic( ProcessPath.class ) ) {
          final Path extRefAspectModel = Path.of( RESOURCE_PATH.toAbsolutePath().toString(), TTL_FILE_WITH_EXT_REF );
 
-         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
-         Mockito.when( validationProcess.getPath() ).thenReturn( extRefAspectModel );
+         final ProcessPath processPath = Mockito.mock( ProcessPath.class );
+         Mockito.when( processPath.getPath() ).thenReturn( extRefAspectModel );
 
-         utilities.when( () -> ValidationProcess.getEnum( any( String.class ) ) ).thenReturn( validationProcess );
+         utilities.when( () -> ProcessPath.getEnum( any( String.class ) ) ).thenReturn( processPath );
 
          final AspectModelUrn aspectModelUrn = localFolderResolverStrategy.getAspectModelUrn(
-               Files.readString( extRefAspectModel ), RESOURCE_PATH.toString() );
+               Files.readString( extRefAspectModel ) );
 
          assertEquals( ASPECT_MODEL_URN_WITH_EXT_REF_AS_STRING, aspectModelUrn.toString() );
       }
@@ -110,11 +112,11 @@ class LocalFolderResolverStrategyTest {
 
    @Test()
    void testSaveModelCanNotWriteToFile() {
-      try ( final MockedStatic<ValidationProcess> utilities = Mockito.mockStatic( ValidationProcess.class ) ) {
-         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
-         Mockito.when( validationProcess.getPath() ).thenReturn( RESOURCE_PATH );
+      try ( final MockedStatic<ProcessPath> utilities = Mockito.mockStatic( ProcessPath.class ) ) {
+         final ProcessPath processPath = Mockito.mock( ProcessPath.class );
+         Mockito.when( processPath.getPath() ).thenReturn( RESOURCE_PATH );
 
-         utilities.when( () -> ValidationProcess.getEnum( any() ) ).thenReturn( validationProcess );
+         utilities.when( () -> ProcessPath.getEnum( any() ) ).thenReturn( processPath );
 
          assertThrows( RiotException.class,
                () -> localFolderResolverStrategy.saveModel( Optional.empty(), Optional.empty(), TTL_FILE_CONTENT,

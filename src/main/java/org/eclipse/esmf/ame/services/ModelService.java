@@ -22,8 +22,7 @@ import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.StmtIterator;
-import org.eclipse.esmf.ame.config.ApplicationSettings;
-import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.ame.model.migration.FileInformation;
 import org.eclipse.esmf.ame.model.migration.Namespace;
 import org.eclipse.esmf.ame.model.migration.Namespaces;
@@ -31,7 +30,7 @@ import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import org.eclipse.esmf.ame.repository.ModelResolverRepository;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
 import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
-import org.eclipse.esmf.ame.resolver.inmemory.InMemoryStrategy;
+import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.aspectmodel.resolver.services.DataType;
 import org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel;
@@ -50,83 +49,79 @@ public class ModelService {
    private final ModelResolverRepository modelResolverRepository;
 
    public ModelService( final AspectModelValidator aspectModelValidator,
-         final ModelResolverRepository modelResolverRepository ) {
+                        final ModelResolverRepository modelResolverRepository ) {
       this.aspectModelValidator = aspectModelValidator;
       this.modelResolverRepository = modelResolverRepository;
 
       DataType.setupTypeMapping();
    }
 
-   public String getModel( final String namespace, final String filename, final Optional<String> storagePath ) {
+   public String getModel( final String namespace, final String filename ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      return strategy.getModelAsString( namespace, filename,
-            storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() ) );
+      return strategy.getModelAsString( namespace, filename, ProcessPath.MODELS.getPath().toString() );
    }
 
-   public String saveModel( final Optional<String> namespace, final Optional<String> fileName, final String aspectModel,
-         final Optional<String> storagePath ) {
+   public String saveModel( final Optional<String> namespace, final Optional<String> fileName, final String aspectModel ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-      final String prettyPrintedModel = ModelUtils.getPrettyPrintedModel( aspectModel, ValidationProcess.MODELS );
-      final String path = storagePath.orElse( ApplicationSettings.getMetaModelStoragePath().toString() );
+      final String prettyPrintedModel = ModelUtils.getPrettyPrintedModel( aspectModel );
+      final String path = ProcessPath.MODELS.getPath().toString();
 
       return strategy.saveModel( namespace, fileName, prettyPrintedModel, path );
    }
 
-   private void saveVersionedModel( final VersionedModel versionedModel, final String namespace, final String fileName,
-         final String path ) {
+   private void saveVersionedModel( final VersionedModel versionedModel, final String namespace, final String fileName ) {
 
-      final Optional<StmtIterator> esmfStatements = InMemoryStrategy.getEsmfStatements( versionedModel.getModel() );
+      final Optional<StmtIterator> esmfStatements = FileSystemStrategy.getEsmfStatements( versionedModel.getModel() );
 
       final String uri = esmfStatements.stream().findFirst()
-                                       .orElseThrow(
-                                             () -> new NotImplementedError( "AspectModelUrn cannot be found." ) )
-                                       .next()
-                                       .getSubject().getURI();
+              .orElseThrow(
+                      () -> new NotImplementedError( "AspectModelUrn cannot be found." ) )
+              .next()
+              .getSubject().getURI();
 
       final String prettyPrintedVersionedModel = ModelUtils.getPrettyPrintedVersionedModel( versionedModel,
-            AspectModelUrn.fromUrn( uri ).getUrn() );
+              AspectModelUrn.fromUrn( uri ).getUrn() );
 
-      saveModel( Optional.of( namespace ), Optional.of( fileName ), prettyPrintedVersionedModel, Optional.of( path ) );
+      saveModel( Optional.of( namespace ), Optional.of( fileName ), prettyPrintedVersionedModel );
    }
 
    public void deleteModel( final String namespace, final String fileName ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      strategy.deleteModel( namespace, fileName, ApplicationSettings.getMetaModelStoragePath().toString() );
+      strategy.deleteModel( namespace, fileName );
    }
 
-   public Map<String, List<String>> getAllNamespaces( final boolean shouldRefresh,
-         final ValidationProcess validationProcess ) {
+   public Map<String, List<String>> getAllNamespaces( final boolean shouldRefresh ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-      return strategy.getAllNamespaces( shouldRefresh, validationProcess.getPath().toString() );
+      return strategy.getAllNamespaces( shouldRefresh );
    }
 
-   public ViolationReport validateModel( final String aspectModel, final ValidationProcess validationProcess ) {
-      return ModelUtils.validateModel( aspectModel, aspectModelValidator, validationProcess );
+   public ViolationReport validateModel( final String aspectModel ) {
+      return ModelUtils.validateModel( aspectModel, aspectModelValidator );
    }
 
-   public String migrateModel( final String aspectModel, final ValidationProcess validationProcess ) {
-      return ModelUtils.migrateModel( aspectModel, validationProcess );
+   public String migrateModel( final String aspectModel ) {
+      return ModelUtils.migrateModel( aspectModel );
    }
 
-   public Namespaces migrateWorkspace( final Path storagePath ) {
+   public Namespaces migrateWorkspace() {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-      final File storageDirectory = storagePath.toFile();
+      final File storageDirectory = ProcessPath.MODELS.getPath().toFile();
 
       final String[] extensions = { "ttl" };
 
       final List<Namespace> namespaces = new ArrayList<>();
 
       FileUtils.listFiles( storageDirectory, extensions, true ).stream().map( File::getAbsoluteFile )
-               .forEach( inputFile -> {
-                  if ( !inputFile.getName().equals( "latest.ttl" ) ) {
-                     final Try<VersionedModel> versionedModels = updateModelVersion( inputFile );
-                     final Tuple2<String, String> fileInfo = strategy.convertFileToTuple( inputFile );
-                     final Namespace namespace = resolveNamespace( namespaces, fileInfo._2 );
-                     namespaceFileInfo( namespace, versionedModels, fileInfo._1, fileInfo._2, storagePath.toString() );
-                  }
-               } );
+              .forEach( inputFile -> {
+                 if ( !inputFile.getName().equals( "latest.ttl" ) ) {
+                    final Try<VersionedModel> versionedModels = updateModelVersion( inputFile );
+                    final Tuple2<String, String> fileInfo = strategy.convertFileToTuple( inputFile );
+                    final Namespace namespace = resolveNamespace( namespaces, fileInfo._2 );
+                    namespaceFileInfo( namespace, versionedModels, fileInfo._1, fileInfo._2 );
+                 }
+              } );
 
       return new Namespaces( namespaces );
    }
@@ -137,7 +132,7 @@ public class ModelService {
 
    private Namespace resolveNamespace( final List<Namespace> namespaces, final String versionedNamespace ) {
       final Optional<Namespace> first = namespaces.stream().filter(
-            namespace -> namespace.versionedNamespace.equals( versionedNamespace ) ).findFirst();
+              namespace -> namespace.versionedNamespace.equals( versionedNamespace ) ).findFirst();
 
       return first.orElseGet( () -> {
          final Namespace namespace = new Namespace( versionedNamespace );
@@ -146,24 +141,23 @@ public class ModelService {
       } );
    }
 
-   private void namespaceFileInfo( final Namespace namespace, final Try<VersionedModel> model,
-         final String fileName, final String versionedNamespace, final String storagePath ) {
+   private void namespaceFileInfo( final Namespace namespace, final Try<VersionedModel> model, final String fileName,
+                                   final String versionedNamespace ) {
 
       boolean modelIsSuccess = false;
 
       if ( model.isSuccess() ) {
-         saveVersionedModel( model.get(), versionedNamespace, fileName + ModelUtils.TTL_EXTENSION, storagePath );
-         modelIsSuccess = !getModel( namespace.versionedNamespace, fileName + ModelUtils.TTL_EXTENSION,
-               Optional.of( storagePath ) ).contains( "undefined:" );
+         saveVersionedModel( model.get(), versionedNamespace, fileName + ModelUtils.TTL_EXTENSION );
+         modelIsSuccess = !getModel( namespace.versionedNamespace, fileName + ModelUtils.TTL_EXTENSION ).contains( "undefined:" );
       }
 
       final FileInformation aspectModelFile = new FileInformation( fileName + ModelUtils.TTL_EXTENSION,
-            modelIsSuccess );
+              modelIsSuccess );
 
       namespace.addAspectModelFile( aspectModelFile );
    }
 
    public String getFormattedModel( final String aspectModel ) {
-      return ModelUtils.getPrettyPrintedModel( aspectModel, ValidationProcess.MODELS );
+      return ModelUtils.getPrettyPrintedModel( aspectModel );
    }
 }

@@ -18,7 +18,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ValidFile {
+public class AspectModelInformation {
    private String namespace;
    private String fileName;
    private String aspectModel;

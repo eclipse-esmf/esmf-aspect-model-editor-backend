@@ -21,13 +21,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.commons.io.IOUtils;
+import org.eclipse.esmf.ame.model.ProcessPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,22 +40,56 @@ public class ZipUtils {
 
    static final int BUFFER = 1024;
 
-   public static byte[] createZipFile( final String zipFileName, final String sourceStoragePath ) throws IOException {
-      final String zipFile = sourceStoragePath + File.separator + zipFileName;
+   public static byte[] createPackageFromCache( final String zipFileName, final Map<String, String> exportCache ) throws IOException {
+      final String zipFile = ProcessPath.AspectModelPath.getPath().toString() + File.separator + zipFileName;
 
-      FileOutputStream fos = null;
-      ZipOutputStream zos = null;
+      final Set<String> zipFolderSet = new HashSet<>();
+      final Set<String> zipVersionedNamespaceSet = new HashSet<>();
 
-      try {
-         fos = new FileOutputStream(zipFile);
-         zos = new ZipOutputStream(fos);
+      try ( FileOutputStream fos = new FileOutputStream( zipFile ); ZipOutputStream zos = new ZipOutputStream( fos ) ) {
+         for ( Map.Entry<String, String> entry : exportCache.entrySet() ) {
+            final String[] fileStructure = entry.getKey().split( ":" );
+            final String aspectModel = entry.getValue();
+
+            final String folder = fileStructure[0] + "/";
+            final String versionedNamespace = folder + fileStructure[1] + "/";
+            final String file = versionedNamespace + fileStructure[2];
+
+            if (!zipFolderSet.contains(folder)) {
+               zos.putNextEntry(new ZipEntry(folder));
+               zipFolderSet.add(folder);
+            }
+
+            if (!zipVersionedNamespaceSet.contains(versionedNamespace)) {
+               zos.putNextEntry(new ZipEntry(versionedNamespace));
+               zipVersionedNamespaceSet.add(versionedNamespace);
+            }
+
+            zos.putNextEntry( new ZipEntry( file ) );
+
+            zos.write( aspectModel.getBytes() );
+            zos.closeEntry();
+         }
+      } catch ( final IOException e ) {
+         LOG.error( "Cannot create zip file." );
+         throw new CreateFileException( "Error creating the zip file.", e );
+      }
+
+      return Files.readAllBytes( Paths.get( zipFile ) );
+   }
+
+   public static void createPackageFromWorkspace( final String zipFileName ) throws IOException {
+      final String sourceStoragePath =  ProcessPath.MODELS.getPath().toString();
+      final String zipFile = ProcessPath.AspectModelPath.getPath().toString() + File.separator + zipFileName;
+
+      try (FileOutputStream fos = new FileOutputStream(zipFile); ZipOutputStream zos = new ZipOutputStream(fos)) {
 
          final List<File> fileList = getFileList( new File( sourceStoragePath ), new ArrayList<>(), sourceStoragePath );
 
          for ( final File file : fileList ) {
             final String fileName = file.isDirectory() ?
-                  getFileName( file.toString(), sourceStoragePath ) + File.separator :
-                  getFileName( file.toString(), sourceStoragePath );
+                    getFileName( file.toString(), sourceStoragePath ) + File.separator :
+                    getFileName( file.toString(), sourceStoragePath );
             final BasicFileAttributes attr = Files.readAttributes( file.toPath(), BasicFileAttributes.class );
 
             final ZipEntry zipEntry = new ZipEntry( fileName );
@@ -77,12 +109,7 @@ public class ZipUtils {
       } catch ( final IOException e ) {
          LOG.error( "Cannot create zip file." );
          throw new CreateFileException( "Error creating the zip file.", e );
-      }finally {
-         IOUtils.closeQuietly( fos );
-         IOUtils.closeQuietly( zos );
       }
-
-      return Files.readAllBytes( Paths.get( zipFile ) );
    }
 
    private static List<File> getFileList( File source, final List<File> fileList, final String sourceStoragePath ) {
@@ -118,8 +145,6 @@ public class ZipUtils {
          while ( (count = bufferedInputStream.read( data, 0, BUFFER )) != -1 ) {
             zos.write( data, 0, count );
          }
-         IOUtils.closeQuietly( fileInputStream );
-         IOUtils.closeQuietly( bufferedInputStream );
       } catch ( final IOException e ) {
          LOG.error( "Cannot find file to write in." );
          throw new FileWriteException( "File for writing not found", e );

@@ -13,9 +13,12 @@
 
 package org.eclipse.esmf.ame.config;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.util.Collections;
 import java.util.List;
 
+import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
 import org.eclipse.esmf.ame.exceptions.ResponseExceptionHandler;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
 import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
@@ -36,10 +39,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableConfigurationProperties( ApplicationSettings.class )
 public class ApplicationConfig implements WebMvcConfigurer {
 
-   private final LocalFolderResolverStrategy localFolderStrategy;
+   private final ApplicationSettings applicationSettings;
 
-   public ApplicationConfig( final LocalFolderResolverStrategy localFolderStrategy ) {
-      this.localFolderStrategy = localFolderStrategy;
+   private FileSystem importFileSystem;
+
+   public ApplicationConfig( final ApplicationSettings applicationSettings ) {
+      this.applicationSettings = applicationSettings;
    }
 
    /**
@@ -66,7 +71,19 @@ public class ApplicationConfig implements WebMvcConfigurer {
    }
 
    @Bean
+   public FileSystem importFileSystem() {
+      if ( importFileSystem == null ) {
+         try {
+            importFileSystem = MemoryFileSystemBuilder.newEmpty().build();
+         } catch ( IOException e ) {
+            throw new RuntimeException( "Failed to create in-memory import file system.", e );
+         }
+      }
+      return importFileSystem;
+   }
+
+   @Bean
    public List<ModelResolverStrategy> modelStrategies() {
-      return Collections.singletonList( localFolderStrategy );
+      return Collections.singletonList( new LocalFolderResolverStrategy( applicationSettings, importFileSystem() ) );
    }
 }

@@ -28,7 +28,7 @@ import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
-import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.ame.model.migration.Namespaces;
 import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
@@ -71,8 +71,7 @@ class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( RESOURCE_PATH.toString() );
 
-         final String result = modelService.getModel( NAMESPACE_VERSION, TEST_MODEL,
-               Optional.of( RESOURCE_PATH.toString() ) );
+         final String result = modelService.getModel( NAMESPACE_VERSION, TEST_MODEL );
 
          assertEquals( result, Files.readString( TEST_NAMESPACE_PATH.resolve( TEST_MODEL ) ) );
       }
@@ -86,8 +85,7 @@ class ModelServiceTest {
                   .thenReturn( RESOURCE_PATH.toString() );
 
          assertThrows( FileNotFoundException.class,
-               () -> modelService.getModel( NAMESPACE_VERSION, TEST_MODEL_NOT_FOUND,
-                     Optional.of( RESOURCE_PATH.toString() ) ) );
+               () -> modelService.getModel( NAMESPACE_VERSION, TEST_MODEL_NOT_FOUND) );
       }
    }
 
@@ -100,12 +98,11 @@ class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+         final ProcessPath processPath = Mockito.mock( ProcessPath.class );
 
-         Mockito.when( validationProcess.getPath() ).thenReturn( RESOURCE_PATH );
+         Mockito.when( processPath.getPath() ).thenReturn( RESOURCE_PATH );
 
-         final ViolationReport validateReport = modelService.validateModel(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), validationProcess );
+         final ViolationReport validateReport = modelService.validateModel( Files.readString( storagePath, StandardCharsets.UTF_8 ) );
          assertTrue( validateReport.getViolationErrors().isEmpty() );
       }
    }
@@ -125,7 +122,7 @@ class ModelServiceTest {
                   .thenReturn( fileToReplace.toString() );
 
          final String result = modelService.saveModel( Optional.of( NAMESPACE_VERSION ), Optional.of( TEST_MODEL ),
-               turtleData, Optional.empty() );
+               turtleData );
          assertEquals( result, Path.of( EXAMPLE_NAMESPACE, VERSION, TEST_MODEL ).toString() );
       }
    }
@@ -145,8 +142,7 @@ class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( fileToReplace.toString() );
 
-         modelService.saveModel( Optional.of( NAMESPACE_VERSION ), Optional.of( TEST_MODEL ), turtleData,
-               Optional.empty() );
+         modelService.saveModel( Optional.of( NAMESPACE_VERSION ), Optional.of( TEST_MODEL ), turtleData );
       }
 
       try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
@@ -166,18 +162,17 @@ class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         assertThrows( FileNotFoundException.class,
-               () -> modelService.getModel( NAMESPACE_VERSION, TEST_MODEL, Optional.empty() ) );
+         assertThrows( FileNotFoundException.class, () -> modelService.getModel( NAMESPACE_VERSION, TEST_MODEL ) );
       }
    }
 
    @Test
    void testGetAllNamespaces() {
-      final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+      final ProcessPath processPath = Mockito.mock( ProcessPath.class );
 
-      Mockito.when( validationProcess.getPath() ).thenReturn( MIGRATION_WORKSPACE_PATH );
+      Mockito.when( processPath.getPath() ).thenReturn( MIGRATION_WORKSPACE_PATH );
 
-      final Map<String, List<String>> result = modelService.getAllNamespaces( true, validationProcess );
+      final Map<String, List<String>> result = modelService.getAllNamespaces( true );
 
       assertEquals( 2, result.size() );
    }
@@ -185,11 +180,11 @@ class ModelServiceTest {
    @Test()
    void testGetAllNamespacesThrowsIOException() {
       final Path storagePath = Paths.get( "src", "test", "noResources" );
-      final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
+      final ProcessPath processPath = Mockito.mock( ProcessPath.class );
 
-      Mockito.when( validationProcess.getPath() ).thenReturn( storagePath );
+      Mockito.when( processPath.getPath() ).thenReturn( storagePath );
 
-      assertThrows( FileNotFoundException.class, () -> modelService.getAllNamespaces( true, validationProcess ) );
+      assertThrows( FileNotFoundException.class, () -> modelService.getAllNamespaces( true ) );
    }
 
    @Disabled( "Should be reactivated as soon as there is something to migrate again." )
@@ -202,11 +197,10 @@ class ModelServiceTest {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( storagePath.toString() );
 
-         final ValidationProcess validationProcess = Mockito.mock( ValidationProcess.class );
-         Mockito.when( validationProcess.getPath() ).thenReturn( storagePath );
+         final ProcessPath processPath = Mockito.mock( ProcessPath.class );
+         Mockito.when( processPath.getPath() ).thenReturn( storagePath );
 
-         final String migratedModel = modelService.migrateModel(
-               Files.readString( storagePath, StandardCharsets.UTF_8 ), validationProcess );
+         final String migratedModel = modelService.migrateModel( Files.readString( storagePath, StandardCharsets.UTF_8 ) );
 
          checkMigratedModel( migratedModel );
       }
@@ -229,7 +223,7 @@ class ModelServiceTest {
          strategyUtilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                           .thenReturn( storagePath.toString() );
 
-         final Namespaces namespaces = modelService.migrateWorkspace( storagePath );
+         final Namespaces namespaces = modelService.migrateWorkspace();
 
          assertEquals( 2, namespaces.namespaces.size() );
          assertEquals( "io.migrate-workspace-one:1.0.0", namespaces.namespaces.get( 0 ).versionedNamespace );

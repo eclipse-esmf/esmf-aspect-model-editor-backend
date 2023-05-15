@@ -21,7 +21,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.jena.rdf.model.Model;
-import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.ame.model.ProcessPath;
+import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,18 +33,18 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import io.vavr.control.Try;
 
 @ExtendWith( SpringExtension.class )
-class InMemoryStrategyTest {
+class FileSystemStrategyTest {
    private static final Path resourcesPath = Path.of( "src", "test", "resources" );
    private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example",
          "1.0.0" );
    private static final String aspectModelFile = "AspectModel.ttl";
    private static final String aspectModelFileWithRef = "AspectModelWithExternalRef.ttl";
-   private ValidationProcess validationProcess;
+   private ProcessPath processPath;
 
    @BeforeEach
    void setUp() {
-      validationProcess = Mockito.mock( ValidationProcess.class );
-      Mockito.when( validationProcess.getPath() ).thenReturn( resourcesPath );
+      processPath = Mockito.mock( ProcessPath.class );
+      Mockito.when( processPath.getPath() ).thenReturn( resourcesPath );
    }
 
    @Test
@@ -51,9 +52,9 @@ class InMemoryStrategyTest {
       final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ),
             StandardCharsets.UTF_8 );
 
-      final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, validationProcess );
+      final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( fileToTest );
 
-      final Try<Model> apply = inMemoryStrategy.apply(
+      final Try<Model> apply = fileSystemStrategy.apply(
             AspectModelUrn.fromUrn( "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModel" ) );
 
       assertTrue( apply.isSuccess() );
@@ -64,8 +65,8 @@ class InMemoryStrategyTest {
       final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ),
             StandardCharsets.UTF_8 );
 
-      final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, validationProcess );
-      final Try<Model> result = inMemoryStrategy.apply( null );
+      final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( fileToTest );
+      final Try<Model> result = fileSystemStrategy.apply( null );
 
       assertTrue( result.isFailure() );
    }
@@ -75,8 +76,8 @@ class InMemoryStrategyTest {
       final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFileWithRef ),
             StandardCharsets.UTF_8 );
 
-      final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, validationProcess );
-      final Try<Model> result = inMemoryStrategy.apply( null );
+      final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( fileToTest );
+      final Try<Model> result = fileSystemStrategy.apply( null );
 
       assertTrue( result.isFailure() );
    }
