@@ -59,15 +59,14 @@ public class ModelService {
    public String getModel( final String namespace, final String filename ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      return strategy.getModelAsString( namespace, filename, ProcessPath.MODELS.getPath().toString() );
+      return strategy.getModelAsString( namespace, filename );
    }
 
    public String saveModel( final Optional<String> namespace, final Optional<String> fileName, final String aspectModel ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
       final String prettyPrintedModel = ModelUtils.getPrettyPrintedModel( aspectModel );
-      final String path = ProcessPath.MODELS.getPath().toString();
 
-      return strategy.saveModel( namespace, fileName, prettyPrintedModel, path );
+      return strategy.saveModel( namespace, fileName, prettyPrintedModel );
    }
 
    private void saveVersionedModel( final VersionedModel versionedModel, final String namespace, final String fileName ) {

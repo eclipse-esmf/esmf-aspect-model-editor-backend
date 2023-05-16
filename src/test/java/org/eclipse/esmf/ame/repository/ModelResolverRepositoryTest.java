@@ -17,6 +17,7 @@ import static junit.framework.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
+import java.nio.file.FileSystem;
 import java.util.Collections;
 
 import org.eclipse.esmf.ame.config.ApplicationSettings;
@@ -33,13 +34,12 @@ class ModelResolverRepositoryTest {
 
    @Test
    void testGetStrategy() {
-     /* final LocalFolderResolverStrategy localFolderResolverStrategy = new LocalFolderResolverStrategy(
-            mock( ApplicationSettings.class ) );*/
-     /* modelResolverRepository = new ModelResolverRepository( Collections.singletonList( localFolderResolverStrategy ) );
+      final LocalFolderResolverStrategy localFolderResolverStrategy = new LocalFolderResolverStrategy( mock( ApplicationSettings.class ), mock( FileSystem.class ), mock( String.class ) );
+      modelResolverRepository = new ModelResolverRepository( Collections.singletonList( localFolderResolverStrategy ) );
 
       final ModelResolverStrategy result = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      assertEquals( result, localFolderResolverStrategy );*/
+      assertEquals( result, localFolderResolverStrategy );
    }
 
    @Test()
@@ -47,6 +47,6 @@ class ModelResolverRepositoryTest {
       modelResolverRepository = new ModelResolverRepository( Collections.emptyList() );
 
       assertThrows( RuntimeException.class,
-            () -> modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class ) );
+              () -> modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class ) );
    }
 }

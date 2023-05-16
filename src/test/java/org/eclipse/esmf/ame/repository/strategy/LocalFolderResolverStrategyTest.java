@@ -15,9 +15,13 @@ package org.eclipse.esmf.ame.repository.strategy;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -30,6 +34,7 @@ import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,51 +49,49 @@ class LocalFolderResolverStrategyTest {
    @Autowired
    private ApplicationSettings applicationSettingsMock;
 
+   @Autowired
+   private FileSystem importFileSystemMock;
+
    private LocalFolderResolverStrategy localFolderResolverStrategy;
    private static final String VERSION = "1.0.0";
-   private static final String NAMESPACE_VERSION = "org.eclipse.esmf.example:" + VERSION;
+   private static final String NAMESPACE = "org.eclipse.esmf.example";
+   private static final String NAMESPACE_VERSION = NAMESPACE + ":" + VERSION;
    private static final String MODEL = "AspectModel.ttl";
    private static final String MODEL_WITH_EXT_REF = "AspectModelWithExternalRef";
    private static final String MODEL_NOT_EXIST = "AspectModelNotExist.ttl";
    private static final String ASPECT_MODEL_URN_WITH_EXT_REF_AS_STRING =
-         "urn:samm:" + NAMESPACE_VERSION + "#" + MODEL_WITH_EXT_REF;
+           "urn:samm:" + NAMESPACE_VERSION + "#" + MODEL_WITH_EXT_REF;
    private static final Path RESOURCE_PATH = Path.of( "src", "test", "resources" );
    private static final String TTL_FILE_CONTENT = "new result ttl file";
    private static final String TTL_FILE_EXTENSION = ".ttl";
    private static final String TTL_FILE_WITH_EXT_REF =
-         "org.eclipse.esmf.example" + File.separator + "1.0.0" + File.separator + "AspectModelWithExternalRef"
-               + TTL_FILE_EXTENSION;
+           "org.eclipse.esmf.example" + File.separator + "1.0.0" + File.separator + "AspectModelWithExternalRef"
+                   + TTL_FILE_EXTENSION;
 
    @BeforeEach
    void setUp() {
-/*
-      localFolderResolverStrategy = new LocalFolderResolverStrategy( applicationSettingsMock );
-*/
+      localFolderResolverStrategy = new LocalFolderResolverStrategy( applicationSettingsMock, importFileSystemMock, RESOURCE_PATH.toString() );
    }
 
    @Test
    void testCheckModelExists() {
-      assertTrue( localFolderResolverStrategy.checkModelExist( NAMESPACE_VERSION, MODEL, RESOURCE_PATH.toString() ) );
+      assertTrue( localFolderResolverStrategy.checkModelExist( NAMESPACE_VERSION, MODEL ) );
    }
 
    @Test
    void testCheckModelNotExists() {
-      assertFalse(
-            localFolderResolverStrategy.checkModelExist( NAMESPACE_VERSION, MODEL_NOT_EXIST,
-                  RESOURCE_PATH.toString() ) );
+      assertFalse( localFolderResolverStrategy.checkModelExist( NAMESPACE_VERSION, MODEL_NOT_EXIST ) );
    }
 
    @Test
    void testGetModelFileNotFound() {
       assertThrows( FileNotFoundException.class,
-            () -> localFolderResolverStrategy.getModelAsString( NAMESPACE_VERSION, MODEL_NOT_EXIST,
-                  RESOURCE_PATH.toString() ) );
+              () -> localFolderResolverStrategy.getModelAsString( NAMESPACE_VERSION, MODEL_NOT_EXIST ) );
    }
 
    @Test
    void testGetModel() {
-      final String result = localFolderResolverStrategy.getModelAsString( NAMESPACE_VERSION, MODEL,
-            RESOURCE_PATH.toString() );
+      final String result = localFolderResolverStrategy.getModelAsString( NAMESPACE_VERSION, MODEL );
 
       assertTrue( result.contains( "<urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#>" ) );
    }
@@ -99,12 +102,12 @@ class LocalFolderResolverStrategyTest {
          final Path extRefAspectModel = Path.of( RESOURCE_PATH.toAbsolutePath().toString(), TTL_FILE_WITH_EXT_REF );
 
          final ProcessPath processPath = Mockito.mock( ProcessPath.class );
-         Mockito.when( processPath.getPath() ).thenReturn( extRefAspectModel );
+         // Mockito.when( processPath.getPath() ).thenReturn( extRefAspectModel );
 
-         utilities.when( () -> ProcessPath.getEnum( any( String.class ) ) ).thenReturn( processPath );
+         // utilities.when( () -> ProcessPath.getEnum( any( String.class ) ) ).thenReturn( processPath );
 
          final AspectModelUrn aspectModelUrn = localFolderResolverStrategy.getAspectModelUrn(
-               Files.readString( extRefAspectModel ) );
+                 Files.readString( extRefAspectModel ) );
 
          assertEquals( ASPECT_MODEL_URN_WITH_EXT_REF_AS_STRING, aspectModelUrn.toString() );
       }
@@ -114,13 +117,12 @@ class LocalFolderResolverStrategyTest {
    void testSaveModelCanNotWriteToFile() {
       try ( final MockedStatic<ProcessPath> utilities = Mockito.mockStatic( ProcessPath.class ) ) {
          final ProcessPath processPath = Mockito.mock( ProcessPath.class );
-         Mockito.when( processPath.getPath() ).thenReturn( RESOURCE_PATH );
+         // Mockito.when( processPath.getPath() ).thenReturn( RESOURCE_PATH );
 
-         utilities.when( () -> ProcessPath.getEnum( any() ) ).thenReturn( processPath );
+        //  utilities.when( () -> ProcessPath.getEnum( any() ) ).thenReturn( processPath );
 
          assertThrows( RiotException.class,
-               () -> localFolderResolverStrategy.saveModel( Optional.empty(), Optional.empty(), TTL_FILE_CONTENT,
-                     RESOURCE_PATH.toString() ) );
+                 () -> localFolderResolverStrategy.saveModel( Optional.empty(), Optional.empty(), TTL_FILE_CONTENT ) );
       }
    }
 

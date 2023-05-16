@@ -79,7 +79,7 @@ public class PackageService {
       Map<String, ValidFile> validFiles = aspectModelFiles.stream()
               .flatMap( data -> data.getFiles().stream()
                       .map( fileName -> {
-                         String model = strategy.getModelAsString( data.getNamespace(), fileName, modelPath );
+                         String model = strategy.getModelAsString( data.getNamespace(), fileName );
                          AspectModelToExportCache.put( data.getNamespace() + ":" + fileName, model );
                          ViolationReport report = ModelUtils.validateModel( model, aspectModelValidator);
                          return new ValidFile( data.getNamespace(), fileName, report );
@@ -143,8 +143,7 @@ public class PackageService {
       return aspectModelInformations.stream()
               .map(fileInfo -> {
                  final String fileName = fileInfo.getFileName();
-                 final Boolean modelExist = strategy.checkModelExist(fileInfo.getNamespace(), fileName,
-                         ProcessPath.MODELS.getPath().toString());
+                 final Boolean modelExist = strategy.checkModelExist(fileInfo.getNamespace(), fileName);
 
                  final ViolationReport violationReport = ModelUtils.validateModelInMemoryFiles(
                          fileInfo.getAspectModel(), aspectModelValidator, importFileSystem);
@@ -167,7 +166,7 @@ public class PackageService {
             String aspectModel = Files.readString( importFileSystem.getPath( folderStructure.toString() ) );
             Optional<String> namespaceVersion = Optional.of( folderStructure.getFileRootPath() + File.separator + folderStructure.getVersion() );
 
-            strategy.saveModel( namespaceVersion, Optional.of( fileName ), aspectModel, ProcessPath.MODELS.getPath().toString() );
+            strategy.saveModel( namespaceVersion, Optional.of( fileName ), aspectModel );
 
             return folderStructure.toString();
          } catch ( final IOException e ) {

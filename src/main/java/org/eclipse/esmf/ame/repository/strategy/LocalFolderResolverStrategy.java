@@ -53,7 +53,6 @@ import org.springframework.stereotype.Service;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import lombok.NonNull;
 
 @Service
 public class LocalFolderResolverStrategy implements ModelResolverStrategy {
@@ -63,16 +62,17 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    private static final String STORAGE_FOLDER_NOT_EXISTS = "In-memory Folder/File %s does not exists.";
    private final ApplicationSettings applicationSettings;
    private final FileSystem importFileSystem;
+   private final String rootPath;
    private Optional<Map<String, List<String>>> namespaces = Optional.empty();
 
-   public LocalFolderResolverStrategy( final ApplicationSettings applicationSettings, final FileSystem importFileSystem ) {
+   public LocalFolderResolverStrategy( final ApplicationSettings applicationSettings, final FileSystem importFileSystem, final String rootPath ) {
       this.applicationSettings = applicationSettings;
       this.importFileSystem = importFileSystem;
+      this.rootPath = rootPath;
    }
 
    @Override
-   public Boolean checkModelExist( final @Nonnull String namespace, final @Nonnull String fileName,
-                                   final String storagePath ) {
+   public Boolean checkModelExist( final @Nonnull String namespace, final @Nonnull String fileName ) {
       final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( namespace );
       folderStructure.setFileName( fileName );
       final String qualifiedFilePath = getQualifiedFilePath( folderStructure.toString() );
@@ -81,14 +81,12 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    @Override
-   public String getModelAsString( final @Nonnull String namespace, final @Nonnull String filename,
-                                   final String storagePath ) {
-      return getFileContent( getModelAsFile( namespace, filename, storagePath ) );
+   public String getModelAsString( final @Nonnull String namespace, final @Nonnull String filename ) {
+      return getFileContent( getModelAsFile( namespace, filename ) );
    }
 
    @Override
-   public File getModelAsFile( final @Nonnull String namespace, final @Nonnull String fileName,
-                               final String storagePath ) {
+   public File getModelAsFile( final @Nonnull String namespace, final @Nonnull String fileName) {
 
       final String filePath = isLatest( fileName ) ?
               fileName :
@@ -108,15 +106,14 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    }
 
    @Override
-   public String saveModel( final Optional<String> namespace, final Optional<String> fileName,
-                            final @Nonnull String turtleData, final String storagePath ) {
+   public String saveModel( final Optional<String> namespace, final Optional<String> fileName, final @Nonnull String turtleData ) {
       try {
          ExtendedXsdDataType.setChecking( false );
 
          final String name = fileName.orElse( StringUtils.EMPTY );
          final String space = namespace.orElse( StringUtils.EMPTY );
 
-         final String filePath = isLatest( name ) ? name : getFilePath( space, name, turtleData, storagePath );
+         final String filePath = isLatest( name ) ? name : getFilePath( space, name, turtleData );
          final File storeFile = getFileInstance( getQualifiedFilePath( filePath ) );
 
          writeToFile( turtleData, storeFile );
@@ -128,8 +125,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       }
    }
 
-   private String getFilePath( final String namespace, final String fileName, final String turtleData,
-                               final String storagePath ) {
+   private String getFilePath( final String namespace, final String fileName, final String turtleData) {
 
       if ( namespace.contains( applicationSettings.getFileType() ) ) {
          throw new InvalidNamespaceException( "Namespace does not contain filename" );
@@ -429,7 +425,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     * @param namespace   - namespace of the current ttl.
     */
    protected String getQualifiedFilePath( final String namespace ) {
-      return ProcessPath.MODELS.getPath().toString() + File.separator + namespace;
+      return rootPath + File.separator + namespace;
    }
 
    /**

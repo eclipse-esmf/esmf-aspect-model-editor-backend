@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 
 import static org.apache.jena.http.auth.AuthEnv.LOG;
 
-public class InMemoryStrategy extends resolutionStrategy {
+public class InMemoryStrategy extends ResolutionStrategy {
    public final FileSystem fileSystem;
 
    public InMemoryStrategy( final String aspectModel, final Path processingRootPath, final FileSystem fileSystem ) throws RiotException {

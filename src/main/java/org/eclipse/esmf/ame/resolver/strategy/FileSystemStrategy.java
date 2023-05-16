@@ -29,7 +29,7 @@ import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 import io.vavr.control.Try;
 
-public class FileSystemStrategy extends resolutionStrategy {
+public class FileSystemStrategy extends ResolutionStrategy {
    public FileSystemStrategy( final String aspectModel ) throws RiotException {
       super(aspectModel, ProcessPath.MODELS.getPath());
    }

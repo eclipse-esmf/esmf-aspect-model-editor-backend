@@ -24,13 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class resolutionStrategy extends AbstractResolutionStrategy {
-   private static final Logger LOG = LoggerFactory.getLogger( resolutionStrategy.class );
+public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
+   private static final Logger LOG = LoggerFactory.getLogger( ResolutionStrategy.class );
 
    public final Path processingRootPath;
    public final Model aspectModel;
 
-   public resolutionStrategy( final String aspectModel, final Path processingRootPath) throws RiotException {
+   public ResolutionStrategy( final String aspectModel, final Path processingRootPath) throws RiotException {
       this.processingRootPath = processingRootPath;
       this.aspectModel = loadTurtleFromString(aspectModel);
    }

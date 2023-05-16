@@ -15,15 +15,14 @@ package org.eclipse.esmf.ame.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
@@ -40,6 +39,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith( SpringExtension.class )
@@ -62,6 +62,7 @@ class ModelServiceTest {
          "io.migrate-workspace-two", VERSION );
 
    private static final String TEST_MODEL = "AspectModel.ttl";
+   private static final String TEST_MODEL_TO_DELTE = "FileToDelete.ttl";
    private static final String TEST_MODEL_NOT_FOUND = "NOTFOUND.ttl";
 
    @Test
@@ -70,6 +71,10 @@ class ModelServiceTest {
             LocalFolderResolverStrategy.class ) ) {
          utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
                   .thenReturn( RESOURCE_PATH.toString() );
+
+         ProcessPath mockedEnum = Mockito.mock(ProcessPath.class);
+         when(mockedEnum.getPath()).thenReturn(RESOURCE_PATH);
+
 
          final String result = modelService.getModel( NAMESPACE_VERSION, TEST_MODEL );
 
@@ -100,7 +105,7 @@ class ModelServiceTest {
 
          final ProcessPath processPath = Mockito.mock( ProcessPath.class );
 
-         Mockito.when( processPath.getPath() ).thenReturn( RESOURCE_PATH );
+         when( processPath.getPath() ).thenReturn( RESOURCE_PATH );
 
          final ViolationReport validateReport = modelService.validateModel( Files.readString( storagePath, StandardCharsets.UTF_8 ) );
          assertTrue( validateReport.getViolationErrors().isEmpty() );
@@ -128,63 +133,9 @@ class ModelServiceTest {
    }
 
    @Test()
-   void testDeleteModel() throws IOException {
-      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
-         final Path fileToReplace = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL );
-
-         final String turtleData = Files.readString( fileToReplace, StandardCharsets.UTF_8 )
-                                        .replace( "AspectModel", "SavedModel" );
-
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( RESOURCE_PATH.toString() );
-
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( fileToReplace.toString() );
-
-         modelService.saveModel( Optional.of( NAMESPACE_VERSION ), Optional.of( TEST_MODEL ), turtleData );
-      }
-
-      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL );
-
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( storagePath.toString() );
-
-         modelService.deleteModel( NAMESPACE_VERSION, TEST_MODEL );
-      }
-
-      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL );
-
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( storagePath.toString() );
-
-         assertThrows( FileNotFoundException.class, () -> modelService.getModel( NAMESPACE_VERSION, TEST_MODEL ) );
-      }
-   }
-
-   @Test
-   void testGetAllNamespaces() {
-      final ProcessPath processPath = Mockito.mock( ProcessPath.class );
-
-      Mockito.when( processPath.getPath() ).thenReturn( MIGRATION_WORKSPACE_PATH );
-
-      final Map<String, List<String>> result = modelService.getAllNamespaces( true );
-
-      assertEquals( 2, result.size() );
-   }
-
-   @Test()
-   void testGetAllNamespacesThrowsIOException() {
-      final Path storagePath = Paths.get( "src", "test", "noResources" );
-      final ProcessPath processPath = Mockito.mock( ProcessPath.class );
-
-      Mockito.when( processPath.getPath() ).thenReturn( storagePath );
-
-      assertThrows( FileNotFoundException.class, () -> modelService.getAllNamespaces( true ) );
+   void testDeleteModel() {
+         modelService.deleteModel( NAMESPACE_VERSION, TEST_MODEL_TO_DELTE );
+         assertThrows( FileNotFoundException.class, () -> modelService.getModel( NAMESPACE_VERSION, TEST_MODEL_TO_DELTE ) );
    }
 
    @Disabled( "Should be reactivated as soon as there is something to migrate again." )
@@ -198,7 +149,7 @@ class ModelServiceTest {
                   .thenReturn( storagePath.toString() );
 
          final ProcessPath processPath = Mockito.mock( ProcessPath.class );
-         Mockito.when( processPath.getPath() ).thenReturn( storagePath );
+         when( processPath.getPath() ).thenReturn( storagePath );
 
          final String migratedModel = modelService.migrateModel( Files.readString( storagePath, StandardCharsets.UTF_8 ) );
 

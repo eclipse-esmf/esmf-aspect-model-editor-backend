@@ -32,9 +32,8 @@ public interface ModelResolverStrategy {
     *
     * @param namespace - used to extract file path.
     * @param filename - file name of the file.y
-    * @param storagePath - path to storage files.
     */
-   Boolean checkModelExist( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
+   Boolean checkModelExist( @Nonnull final String namespace, @Nonnull final String filename );
 
    /**
     * Returns turtleData based on received namespace.
@@ -42,10 +41,9 @@ public interface ModelResolverStrategy {
     *
     * @param namespace - used to extract file path.
     * @param filename - file name of the file.
-    * @param storagePath - path to storage files.
     * @return the Aspect Model turtleData as {@link String}.
     */
-   String getModelAsString( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
+   String getModelAsString( @Nonnull final String namespace, @Nonnull final String filename );
 
    /**
     * Returns the path of the Aspect Model.
@@ -53,10 +51,9 @@ public interface ModelResolverStrategy {
     *
     * @param namespace - used to extract file path.
     * @param filename - file name of the file.
-    * @param storagePath - path to storage files.
     * @return the file location of the saved turtleData.
     */
-   File getModelAsFile( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
+   File getModelAsFile( @Nonnull final String namespace, @Nonnull final String filename );
 
    /**
     * Save given turtleData into repository. File path will be decided based on urn if exists, if not it will be
@@ -65,11 +62,9 @@ public interface ModelResolverStrategy {
     * @param namespace - used to extract file path.
     * @param fileName - file name of the Aspect Model.
     * @param turtleData - content of the saved file.
-    * @param storagePath - path to storage files.
     * @return the file location of the saved turtleData.
     */
-   String saveModel( Optional<String> namespace, Optional<String> fileName, @Nonnull final String turtleData,
-         final String storagePath );
+   String saveModel( Optional<String> namespace, Optional<String> fileName, @Nonnull final String turtleData );
 
    /**
     * Deletes the folder from the given namespace.

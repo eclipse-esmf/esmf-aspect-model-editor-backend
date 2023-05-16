@@ -15,11 +15,13 @@ package org.eclipse.esmf.ame.config;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
 import org.eclipse.esmf.ame.exceptions.ResponseExceptionHandler;
+import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
 import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
 import org.eclipse.esmf.aspectmodel.shacl.constraint.JsConstraint;
@@ -28,6 +30,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -40,11 +44,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class ApplicationConfig implements WebMvcConfigurer {
 
    private final ApplicationSettings applicationSettings;
-
+   private final Environment environment;
    private FileSystem importFileSystem;
 
-   public ApplicationConfig( final ApplicationSettings applicationSettings ) {
+   public ApplicationConfig( final ApplicationSettings applicationSettings, final Environment environment ) {
       this.applicationSettings = applicationSettings;
+      this.environment = environment;
    }
 
    /**
@@ -83,7 +88,17 @@ public class ApplicationConfig implements WebMvcConfigurer {
    }
 
    @Bean
+   public String modelPath() {
+      if (environment.acceptsProfiles("test")) {
+         return Path.of( "src", "test", "resources" ).toAbsolutePath().toString();
+      }
+
+      return ProcessPath.MODELS.getPath().toString();
+   }
+
+
+   @Bean
    public List<ModelResolverStrategy> modelStrategies() {
-      return Collections.singletonList( new LocalFolderResolverStrategy( applicationSettings, importFileSystem() ) );
+      return Collections.singletonList( new LocalFolderResolverStrategy( applicationSettings, importFileSystem(), modelPath() ) );
    }
 }

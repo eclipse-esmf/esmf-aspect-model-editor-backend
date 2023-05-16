@@ -11,10 +11,13 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package org.eclipse.esmf.ame.resolver.inmemory;
+package org.eclipse.esmf.ame.resolver.strategy;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -22,8 +25,8 @@ import java.nio.file.Path;
 
 import org.apache.jena.rdf.model.Model;
 import org.eclipse.esmf.ame.model.ProcessPath;
-import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,11 +42,10 @@ class FileSystemStrategyTest {
          "1.0.0" );
    private static final String aspectModelFile = "AspectModel.ttl";
    private static final String aspectModelFileWithRef = "AspectModelWithExternalRef.ttl";
-   private ProcessPath processPath;
 
    @BeforeEach
    void setUp() {
-      processPath = Mockito.mock( ProcessPath.class );
+      ProcessPath processPath = Mockito.mock( ProcessPath.class );
       Mockito.when( processPath.getPath() ).thenReturn( resourcesPath );
    }
 
