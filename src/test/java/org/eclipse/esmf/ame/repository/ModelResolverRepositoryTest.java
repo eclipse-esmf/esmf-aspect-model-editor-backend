@@ -15,6 +15,7 @@ package org.eclipse.esmf.ame.repository;
 
 import static junit.framework.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.nio.file.FileSystem;
@@ -26,20 +27,22 @@ import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith( MockitoExtension.class )
+@ExtendWith( SpringExtension.class )
+@SpringBootTest
 class ModelResolverRepositoryTest {
 
+   @Autowired
    private ModelResolverRepository modelResolverRepository;
 
    @Test
    void testGetStrategy() {
-      final LocalFolderResolverStrategy localFolderResolverStrategy = new LocalFolderResolverStrategy( mock( ApplicationSettings.class ), mock( FileSystem.class ), mock( String.class ) );
-      modelResolverRepository = new ModelResolverRepository( Collections.singletonList( localFolderResolverStrategy ) );
-
       final ModelResolverStrategy result = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      assertEquals( result, localFolderResolverStrategy );
+      assertTrue( result instanceof LocalFolderResolverStrategy );
    }
 
    @Test()
