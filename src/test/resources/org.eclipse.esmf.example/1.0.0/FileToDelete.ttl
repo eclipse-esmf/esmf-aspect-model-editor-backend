@@ -7,7 +7,7 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix : <urn:samm:org.eclipse.esmf.example:1.0.0#> .
 
-:AspectModel a samm:Aspect ;
+:FileToDelete a samm:Aspect ;
    samm:properties ( :property ) ;
    samm:operations ( ) .
 
