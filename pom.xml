@@ -467,6 +467,15 @@
 
     <profiles>
         <profile>
+            <id>test-profile</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <spring.profiles.active>test</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
             <id>native-image</id>
             <build>
                 <plugins>
