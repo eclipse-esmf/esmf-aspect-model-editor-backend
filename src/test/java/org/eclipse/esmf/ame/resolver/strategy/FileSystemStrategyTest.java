@@ -33,15 +33,18 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import io.vavr.NotImplementedError;
 import io.vavr.control.Try;
 
 @ExtendWith( SpringExtension.class )
 class FileSystemStrategyTest {
-   private static final Path resourcesPath = Path.of( "src", "test", "resources" );
-   private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example",
-         "1.0.0" );
-   private static final String aspectModelFile = "AspectModel.ttl";
-   private static final String aspectModelFileWithRef = "AspectModelWithExternalRef.ttl";
+   private static final Path resourcesPath = Path.of( "src", "test", "resources", "strategy" );
+   private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example", "1.0.0" );
+
+   private static final String aspectModelFile = "AspectModelForStrategy.ttl";
+   private static final String aspectModelurn = "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModelForStrategy";
+
+   private static final String causeMessage = "AspectModelUrn is not set";
 
    @BeforeEach
    void setUp() {
@@ -55,15 +58,13 @@ class FileSystemStrategyTest {
             StandardCharsets.UTF_8 );
 
       final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( fileToTest );
-
-      final Try<Model> apply = fileSystemStrategy.apply(
-            AspectModelUrn.fromUrn( "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModel" ) );
+      final Try<Model> apply = fileSystemStrategy.apply( AspectModelUrn.fromUrn( aspectModelurn ) );
 
       assertTrue( apply.isSuccess() );
    }
 
    @Test
-   void testApplyFailureNullAspectModelUrn() throws IOException {
+   void testApplyFailureNullAndFailureAspectModelUrn() throws IOException {
       final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ),
             StandardCharsets.UTF_8 );
 
@@ -71,16 +72,7 @@ class FileSystemStrategyTest {
       final Try<Model> result = fileSystemStrategy.apply( null );
 
       assertTrue( result.isFailure() );
-   }
-
-   @Test
-   void testApplyFailure() throws IOException {
-      final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFileWithRef ),
-            StandardCharsets.UTF_8 );
-
-      final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( fileToTest );
-      final Try<Model> result = fileSystemStrategy.apply( null );
-
-      assertTrue( result.isFailure() );
+      assertTrue( result.getCause() instanceof NotImplementedError );
+      assertTrue( result.getCause().getMessage().equals( causeMessage ) );
    }
 }

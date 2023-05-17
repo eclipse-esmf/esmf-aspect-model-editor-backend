@@ -18,15 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
-import java.nio.file.FileSystem;
 import java.util.Collections;
 
-import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
 import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -36,20 +33,19 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class ModelResolverRepositoryTest {
 
    @Autowired
-   private ModelResolverRepository modelResolverRepository;
+   private ModelResolverRepository repository;
 
    @Test
    void testGetStrategy() {
-      final ModelResolverStrategy result = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
+      final ModelResolverStrategy result = repository.getStrategy( LocalFolderResolverStrategy.class );
 
       assertTrue( result instanceof LocalFolderResolverStrategy );
    }
 
    @Test()
    void testGetStrategyHasEmptyStrategyList() {
-      modelResolverRepository = new ModelResolverRepository( Collections.emptyList() );
+      repository = new ModelResolverRepository( Collections.emptyList() );
 
-      assertThrows( RuntimeException.class,
-              () -> modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class ) );
+      assertThrows( RuntimeException.class, () -> repository.getStrategy( LocalFolderResolverStrategy.class ) );
    }
 }

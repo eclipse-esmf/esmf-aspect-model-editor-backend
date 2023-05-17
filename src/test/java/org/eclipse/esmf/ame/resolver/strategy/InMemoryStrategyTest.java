@@ -14,7 +14,10 @@
 package org.eclipse.esmf.ame.resolver.strategy;
 
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
+
+import io.vavr.NotImplementedError;
 import io.vavr.control.Try;
+
 import org.apache.jena.rdf.model.Model;
 import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
@@ -36,14 +39,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith( SpringExtension.class )
 class InMemoryStrategyTest {
 
-   private static final Path resourcesPath = Path.of( "src", "test", "resources" );
-   private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example",
-         "1.0.0" );
-   private static final String aspectModelFile = "AspectModel.ttl";
-   private static final String aspectModelFileWithRef = "AspectModelWithExternalRef.ttl";
+   private static final Path resourcesPath = Path.of( "src", "test", "resources", "strategy" );
+   private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example", "1.0.0" );
+
+   private static final String aspectModelFile = "AspectModelForStrategy.ttl";
+   private static final String aspectModelurn = "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModelForStrategy";
+
+   private static final String causeMessage = "AspectModelUrn is not set";
 
    private static Path rootPath;
-   private static FileSystem fileSystem;;
+   private static FileSystem fileSystem;
+   ;
 
    @BeforeEach
    void setUp() throws IOException {
@@ -57,15 +63,13 @@ class InMemoryStrategyTest {
             StandardCharsets.UTF_8 );
 
       final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, rootPath, fileSystem );
-
-      final Try<Model> apply = inMemoryStrategy.apply(
-            AspectModelUrn.fromUrn( "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModel" ) );
+      final Try<Model> apply = inMemoryStrategy.apply( AspectModelUrn.fromUrn( aspectModelurn ) );
 
       assertTrue( apply.isSuccess() );
    }
 
    @Test
-   void testApplyFailureNullAspectModelUrn() throws IOException {
+   void testApplyFailureNullAndFailureAspectModelUrn() throws IOException {
       final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ),
             StandardCharsets.UTF_8 );
 
@@ -73,16 +77,7 @@ class InMemoryStrategyTest {
       final Try<Model> result = inMemoryStrategy.apply( null );
 
       assertTrue( result.isFailure() );
-   }
-
-   @Test
-   void testApplyFailure() throws IOException {
-      final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFileWithRef ),
-            StandardCharsets.UTF_8 );
-
-      final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, rootPath, fileSystem );
-      final Try<Model> result = inMemoryStrategy.apply( null );
-
-      assertTrue( result.isFailure() );
+      assertTrue( result.getCause() instanceof NotImplementedError );
+      assertTrue( result.getCause().getMessage().equals( causeMessage ) );
    }
 }
