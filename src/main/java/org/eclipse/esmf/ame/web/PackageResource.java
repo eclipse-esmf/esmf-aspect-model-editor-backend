@@ -18,6 +18,7 @@ import java.util.Objects;
 
 import org.apache.commons.io.FilenameUtils;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.ame.model.packaging.AspectModelFiles;
 import org.eclipse.esmf.ame.model.packaging.ProcessPackage;
 import org.eclipse.esmf.ame.services.PackageService;
@@ -108,7 +109,8 @@ public class PackageResource {
     */
    @GetMapping( path = "/backup-workspace" )
    public ResponseEntity<Void> backupWorkspace() {
-      packageService.backupWorkspace();
+      String aspectModelPath = ProcessPath.AspectModelPath.getPath().toString();
+      packageService.backupWorkspace( aspectModelPath );
       return new ResponseEntity<>( HttpStatus.CREATED );
    }
 }

@@ -40,7 +40,8 @@ public class ZipUtils {
 
    static final int BUFFER = 1024;
 
-   public static byte[] createPackageFromCache( final String zipFileName, final Map<String, String> exportCache ) throws IOException {
+   public static byte[] createPackageFromCache( final String zipFileName, final Map<String, String> exportCache )
+         throws IOException {
       final String zipFile = ProcessPath.AspectModelPath.getPath().toString() + File.separator + zipFileName;
 
       final Set<String> zipFolderSet = new HashSet<>();
@@ -55,14 +56,14 @@ public class ZipUtils {
             final String versionedNamespace = folder + fileStructure[1] + "/";
             final String file = versionedNamespace + fileStructure[2];
 
-            if (!zipFolderSet.contains(folder)) {
-               zos.putNextEntry(new ZipEntry(folder));
-               zipFolderSet.add(folder);
+            if ( !zipFolderSet.contains( folder ) ) {
+               zos.putNextEntry( new ZipEntry( folder ) );
+               zipFolderSet.add( folder );
             }
 
-            if (!zipVersionedNamespaceSet.contains(versionedNamespace)) {
-               zos.putNextEntry(new ZipEntry(versionedNamespace));
-               zipVersionedNamespaceSet.add(versionedNamespace);
+            if ( !zipVersionedNamespaceSet.contains( versionedNamespace ) ) {
+               zos.putNextEntry( new ZipEntry( versionedNamespace ) );
+               zipVersionedNamespaceSet.add( versionedNamespace );
             }
 
             zos.putNextEntry( new ZipEntry( file ) );
@@ -78,18 +79,18 @@ public class ZipUtils {
       return Files.readAllBytes( Paths.get( zipFile ) );
    }
 
-   public static void createPackageFromWorkspace( final String zipFileName ) throws IOException {
-      final String sourceStoragePath =  ProcessPath.MODELS.getPath().toString();
-      final String zipFile = ProcessPath.AspectModelPath.getPath().toString() + File.separator + zipFileName;
+   public static void createPackageFromWorkspace( final String zipFileName, final String aspectModelPath,
+         final String storagePath ) throws IOException {
+      final String zipFile = aspectModelPath + File.separator + zipFileName;
 
-      try (FileOutputStream fos = new FileOutputStream(zipFile); ZipOutputStream zos = new ZipOutputStream(fos)) {
+      try ( FileOutputStream fos = new FileOutputStream( zipFile ); ZipOutputStream zos = new ZipOutputStream( fos ) ) {
 
-         final List<File> fileList = getFileList( new File( sourceStoragePath ), new ArrayList<>(), sourceStoragePath );
+         final List<File> fileList = getFileList( new File( storagePath ), new ArrayList<>(), storagePath );
 
          for ( final File file : fileList ) {
             final String fileName = file.isDirectory() ?
-                    getFileName( file.toString(), sourceStoragePath ) + File.separator :
-                    getFileName( file.toString(), sourceStoragePath );
+                  getFileName( file.toString(), storagePath ) + File.separator :
+                  getFileName( file.toString(), storagePath );
             final BasicFileAttributes attr = Files.readAttributes( file.toPath(), BasicFileAttributes.class );
 
             final ZipEntry zipEntry = new ZipEntry( fileName );

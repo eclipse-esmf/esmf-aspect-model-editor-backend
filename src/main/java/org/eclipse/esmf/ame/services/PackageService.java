@@ -26,7 +26,6 @@ import java.util.stream.Stream;
 
 import org.eclipse.esmf.ame.exceptions.FileCannotDeleteException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
-import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.ame.model.packaging.AspectModelFiles;
 import org.eclipse.esmf.ame.model.packaging.MissingElement;
 import org.eclipse.esmf.ame.model.packaging.ProcessPackage;
@@ -56,13 +55,15 @@ public class PackageService {
    private static final Logger LOG = LoggerFactory.getLogger( PackageService.class );
 
    private final AspectModelValidator aspectModelValidator;
+   private final String modelPath;
    private final ModelResolverRepository modelResolverRepository;
    private final FileSystem importFileSystem;
    private final Map<String, String> AspectModelToExportCache = new HashMap<>();
 
-   public PackageService( final AspectModelValidator aspectModelValidator,
+   public PackageService( final AspectModelValidator aspectModelValidator, final String modelPath,
                           final ModelResolverRepository modelResolverRepository, final FileSystem importFileSystem ) {
       this.aspectModelValidator = aspectModelValidator;
+      this.modelPath = modelPath;
       this.modelResolverRepository = modelResolverRepository;
       this.importFileSystem = importFileSystem;
 
@@ -71,7 +72,6 @@ public class PackageService {
 
    public ProcessPackage validateAspectModelsForExport( final List<AspectModelFiles> aspectModelFiles ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-      final String modelPath = ProcessPath.MODELS.getPath().toString();
       final ProcessPackage processPackage = new ProcessPackage();
 
       AspectModelToExportCache.clear();
@@ -110,7 +110,7 @@ public class PackageService {
          deleteInMemoryFileSystem();
 
          UnzipUtils.extractFilesFromPackage( inputStream, importFileSystem );
-         return validateValidFiles( ProcessPath.MODELS.getPath().toString() );
+         return validateValidFiles( modelPath);
       } catch ( final Exception e ) {
          LOG.error( "Cannot unzip package file." );
          throw new IllegalArgumentException(
@@ -199,12 +199,12 @@ public class PackageService {
       } ).toList();
    }
 
-   public void backupWorkspace() {
+   public void backupWorkspace(final String aspectModelPath) {
       try {
          final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy.MM.dd-HH.mm.ss" );
          final String timestamp = sdf.format( new Timestamp( System.currentTimeMillis() ) );
          final String fileName = "backup-" + timestamp + ".zip";
-         ZipUtils.createPackageFromWorkspace( fileName );
+         ZipUtils.createPackageFromWorkspace( fileName, aspectModelPath, modelPath );
       } catch ( final IOException e ) {
          LOG.error( "Cannot create backup package." );
          throw new FileNotFoundException( "Error while creating backup package.", e );

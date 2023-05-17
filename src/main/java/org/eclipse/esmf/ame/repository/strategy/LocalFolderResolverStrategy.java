@@ -182,7 +182,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       try (Stream<Path> paths = Files.walk( importStoragePath )) {
         return getListOfAspectModels(
                  paths.filter(Files::isRegularFile)
-                         .map(path -> path.getFileName().toString())
+                         .map( Path::toString )
                          .toList() );
       } catch (IOException e) {
          throw new RuntimeException( e );
@@ -243,22 +243,6 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
          return paths.filter( this::isPathRelevant ).map( Path::toString )
                  .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) ).filter( StringUtils::isNotBlank )
                  .toList();
-      } catch ( final IOException e ) {
-         throw new FileReadException( "Can not read shared folder file structure", e );
-      }
-   }
-
-   /**
-    * Returns a list of all non turtle files in the package.
-    */
-   private List<String> getNonTurtleFiles( @Nonnull final String rootSharedFolder, @Nonnull final File file ) {
-      try ( final Stream<Path> paths = getAllSubFilePaths( file.toPath() ) ) {
-
-         return paths.filter( path -> {
-                    final File parentDir = getFileInstance( path.toString() );
-                    return !parentDir.isDirectory() && !path.toString().endsWith( ModelUtils.TTL_EXTENSION );
-                 } ).map( Path::toString ).map( path -> excludeStandaloneFiles( rootSharedFolder, path ) )
-                 .filter( StringUtils::isNotBlank ).toList();
       } catch ( final IOException e ) {
          throw new FileReadException( "Can not read shared folder file structure", e );
       }
