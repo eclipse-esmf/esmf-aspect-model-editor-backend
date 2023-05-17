@@ -83,39 +83,31 @@ public class PackageService {
       AspectModelToExportCache.clear();
 
       Map<String, ValidFile> validFiles = aspectModelFiles.stream()
-                                                          .flatMap( data -> data.getFiles().stream()
-                                                                                .map( fileName -> {
-                                                                                   String model = strategy.getModelAsString(
-                                                                                         data.getNamespace(),
-                                                                                         fileName );
-                                                                                   AspectModelToExportCache.put(
-                                                                                         data.getNamespace() + ":"
-                                                                                               + fileName, model );
-                                                                                   ViolationReport report = ModelUtils.validateModel(
-                                                                                         model, aspectModelValidator );
-                                                                                   return new ValidFile(
-                                                                                         data.getNamespace(), fileName,
-                                                                                         report );
-                                                                                } ) )
-                                                          .collect( Collectors.toMap(
-                                                                validFile -> validFile.getNamespace() + ":"
-                                                                      + validFile.getFileName(),
-                                                                Function.identity() ) );
+                                                          .flatMap( data -> data.getFiles().stream().map( fileName -> {
+                                                             String model = strategy.getModelAsString(
+                                                                   data.getNamespace(), fileName );
+                                                             AspectModelToExportCache.put(
+                                                                   data.getNamespace() + ":" + fileName, model );
+                                                             ViolationReport report = ModelUtils.validateModel( model,
+                                                                   aspectModelValidator );
+                                                             return new ValidFile( data.getNamespace(), fileName,
+                                                                   report );
+                                                          } ) ).collect(
+                  Collectors.toMap( validFile -> validFile.getNamespace() + ":" + validFile.getFileName(),
+                        Function.identity() ) );
 
       validFiles.values().forEach( processPackage::addValidFile );
 
-      validFiles.values().stream()
-                .flatMap(
-                      validFile -> getMissingAspectModelFiles( validFile.getViolationReport(), validFile.getFileName(),
-                            modelPath ).stream() )
-                .forEach( processPackage::addMissingElement );
+      validFiles.values().stream().flatMap(
+            validFile -> getMissingAspectModelFiles( validFile.getViolationReport(), validFile.getFileName(),
+                  modelPath ).stream() ).forEach( processPackage::addMissingElement );
 
       return processPackage;
    }
 
    public byte[] exportAspectModelPackage( final String zipFileName ) {
       try {
-         return ZipUtils.createPackageFromCache( zipFileName, AspectModelToExportCache );
+         return ZipUtils.createPackageFromCache( AspectModelToExportCache );
       } catch ( final IOException e ) {
          LOG.error( "Cannot create exported package file." );
          throw new FileNotFoundException( String.format( "Error while creating the package file: %s", zipFileName ),
@@ -141,17 +133,16 @@ public class PackageService {
       Path root = importFileSystem.getRootDirectories().iterator().next();
 
       try ( Stream<Path> rootPath = Files.walk( importFileSystem.getPath( "/" ) ) ) {
-         rootPath.sorted( Comparator.reverseOrder() )
-                 .forEach( path -> {
-                    try {
-                       if ( !path.equals( root ) ) {
-                          Files.delete( path );
-                       }
-                    } catch ( IOException e ) {
-                       throw new FileCannotDeleteException(
-                             "Failed to delete files and directories on the in-memory file system.", e );
-                    }
-                 } );
+         rootPath.sorted( Comparator.reverseOrder() ).forEach( path -> {
+            try {
+               if ( !path.equals( root ) ) {
+                  Files.delete( path );
+               }
+            } catch ( IOException e ) {
+               throw new FileCannotDeleteException(
+                     "Failed to delete files and directories on the in-memory file system.", e );
+            }
+         } );
       }
    }
 
@@ -159,23 +150,19 @@ public class PackageService {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
       final List<AspectModelInformation> aspectModelInformations = strategy.getImportedAspectModelInformation();
 
-      return aspectModelInformations.stream()
-                                    .map( fileInfo -> {
-                                       final String fileName = fileInfo.getFileName();
-                                       final Boolean modelExist = strategy.checkModelExist( fileInfo.getNamespace(),
-                                             fileName );
+      return aspectModelInformations.stream().map( fileInfo -> {
+         final String fileName = fileInfo.getFileName();
+         final Boolean modelExist = strategy.checkModelExist( fileInfo.getNamespace(), fileName );
 
-                                       final ViolationReport violationReport = ModelUtils.validateModelInMemoryFiles(
-                                             fileInfo.getAspectModel(), aspectModelValidator, importFileSystem );
+         final ViolationReport violationReport = ModelUtils.validateModelInMemoryFiles( fileInfo.getAspectModel(),
+               aspectModelValidator, importFileSystem );
 
-                                       final ValidFile validFile = new ValidFile( fileInfo.getNamespace(), fileName,
-                                             violationReport, modelExist );
-                                       final List<MissingElement> missingFiles = getMissingAspectModelFiles(
-                                             violationReport, fileName, modelStoragePath );
+         final ValidFile validFile = new ValidFile( fileInfo.getNamespace(), fileName, violationReport, modelExist );
+         final List<MissingElement> missingFiles = getMissingAspectModelFiles( violationReport, fileName,
+               modelStoragePath );
 
-                                       return new ProcessPackage( validFile, missingFiles );
-                                    } )
-                                    .reduce( new ProcessPackage(), ProcessPackage::merge );
+         return new ProcessPackage( validFile, missingFiles );
+      } ).reduce( new ProcessPackage(), ProcessPackage::merge );
    }
 
    public List<String> importAspectModelPackage( final List<AspectModelFiles> aspectModelFiles ) {
@@ -217,8 +204,8 @@ public class PackageService {
 
          final String errorMessage = String.format(
                "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", focusNode, fileName );
-         return new MissingElement( fileName, (focusNode != null ? focusNode.toString() : ""),
-               missingAspectModelFile, errorMessage );
+         return new MissingElement( fileName, (focusNode != null ? focusNode.toString() : ""), missingAspectModelFile,
+               errorMessage );
       } ).toList();
    }
 

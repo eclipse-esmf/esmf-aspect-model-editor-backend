@@ -14,12 +14,12 @@
 package org.eclipse.esmf.ame.services.utils;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,7 +32,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileWriteException;
-import org.eclipse.esmf.ame.model.ProcessPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,14 +43,13 @@ public class ZipUtils {
 
    static final int BUFFER = 1024;
 
-   public static byte[] createPackageFromCache( final String zipFileName, final Map<String, String> exportCache )
-         throws IOException {
-      final String zipFile = ProcessPath.AspectModelPath.getPath().toString() + File.separator + zipFileName;
+   public static byte[] createPackageFromCache( final Map<String, String> exportCache ) throws IOException {
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      final Set<String> zipFolderSet = new HashSet<>();
-      final Set<String> zipVersionedNamespaceSet = new HashSet<>();
+      try ( ZipOutputStream zos = new ZipOutputStream( outputStream ) ) {
+         Set<String> zipFolderSet = new HashSet<>();
+         Set<String> zipVersionedNamespaceSet = new HashSet<>();
 
-      try ( FileOutputStream fos = new FileOutputStream( zipFile ); ZipOutputStream zos = new ZipOutputStream( fos ) ) {
          for ( Map.Entry<String, String> entry : exportCache.entrySet() ) {
             final String[] fileStructure = entry.getKey().split( ":" );
             final String aspectModel = entry.getValue();
@@ -80,7 +78,7 @@ public class ZipUtils {
          throw new CreateFileException( "Error creating the zip file.", e );
       }
 
-      return Files.readAllBytes( Paths.get( zipFile ) );
+      return outputStream.toByteArray();
    }
 
    public static void createPackageFromWorkspace( final String zipFileName, final String aspectModelPath,
