@@ -36,7 +36,6 @@ import org.apache.jena.riot.RiotException;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
-import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.ame.model.packaging.AspectModelFiles;
 import org.eclipse.esmf.ame.model.resolver.FolderStructure;
 import org.eclipse.esmf.ame.model.validation.ViolationReport;
@@ -68,12 +67,11 @@ public class ModelUtils {
    public static final String TTL = "ttl";
    public static final String TTL_EXTENSION = "." + TTL;
 
-
    /**
     * This Method is used to create a pretty printed string of the versioned model
     *
     * @param versionedModel The Versioned Model
-    * @param urn            The urn of the Aspect
+    * @param urn The urn of the Aspect
     * @return Pretty printed string of the Versioned Aspect Model.
     */
    public static String getPrettyPrintedVersionedModel( final VersionedModel versionedModel, final URI urn ) {
@@ -115,10 +113,10 @@ public class ModelUtils {
       final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( aspectModel );
 
       final Try<VersionedModel> migratedFile = new MigratorService().updateMetaModelVersion(
-              loadModelFromStoragePath( fileSystemStrategy ) );
+            loadModelFromStoragePath( fileSystemStrategy ) );
 
       final VersionedModel versionedModel = migratedFile.getOrElseThrow(
-              error -> new InvalidAspectModelException( "Aspect Model cannot be migrated.", error ) );
+            error -> new InvalidAspectModelException( "Aspect Model cannot be migrated.", error ) );
 
       return getPrettyPrintedVersionedModel( versionedModel, fileSystemStrategy.getAspectModelUrn().getUrn() );
    }
@@ -130,7 +128,7 @@ public class ModelUtils {
     * @return the Aspect as an object.
     */
    public static Aspect resolveAspectFromModel( final String aspectModel )
-           throws InvalidAspectModelException {
+         throws InvalidAspectModelException {
       final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( aspectModel );
       final VersionedModel versionedModel = ModelUtils.loadModelFromStoragePath( fileSystemStrategy );
       return AspectModelLoader.getSingleAspectUnchecked( versionedModel );
@@ -144,7 +142,7 @@ public class ModelUtils {
     */
    public static VersionedModel loadModelFromStoragePath( final FileSystemStrategy fileSystemStrategy ) {
       return resolveModel( fileSystemStrategy.aspectModel ).getOrElseThrow(
-              e -> new InvalidAspectModelException( "Cannot resolve Aspect Model.", e ) );
+            e -> new InvalidAspectModelException( "Cannot resolve Aspect Model.", e ) );
    }
 
    /**
@@ -165,20 +163,21 @@ public class ModelUtils {
       final SammAspectMetaModelResourceResolver resourceResolver = new SammAspectMetaModelResourceResolver();
 
       return resourceResolver.getMetaModelVersion( model ).flatMap(
-              metaModelVersion -> resourceResolver.mergeMetaModelIntoRawModel( model, metaModelVersion ) );
+            metaModelVersion -> resourceResolver.mergeMetaModelIntoRawModel( model, metaModelVersion ) );
    }
 
    /**
     * Validates an Aspect Model that is provided as a Try of a VersionedModel that can contain either a syntactically
     * valid (but semantically invalid) Aspect model, or a RiotException if a parser error occured.
     *
-    * @param aspectModel          as a string.
+    * @param aspectModel as a string.
     * @param aspectModelValidator Aspect Model Validator from esmf-sdk
     * @return Either a ValidationReport.ValidReport if the model is syntactically correct and conforms to the Aspect
-    * Meta Model semantics or a ValidationReport.InvalidReport that provides a number of ValidationErrors that
-    * describe all validation violations.
+    *       Meta Model semantics or a ValidationReport.InvalidReport that provides a number of ValidationErrors that
+    *       describe all validation violations.
     */
-   public static ViolationReport validateModel( final String aspectModel, final AspectModelValidator aspectModelValidator ) {
+   public static ViolationReport validateModel( final String aspectModel,
+         final AspectModelValidator aspectModelValidator ) {
       final ViolationReport violationReport = new ViolationReport();
 
       try {
@@ -191,13 +190,14 @@ public class ModelUtils {
          return violationReport;
       } catch ( final RiotException riotException ) {
          violationReport.addViolation(
-                 new ViolationFormatter().visitInvalidSyntaxViolation( riotException.getMessage() ) );
+               new ViolationFormatter().visitInvalidSyntaxViolation( riotException.getMessage() ) );
 
          return violationReport;
       }
    }
 
-   public static ViolationReport validateModelInMemoryFiles( final String aspectModel, final AspectModelValidator aspectModelValidator, final java.nio.file.FileSystem fileSystem ) {
+   public static ViolationReport validateModelInMemoryFiles( final String aspectModel,
+         final AspectModelValidator aspectModelValidator, final java.nio.file.FileSystem fileSystem ) {
       final Path root = fileSystem.getRootDirectories().iterator().next();
       final ViolationReport violationReport = new ViolationReport();
 
@@ -211,7 +211,7 @@ public class ModelUtils {
          return violationReport;
       } catch ( final RiotException riotException ) {
          violationReport.addViolation(
-                 new ViolationFormatter().visitInvalidSyntaxViolation( riotException.getMessage() ) );
+               new ViolationFormatter().visitInvalidSyntaxViolation( riotException.getMessage() ) );
 
          return violationReport;
       }
@@ -219,28 +219,29 @@ public class ModelUtils {
 
    public static Predicate<Violation> isInvalidSyntaxViolation() {
       return violation -> violation.errorCode() != null && violation.errorCode()
-              .equals( InvalidSyntaxViolation.ERROR_CODE );
+                                                                    .equals( InvalidSyntaxViolation.ERROR_CODE );
    }
 
    public static Predicate<Violation> isProcessingViolation() {
       return violation -> violation.errorCode() != null && violation.errorCode()
-              .equals( ProcessingViolation.ERROR_CODE );
+                                                                    .equals( ProcessingViolation.ERROR_CODE );
    }
 
-   public static List<String> copyAspectModelToDirectory( final List<AspectModelFiles> aspectModelFiles, final String destStorage ) {
+   public static List<String> copyAspectModelToDirectory( final List<AspectModelFiles> aspectModelFiles,
+         final String destStorage ) {
 
       return aspectModelFiles.stream().flatMap( data -> data.getFiles().stream().map( fileName -> {
          final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( data.getNamespace() );
          folderStructure.setFileName( fileName );
          final String absoluteAspectModelPath = File.separator + folderStructure;
          final File aspectModelStoragePath = Paths.get( destStorage, folderStructure.getFileRootPath(),
-                 folderStructure.getVersion() ).toFile();
+               folderStructure.getVersion() ).toFile();
          try {
             FileUtils.copyFileToDirectory( new File( absoluteAspectModelPath ), aspectModelStoragePath );
             return folderStructure.toString();
          } catch ( final IOException e ) {
             throw new FileNotFoundException(
-                    String.format( "Cannot copy file %s to %s", folderStructure.getFileName(), aspectModelStoragePath ) );
+                  String.format( "Cannot copy file %s to %s", folderStructure.getFileName(), aspectModelStoragePath ) );
          }
       } ) ).toList();
    }
@@ -257,14 +258,14 @@ public class ModelUtils {
       }
 
       final Path directory = Path.of( modelsRootPath ).resolve( aspectModelUrn.getNamespace() )
-              .resolve( aspectModelUrn.getVersion() );
+                                 .resolve( aspectModelUrn.getVersion() );
 
       final String fileInformation = Arrays.stream(
-                      Optional.ofNullable( directory.toFile().listFiles() ).orElse( new File[] {} ) ).filter( File::isFile )
-              .filter( file -> file.getName().endsWith( ".ttl" ) ).map( File::toURI )
-              .sorted().filter(
-                      uri -> AspectModelResolver.containsDefinition( loadFromUri( uri ).get(), aspectModelUrn ) )
-              .map( URI::getPath ).findFirst().orElse( "NO CORRESPONDING FILE FOUND" );
+                                                 Optional.ofNullable( directory.toFile().listFiles() ).orElse( new File[] {} ) ).filter( File::isFile )
+                                           .filter( file -> file.getName().endsWith( ".ttl" ) ).map( File::toURI )
+                                           .sorted().filter(
+                  uri -> AspectModelResolver.containsDefinition( loadFromUri( uri ).get(), aspectModelUrn ) )
+                                           .map( URI::getPath ).findFirst().orElse( "NO CORRESPONDING FILE FOUND" );
 
       final File filePath = new File( fileInformation );
 

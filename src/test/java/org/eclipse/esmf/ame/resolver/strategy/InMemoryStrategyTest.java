@@ -13,20 +13,7 @@
 
 package org.eclipse.esmf.ame.resolver.strategy;
 
-import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
-
-import io.vavr.NotImplementedError;
-import io.vavr.control.Try;
-
-import org.apache.jena.rdf.model.Model;
-import org.eclipse.esmf.ame.model.ProcessPath;
-import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -34,7 +21,17 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.apache.jena.rdf.model.Model;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
+
+import io.vavr.NotImplementedError;
+import io.vavr.control.Try;
 
 @ExtendWith( SpringExtension.class )
 class InMemoryStrategyTest {
@@ -49,7 +46,6 @@ class InMemoryStrategyTest {
 
    private static Path rootPath;
    private static FileSystem fileSystem;
-   ;
 
    @BeforeEach
    void setUp() throws IOException {
@@ -78,6 +74,6 @@ class InMemoryStrategyTest {
 
       assertTrue( result.isFailure() );
       assertTrue( result.getCause() instanceof NotImplementedError );
-      assertTrue( result.getCause().getMessage().equals( causeMessage ) );
+      assertEquals( causeMessage, result.getCause().getMessage() );
    }
 }

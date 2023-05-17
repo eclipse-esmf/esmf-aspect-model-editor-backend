@@ -19,8 +19,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
-
+import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.ResponseExceptionHandler;
 import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
@@ -35,6 +34,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
 
 /**
  * Configuration file to return the conversion service of all the characteristic class converters
@@ -82,7 +83,7 @@ public class ApplicationConfig implements WebMvcConfigurer {
          try {
             importFileSystem = MemoryFileSystemBuilder.newEmpty().build();
          } catch ( IOException e ) {
-            throw new RuntimeException( "Failed to create in-memory import file system.", e );
+            throw new CreateFileException( "Failed to create in-memory import file system.", e );
          }
       }
       return importFileSystem;

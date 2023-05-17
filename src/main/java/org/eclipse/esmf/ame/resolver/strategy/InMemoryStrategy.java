@@ -13,32 +13,38 @@
 
 package org.eclipse.esmf.ame.resolver.strategy;
 
-import io.vavr.control.Try;
-import org.apache.jena.rdf.model.*;
-import org.apache.jena.riot.RiotException;
-import org.eclipse.esmf.aspectmodel.resolver.AspectModelResolver;
-import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+import static org.apache.jena.http.auth.AuthEnv.LOG;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.apache.jena.http.auth.AuthEnv.LOG;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.riot.RiotException;
+import org.eclipse.esmf.aspectmodel.resolver.AspectModelResolver;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+
+import io.vavr.control.Try;
 
 public class InMemoryStrategy extends ResolutionStrategy {
    public final FileSystem fileSystem;
 
-   public InMemoryStrategy( final String aspectModel, final Path processingRootPath, final FileSystem fileSystem ) throws RiotException {
+   public InMemoryStrategy( final String aspectModel, final Path processingRootPath, final FileSystem fileSystem )
+         throws RiotException {
       super( aspectModel, processingRootPath );
       this.fileSystem = fileSystem;
    }
 
    protected Try<Model> getModelFromFileSystem( final AspectModelUrn aspectModelUrn, final Path rootPath ) {
       try ( Stream<Path> pathStream = Files.walk( rootPath ) ) {
-         final String filePath = aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator + aspectModelUrn.getName() + ".ttl";
+         final String filePath =
+               aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator
+                     + aspectModelUrn.getName() + ".ttl";
 
          final Path file = fileSystem.getPath( filePath );
 
@@ -47,20 +53,21 @@ public class InMemoryStrategy extends ResolutionStrategy {
          }
 
          LOG.warn( "Looking for {}, but no {}.ttl was found. Inspecting files in {}", aspectModelUrn.getName(),
-                 aspectModelUrn.getName(), filePath );
+               aspectModelUrn.getName(), filePath );
 
          Optional<Try<Model>> modelWithDefinition = pathStream
-                 .filter(Files::isRegularFile)
-                 .map(Path::getFileName)
-                 .map(Path::toString)
-                 .map(fileSystem::getPath)
-                 .map( aspectModelPath -> Try.of( () -> loadTurtleFromString( Files.readString(aspectModelPath) ) ) )
-                 .filter(tryModel -> tryModel.map(model -> AspectModelResolver.containsDefinition(model, aspectModelUrn))
-                         .getOrElse(false))
-                 .findFirst();
+               .filter( Files::isRegularFile )
+               .map( Path::getFileName )
+               .map( Path::toString )
+               .map( fileSystem::getPath )
+               .map( aspectModelPath -> Try.of( () -> loadTurtleFromString( Files.readString( aspectModelPath ) ) ) )
+               .filter( tryModel -> tryModel.map(
+                                                  model -> AspectModelResolver.containsDefinition( model, aspectModelUrn ) )
+                                            .getOrElse( false ) )
+               .findFirst();
 
-         return modelWithDefinition.orElse(Try.failure(new FileNotFoundException(
-                 "No model file containing " + aspectModelUrn + " could be found in directory")));
+         return modelWithDefinition.orElse( Try.failure( new FileNotFoundException(
+               "No model file containing " + aspectModelUrn + " could be found in directory" ) ) );
       } catch ( IOException exception ) {
          return Try.failure( exception );
       }

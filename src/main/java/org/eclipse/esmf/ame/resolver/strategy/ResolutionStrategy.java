@@ -1,8 +1,21 @@
 package org.eclipse.esmf.ame.resolver.strategy;
 
-import io.vavr.NotImplementedError;
-import io.vavr.control.Try;
-import org.apache.jena.rdf.model.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.vocabulary.RDF;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
@@ -17,12 +30,8 @@ import org.eclipse.esmf.samm.KnownVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import io.vavr.NotImplementedError;
+import io.vavr.control.Try;
 
 public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
    private static final Logger LOG = LoggerFactory.getLogger( ResolutionStrategy.class );
@@ -30,53 +39,54 @@ public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
    public final Path processingRootPath;
    public final Model aspectModel;
 
-   public ResolutionStrategy( final String aspectModel, final Path processingRootPath) throws RiotException {
+   public ResolutionStrategy( final String aspectModel, final Path processingRootPath ) throws RiotException {
       this.processingRootPath = processingRootPath;
-      this.aspectModel = loadTurtleFromString(aspectModel);
+      this.aspectModel = loadTurtleFromString( aspectModel );
    }
 
    @Override
-   public Try<Model> apply( final AspectModelUrn aspectModelUrn) {
-      if (aspectModelUrn == null) {
-         return Try.failure(new NotImplementedError("AspectModelUrn is not set"));
+   public Try<Model> apply( final AspectModelUrn aspectModelUrn ) {
+      if ( aspectModelUrn == null ) {
+         return Try.failure( new NotImplementedError( "AspectModelUrn is not set" ) );
       }
 
-      final Try<Model> modelFromFileSystem = getModelFromFileSystem(aspectModelUrn, processingRootPath);
+      final Try<Model> modelFromFileSystem = getModelFromFileSystem( aspectModelUrn, processingRootPath );
 
       return modelFromFileSystem.isSuccess() ?
-              tryOnSuccess(aspectModelUrn, modelFromFileSystem) :
-              tryOnFailure(aspectModelUrn);
+            tryOnSuccess( aspectModelUrn, modelFromFileSystem ) :
+            tryOnFailure( aspectModelUrn );
    }
 
-   private Try<Model> tryOnSuccess(final AspectModelUrn aspectModelUrn, final Try<Model> modelFromFileSystem) {
-      if (!getAspectModelUrn().equals(aspectModelUrn)) {
+   private Try<Model> tryOnSuccess( final AspectModelUrn aspectModelUrn, final Try<Model> modelFromFileSystem ) {
+      if ( !getAspectModelUrn().equals( aspectModelUrn ) ) {
          return modelFromFileSystem;
       }
 
-      return Try.success(aspectModel);
+      return Try.success( aspectModel );
    }
 
-   private Try<Model> tryOnFailure(final AspectModelUrn aspectModelUrn) {
+   private Try<Model> tryOnFailure( final AspectModelUrn aspectModelUrn ) {
       final StmtIterator stmtIterator = aspectModel.listStatements(
-              ResourceFactory.createResource(aspectModelUrn.toString()), null, (RDFNode) null);
+            ResourceFactory.createResource( aspectModelUrn.toString() ), null, (RDFNode) null );
 
-      if (stmtIterator.hasNext()) {
-         return Try.success(aspectModel);
+      if ( stmtIterator.hasNext() ) {
+         return Try.success( aspectModel );
       }
 
-      return Try.failure(new UrnNotFoundException(
-              String.format("%s cannot be resolved correctly.", aspectModelUrn), aspectModelUrn));
+      return Try.failure( new UrnNotFoundException(
+            String.format( "%s cannot be resolved correctly.", aspectModelUrn ), aspectModelUrn ) );
    }
 
-   protected abstract Try<Model> getModelFromFileSystem(AspectModelUrn aspectModelUrn, Path rootPath);
+   protected abstract Try<Model> getModelFromFileSystem( AspectModelUrn aspectModelUrn, Path rootPath );
 
-   protected Model loadTurtleFromString( final String aspectModel) {
-      try ( ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(aspectModel.getBytes( StandardCharsets.UTF_8))) {
-         return TurtleLoader.loadTurtle(byteArrayInputStream).getOrElseThrow(
-                 error -> new RiotException(error.getCause().getMessage(), error.getCause()));
-      } catch ( IOException e) {
-         LOG.error("Cannot read file.");
-         throw new FileReadException("Error reading the Aspect Model file.", e);
+   protected Model loadTurtleFromString( final String aspectModel ) {
+      try ( ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+            aspectModel.getBytes( StandardCharsets.UTF_8 ) ) ) {
+         return TurtleLoader.loadTurtle( byteArrayInputStream ).getOrElseThrow(
+               error -> new RiotException( error.getCause().getMessage(), error.getCause() ) );
+      } catch ( IOException e ) {
+         LOG.error( "Cannot read file." );
+         throw new FileReadException( "Error reading the Aspect Model file.", e );
       }
    }
 
@@ -87,24 +97,26 @@ public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
          return Try.failure( exception );
       }
    }
+
    public AspectModelUrn getAspectModelUrn() {
       return AspectModelUrn.fromUrn(
-              getEsmfStatements( aspectModel ).orElseThrow(
-                      () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next().getSubject().getURI() );
+            getEsmfStatements( aspectModel ).orElseThrow(
+                  () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next().getSubject().getURI() );
    }
 
    public static Optional<StmtIterator> getEsmfStatements( final Model aspectModel ) {
       final List<StmtIterator> stmtIterators = new ArrayList<>();
 
       KnownVersion.getVersions()
-              .forEach( version -> stmtIterators.addAll( getListOfAllSAMMElements( version )
-                      .stream()
-                      .filter( resource -> aspectModel.listStatements( null, RDF.type, resource ).hasNext() )
-                      .map( resource -> aspectModel.listStatements( null, RDF.type, resource ) )
-                      .toList() ) );
+                  .forEach( version -> stmtIterators.addAll( getListOfAllSAMMElements( version )
+                        .stream()
+                        .filter( resource -> aspectModel.listStatements( null, RDF.type, resource ).hasNext() )
+                        .map( resource -> aspectModel.listStatements( null, RDF.type, resource ) )
+                        .toList() ) );
 
       return stmtIterators.isEmpty() ? Optional.empty() : stmtIterators.stream().findFirst();
    }
+
    private static List<Resource> getListOfAllSAMMElements( final KnownVersion version ) {
       final SAMM samm = new SAMM( version );
       final SAMMC sammc = new SAMMC( version );

@@ -31,7 +31,7 @@ import io.vavr.control.Try;
 
 public class FileSystemStrategy extends ResolutionStrategy {
    public FileSystemStrategy( final String aspectModel ) throws RiotException {
-      super(aspectModel, ProcessPath.MODELS.getPath());
+      super( aspectModel, ProcessPath.MODELS.getPath() );
    }
 
    protected Try<Model> getModelFromFileSystem( final AspectModelUrn aspectModelUrn, final Path rootPath ) {
@@ -45,13 +45,16 @@ public class FileSystemStrategy extends ResolutionStrategy {
       LOG.warn( "Looking for {}, but no {}.ttl was found. Inspecting files in {}", aspectModelUrn.getName(),
             aspectModelUrn.getName(), directory );
 
-      return Arrays.stream(Optional.ofNullable(directory.toFile().listFiles()).orElse(new File[]{}))
-              .filter(file -> file.isFile() && file.getName().endsWith(".ttl"))
-              .map(File::toURI)
-              .sorted()
-              .map(this::loadFromUri)
-              .filter(tryModel -> tryModel.map(model -> AspectModelResolver.containsDefinition(model, aspectModelUrn)).getOrElse(false))
-              .findFirst()
-              .orElse(Try.failure(new FileNotFoundException("No model file containing " + aspectModelUrn + " could be found in directory: " + directory)));
+      return Arrays.stream( Optional.ofNullable( directory.toFile().listFiles() ).orElse( new File[] {} ) )
+                   .filter( file -> file.isFile() && file.getName().endsWith( ".ttl" ) )
+                   .map( File::toURI )
+                   .sorted()
+                   .map( this::loadFromUri )
+                   .filter( tryModel -> tryModel.map(
+                         model -> AspectModelResolver.containsDefinition( model, aspectModelUrn ) ).getOrElse( false ) )
+                   .findFirst()
+                   .orElse( Try.failure( new FileNotFoundException(
+                         "No model file containing " + aspectModelUrn + " could be found in directory: "
+                               + directory ) ) );
    }
 }

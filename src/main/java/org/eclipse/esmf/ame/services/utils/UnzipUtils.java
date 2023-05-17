@@ -31,12 +31,13 @@ import org.slf4j.LoggerFactory;
 public class UnzipUtils {
    private static final Logger LOG = LoggerFactory.getLogger( UnzipUtils.class );
 
-   private UnzipUtils() {}
+   private UnzipUtils() {
+   }
 
    /**
     * Extracts files from a ZIP input stream, skipping Mac-specific entries and performs the necessary file operations.
     *
-    * @param zipFile          - The ZIP input stream.
+    * @param zipFile - The ZIP input stream.
     * @param importFileSystem - The in-memory import file system
     * @throws FileReadException If there's an error reading the ZIP file.
     */
@@ -112,7 +113,7 @@ public class UnzipUtils {
     * Creates the file and copies its contents from the ZIP input stream.
     *
     * @param zipInputStream - The ZIP input stream.
-    * @param filePath       - The path of the file to create.
+    * @param filePath - The path of the file to create.
     * @throws IOException - If there's an I/O error during file creation or copying.
     */
    private static void createAndCopyFile( ZipInputStream zipInputStream, Path filePath ) throws IOException {

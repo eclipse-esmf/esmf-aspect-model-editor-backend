@@ -32,8 +32,8 @@ public class ProcessPackage {
    }
 
    public ProcessPackage( ValidFile validFile, List<MissingElement> missingFiles ) {
-      validFiles.add(validFile);
-      missingElements.addAll(missingFiles);
+      validFiles.add( validFile );
+      missingElements.addAll( missingFiles );
    }
 
    public void addValidFile( final ValidFile validFile ) {
@@ -44,17 +44,17 @@ public class ProcessPackage {
       missingElements.add( missingElement );
    }
 
-   public ProcessPackage merge(ProcessPackage other) {
+   public ProcessPackage merge( ProcessPackage other ) {
       // Create a new instance of ProcessPackage
       ProcessPackage mergedPackage = new ProcessPackage();
 
       // Merge the valid files
-      mergedPackage.getValidFiles().addAll(this.getValidFiles());
-      mergedPackage.getValidFiles().addAll(other.getValidFiles());
+      mergedPackage.getValidFiles().addAll( this.getValidFiles() );
+      mergedPackage.getValidFiles().addAll( other.getValidFiles() );
 
       // Merge the missing elements
-      mergedPackage.getMissingElements().addAll(this.getMissingElements());
-      mergedPackage.getMissingElements().addAll(other.getMissingElements());
+      mergedPackage.getMissingElements().addAll( this.getMissingElements() );
+      mergedPackage.getMissingElements().addAll( other.getMissingElements() );
 
       return mergedPackage;
    }

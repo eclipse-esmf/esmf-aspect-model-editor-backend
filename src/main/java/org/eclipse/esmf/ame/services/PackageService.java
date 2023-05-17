@@ -16,10 +16,16 @@ package org.eclipse.esmf.ame.services;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -61,7 +67,7 @@ public class PackageService {
    private final Map<String, String> AspectModelToExportCache = new HashMap<>();
 
    public PackageService( final AspectModelValidator aspectModelValidator, final String modelPath,
-                          final ModelResolverRepository modelResolverRepository, final FileSystem importFileSystem ) {
+         final ModelResolverRepository modelResolverRepository, final FileSystem importFileSystem ) {
       this.aspectModelValidator = aspectModelValidator;
       this.modelPath = modelPath;
       this.modelResolverRepository = modelResolverRepository;
@@ -77,20 +83,32 @@ public class PackageService {
       AspectModelToExportCache.clear();
 
       Map<String, ValidFile> validFiles = aspectModelFiles.stream()
-              .flatMap( data -> data.getFiles().stream()
-                      .map( fileName -> {
-                         String model = strategy.getModelAsString( data.getNamespace(), fileName );
-                         AspectModelToExportCache.put( data.getNamespace() + ":" + fileName, model );
-                         ViolationReport report = ModelUtils.validateModel( model, aspectModelValidator);
-                         return new ValidFile( data.getNamespace(), fileName, report );
-                      } ) )
-              .collect( Collectors.toMap( validFile -> validFile.getNamespace() + ":" + validFile.getFileName(), Function.identity() ) );
+                                                          .flatMap( data -> data.getFiles().stream()
+                                                                                .map( fileName -> {
+                                                                                   String model = strategy.getModelAsString(
+                                                                                         data.getNamespace(),
+                                                                                         fileName );
+                                                                                   AspectModelToExportCache.put(
+                                                                                         data.getNamespace() + ":"
+                                                                                               + fileName, model );
+                                                                                   ViolationReport report = ModelUtils.validateModel(
+                                                                                         model, aspectModelValidator );
+                                                                                   return new ValidFile(
+                                                                                         data.getNamespace(), fileName,
+                                                                                         report );
+                                                                                } ) )
+                                                          .collect( Collectors.toMap(
+                                                                validFile -> validFile.getNamespace() + ":"
+                                                                      + validFile.getFileName(),
+                                                                Function.identity() ) );
 
       validFiles.values().forEach( processPackage::addValidFile );
 
       validFiles.values().stream()
-              .flatMap( validFile -> getMissingAspectModelFiles( validFile.getViolationReport(), validFile.getFileName(), modelPath ).stream() )
-              .forEach( processPackage::addMissingElement );
+                .flatMap(
+                      validFile -> getMissingAspectModelFiles( validFile.getViolationReport(), validFile.getFileName(),
+                            modelPath ).stream() )
+                .forEach( processPackage::addMissingElement );
 
       return processPackage;
    }
@@ -101,7 +119,7 @@ public class PackageService {
       } catch ( final IOException e ) {
          LOG.error( "Cannot create exported package file." );
          throw new FileNotFoundException( String.format( "Error while creating the package file: %s", zipFileName ),
-                 e );
+               e );
       }
    }
 
@@ -110,12 +128,12 @@ public class PackageService {
          deleteInMemoryFileSystem();
 
          UnzipUtils.extractFilesFromPackage( inputStream, importFileSystem );
-         return validateValidFiles( modelPath);
+         return validateValidFiles( modelPath );
       } catch ( final Exception e ) {
          LOG.error( "Cannot unzip package file." );
          throw new IllegalArgumentException(
-                 String.format( "Package file %s was not unzipped successfully. %s.", zipFile.getOriginalFilename(),
-                         e.getMessage() ), e );
+               String.format( "Package file %s was not unzipped successfully. %s.", zipFile.getOriginalFilename(),
+                     e.getMessage() ), e );
       }
    }
 
@@ -126,34 +144,38 @@ public class PackageService {
          rootPath.sorted( Comparator.reverseOrder() )
                  .forEach( path -> {
                     try {
-                       if(!path.equals( root )) {
+                       if ( !path.equals( root ) ) {
                           Files.delete( path );
                        }
                     } catch ( IOException e ) {
-                       throw new FileCannotDeleteException("Failed to delete files and directories on the in-memory file system.", e);
+                       throw new FileCannotDeleteException(
+                             "Failed to delete files and directories on the in-memory file system.", e );
                     }
                  } );
       }
    }
 
-   private ProcessPackage validateValidFiles(final String modelStoragePath ) {
-            final ModelResolverStrategy strategy = modelResolverRepository.getStrategy(LocalFolderResolverStrategy.class);
+   private ProcessPackage validateValidFiles( final String modelStoragePath ) {
+      final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
       final List<AspectModelInformation> aspectModelInformations = strategy.getImportedAspectModelInformation();
 
       return aspectModelInformations.stream()
-              .map(fileInfo -> {
-                 final String fileName = fileInfo.getFileName();
-                 final Boolean modelExist = strategy.checkModelExist(fileInfo.getNamespace(), fileName);
+                                    .map( fileInfo -> {
+                                       final String fileName = fileInfo.getFileName();
+                                       final Boolean modelExist = strategy.checkModelExist( fileInfo.getNamespace(),
+                                             fileName );
 
-                 final ViolationReport violationReport = ModelUtils.validateModelInMemoryFiles(
-                         fileInfo.getAspectModel(), aspectModelValidator, importFileSystem);
+                                       final ViolationReport violationReport = ModelUtils.validateModelInMemoryFiles(
+                                             fileInfo.getAspectModel(), aspectModelValidator, importFileSystem );
 
-                 final ValidFile validFile = new ValidFile(fileInfo.getNamespace(), fileName, violationReport, modelExist);
-                 final List<MissingElement> missingFiles = getMissingAspectModelFiles(violationReport, fileName, modelStoragePath);
+                                       final ValidFile validFile = new ValidFile( fileInfo.getNamespace(), fileName,
+                                             violationReport, modelExist );
+                                       final List<MissingElement> missingFiles = getMissingAspectModelFiles(
+                                             violationReport, fileName, modelStoragePath );
 
-                 return new ProcessPackage(validFile, missingFiles);
-              })
-              .reduce(new ProcessPackage(), ProcessPackage::merge);
+                                       return new ProcessPackage( validFile, missingFiles );
+                                    } )
+                                    .reduce( new ProcessPackage(), ProcessPackage::merge );
    }
 
    public List<String> importAspectModelPackage( final List<AspectModelFiles> aspectModelFiles ) {
@@ -164,24 +186,25 @@ public class PackageService {
             final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( data.getNamespace() );
             folderStructure.setFileName( fileName );
             String aspectModel = Files.readString( importFileSystem.getPath( folderStructure.toString() ) );
-            Optional<String> namespaceVersion = Optional.of( folderStructure.getFileRootPath() + File.separator + folderStructure.getVersion() );
+            Optional<String> namespaceVersion = Optional.of(
+                  folderStructure.getFileRootPath() + File.separator + folderStructure.getVersion() );
 
             strategy.saveModel( namespaceVersion, Optional.of( fileName ), aspectModel );
 
             return folderStructure.toString();
          } catch ( final IOException e ) {
             throw new FileNotFoundException(
-                    String.format( "Cannot import Aspect Model with name %s to workspace", fileName ) );
+                  String.format( "Cannot import Aspect Model with name %s to workspace", fileName ) );
          }
       } ) ).toList();
    }
 
    private List<MissingElement> getMissingAspectModelFiles( final ViolationReport violationReport,
-                                                            final String fileName, final String modelStoragePath ) {
+         final String fileName, final String modelStoragePath ) {
       final List<ViolationError> violationErrors = violationReport.getViolationErrors().stream().filter(
-                      violation -> violation.getErrorCode() != null && violation.getErrorCode()
-                              .equals( ProcessingViolation.ERROR_CODE ) )
-              .toList();
+                                                                        violation -> violation.getErrorCode() != null && violation.getErrorCode()
+                                                                                                                                  .equals( ProcessingViolation.ERROR_CODE ) )
+                                                                  .toList();
 
       if ( violationErrors.isEmpty() ) {
          return List.of();
@@ -193,13 +216,13 @@ public class PackageService {
          final String missingAspectModelFile = ModelUtils.getAspectModelFile( modelStoragePath, focusNode );
 
          final String errorMessage = String.format(
-                 "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", focusNode, fileName );
+               "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", focusNode, fileName );
          return new MissingElement( fileName, (focusNode != null ? focusNode.toString() : ""),
-                 missingAspectModelFile, errorMessage );
+               missingAspectModelFile, errorMessage );
       } ).toList();
    }
 
-   public void backupWorkspace(final String aspectModelPath) {
+   public void backupWorkspace( final String aspectModelPath ) {
       try {
          final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy.MM.dd-HH.mm.ss" );
          final String timestamp = sdf.format( new Timestamp( System.currentTimeMillis() ) );

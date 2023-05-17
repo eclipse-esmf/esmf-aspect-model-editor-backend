@@ -165,7 +165,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     */
    @ExceptionHandler( FileCannotDeleteException.class )
    public ResponseEntity<Object> handleInvalidAspectModelException( final WebRequest request,
-                                                                    final FileCannotDeleteException e ) {
+         final FileCannotDeleteException e ) {
       return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
    }
 

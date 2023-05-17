@@ -14,7 +14,6 @@
 package org.eclipse.esmf.ame.services;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -22,13 +21,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import org.eclipse.esmf.ame.model.ProcessPath;
-import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;

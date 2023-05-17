@@ -15,7 +15,6 @@ package org.eclipse.esmf.ame.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +26,6 @@ import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
-import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.ame.model.migration.Namespaces;
 import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
@@ -40,7 +38,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith( SpringExtension.class )

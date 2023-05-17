@@ -13,11 +13,8 @@
 
 package org.eclipse.esmf.ame.resolver.strategy;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -26,7 +23,6 @@ import java.nio.file.Path;
 import org.apache.jena.rdf.model.Model;
 import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,6 +69,6 @@ class FileSystemStrategyTest {
 
       assertTrue( result.isFailure() );
       assertTrue( result.getCause() instanceof NotImplementedError );
-      assertTrue( result.getCause().getMessage().equals( causeMessage ) );
+      assertEquals( causeMessage, result.getCause().getMessage() );
    }
 }

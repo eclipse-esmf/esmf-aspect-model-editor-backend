@@ -14,7 +14,6 @@
 package org.eclipse.esmf.ame.services;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +48,7 @@ public class ModelService {
    private final ModelResolverRepository modelResolverRepository;
 
    public ModelService( final AspectModelValidator aspectModelValidator,
-                        final ModelResolverRepository modelResolverRepository ) {
+         final ModelResolverRepository modelResolverRepository ) {
       this.aspectModelValidator = aspectModelValidator;
       this.modelResolverRepository = modelResolverRepository;
 
@@ -62,25 +61,27 @@ public class ModelService {
       return strategy.getModelAsString( namespace, filename );
    }
 
-   public String saveModel( final Optional<String> namespace, final Optional<String> fileName, final String aspectModel ) {
+   public String saveModel( final Optional<String> namespace, final Optional<String> fileName,
+         final String aspectModel ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
       final String prettyPrintedModel = ModelUtils.getPrettyPrintedModel( aspectModel );
 
       return strategy.saveModel( namespace, fileName, prettyPrintedModel );
    }
 
-   private void saveVersionedModel( final VersionedModel versionedModel, final String namespace, final String fileName ) {
+   private void saveVersionedModel( final VersionedModel versionedModel, final String namespace,
+         final String fileName ) {
 
       final Optional<StmtIterator> esmfStatements = FileSystemStrategy.getEsmfStatements( versionedModel.getModel() );
 
       final String uri = esmfStatements.stream().findFirst()
-              .orElseThrow(
-                      () -> new NotImplementedError( "AspectModelUrn cannot be found." ) )
-              .next()
-              .getSubject().getURI();
+                                       .orElseThrow(
+                                             () -> new NotImplementedError( "AspectModelUrn cannot be found." ) )
+                                       .next()
+                                       .getSubject().getURI();
 
       final String prettyPrintedVersionedModel = ModelUtils.getPrettyPrintedVersionedModel( versionedModel,
-              AspectModelUrn.fromUrn( uri ).getUrn() );
+            AspectModelUrn.fromUrn( uri ).getUrn() );
 
       saveModel( Optional.of( namespace ), Optional.of( fileName ), prettyPrintedVersionedModel );
    }
@@ -113,14 +114,14 @@ public class ModelService {
       final List<Namespace> namespaces = new ArrayList<>();
 
       FileUtils.listFiles( storageDirectory, extensions, true ).stream().map( File::getAbsoluteFile )
-              .forEach( inputFile -> {
-                 if ( !inputFile.getName().equals( "latest.ttl" ) ) {
-                    final Try<VersionedModel> versionedModels = updateModelVersion( inputFile );
-                    final Tuple2<String, String> fileInfo = strategy.convertFileToTuple( inputFile );
-                    final Namespace namespace = resolveNamespace( namespaces, fileInfo._2 );
-                    namespaceFileInfo( namespace, versionedModels, fileInfo._1, fileInfo._2 );
-                 }
-              } );
+               .forEach( inputFile -> {
+                  if ( !inputFile.getName().equals( "latest.ttl" ) ) {
+                     final Try<VersionedModel> versionedModels = updateModelVersion( inputFile );
+                     final Tuple2<String, String> fileInfo = strategy.convertFileToTuple( inputFile );
+                     final Namespace namespace = resolveNamespace( namespaces, fileInfo._2 );
+                     namespaceFileInfo( namespace, versionedModels, fileInfo._1, fileInfo._2 );
+                  }
+               } );
 
       return new Namespaces( namespaces );
    }
@@ -131,7 +132,7 @@ public class ModelService {
 
    private Namespace resolveNamespace( final List<Namespace> namespaces, final String versionedNamespace ) {
       final Optional<Namespace> first = namespaces.stream().filter(
-              namespace -> namespace.versionedNamespace.equals( versionedNamespace ) ).findFirst();
+            namespace -> namespace.versionedNamespace.equals( versionedNamespace ) ).findFirst();
 
       return first.orElseGet( () -> {
          final Namespace namespace = new Namespace( versionedNamespace );
@@ -141,17 +142,18 @@ public class ModelService {
    }
 
    private void namespaceFileInfo( final Namespace namespace, final Try<VersionedModel> model, final String fileName,
-                                   final String versionedNamespace ) {
+         final String versionedNamespace ) {
 
       boolean modelIsSuccess = false;
 
       if ( model.isSuccess() ) {
          saveVersionedModel( model.get(), versionedNamespace, fileName + ModelUtils.TTL_EXTENSION );
-         modelIsSuccess = !getModel( namespace.versionedNamespace, fileName + ModelUtils.TTL_EXTENSION ).contains( "undefined:" );
+         modelIsSuccess = !getModel( namespace.versionedNamespace, fileName + ModelUtils.TTL_EXTENSION ).contains(
+               "undefined:" );
       }
 
       final FileInformation aspectModelFile = new FileInformation( fileName + ModelUtils.TTL_EXTENSION,
-              modelIsSuccess );
+            modelIsSuccess );
 
       namespace.addAspectModelFile( aspectModelFile );
    }
