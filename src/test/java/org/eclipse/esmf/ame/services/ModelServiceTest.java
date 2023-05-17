@@ -39,12 +39,14 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith( SpringExtension.class )
 @SpringBootTest
 @DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
+@ActiveProfiles( "test" )
 class ModelServiceTest {
 
    @Autowired
@@ -53,108 +55,69 @@ class ModelServiceTest {
    private static final String VERSION = "1.0.0";
    private static final String EXAMPLE_NAMESPACE = "org.eclipse.esmf.example";
    private static final String NAMESPACE_VERSION = EXAMPLE_NAMESPACE + ":" + VERSION;
-   private static final Path RESOURCE_PATH = Path.of( "src", "test", "resources" );
+
+   private static final Path RESOURCE_PATH = Path.of( "src", "test", "resources", "services" );
    private static final Path TEST_NAMESPACE_PATH = Path.of( RESOURCE_PATH.toString(), EXAMPLE_NAMESPACE, VERSION );
+
    private static final Path MIGRATION_WORKSPACE_PATH = Path.of( RESOURCE_PATH.toString(), "workspace-to-migrate" );
    private static final Path TO_MIGRATE_WORKSPACE_ONE = Path.of( MIGRATION_WORKSPACE_PATH.toString(),
          "io.migrate-workspace-one", VERSION );
    private static final Path TO_MIGRATE_WORKSPACE_TWO = Path.of( MIGRATION_WORKSPACE_PATH.toString(),
          "io.migrate-workspace-two", VERSION );
 
-   private static final String TEST_MODEL = "AspectModel.ttl";
+   private static final String TEST_MODEL = "AspectModelForService.ttl";
    private static final String TEST_MODEL_TO_DELTE = "FileToDelete.ttl";
    private static final String TEST_MODEL_NOT_FOUND = "NOTFOUND.ttl";
 
    @Test
    void testGetModel() throws IOException {
-      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( RESOURCE_PATH.toString() );
+      final String result = modelService.getModel( NAMESPACE_VERSION, TEST_MODEL );
 
-         ProcessPath mockedEnum = Mockito.mock(ProcessPath.class);
-         when(mockedEnum.getPath()).thenReturn(RESOURCE_PATH);
-
-
-         final String result = modelService.getModel( NAMESPACE_VERSION, TEST_MODEL );
-
-         assertEquals( result, Files.readString( TEST_NAMESPACE_PATH.resolve( TEST_MODEL ) ) );
-      }
+      assertEquals( result, Files.readString( TEST_NAMESPACE_PATH.resolve( TEST_MODEL ) ) );
    }
 
    @Test()
    void testGetModelThrowsIOException() {
-      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( RESOURCE_PATH.toString() );
-
-         assertThrows( FileNotFoundException.class,
-               () -> modelService.getModel( NAMESPACE_VERSION, TEST_MODEL_NOT_FOUND) );
-      }
+      assertThrows( FileNotFoundException.class,
+            () -> modelService.getModel( NAMESPACE_VERSION, TEST_MODEL_NOT_FOUND ) );
    }
 
    @Test
    void testValidateNewModel() throws IOException {
-      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL );
+      final Path storagePath = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
 
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( storagePath.toString() );
+      final ViolationReport validateReport = modelService.validateModel( testModel );
 
-         final ProcessPath processPath = Mockito.mock( ProcessPath.class );
-
-         when( processPath.getPath() ).thenReturn( RESOURCE_PATH );
-
-         final ViolationReport validateReport = modelService.validateModel( Files.readString( storagePath, StandardCharsets.UTF_8 ) );
-         assertTrue( validateReport.getViolationErrors().isEmpty() );
-      }
+      assertTrue( validateReport.getViolationErrors().isEmpty() );
    }
 
    @Test
    void testSaveModel() throws IOException {
-      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
-         final Path fileToReplace = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL );
+      final Path fileToReplace = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL );
+      final String turtleData = Files.readString( fileToReplace, StandardCharsets.UTF_8 );
 
-         final String turtleData = Files.readString( fileToReplace, StandardCharsets.UTF_8 );
-
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( RESOURCE_PATH.toString() );
-
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( fileToReplace.toString() );
-
-         final String result = modelService.saveModel( Optional.of( NAMESPACE_VERSION ), Optional.of( TEST_MODEL ),
-               turtleData );
-         assertEquals( result, Path.of( EXAMPLE_NAMESPACE, VERSION, TEST_MODEL ).toString() );
-      }
+      final String result = modelService.saveModel( Optional.of( NAMESPACE_VERSION ), Optional.of( TEST_MODEL ),
+            turtleData );
+      assertEquals( result, Path.of( EXAMPLE_NAMESPACE, VERSION, TEST_MODEL ).toString() );
    }
 
    @Test()
    void testDeleteModel() {
-         modelService.deleteModel( NAMESPACE_VERSION, TEST_MODEL_TO_DELTE );
-         assertThrows( FileNotFoundException.class, () -> modelService.getModel( NAMESPACE_VERSION, TEST_MODEL_TO_DELTE ) );
+      modelService.deleteModel( NAMESPACE_VERSION, TEST_MODEL_TO_DELTE );
+      assertThrows( FileNotFoundException.class,
+            () -> modelService.getModel( NAMESPACE_VERSION, TEST_MODEL_TO_DELTE ) );
    }
 
    @Disabled( "Should be reactivated as soon as there is something to migrate again." )
    @Test
    void testMigrateModel() throws IOException {
-      try ( final MockedStatic<LocalFolderResolverStrategy> utilities = Mockito.mockStatic(
-            LocalFolderResolverStrategy.class ) ) {
-         final Path storagePath = Path.of( TEST_NAMESPACE_PATH.toString(), "OldAspectModel.ttl" );
+      final Path storagePath = Path.of( TEST_NAMESPACE_PATH.toString(), "OldAspectModel.ttl" );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
 
-         utilities.when( () -> LocalFolderResolverStrategy.transformToValidModelDirectory( any() ) )
-                  .thenReturn( storagePath.toString() );
+      final String migratedModel = modelService.migrateModel( testModel );
 
-         final ProcessPath processPath = Mockito.mock( ProcessPath.class );
-         when( processPath.getPath() ).thenReturn( storagePath );
-
-         final String migratedModel = modelService.migrateModel( Files.readString( storagePath, StandardCharsets.UTF_8 ) );
-
-         checkMigratedModel( migratedModel );
-      }
+      checkMigratedModel( migratedModel );
    }
 
    @Test

@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
+
 import org.eclipse.esmf.ame.exceptions.ResponseExceptionHandler;
 import org.eclipse.esmf.ame.model.ProcessPath;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
@@ -32,6 +33,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -89,16 +91,16 @@ public class ApplicationConfig implements WebMvcConfigurer {
 
    @Bean
    public String modelPath() {
-      if (environment.acceptsProfiles("test")) {
-         return Path.of( "src", "test", "resources" ).toAbsolutePath().toString();
+      if ( environment.acceptsProfiles( Profiles.of( "test" ) ) ) {
+         return Path.of( "src", "test", "resources", "services" ).toAbsolutePath().toString();
       }
 
       return ProcessPath.MODELS.getPath().toString();
    }
 
-
    @Bean
    public List<ModelResolverStrategy> modelStrategies() {
-      return Collections.singletonList( new LocalFolderResolverStrategy( applicationSettings, importFileSystem(), modelPath() ) );
+      return Collections.singletonList(
+            new LocalFolderResolverStrategy( applicationSettings, importFileSystem(), modelPath() ) );
    }
 }
