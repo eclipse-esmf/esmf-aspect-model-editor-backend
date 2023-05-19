@@ -13,9 +13,11 @@
 
 package org.eclipse.esmf.ame.services.utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -119,7 +121,33 @@ public class UnzipUtils {
    private static void createAndCopyFile( ZipInputStream zipInputStream, Path filePath ) throws IOException {
       if ( isTTLFile( filePath.getFileName().toString() ) ) {
          Files.createFile( filePath );
-         Files.copy( zipInputStream, filePath, StandardCopyOption.REPLACE_EXISTING );
+
+         String aspectModel = readZipInput( zipInputStream );
+
+         // TODO: remove this workaround when bamm is completely replaced by samm
+         if ( aspectModel.contains( "bamm" ) ) {
+            aspectModel = aspectModel.replaceAll( "bamm", "samm" )
+                                     .replaceAll( "io.openmanufacturing", "org.eclipse.esmf.samm" );
+         }
+
+         Files.copy( new ByteArrayInputStream( aspectModel.getBytes() ), filePath,
+               StandardCopyOption.REPLACE_EXISTING );
+      }
+   }
+
+   private static String readZipInput( ZipInputStream zipInputStream ) {
+      try {
+         byte[] buffer = new byte[1024];
+         int bytesRead;
+         StringBuilder stringBuilder = new StringBuilder();
+
+         while ( (bytesRead = zipInputStream.read( buffer )) != -1 ) {
+            stringBuilder.append( new String( buffer, 0, bytesRead, StandardCharsets.UTF_8 ) );
+         }
+
+         return stringBuilder.toString();
+      } catch ( IOException e ) {
+         throw new FileReadException( "Cannot read file in package.", e );
       }
    }
 }
