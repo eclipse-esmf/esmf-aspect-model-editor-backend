@@ -13,40 +13,36 @@
 
 package org.eclipse.esmf.ame.repository;
 
-import static junit.framework.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collections;
 
-import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
 import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith( MockitoExtension.class )
+@ExtendWith( SpringExtension.class )
+@SpringBootTest
 class ModelResolverRepositoryTest {
 
-   private ModelResolverRepository modelResolverRepository;
+   @Autowired
+   private ModelResolverRepository repository;
 
    @Test
    void testGetStrategy() {
-      final LocalFolderResolverStrategy localFolderResolverStrategy = new LocalFolderResolverStrategy(
-            mock( ApplicationSettings.class ) );
-      modelResolverRepository = new ModelResolverRepository( Collections.singletonList( localFolderResolverStrategy ) );
+      final ModelResolverStrategy result = repository.getStrategy( LocalFolderResolverStrategy.class );
 
-      final ModelResolverStrategy result = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-
-      assertEquals( result, localFolderResolverStrategy );
+      assertTrue( result instanceof LocalFolderResolverStrategy );
    }
 
    @Test()
    void testGetStrategyHasEmptyStrategyList() {
-      modelResolverRepository = new ModelResolverRepository( Collections.emptyList() );
+      repository = new ModelResolverRepository( Collections.emptyList() );
 
-      assertThrows( RuntimeException.class,
-            () -> modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class ) );
+      assertThrows( RuntimeException.class, () -> repository.getStrategy( LocalFolderResolverStrategy.class ) );
    }
 }

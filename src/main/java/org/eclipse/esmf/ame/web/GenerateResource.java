@@ -16,7 +16,6 @@ package org.eclipse.esmf.ame.web;
 import java.io.IOException;
 import java.util.Optional;
 
-import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.services.GenerateService;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +48,7 @@ public class GenerateResource {
    public ResponseEntity<byte[]> generateHtml( @RequestBody final String aspectModel,
          @RequestParam( name = "language" ) final String language ) throws IOException {
       return ResponseEntity.ok(
-            generateService.generateHtmlDocument( aspectModel, language, ValidationProcess.GENERATE ) );
+            generateService.generateHtmlDocument( aspectModel, language ) );
    }
 
    /**
@@ -60,7 +59,7 @@ public class GenerateResource {
     */
    @PostMapping( "json-sample" )
    public ResponseEntity<Object> jsonSample( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( generateService.sampleJSONPayload( aspectModel, ValidationProcess.GENERATE ) );
+      return ResponseEntity.ok( generateService.sampleJSONPayload( aspectModel ) );
    }
 
    /**
@@ -73,7 +72,7 @@ public class GenerateResource {
    @PostMapping( "json-schema" )
    public ResponseEntity<String> jsonSchema( @RequestBody final String aspectModel,
          @RequestParam( name = "language", defaultValue = "en" ) final String language ) {
-      return ResponseEntity.ok( generateService.jsonSchema( aspectModel, ValidationProcess.GENERATE, language ) );
+      return ResponseEntity.ok( generateService.jsonSchema( aspectModel, language ) );
    }
 
    /**

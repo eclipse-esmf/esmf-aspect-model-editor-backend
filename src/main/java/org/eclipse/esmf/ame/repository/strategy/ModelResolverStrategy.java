@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import org.eclipse.esmf.ame.model.repository.LocalPackageInfo;
+import org.eclipse.esmf.ame.model.repository.AspectModelInformation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 import io.vavr.Tuple2;
@@ -32,9 +32,8 @@ public interface ModelResolverStrategy {
     *
     * @param namespace - used to extract file path.
     * @param filename - file name of the file.y
-    * @param storagePath - path to storage files.
     */
-   Boolean checkModelExist( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
+   Boolean checkModelExist( @Nonnull final String namespace, @Nonnull final String filename );
 
    /**
     * Returns turtleData based on received namespace.
@@ -42,10 +41,9 @@ public interface ModelResolverStrategy {
     *
     * @param namespace - used to extract file path.
     * @param filename - file name of the file.
-    * @param storagePath - path to storage files.
     * @return the Aspect Model turtleData as {@link String}.
     */
-   String getModelAsString( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
+   String getModelAsString( @Nonnull final String namespace, @Nonnull final String filename );
 
    /**
     * Returns the path of the Aspect Model.
@@ -53,10 +51,9 @@ public interface ModelResolverStrategy {
     *
     * @param namespace - used to extract file path.
     * @param filename - file name of the file.
-    * @param storagePath - path to storage files.
     * @return the file location of the saved turtleData.
     */
-   File getModelAsFile( @Nonnull final String namespace, @Nonnull final String filename, final String storagePath );
+   File getModelAsFile( @Nonnull final String namespace, @Nonnull final String filename );
 
    /**
     * Save given turtleData into repository. File path will be decided based on urn if exists, if not it will be
@@ -65,11 +62,9 @@ public interface ModelResolverStrategy {
     * @param namespace - used to extract file path.
     * @param fileName - file name of the Aspect Model.
     * @param turtleData - content of the saved file.
-    * @param storagePath - path to storage files.
     * @return the file location of the saved turtleData.
     */
-   String saveModel( Optional<String> namespace, Optional<String> fileName, @Nonnull final String turtleData,
-         final String storagePath );
+   String saveModel( Optional<String> namespace, Optional<String> fileName, @Nonnull final String turtleData );
 
    /**
     * Deletes the folder from the given namespace.
@@ -77,31 +72,21 @@ public interface ModelResolverStrategy {
     *
     * @param namespace - used to extract filePath.
     * @param fileName - file name of the Aspect Model.
-    * @param storagePath - path to storage files.
     */
-   void deleteModel( @Nonnull final String namespace, final String fileName, final String storagePath );
-
-   /**
-    * Deletes the whole storage directory.
-    *
-    * @param storagePath - path to storage.
-    */
-   void deleteDirectory( @Nonnull final File storagePath );
+   void deleteModel( @Nonnull final String namespace, final String fileName );
 
    /**
     * Returns a map of key = namespace + version and value = list of turtle files that are present in that namespace.
     *
     * @param shouldRefresh - boolean when the list have to refresh.
-    * @param storagePath - path to storage files.
     */
-   Map<String, List<String>> getAllNamespaces( boolean shouldRefresh, final String storagePath );
+   Map<String, List<String>> getAllNamespaces( boolean shouldRefresh );
 
    /**
-    * Returns the {@link LocalPackageInfo} which have the information of valid and un-valid files in the package.
-    *
-    * @param storagePath - path to storage files.
+    * Returns an {@link List<AspectModelInformation>} which have the information of all Aspect Models which will be
+    * imported.
     */
-   LocalPackageInfo getLocalPackageInformation( final String storagePath );
+   List<AspectModelInformation> getImportedAspectModelInformation();
 
    /**
     * Returns the converted {@link AspectModelUrn} from the file that is provided.

@@ -16,14 +16,15 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix : <urn:samm:org.eclipse.esmf.test:1.0.0#> .
+@prefix : <urn:samm:org.eclipse.esmf.example:1.0.0#> .
 
-:TestFileOne a samm:Aspect ;
-    samm:properties (:property1 :property3) ;
-    samm:operations () .
+:FileToDelete a samm:Aspect ;
+   samm:properties ( :property ) ;
+   samm:operations ( ) .
 
-:property1 a samm:Property;
-    samm:characteristic :Characteristic1 .
+:property a samm:Property ;
+   samm:characteristic :Characteristic .
 
-:Characteristic1 a samm:Characteristic ;
-    samm:dataType xsd:string .
+:Characteristic a samm:Characteristic ;
+   samm:dataType xsd:string .
+

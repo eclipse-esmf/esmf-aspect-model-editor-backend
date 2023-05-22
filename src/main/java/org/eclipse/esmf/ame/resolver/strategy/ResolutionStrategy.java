@@ -11,24 +11,19 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package org.eclipse.esmf.ame.resolver.inmemory;
-
-import static org.apache.jena.http.auth.AuthEnv.LOG;
+package org.eclipse.esmf.ame.resolver.strategy;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
@@ -36,41 +31,30 @@ import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.vocabulary.RDF;
+import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.UrnNotFoundException;
-import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.aspectmodel.resolver.AbstractResolutionStrategy;
-import org.eclipse.esmf.aspectmodel.resolver.AspectModelResolver;
 import org.eclipse.esmf.aspectmodel.resolver.services.TurtleLoader;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.vocabulary.SAMM;
 import org.eclipse.esmf.aspectmodel.vocabulary.SAMMC;
 import org.eclipse.esmf.aspectmodel.vocabulary.SAMME;
 import org.eclipse.esmf.samm.KnownVersion;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.vavr.NotImplementedError;
 import io.vavr.control.Try;
 
-public class InMemoryStrategy extends AbstractResolutionStrategy {
+public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
+   private static final Logger LOG = LoggerFactory.getLogger( ResolutionStrategy.class );
+
    public final Path processingRootPath;
    public final Model aspectModel;
 
-   public final ValidationProcess validationProcess;
-
-   public InMemoryStrategy( final String aspectModel, final ValidationProcess validationProcess ) throws RiotException {
-      processingRootPath = validationProcess.getPath();
-      this.aspectModel = loadTurtle( aspectModel );
-      this.validationProcess = validationProcess;
-   }
-
-   private Model loadTurtle( final String aspectModel ) {
-      final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-            aspectModel.getBytes( StandardCharsets.UTF_8 ) );
-
-      final Model model = TurtleLoader.loadTurtle( byteArrayInputStream ).getOrElseThrow(
-            error -> new RiotException( error.getCause().getMessage(), error.getCause() ) );
-
-      IOUtils.closeQuietly( byteArrayInputStream );
-      return model;
+   public ResolutionStrategy( final String aspectModel, final Path processingRootPath ) throws RiotException {
+      this.processingRootPath = processingRootPath;
+      this.aspectModel = loadTurtleFromString( aspectModel );
    }
 
    @Override
@@ -95,11 +79,6 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
    }
 
    private Try<Model> tryOnFailure( final AspectModelUrn aspectModelUrn ) {
-      // Special case on importing models, ref. Aspect Model can be already imported
-      if ( validationProcess.equals( ValidationProcess.IMPORT ) ) {
-         return getModelFromFileSystem( aspectModelUrn, ValidationProcess.MODELS.getPath() );
-      }
-
       final StmtIterator stmtIterator = aspectModel.listStatements(
             ResourceFactory.createResource( aspectModelUrn.toString() ), null, (RDFNode) null );
 
@@ -107,34 +86,26 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
          return Try.success( aspectModel );
       }
 
-      return Try.failure( new UrnNotFoundException( String.format( "%s cannot be resolved correctly.", aspectModelUrn ),
-            aspectModelUrn ) );
+      return Try.failure( new UrnNotFoundException(
+            String.format( "%s cannot be resolved correctly.", aspectModelUrn ), aspectModelUrn ) );
    }
 
-   protected Try<Model> getModelFromFileSystem( final AspectModelUrn aspectModelUrn, final Path rootPath ) {
-      final Path directory = rootPath.resolve( aspectModelUrn.getNamespace() ).resolve( aspectModelUrn.getVersion() );
+   protected abstract Try<Model> getModelFromFileSystem( AspectModelUrn aspectModelUrn, Path rootPath );
 
-      final File namedResourceFile = directory.resolve( aspectModelUrn.getName() + ".ttl" ).toFile();
-      if ( namedResourceFile.exists() ) {
-         return loadTurtle( new File( namedResourceFile.toURI() ) );
+   protected Model loadTurtleFromString( final String aspectModel ) {
+      try ( ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+            aspectModel.getBytes( StandardCharsets.UTF_8 ) ) ) {
+         return TurtleLoader.loadTurtle( byteArrayInputStream ).getOrElseThrow(
+               error -> new RiotException( error.getCause().getMessage(), error.getCause() ) );
+      } catch ( IOException e ) {
+         LOG.error( "Cannot read file." );
+         throw new FileReadException( "Error reading the Aspect Model file.", e );
       }
-
-      LOG.warn( "Looking for {}, but no {}.ttl was found. Inspecting files in {}", aspectModelUrn.getName(),
-            aspectModelUrn.getName(), directory );
-
-      return Arrays.stream( Optional.ofNullable( directory.toFile().listFiles() ).orElse( new File[] {} ) )
-                   .filter( File::isFile ).filter( file -> file.getName().endsWith( ".ttl" ) ).map( File::toURI )
-                   .sorted().map( this::loadFromUri ).filter(
-                  tryModel -> tryModel.map( model -> AspectModelResolver.containsDefinition( model, aspectModelUrn ) )
-                                      .getOrElse( false ) ).findFirst().orElse( Try.failure( new FileNotFoundException(
-                  "No model file containing " + aspectModelUrn + " could be found in directory: " + directory ) ) );
    }
 
-   private Try<Model> loadTurtle( final File aspectModel ) {
+   protected Try<Model> loadTurtleFromFile( final File aspectModel ) {
       try ( final InputStream inputStream = new FileInputStream( aspectModel ) ) {
-         final Try<Model> model = TurtleLoader.loadTurtle( inputStream );
-         IOUtils.closeQuietly( inputStream );
-         return model;
+         return TurtleLoader.loadTurtle( inputStream );
       } catch ( final IOException exception ) {
          return Try.failure( exception );
       }
@@ -143,11 +114,9 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
    public AspectModelUrn getAspectModelUrn() {
       return AspectModelUrn.fromUrn(
             getEsmfStatements( aspectModel ).orElseThrow(
-                                                  () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next()
-                                            .getSubject().getURI() );
+                  () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next().getSubject().getURI() );
    }
 
-   //TODO move to utils class
    public static Optional<StmtIterator> getEsmfStatements( final Model aspectModel ) {
       final List<StmtIterator> stmtIterators = new ArrayList<>();
 
@@ -161,7 +130,6 @@ public class InMemoryStrategy extends AbstractResolutionStrategy {
       return stmtIterators.isEmpty() ? Optional.empty() : stmtIterators.stream().findFirst();
    }
 
-   //TODO move to utils class
    private static List<Resource> getListOfAllSAMMElements( final KnownVersion version ) {
       final SAMM samm = new SAMM( version );
       final SAMMC sammc = new SAMMC( version );

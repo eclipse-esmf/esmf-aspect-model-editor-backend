@@ -17,9 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
-import org.eclipse.esmf.ame.model.ValidationProcess;
 import org.eclipse.esmf.ame.model.migration.Namespaces;
 import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import org.eclipse.esmf.ame.services.ModelService;
@@ -65,7 +63,7 @@ public class ModelResource {
       final String filename = optionalFilename.orElseThrow(
             () -> new FileNotFoundException( "Please specify a file name" ) );
 
-      return ResponseEntity.ok( modelService.getModel( optionalNameSpace.orElse( "" ), filename, Optional.empty() ) );
+      return ResponseEntity.ok( modelService.getModel( optionalNameSpace.orElse( "" ), filename ) );
    }
 
    /**
@@ -78,7 +76,7 @@ public class ModelResource {
          @RequestBody final String turtleData ) {
       final Optional<String> namespace = Optional.ofNullable( headers.get( NAMESPACE ) );
       final Optional<String> fileName = Optional.ofNullable( headers.get( FILE_NAME ) );
-      modelService.saveModel( namespace, fileName, turtleData, Optional.empty() );
+      modelService.saveModel( namespace, fileName, turtleData );
 
       return new ResponseEntity<>( HttpStatus.CREATED );
    }
@@ -92,7 +90,7 @@ public class ModelResource {
     */
    @PostMapping( "validate" )
    public ResponseEntity<ViolationReport> validateModel( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( modelService.validateModel( aspectModel, ValidationProcess.VALIDATION ) );
+      return ResponseEntity.ok( modelService.validateModel( aspectModel ) );
    }
 
    /**
@@ -103,7 +101,7 @@ public class ModelResource {
     */
    @PostMapping( path = "migrate", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public ResponseEntity<String> migrateModel( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( ModelUtils.migrateModel( aspectModel, ValidationProcess.MIGRATE ) );
+      return ResponseEntity.ok( ModelUtils.migrateModel( aspectModel ) );
    }
 
    /**
@@ -124,7 +122,7 @@ public class ModelResource {
     */
    @GetMapping( path = "migrate-workspace" )
    public ResponseEntity<Namespaces> migrateWorkspace() {
-      return ResponseEntity.ok( modelService.migrateWorkspace( ApplicationSettings.getMetaModelStoragePath() ) );
+      return ResponseEntity.ok( modelService.migrateWorkspace() );
    }
 
    /**
@@ -137,7 +135,7 @@ public class ModelResource {
    public ResponseEntity<Map<String, List<String>>> getAllNamespaces(
          @RequestParam( value = "shouldRefresh", required = false, defaultValue = "false" )
          final boolean shouldRefresh ) {
-      return ResponseEntity.ok( modelService.getAllNamespaces( shouldRefresh, ValidationProcess.MODELS ) );
+      return ResponseEntity.ok( modelService.getAllNamespaces( shouldRefresh ) );
    }
 
    /**

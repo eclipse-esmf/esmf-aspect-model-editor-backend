@@ -22,9 +22,6 @@ import lombok.Data;
 
 @Data
 public class ProcessPackage {
-   @JsonProperty( "invalidFiles" )
-   private List<String> invalidFiles;
-
    @JsonProperty( "validFiles" )
    private final List<ValidFile> validFiles = new ArrayList<>();
 
@@ -34,15 +31,31 @@ public class ProcessPackage {
    public ProcessPackage() {
    }
 
-   public ProcessPackage( final List<String> invalidFiles ) {
-      this.invalidFiles = invalidFiles;
+   public ProcessPackage( ValidFile validFile, List<MissingElement> missingFiles ) {
+      validFiles.add( validFile );
+      missingElements.addAll( missingFiles );
    }
 
-   public void addValidFiles( final ValidFile validFile ) {
+   public void addValidFile( final ValidFile validFile ) {
       validFiles.add( validFile );
    }
 
    public void addMissingElement( final MissingElement missingElement ) {
       missingElements.add( missingElement );
+   }
+
+   public ProcessPackage merge( ProcessPackage other ) {
+      // Create a new instance of ProcessPackage
+      ProcessPackage mergedPackage = new ProcessPackage();
+
+      // Merge the valid files
+      mergedPackage.getValidFiles().addAll( this.getValidFiles() );
+      mergedPackage.getValidFiles().addAll( other.getValidFiles() );
+
+      // Merge the missing elements
+      mergedPackage.getMissingElements().addAll( this.getMissingElements() );
+      mergedPackage.getMissingElements().addAll( other.getMissingElements() );
+
+      return mergedPackage;
    }
 }

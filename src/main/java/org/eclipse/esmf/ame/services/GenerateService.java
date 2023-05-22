@@ -20,7 +20,7 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
-import org.eclipse.esmf.ame.model.ValidationProcess;
+import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
 import org.eclipse.esmf.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
@@ -52,10 +52,9 @@ public class GenerateService {
       DataType.setupTypeMapping();
    }
 
-   public byte[] generateHtmlDocument( final String aspectModel, final String language,
-         final ValidationProcess validationProcess ) throws IOException {
+   public byte[] generateHtmlDocument( final String aspectModel, final String language ) throws IOException {
       final AspectModelDocumentationGenerator generator = new AspectModelDocumentationGenerator( language,
-            generateAspectContext( aspectModel, validationProcess ) );
+            generateAspectContext( aspectModel ) );
 
       final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
@@ -65,10 +64,9 @@ public class GenerateService {
       return byteArrayOutputStream.toByteArray();
    }
 
-   public String jsonSchema( final String aspectModel, final ValidationProcess validationProcess,
-         final String language ) {
+   public String jsonSchema( final String aspectModel, final String language ) {
       try {
-         final AspectContext aspectContext = generateAspectContext( aspectModel, validationProcess );
+         final AspectContext aspectContext = generateAspectContext( aspectModel );
 
          final AspectModelJsonSchemaGenerator generator = new AspectModelJsonSchemaGenerator();
          final JsonNode jsonSchema = generator.apply( aspectContext.aspect(), Locale.forLanguageTag( language ) );
@@ -85,18 +83,18 @@ public class GenerateService {
       }
    }
 
-   public String sampleJSONPayload( final String aspectModel, final ValidationProcess validationProcess ) {
+   public String sampleJSONPayload( final String aspectModel ) {
       try {
          return new AspectModelJsonPayloadGenerator(
-               generateAspectContext( aspectModel, validationProcess ) ).generateJson();
+               generateAspectContext( aspectModel ) ).generateJson();
       } catch ( final IOException e ) {
          LOG.error( "Aspect Model could not be loaded correctly." );
          throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
       }
    }
 
-   private AspectContext generateAspectContext( final String aspectModel, final ValidationProcess validationProcess ) {
-      final VersionedModel versionedModel = getVersionModel( aspectModel, validationProcess ).getOrElseThrow( () -> {
+   private AspectContext generateAspectContext( final String aspectModel ) {
+      final VersionedModel versionedModel = getVersionModel( aspectModel ).getOrElseThrow( () -> {
          LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
          return new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL );
       } );
@@ -104,8 +102,8 @@ public class GenerateService {
       return new AspectContext( versionedModel, AspectModelLoader.getSingleAspectUnchecked( versionedModel ) );
    }
 
-   private Try<VersionedModel> getVersionModel( final String aspectModel, final ValidationProcess validationProcess ) {
-      return ModelUtils.fetchVersionModel( ModelUtils.inMemoryStrategy( aspectModel, validationProcess ) );
+   private Try<VersionedModel> getVersionModel( final String aspectModel ) {
+      return ModelUtils.fetchVersionModel( new FileSystemStrategy( aspectModel ) );
    }
 
    public String generateYamlOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
@@ -113,7 +111,7 @@ public class GenerateService {
       try {
          final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
 
-         return generator.applyForYaml( ModelUtils.resolveAspectFromModel( aspectModel, ValidationProcess.MODELS ),
+         return generator.applyForYaml( ModelUtils.resolveAspectFromModel( aspectModel ),
                useSemanticVersion, baseUrl, Optional.empty(), Optional.empty(), includeQueryApi, pagingOption,
                Locale.forLanguageTag( language ) );
       } catch ( final IOException e ) {
@@ -128,7 +126,7 @@ public class GenerateService {
          final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
 
          final JsonNode json = generator.applyForJson(
-               ModelUtils.resolveAspectFromModel( aspectModel, ValidationProcess.MODELS ), useSemanticVersion, baseUrl,
+               ModelUtils.resolveAspectFromModel( aspectModel ), useSemanticVersion, baseUrl,
                Optional.empty(), Optional.empty(), includeQueryApi, pagingOption, LocaleUtils.toLocale( language ) );
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();

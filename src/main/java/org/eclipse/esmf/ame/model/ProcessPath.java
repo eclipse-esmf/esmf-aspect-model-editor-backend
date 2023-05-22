@@ -18,17 +18,13 @@ import java.util.Arrays;
 
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 
-public enum ValidationProcess {
-   VALIDATION( ApplicationSettings.getMetaModelStoragePath() ),
-   EXPORT( ApplicationSettings.getExportPackageStoragePath() ),
-   IMPORT( ApplicationSettings.getImportPackageStoragePath() ),
-   GENERATE( ApplicationSettings.getMetaModelStoragePath() ),
-   MIGRATE( ApplicationSettings.getMetaModelStoragePath() ),
+public enum ProcessPath {
+   AspectModelPath( ApplicationSettings.getAspectModelEditorStoragePath() ),
    MODELS( ApplicationSettings.getMetaModelStoragePath() );
 
    private final Path path;
 
-   ValidationProcess( final Path path ) {
+   ProcessPath( final Path path ) {
       this.path = path;
    }
 
@@ -36,7 +32,7 @@ public enum ValidationProcess {
       return path;
    }
 
-   public static ValidationProcess getEnum( final String value ) {
+   public static ProcessPath getEnum( final String value ) {
       return Arrays.stream( values() )
                    .filter( v -> v.getPath().toString().equalsIgnoreCase( value ) )
                    .findFirst()
