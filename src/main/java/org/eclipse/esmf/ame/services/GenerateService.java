@@ -15,13 +15,16 @@ package org.eclipse.esmf.ame.services;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.commons.lang3.LocaleUtils;
+import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
+import org.eclipse.esmf.ame.validation.ViolationFormatter;
 import org.eclipse.esmf.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
 import org.eclipse.esmf.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
 import org.eclipse.esmf.aspectmodel.generator.jsonschema.AspectModelJsonSchemaGenerator;
@@ -29,6 +32,8 @@ import org.eclipse.esmf.aspectmodel.generator.openapi.AspectModelOpenApiGenerato
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 import org.eclipse.esmf.aspectmodel.resolver.services.DataType;
 import org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel;
+import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
+import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectContext;
 import org.eclipse.esmf.metamodel.loader.AspectModelLoader;
 import org.slf4j.Logger;
@@ -94,16 +99,27 @@ public class GenerateService {
    }
 
    private AspectContext generateAspectContext( final String aspectModel ) {
-      final VersionedModel versionedModel = getVersionModel( aspectModel ).getOrElseThrow( () -> {
-         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
-         return new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT_MODEL );
-      } );
+      final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( aspectModel );
+      final Try<VersionedModel> versionedModels = ModelUtils.fetchVersionModel( fileSystemStrategy );
 
-      return new AspectContext( versionedModel, AspectModelLoader.getSingleAspectUnchecked( versionedModel ) );
+      final Try<AspectContext> context = versionedModels.flatMap(
+            model -> getSingleAspect( fileSystemStrategy, model ) );
+
+      return context.recover( throwable -> {
+         // Another exception, e.g. syntax error. Let the validator handle this
+         final List<Violation> violations = new AspectModelValidator().validateModel(
+               context.map( AspectContext::rdfModel ) );
+
+         throw new FileReadException(
+               String.format( "The generation process encountered failures due to the following violations: %s",
+                     new ViolationFormatter().apply( violations ) ) );
+      } ).get();
    }
 
-   private Try<VersionedModel> getVersionModel( final String aspectModel ) {
-      return ModelUtils.fetchVersionModel( new FileSystemStrategy( aspectModel ) );
+   private static Try<AspectContext> getSingleAspect( FileSystemStrategy fileSystemStrategy, VersionedModel model ) {
+      return AspectModelLoader.getSingleAspect( model,
+                                    aspect -> aspect.getName().equals( fileSystemStrategy.getAspectModelUrn().getName() ) )
+                              .map( aspect -> new AspectContext( model, aspect ) );
    }
 
    public String generateYamlOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
