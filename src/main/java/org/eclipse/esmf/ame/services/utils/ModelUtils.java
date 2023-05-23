@@ -23,23 +23,18 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RiotException;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
-import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
+import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
-import org.eclipse.esmf.ame.model.packaging.AspectModelFiles;
-import org.eclipse.esmf.ame.model.resolver.FolderStructure;
 import org.eclipse.esmf.ame.model.validation.ViolationReport;
-import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.ame.resolver.strategy.InMemoryStrategy;
 import org.eclipse.esmf.ame.validation.ViolationFormatter;
@@ -55,6 +50,7 @@ import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.aspectmodel.versionupdate.MigratorService;
 import org.eclipse.esmf.metamodel.Aspect;
+import org.eclipse.esmf.metamodel.AspectContext;
 import org.eclipse.esmf.metamodel.loader.AspectModelLoader;
 
 import io.vavr.control.Try;
@@ -127,11 +123,47 @@ public class ModelUtils {
     * @param aspectModel as a string.
     * @return the Aspect as an object.
     */
-   public static Aspect resolveAspectFromModel( final String aspectModel )
-         throws InvalidAspectModelException {
+   public static Aspect resolveAspectFromModel( final String aspectModel ) throws InvalidAspectModelException {
       final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( aspectModel );
-      final VersionedModel versionedModel = ModelUtils.loadModelFromStoragePath( fileSystemStrategy );
-      return AspectModelLoader.getSingleAspectUnchecked( versionedModel );
+      final Try<VersionedModel> versionedModels = ModelUtils.fetchVersionModel( fileSystemStrategy );
+
+      final Try<AspectContext> context = versionedModels.flatMap(
+            model -> getSingleAspect( fileSystemStrategy, model ) );
+
+      return getAspectContext( context ).aspect();
+   }
+
+   /**
+    * Retrieves a single AspectContext based on the given FileSystemStrategy and VersionedModel.
+    *
+    * @param fileSystemStrategy The file system strategy to retrieve the AspectModel URN.
+    * @param model The versioned model to search for the aspect.
+    * @return A Try containing the AspectContext if found, otherwise a failure.
+    */
+   public static Try<AspectContext> getSingleAspect( FileSystemStrategy fileSystemStrategy, VersionedModel model ) {
+      return AspectModelLoader.getSingleAspect( model,
+                                    aspect -> aspect.getName().equals( fileSystemStrategy.getAspectModelUrn().getName() ) )
+                              .map( aspect -> new AspectContext( model, aspect ) );
+   }
+
+   /**
+    * Retrieves the AspectContext from the provided Try<AspectContext>, handling exceptions if necessary.
+    *
+    * @param context The Try<AspectContext> representing the context to retrieve the AspectContext from.
+    * @return The retrieved AspectContext.
+    *
+    * @throws FileReadException If there are failures in the generation process due to violations in the model.
+    */
+   public static AspectContext getAspectContext( Try<AspectContext> context ) {
+      return context.recover( throwable -> {
+         // Another exception, e.g. syntax error. Let the validator handle this
+         final List<Violation> violations = new AspectModelValidator().validateModel(
+               context.map( AspectContext::rdfModel ) );
+
+         throw new FileReadException(
+               String.format( "The generation process encountered failures due to the following violations: %s",
+                     new ViolationFormatter().apply( violations ) ) );
+      } ).get();
    }
 
    /**
@@ -225,25 +257,6 @@ public class ModelUtils {
    public static Predicate<Violation> isProcessingViolation() {
       return violation -> violation.errorCode() != null && violation.errorCode()
                                                                     .equals( ProcessingViolation.ERROR_CODE );
-   }
-
-   public static List<String> copyAspectModelToDirectory( final List<AspectModelFiles> aspectModelFiles,
-         final String destStorage ) {
-
-      return aspectModelFiles.stream().flatMap( data -> data.getFiles().stream().map( fileName -> {
-         final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( data.getNamespace() );
-         folderStructure.setFileName( fileName );
-         final String absoluteAspectModelPath = File.separator + folderStructure;
-         final File aspectModelStoragePath = Paths.get( destStorage, folderStructure.getFileRootPath(),
-               folderStructure.getVersion() ).toFile();
-         try {
-            FileUtils.copyFileToDirectory( new File( absoluteAspectModelPath ), aspectModelStoragePath );
-            return folderStructure.toString();
-         } catch ( final IOException e ) {
-            throw new FileNotFoundException(
-                  String.format( "Cannot copy file %s to %s", folderStructure.getFileName(), aspectModelStoragePath ) );
-         }
-      } ) ).toList();
    }
 
    /**
