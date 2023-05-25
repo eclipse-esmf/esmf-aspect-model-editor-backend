@@ -140,7 +140,8 @@ public class ModelUtils {
     * @param model The versioned model to search for the aspect.
     * @return A Try containing the AspectContext if found, otherwise a failure.
     */
-   public static Try<AspectContext> getSingleAspect( FileSystemStrategy fileSystemStrategy, VersionedModel model ) {
+   public static Try<AspectContext> getSingleAspect( final FileSystemStrategy fileSystemStrategy,
+         final VersionedModel model ) {
       return AspectModelLoader.getSingleAspect( model,
                                     aspect -> aspect.getName().equals( fileSystemStrategy.getAspectModelUrn().getName() ) )
                               .map( aspect -> new AspectContext( model, aspect ) );
