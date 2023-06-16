@@ -216,13 +216,14 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
     */
    private Map<String, List<String>> readAllNamespacesFromFolder() {
       final String rootSharedFolder = getQualifiedFilePath( StringUtils.EMPTY );
-      final File file = getFileInstance( rootSharedFolder );
+      final File file = new File( rootSharedFolder );
 
       if ( !file.exists() ) {
          throw new FileNotFoundException( String.format( STORAGE_FOLDER_NOT_EXISTS, rootSharedFolder ) );
       }
 
-      final List<String> endFilePaths = getEndFilePaths( rootSharedFolder, file );
+      final List<String> endFilePaths = getEndFilePaths( rootSharedFolder, file ).stream().filter(
+            path -> path.endsWith( ".ttl" ) ).toList();
 
       final Map<String, List<String>> namespacePathMapping = endFilePaths.stream()
                                                                          .map( LocalFolderResolverStrategy::transformToValidModelDirectory )
