@@ -52,7 +52,7 @@ public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
    public final Path processingRootPath;
    public final Model aspectModel;
 
-   public ResolutionStrategy( final String aspectModel, final Path processingRootPath ) throws RiotException {
+   public ResolutionStrategy( final String aspectModel, final Path processingRootPath ) {
       this.processingRootPath = processingRootPath;
       this.aspectModel = loadTurtleFromString( aspectModel );
    }
@@ -95,8 +95,15 @@ public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
    protected Model loadTurtleFromString( final String aspectModel ) {
       try ( ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
             aspectModel.getBytes( StandardCharsets.UTF_8 ) ) ) {
-         return TurtleLoader.loadTurtle( byteArrayInputStream ).getOrElseThrow(
-               error -> new RiotException( error.getCause().getMessage(), error.getCause() ) );
+         Try<Model> resultTry = TurtleLoader.loadTurtle( byteArrayInputStream );
+
+         if ( resultTry.isFailure() ) {
+            Throwable cause = resultTry.getCause();
+            String errorMessage = cause != null ? cause.getMessage() : "Unknown Error";
+            throw new RiotException( errorMessage, cause );
+         }
+
+         return resultTry.get();
       } catch ( IOException e ) {
          LOG.error( "Cannot read file." );
          throw new FileReadException( "Error reading the Aspect Model file.", e );
