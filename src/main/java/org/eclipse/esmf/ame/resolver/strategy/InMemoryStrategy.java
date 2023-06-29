@@ -49,7 +49,7 @@ public class InMemoryStrategy extends ResolutionStrategy {
          final Path file = fileSystem.getPath( filePath );
 
          if ( Files.exists( file ) ) {
-            return loadTurtleFromFile( new File( Files.readString( file ) ) );
+            return Try.of( () -> loadTurtleFromString( Files.readString( file ) ) );
          }
 
          LOG.warn( "Looking for {}, but no {}.ttl was found. Inspecting files in {}", aspectModelUrn.getName(),
@@ -57,7 +57,7 @@ public class InMemoryStrategy extends ResolutionStrategy {
 
          Optional<Try<Model>> modelWithDefinition = pathStream
                .filter( Files::isRegularFile )
-               .map( Path::getFileName )
+               .map( Path::toAbsolutePath )
                .map( Path::toString )
                .map( fileSystem::getPath )
                .map( aspectModelPath -> Try.of( () -> loadTurtleFromString( Files.readString( aspectModelPath ) ) ) )
