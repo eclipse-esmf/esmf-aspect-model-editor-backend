@@ -13,6 +13,7 @@
 
 package org.eclipse.esmf.ame.model.validation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
@@ -37,7 +38,7 @@ public class ViolationError {
 
    @JsonInclude( JsonInclude.Include.NON_NULL )
    @JsonProperty( "fix" )
-   private List<String> fix;
+   private List<String> fix = new ArrayList<>();
 
    @JsonInclude( JsonInclude.Include.NON_NULL )
    @JsonProperty( "errorCode" )
