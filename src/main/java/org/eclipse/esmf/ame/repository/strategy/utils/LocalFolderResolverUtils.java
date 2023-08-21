@@ -15,6 +15,10 @@ package org.eclipse.esmf.ame.repository.strategy.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
@@ -73,48 +77,17 @@ public class LocalFolderResolverUtils {
    }
 
    /**
-    * This method will convert the given urn to AspectModelUrn.
+    * Reads the content of a file located at the specified path using the provided character encoding.
     *
-    * @param urn - urn of the aspect model.
-    * @return AspectModelUrn.
+    * @param path The path to the file to be read.
+    * @param charset The character encoding to be used for decoding the file content.
+    * @return The content of the file as a string decoded with the specified character encoding.
+    * @throws IOException If an I/O error occurs while reading the file.
     */
-   public static AspectModelUrn convertToAspectModelUrn( final String urn ) {
-      return AspectModelUrn.from( urn ).getOrElse( () -> {
-         throw new InvalidAspectModelException(
-               String.format( "The URN constructed from the input file path is invalid: %s", urn ) );
-      } );
-   }
-
-   /**
-    * This method will delete the given directory and all of its contents.
-    *
-    * @param storagePath - path of the directory to be deleted.
-    */
-   public static void deleteDirectory( final File storagePath ) {
-      try {
-         if ( storagePath.exists() && storagePath.isDirectory() ) {
-            handleFiles( storagePath );
-            FileUtils.forceDelete( storagePath );
-         }
-      } catch ( final IOException error ) {
-         LOG.error( "Cannot delete exported package folder." );
-         throw new FileNotFoundException( String.format( "Unable to delete folder on: %s", storagePath ), error );
-      }
-   }
-
-   /**
-    * This method will unlock all files in the given directory.
-    *
-    * @param storagePath path of the directory to be deleted.
-    * @throws IOException if an I/O error occurs.
-    */
-   private static void handleFiles( final File storagePath ) throws IOException {
-      for ( final File file : Objects.requireNonNull( storagePath.listFiles() ) ) {
-         if ( file.isDirectory() ) {
-            handleFiles( file );
-         }
-
-         FileUtils.forceDelete( file );
+   public static String readString( Path path, Charset charset) throws IOException {
+      try ( InputStream inputStream = Files.newInputStream(path)) {
+         byte[] bytes = inputStream.readAllBytes();
+         return new String(bytes, charset);
       }
    }
 }

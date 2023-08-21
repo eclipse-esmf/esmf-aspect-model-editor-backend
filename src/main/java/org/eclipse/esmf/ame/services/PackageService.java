@@ -16,6 +16,7 @@ package org.eclipse.esmf.ame.services;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -172,7 +173,7 @@ public class PackageService {
          try {
             final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( data.getNamespace() );
             folderStructure.setFileName( fileName );
-            String aspectModel = Files.readString( importFileSystem.getPath( folderStructure.toString() ) );
+            String aspectModel = LocalFolderResolverUtils.readString( importFileSystem.getPath( folderStructure.toString() ), StandardCharsets.UTF_8 );
             Optional<String> namespaceVersion = Optional.of(
                   folderStructure.getFileRootPath() + File.separator + folderStructure.getVersion() );
 
