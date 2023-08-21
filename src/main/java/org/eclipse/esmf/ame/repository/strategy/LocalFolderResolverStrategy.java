@@ -15,7 +15,10 @@ package org.eclipse.esmf.ame.repository.strategy;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -275,7 +278,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
             final String[] arg = transformToValidModelDirectory( path ).split( ":" );
             final String namespace = arg[0] + ":" + arg[1];
             final String fileName = arg[2];
-            String aspectModel = Files.readString( importFileSystem.getPath( path ) );
+            String aspectModel = LocalFolderResolverUtils.readString( importFileSystem.getPath( path ), StandardCharsets.UTF_8 );
             return new AspectModelInformation( namespace, fileName, aspectModel );
          } catch ( IOException e ) {
             throw new FileNotFoundException( "Cannot find in-memory file to create package information", e );
