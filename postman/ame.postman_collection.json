@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c1956a01-8d8b-4411-b8b1-4bae4b0d0071",
+		"_postman_id": "60a84c95-6f04-4bea-86ee-17e70d30b603",
 		"name": "AME.POSTMAN.RESOURCES",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -36,7 +36,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models",
@@ -81,7 +81,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models",
@@ -235,10 +235,9 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"// TODO recreate after migration is needed\r",
-							"//pm.test(\"Status code is 200\", function () {\r",
-							"//    pm.response.to.have.status(200);\r",
-							"//    pm.expect(pm.response.text()).to.include(pm.variables.replaceIn(\"@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:{{currentSammVersion}}#>\"));});"
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(pm.response.text()).to.include(pm.variables.replaceIn(\"@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:{{currentSammVersion}}#>\"));});"
 						],
 						"type": "text/javascript"
 					}
@@ -249,7 +248,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": ""
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\n\n:AspectDefault a samm:Aspect ;\n    samm:properties (:property1) ;\n    samm:operations () .\n\n:property1 a samm:Property;\n    samm:characteristic :Characteristic1 .\n\n:Characteristic1 a samm:Characteristic ."
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models/migrate",
@@ -290,7 +289,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models/validate",
@@ -332,7 +331,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:DefaultAspect a samm:Aspect ;\r\n   samm:preferredName \"DefaultAspect\"@en ;\r\n   samm:description \"DefaultAspect Description\"@en ;\r\n   samm:properties ( :property1 ) ;\r\n   samm:operations ( ) .\r\n\r\n:property1 a samm:Property ;\r\n   samm:preferredName \"Property 1 \"@en ;\r\n   samm:description \"Property Description 1 \"@en ;\r\n   samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n   samm:preferredName \"Characteristic 1 \"@en ;\r\n   samm:description \"Characteristic Description 1 \"@en ;\r\n   samm:dataType xsd:string .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n   samm:preferredName \"Characteristic 2 \"@en ;\r\n   samm:description \"Characteristic Description 2 \"@en ;\r\n   samm:dataType xsd:string ."
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:DefaultAspect a samm:Aspect ;\r\n   samm:preferredName \"DefaultAspect\"@en ;\r\n   samm:description \"DefaultAspect Description\"@en ;\r\n   samm:properties ( :property1 ) ;\r\n   samm:operations ( ) .\r\n\r\n:property1 a samm:Property ;\r\n   samm:preferredName \"Property 1 \"@en ;\r\n   samm:description \"Property Description 1 \"@en ;\r\n   samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n   samm:preferredName \"Characteristic 1 \"@en ;\r\n   samm:description \"Characteristic Description 1 \"@en ;\r\n   samm:dataType xsd:string .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n   samm:preferredName \"Characteristic 2 \"@en ;\r\n   samm:description \"Characteristic Description 2 \"@en ;\r\n   samm:dataType xsd:string ."
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models/validate",
@@ -373,7 +372,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models/validate",
@@ -460,7 +459,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectWithUsedAndUnusedConstraint a samm:Aspect ;\r\n   samm:properties ( :testProperty ) ;\r\n   samm:operations ( ) .\r\n\r\n:testProperty a samm:Property ;\r\n   samm:characteristic :UsedTestTrait .\r\n\r\n:UsedTestTrait a samm-c:Trait ;\r\n   samm-c:constraint :UnusedTestConstraint ;\r\n   samm-c:baseCharacteristic samm-c:Text .\r\n\r\n:UnusedTestConstraint a samm-c:LengthConstraint ;\r\n   samm:preferredName \"Unused Test Constraint\"@en ;\r\n   samm:description \"Unused Test Constraint\"@en ;\r\n   samm:see <http://openmanufacturing.com> ;\r\n   samm:see <http://openmanufacturing.com/me> ;\r\n   samm-c:minValue \"5\"^^xsd:nonNegativeInteger ;\r\n   samm-c:maxValue \"10\"^^xsd:nonNegativeInteger ."
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectWithUsedAndUnusedConstraint a samm:Aspect ;\r\n   samm:properties ( :testProperty ) ;\r\n   samm:operations ( ) .\r\n\r\n:testProperty a samm:Property ;\r\n   samm:characteristic :UsedTestTrait .\r\n\r\n:UsedTestTrait a samm-c:Trait ;\r\n   samm-c:constraint :UnusedTestConstraint ;\r\n   samm-c:baseCharacteristic samm-c:Text .\r\n\r\n:UnusedTestConstraint a samm-c:LengthConstraint ;\r\n   samm:preferredName \"Unused Test Constraint\"@en ;\r\n   samm:description \"Unused Test Constraint\"@en ;\r\n   samm:see <http://openmanufacturing.com> ;\r\n   samm:see <http://openmanufacturing.com/me> ;\r\n   samm-c:minValue \"5\"^^xsd:nonNegativeInteger ;\r\n   samm-c:maxValue \"10\"^^xsd:nonNegativeInteger ."
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/models/validate",
@@ -502,7 +501,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/json-sample",
@@ -545,7 +544,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/json-schema",
@@ -585,7 +584,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\n\n:AspectDefault a samm:Aspect ;\n    samm:properties (:property1) ;\n    samm:operations () .\n\n:property1 a samm:Property;\n    samm:characteristic :Characteristic1 .\n\n:Characteristic1 a samm:Characteristic ."
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\n\n:AspectDefault a samm:Aspect ;\n    samm:properties (:property1) ;\n    samm:operations () .\n\n:property1 a samm:Property;\n    samm:characteristic :Characteristic1 .\n\n:Characteristic1 a samm:Characteristic ."
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/json-schema",
@@ -625,7 +624,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\n\n:AspectDefault a samm:Aspect ;\n    samm:properties (:property1) ;\n    samm:operations () .\n\n:property1 a samm:Property;\n    samm:characteristic :Characteristic1 .\n\n:Characteristic1 a samm:Characteristic ."
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\n\n:AspectDefault a samm:Aspect ;\n    samm:properties (:property1) ;\n    samm:operations () .\n\n:property1 a samm:Property;\n    samm:characteristic :Characteristic1 .\n\n:Characteristic1 a samm:Characteristic ."
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/json-sample",
@@ -672,7 +671,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/open-api-spec?output=json&baseUrl=http://www.test.com&includeQueryApi=true&useSemanticVersion=true&pagingOption=NO_PAGING",
@@ -741,7 +740,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/open-api-spec?output=yaml&baseUrl=http://www.test.com&includeQueryApi=false&useSemanticVersion=false&pagingOption=OFFSET_BASED_PAGING",
@@ -802,7 +801,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic .\r\n"
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/open-api-spec?output=json&baseUrl=http://www.test.com&includeQueryApi=true&useSemanticVersion=true&pagingOption=NO_PAGING",
@@ -863,7 +862,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic .\r\n"
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic .\r\n"
 				},
 				"url": {
 					"raw": "http://localhost:{{port}}/ame/api/generate/open-api-spec?output=yaml&baseUrl=http://www.test.com&includeQueryApi=true&useSemanticVersion=true&pagingOption=NO_PAGING",
