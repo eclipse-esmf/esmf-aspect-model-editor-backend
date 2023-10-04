@@ -29,7 +29,6 @@ import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.model.migration.Namespaces;
 import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.MockedStatic;
@@ -59,8 +58,14 @@ class ModelServiceTest {
    private static final Path MIGRATION_WORKSPACE_PATH = Path.of( RESOURCE_PATH.toString(), "workspace-to-migrate" );
    private static final Path TO_MIGRATE_WORKSPACE_ONE = Path.of( MIGRATION_WORKSPACE_PATH.toString(),
          "io.migrate-workspace-one", VERSION );
+
+   private static final Path MIGRATE_WORKSPACE_ONE = Path.of( RESOURCE_PATH.toString(), "io.migrate-workspace-one",
+         VERSION );
    private static final Path TO_MIGRATE_WORKSPACE_TWO = Path.of( MIGRATION_WORKSPACE_PATH.toString(),
          "io.migrate-workspace-two", VERSION );
+
+   private static final Path MIGRATE_WORKSPACE_TWO = Path.of( RESOURCE_PATH.toString(), "io.migrate-workspace-two",
+         VERSION );
 
    private static final String TEST_MODEL = "AspectModelForService.ttl";
    private static final String TEST_MODEL_TO_DELTE = "FileToDelete.ttl";
@@ -106,7 +111,6 @@ class ModelServiceTest {
             () -> modelService.getModel( NAMESPACE_VERSION, TEST_MODEL_TO_DELTE ) );
    }
 
-   @Disabled( "Should be reactivated as soon as there is something to migrate again." )
    @Test
    void testMigrateModel() throws IOException {
       final Path storagePath = Path.of( TEST_NAMESPACE_PATH.toString(), "OldAspectModel.ttl" );
@@ -151,10 +155,18 @@ class ModelServiceTest {
          assertEquals( "ToMigrateTwo.ttl", namespaces.namespaces.get( 1 ).files.get( 1 ).getName() );
          assertEquals( true, namespaces.namespaces.get( 1 ).files.get( 1 ).getSuccess() );
 
-         final String migratedModelOne = Files.readString( OneToMigrateOne.toPath(), StandardCharsets.UTF_8 );
-         final String migratedModelTwo = Files.readString( OneToMigrateTwo.toPath(), StandardCharsets.UTF_8 );
-         final String migratedModelThree = Files.readString( TwoToMigrateOne.toPath(), StandardCharsets.UTF_8 );
-         final String migratedModelFour = Files.readString( TwoToMigrateTwo.toPath(), StandardCharsets.UTF_8 );
+         final String migratedModelOne = Files.readString(
+               new File( MIGRATE_WORKSPACE_ONE + File.separator + "ToMigrateOne.ttl" ).toPath(),
+               StandardCharsets.UTF_8 );
+         final String migratedModelTwo = Files.readString(
+               new File( MIGRATE_WORKSPACE_ONE + File.separator + "ToMigrateTwo.ttl" ).toPath(),
+               StandardCharsets.UTF_8 );
+         final String migratedModelThree = Files.readString(
+               new File( MIGRATE_WORKSPACE_TWO + File.separator + "ToMigrateOne.ttl" ).toPath(),
+               StandardCharsets.UTF_8 );
+         final String migratedModelFour = Files.readString(
+               new File( MIGRATE_WORKSPACE_TWO + File.separator + "ToMigrateTwo.ttl" ).toPath(),
+               StandardCharsets.UTF_8 );
 
          checkMigratedModel( migratedModelOne );
          checkMigratedModel( migratedModelTwo );
@@ -164,9 +176,9 @@ class ModelServiceTest {
    }
 
    private void checkMigratedModel( final String migratedModel ) {
-      assertTrue( migratedModel.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#>" ) );
-      assertTrue( migratedModel.contains( "@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.0.0#>" ) );
-      assertTrue( migratedModel.contains( "@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.0.0#>" ) );
-      assertTrue( migratedModel.contains( "@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.0.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#>" ) );
    }
 }

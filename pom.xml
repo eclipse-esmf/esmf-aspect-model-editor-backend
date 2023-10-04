@@ -38,12 +38,12 @@
         <main.class>org.eclipse.esmf.ame.Application</main.class>
 
         <!-- Internal esmf dependencies -->
-        <esmf-sdk-version>2.2.0</esmf-sdk-version>
+        <esmf-sdk-version>2.3.2</esmf-sdk-version>
 
         <!-- Versions of third party dependencies -->
         <spring-boot-version>3.0.0</spring-boot-version>
         <lombok-version>1.18.24</lombok-version>
-        <commons-io-version>2.11.0</commons-io-version>
+        <commons-io-version>2.13.0</commons-io-version>
         <commons-validator-version>1.7</commons-validator-version>
         <port-allocator-version>1.2</port-allocator-version>
         <process-exec-version>0.9</process-exec-version>
@@ -222,6 +222,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io-version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.servlet</groupId>

@@ -87,7 +87,7 @@ class LocalFolderResolverStrategyTest {
    void testGetModel() {
       final String result = localFolderResolverStrategy.getModelAsString( NAMESPACE_VERSION, MODEL );
 
-      assertTrue( result.contains( "<urn:samm:org.eclipse.esmf.samm:meta-model:2.0.0#>" ) );
+      assertTrue( result.contains( "<urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#>" ) );
    }
 
    @Test
