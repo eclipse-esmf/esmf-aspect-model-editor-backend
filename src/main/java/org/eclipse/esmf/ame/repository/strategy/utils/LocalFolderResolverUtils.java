@@ -13,23 +13,17 @@
 
 package org.eclipse.esmf.ame.repository.strategy.utils;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 
-import javax.annotation.Nonnull;
-
-import org.apache.commons.io.FileUtils;
-import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
-import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.model.resolver.FolderStructure;
-import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.annotation.Nonnull;
 
 public class LocalFolderResolverUtils {
 
@@ -82,12 +76,13 @@ public class LocalFolderResolverUtils {
     * @param path The path to the file to be read.
     * @param charset The character encoding to be used for decoding the file content.
     * @return The content of the file as a string decoded with the specified character encoding.
+    *
     * @throws IOException If an I/O error occurs while reading the file.
     */
-   public static String readString( Path path, Charset charset) throws IOException {
-      try ( InputStream inputStream = Files.newInputStream(path)) {
+   public static String readString( Path path, Charset charset ) throws IOException {
+      try ( InputStream inputStream = Files.newInputStream( path ) ) {
          byte[] bytes = inputStream.readAllBytes();
-         return new String(bytes, charset);
+         return new String( bytes, charset );
       }
    }
 }

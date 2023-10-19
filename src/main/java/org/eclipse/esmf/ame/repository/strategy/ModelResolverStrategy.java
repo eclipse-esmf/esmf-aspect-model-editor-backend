@@ -18,12 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.annotation.Nonnull;
-
 import org.eclipse.esmf.ame.model.repository.AspectModelInformation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 import io.vavr.Tuple2;
+import jakarta.annotation.Nonnull;
 
 public interface ModelResolverStrategy {
 
