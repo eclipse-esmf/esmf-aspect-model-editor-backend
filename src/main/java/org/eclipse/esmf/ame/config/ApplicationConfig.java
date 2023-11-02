@@ -38,7 +38,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
 
 /**
- * Configuration file to return the conversion service of all the characteristic class converters
+ * Configuration class for setting up various application-level beans and configurations.
+ * This class primarily sets up properties, file systems, model paths, and CORS mappings.
  */
 @Configuration
 @ComponentScan( basePackageClasses = ResponseExceptionHandler.class )
@@ -49,13 +50,21 @@ public class ApplicationConfig implements WebMvcConfigurer {
    private final Environment environment;
    private FileSystem importFileSystem;
 
+   /**
+    * Constructs an instance of ApplicationConfig with the provided settings and environment.
+    *
+    * @param applicationSettings The settings of the application.
+    * @param environment The environment the application is running in.
+    */
    public ApplicationConfig( final ApplicationSettings applicationSettings, final Environment environment ) {
       this.applicationSettings = applicationSettings;
       this.environment = environment;
    }
 
    /**
-    * mapping to a registry returns nothing
+    * Configures CORS mappings for the application, allowing specific HTTP methods.
+    *
+    * @param registry the CORS registry.
     */
    @Override
    public void addCorsMappings( final CorsRegistry registry ) {
@@ -64,10 +73,9 @@ public class ApplicationConfig implements WebMvcConfigurer {
    }
 
    /**
-    * FUnction to return AspectModelValidator bean to be managed by spring
-    * controller
+    * Creates a bean of {@link AspectModelValidator} with JavaScript evaluations disabled.
     *
-    * @return AspectModelValidator
+    * @return a new instance of AspectModelValidator.
     */
    @Bean
    public AspectModelValidator getAspectModelValidator() {
@@ -77,6 +85,11 @@ public class ApplicationConfig implements WebMvcConfigurer {
       return new AspectModelValidator();
    }
 
+   /**
+    * Creates and returns an in-memory file system for imports.
+    *
+    * @return a new or existing in-memory file system.
+    */
    @Bean
    public FileSystem importFileSystem() {
       if ( importFileSystem == null ) {
@@ -89,6 +102,11 @@ public class ApplicationConfig implements WebMvcConfigurer {
       return importFileSystem;
    }
 
+   /**
+    * Determines and returns the path for models based on the environment profile.
+    *
+    * @return the absolute path to the models.
+    */
    @Bean
    public String modelPath() {
       if ( environment.acceptsProfiles( Profiles.of( "test" ) ) ) {
@@ -98,6 +116,11 @@ public class ApplicationConfig implements WebMvcConfigurer {
       return ProcessPath.MODELS.getPath().toString();
    }
 
+   /**
+    * Creates a list of model resolver strategies with settings and file systems configured.
+    *
+    * @return a list containing an instance of LocalFolderResolverStrategy.
+    */
    @Bean
    public List<ModelResolverStrategy> modelStrategies() {
       return Collections.singletonList(

@@ -34,6 +34,7 @@ import org.apache.jena.riot.RiotException;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
+import org.eclipse.esmf.ame.model.repository.AspectModelInformation;
 import org.eclipse.esmf.ame.model.validation.ViolationReport;
 import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.ame.resolver.strategy.InMemoryStrategy;
@@ -174,7 +175,7 @@ public class ModelUtils {
     * @return the resulting {@link VersionedModel} that corresponds to the input Aspect model.
     */
    public static VersionedModel loadModelFromStoragePath( final FileSystemStrategy fileSystemStrategy ) {
-      return resolveModel( fileSystemStrategy.aspectModel ).getOrElseThrow(
+      return resolveModel( fileSystemStrategy.getCurrentAspectModel() ).getOrElseThrow(
             e -> new InvalidAspectModelException( "Cannot resolve Aspect Model.", e ) );
    }
 
@@ -229,13 +230,13 @@ public class ModelUtils {
       }
    }
 
-   public static ViolationReport validateModelInMemoryFiles( final String aspectModel,
+   public static ViolationReport validateModelInMemoryFiles( final AspectModelInformation aspectModelInformation,
          final AspectModelValidator aspectModelValidator, final java.nio.file.FileSystem fileSystem ) {
       final Path root = fileSystem.getRootDirectories().iterator().next();
       final ViolationReport violationReport = new ViolationReport();
 
       try {
-         final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( aspectModel, root, fileSystem );
+         final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( aspectModelInformation, root, fileSystem );
          final Try<VersionedModel> versionedModel = ModelUtils.fetchVersionModel( inMemoryStrategy );
          final List<Violation> violations = aspectModelValidator.validateModel( versionedModel );
 

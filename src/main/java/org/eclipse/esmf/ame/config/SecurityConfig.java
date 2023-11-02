@@ -19,14 +19,23 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
- * Application Security configuration file to configure HTTPSecurity
+ * Represents the application's security configuration.
+ * This configuration is responsible for setting up the HTTP security rules,
+ * such as request matchers and CSRF settings.
+ *
+ * <p>Typical usage includes disabling CSRF and permitting all requests to certain paths.</p>
  */
 @Configuration
 public class SecurityConfig {
    /**
-    * overridden Function to configure HTTPSecurity
+    * Configures the HTTP security filter chain. This configuration disables CSRF,
+    * permits all requests to paths matching "/**", and requires authentication for
+    * all other requests.
     *
-    * @throws Exception On input error.
+    * @param http an {@link HttpSecurity} instance to configure.
+    * @return the configured {@link SecurityFilterChain}.
+    *
+    * @throws Exception if there's an error configuring the {@link HttpSecurity}.
     */
    @Bean
    public SecurityFilterChain filterChain( final HttpSecurity http ) throws Exception {

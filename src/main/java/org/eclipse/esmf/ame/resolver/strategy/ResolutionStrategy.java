@@ -32,7 +32,9 @@ import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.riot.RiotException;
 import org.apache.jena.vocabulary.RDF;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.exceptions.UrnNotFoundException;
+import org.eclipse.esmf.ame.model.repository.AspectModelInformation;
 import org.eclipse.esmf.aspectmodel.resolver.AbstractResolutionStrategy;
 import org.eclipse.esmf.aspectmodel.resolver.services.TurtleLoader;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
@@ -45,18 +47,54 @@ import org.slf4j.LoggerFactory;
 
 import io.vavr.NotImplementedError;
 import io.vavr.control.Try;
+import lombok.Getter;
 
+/**
+ * Represents a resolution strategy for handling aspect models.
+ *
+ * <p>This abstract class provides common methods and behaviors to resolve and load aspect models, and should be
+ * extended to create specific resolution strategies.</p>
+ */
+@Getter
 public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
    private static final Logger LOG = LoggerFactory.getLogger( ResolutionStrategy.class );
 
-   public final Path processingRootPath;
-   public final Model aspectModel;
+   private final Path processingRootPath;
+   private final Model currentAspectModel;
 
+   private final String currentFileName;
+
+   /**
+    * Constructs a new ResolutionStrategy with the given parameters.
+    *
+    * @param aspectModel The aspect model file content as string.
+    * @param processingRootPath The root path where processing should occur.
+    */
    public ResolutionStrategy( final String aspectModel, final Path processingRootPath ) {
       this.processingRootPath = processingRootPath;
-      this.aspectModel = loadTurtleFromString( aspectModel );
+      this.currentFileName = "NEW LOADED FILE";
+      this.currentAspectModel = loadTurtleFromString( aspectModel );
    }
 
+   /**
+    * Constructs a new ResolutionStrategy with the given parameters.
+    *
+    * @param aspectModelInformation The information about the aspect model.
+    * @param processingRootPath The root path where processing should occur.
+    */
+   public ResolutionStrategy( final AspectModelInformation aspectModelInformation, final Path processingRootPath ) {
+      this.processingRootPath = processingRootPath;
+      this.currentFileName = aspectModelInformation.getFileName();
+      this.currentAspectModel = loadTurtleFromString( aspectModelInformation.getAspectModel() );
+   }
+
+   /**
+    * Attempts to apply the given aspect model URN.
+    * <p>The method will resolve the model from the filesystem or fallback to other strategies based on the URN.</p>
+    *
+    * @param aspectModelUrn The aspect model URN to be processed.
+    * @return A try containing the resolved model, or a failure if the model cannot be resolved.
+    */
    @Override
    public Try<Model> apply( final AspectModelUrn aspectModelUrn ) {
       if ( aspectModelUrn == null ) {
@@ -75,19 +113,19 @@ public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
          return modelFromFileSystem;
       }
 
-      return Try.success( aspectModel );
+      return Try.success( currentAspectModel );
    }
 
    private Try<Model> tryOnFailure( final AspectModelUrn aspectModelUrn ) {
-      final StmtIterator stmtIterator = aspectModel.listStatements(
+      final StmtIterator stmtIterator = currentAspectModel.listStatements(
             ResourceFactory.createResource( aspectModelUrn.toString() ), null, (RDFNode) null );
 
       if ( stmtIterator.hasNext() ) {
-         return Try.success( aspectModel );
+         return Try.success( currentAspectModel );
       }
 
-      return Try.failure( new UrnNotFoundException(
-            String.format( "%s cannot be resolved correctly.", aspectModelUrn ), aspectModelUrn ) );
+      return Try.failure( new UrnNotFoundException( String.format( "%s cannot be resolved correctly.", aspectModelUrn ),
+            aspectModelUrn ) );
    }
 
    protected abstract Try<Model> getModelFromFileSystem( AspectModelUrn aspectModelUrn, Path rootPath );
@@ -118,25 +156,45 @@ public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
       }
    }
 
+   /**
+    * Retrieves the aspect model URN for the current aspect model.
+    *
+    * @return The aspect model URN.
+    */
    public AspectModelUrn getAspectModelUrn() {
-      return AspectModelUrn.fromUrn(
-            getEsmfStatements( aspectModel ).orElseThrow(
-                  () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next().getSubject().getURI() );
+      return AspectModelUrn.fromUrn( getEsmfStatements( currentAspectModel ).orElseThrow(
+            () -> new InvalidAspectModelException( String.format(
+                  "Unable to find a recognized version of SAMM (with the identifier 'urn:samm:org.eclipse.esmf.samm') in the file: %s.",
+                  this.currentFileName ) ) ).next().getSubject().getURI() );
    }
 
+   /**
+    * Retrieves the ESMF statements for the given aspect model.
+    *
+    * @param aspectModel The aspect model to get statements from.
+    * @return An optional containing the statement iterator if available, or empty otherwise.
+    */
    public static Optional<StmtIterator> getEsmfStatements( final Model aspectModel ) {
       final List<StmtIterator> stmtIterators = new ArrayList<>();
-
       KnownVersion.getVersions()
-                  .forEach( version -> stmtIterators.addAll( getListOfAllSAMMElements( version )
-                        .stream()
-                        .filter( resource -> aspectModel.listStatements( null, RDF.type, resource ).hasNext() )
-                        .map( resource -> aspectModel.listStatements( null, RDF.type, resource ) )
-                        .toList() ) );
-
+                  .forEach( version -> addAllStatementsFromVersion( aspectModel, stmtIterators, version ) );
       return stmtIterators.isEmpty() ? Optional.empty() : stmtIterators.stream().findFirst();
    }
 
+   private static void addAllStatementsFromVersion( final Model aspectModel, final List<StmtIterator> stmtIterators,
+         final KnownVersion version ) {
+      stmtIterators.addAll( getListOfAllSAMMElements( version ).stream().filter(
+                                                                     resource -> aspectModel.listStatements( null, RDF.type, resource ).hasNext() )
+                                                               .map( resource -> aspectModel.listStatements( null,
+                                                                     RDF.type, resource ) ).toList() );
+   }
+
+   /**
+    * Retrieves a list of all SAMM elements for the given known version.
+    *
+    * @param version The known version to get SAMM elements from.
+    * @return A list of resources representing the SAMM elements.
+    */
    private static List<Resource> getListOfAllSAMMElements( final KnownVersion version ) {
       final SAMM samm = new SAMM( version );
       final SAMMC sammc = new SAMMC( version );

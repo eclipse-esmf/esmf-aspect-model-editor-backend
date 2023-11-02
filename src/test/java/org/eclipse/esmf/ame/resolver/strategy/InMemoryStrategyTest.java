@@ -22,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.jena.rdf.model.Model;
+import org.eclipse.esmf.ame.model.repository.AspectModelInformation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,11 +38,11 @@ import io.vavr.control.Try;
 class InMemoryStrategyTest {
 
    private static final Path resourcesPath = Path.of( "src", "test", "resources", "strategy" );
-   private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example", "1.0.0" );
-
+   private static final String version = "1.0.0";
+   private static final String versionedNamespace = "org.eclipse.esmf.example" + ":" + version;
+   private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example", version );
    private static final String aspectModelFile = "AspectModelForStrategy.ttl";
    private static final String aspectModelurn = "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModelForStrategy";
-
    private static final String causeMessage = "AspectModelUrn is not set";
 
    private static Path rootPath;
@@ -55,10 +56,11 @@ class InMemoryStrategyTest {
 
    @Test
    void testApplySuccess() throws IOException {
-      final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ),
-            StandardCharsets.UTF_8 );
+      final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ), StandardCharsets.UTF_8 );
+      AspectModelInformation aspectModelInformation = new AspectModelInformation( versionedNamespace, aspectModelFile,
+            fileToTest );
 
-      final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, rootPath, fileSystem );
+      final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( aspectModelInformation, rootPath, fileSystem );
       final Try<Model> apply = inMemoryStrategy.apply( AspectModelUrn.fromUrn( aspectModelurn ) );
 
       assertTrue( apply.isSuccess() );
@@ -66,10 +68,11 @@ class InMemoryStrategyTest {
 
    @Test
    void testApplyFailureNullAndFailureAspectModelUrn() throws IOException {
-      final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ),
-            StandardCharsets.UTF_8 );
+      final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ), StandardCharsets.UTF_8 );
+      AspectModelInformation aspectModelInformation = new AspectModelInformation( versionedNamespace, aspectModelFile,
+            fileToTest );
 
-      final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( fileToTest, rootPath, fileSystem );
+      final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( aspectModelInformation, rootPath, fileSystem );
       final Try<Model> result = inMemoryStrategy.apply( null );
 
       assertTrue( result.isFailure() );
