@@ -152,14 +152,14 @@ public class PackageService {
       final List<AspectModelInformation> aspectModelInformations = strategy.getImportedAspectModelInformation();
 
       return aspectModelInformations.stream().map( fileInfo -> {
-         final String fileName = fileInfo.getFileName();
-         final Boolean modelExist = strategy.checkModelExist( fileInfo.getNamespace(), fileName );
+         final Boolean modelExist = strategy.checkModelExist( fileInfo.getNamespace(), fileInfo.getFileName() );
 
-         final ViolationReport violationReport = ModelUtils.validateModelInMemoryFiles( fileInfo.getAspectModel(),
-               aspectModelValidator, importFileSystem );
+         final ViolationReport violationReport = ModelUtils.validateModelInMemoryFiles( fileInfo, aspectModelValidator,
+               importFileSystem );
 
-         final ValidFile validFile = new ValidFile( fileInfo.getNamespace(), fileName, violationReport, modelExist );
-         final List<MissingElement> missingFiles = getMissingAspectModelFiles( violationReport, fileName,
+         final ValidFile validFile = new ValidFile( fileInfo.getNamespace(), fileInfo.getFileName(), violationReport,
+               modelExist );
+         final List<MissingElement> missingFiles = getMissingAspectModelFiles( violationReport, fileInfo.getFileName(),
                modelStoragePath );
 
          return new ProcessPackage( validFile, missingFiles );
@@ -173,7 +173,8 @@ public class PackageService {
          try {
             final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( data.getNamespace() );
             folderStructure.setFileName( fileName );
-            String aspectModel = LocalFolderResolverUtils.readString( importFileSystem.getPath( folderStructure.toString() ), StandardCharsets.UTF_8 );
+            String aspectModel = LocalFolderResolverUtils.readString(
+                  importFileSystem.getPath( folderStructure.toString() ), StandardCharsets.UTF_8 );
             Optional<String> namespaceVersion = Optional.of(
                   folderStructure.getFileRootPath() + File.separator + folderStructure.getVersion() );
 

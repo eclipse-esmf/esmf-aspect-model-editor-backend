@@ -27,49 +27,54 @@ import java.util.stream.Stream;
 
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.riot.RiotException;
+import org.eclipse.esmf.ame.model.repository.AspectModelInformation;
 import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
 import org.eclipse.esmf.aspectmodel.resolver.AspectModelResolver;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 import io.vavr.control.Try;
+import lombok.Getter;
 
+@Getter
 public class InMemoryStrategy extends ResolutionStrategy {
-   public final FileSystem fileSystem;
+   private final FileSystem fileSystem;
 
-   public InMemoryStrategy( final String aspectModel, final Path processingRootPath, final FileSystem fileSystem )
-           throws RiotException {
-      super( aspectModel, processingRootPath );
+   public InMemoryStrategy( final AspectModelInformation aspectModelInformation, final Path processingRootPath,
+         final FileSystem fileSystem ) throws RiotException {
+      super( aspectModelInformation, processingRootPath );
       this.fileSystem = fileSystem;
    }
 
    protected Try<Model> getModelFromFileSystem( final AspectModelUrn aspectModelUrn, final Path rootPath ) {
       try ( Stream<Path> pathStream = Files.walk( rootPath ) ) {
          final String filePath =
-                 aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator
-                         + aspectModelUrn.getName() + ".ttl";
+               aspectModelUrn.getNamespace() + File.separator + aspectModelUrn.getVersion() + File.separator
+                     + aspectModelUrn.getName() + ".ttl";
 
          final Path file = fileSystem.getPath( filePath );
 
          if ( Files.exists( file ) ) {
-            return Try.of( () -> loadTurtleFromString( LocalFolderResolverUtils.readString( file, StandardCharsets.UTF_8 ) ) );
+            return Try.of(
+                  () -> loadTurtleFromString( LocalFolderResolverUtils.readString( file, StandardCharsets.UTF_8 ) ) );
          }
 
          LOG.warn( "Looking for {}, but no {}.ttl was found. Inspecting files in {}", aspectModelUrn.getName(),
-                 aspectModelUrn.getName(), filePath );
+               aspectModelUrn.getName(), filePath );
 
-         Optional<Try<Model>> modelWithDefinition = pathStream
-                 .filter( Files::isRegularFile )
-                 .map( Path::toAbsolutePath )
-                 .map( Path::toString )
-                 .map( fileSystem::getPath )
-                 .map( aspectModelPath -> Try.of( () -> loadTurtleFromString( LocalFolderResolverUtils.readString( aspectModelPath, StandardCharsets.UTF_8 ) ) ) )
-                 .filter( tryModel -> tryModel.map(
-                                 model -> AspectModelResolver.containsDefinition( model, aspectModelUrn ) )
-                         .getOrElse( false ) )
-                 .findFirst();
+         Optional<Try<Model>> modelWithDefinition = pathStream.filter( Files::isRegularFile )
+                                                              .map( Path::toAbsolutePath ).map( Path::toString )
+                                                              .map( fileSystem::getPath )
+                                                              .map( aspectModelPath -> Try.of(
+                                                                    () -> loadTurtleFromString(
+                                                                          LocalFolderResolverUtils.readString(
+                                                                                aspectModelPath,
+                                                                                StandardCharsets.UTF_8 ) ) ) ).filter(
+                     tryModel -> tryModel.map(
+                                               model -> AspectModelResolver.containsDefinition( model, aspectModelUrn ) )
+                                         .getOrElse( false ) ).findFirst();
 
          return modelWithDefinition.orElse( Try.failure( new FileNotFoundException(
-                 "No model file containing " + aspectModelUrn + " could be found in directory" ) ) );
+               "No model file containing " + aspectModelUrn + " could be found in directory" ) ) );
       } catch ( IOException exception ) {
          return Try.failure( exception );
       }
