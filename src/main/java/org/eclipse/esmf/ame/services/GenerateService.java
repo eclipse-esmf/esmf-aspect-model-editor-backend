@@ -15,6 +15,7 @@ package org.eclipse.esmf.ame.services;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -22,6 +23,7 @@ import org.apache.commons.lang3.LocaleUtils;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
+import org.eclipse.esmf.aspectmodel.aas.AspectModelAASGenerator;
 import org.eclipse.esmf.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
 import org.eclipse.esmf.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
 import org.eclipse.esmf.aspectmodel.generator.jsonschema.AspectModelJsonSchemaGenerator;
@@ -77,7 +79,7 @@ public class GenerateService {
 
          return out.toString();
       } catch ( final IOException e ) {
-         LOG.error( "Aspect Model could not be loaded correctly." );
+         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
          throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
       }
    }
@@ -87,9 +89,41 @@ public class GenerateService {
          return new AspectModelJsonPayloadGenerator(
                generateAspectContext( aspectModel ) ).generateJson();
       } catch ( final IOException e ) {
-         LOG.error( "Aspect Model could not be loaded correctly." );
+         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
          throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
       }
+   }
+
+   public String generateAASXFile( String aspectModel ) {
+      final AspectModelAASGenerator generator = new AspectModelAASGenerator();
+      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+      AspectContext aspectContext = generateAspectContext( aspectModel );
+
+      try {
+         generator.generateAASXFile( aspectContext.aspect(), name -> outputStream );
+      } catch ( IOException e ) {
+         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
+         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
+      }
+
+      return outputStream.toString( StandardCharsets.UTF_8 );
+   }
+
+   public String generateAasXmlFile( String aspectModel ) {
+      final AspectModelAASGenerator generator = new AspectModelAASGenerator();
+      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+      AspectContext aspectContext = generateAspectContext( aspectModel );
+
+      try {
+         generator.generateAasXmlFile( aspectContext.aspect(), name -> outputStream );
+      } catch ( IOException e ) {
+         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
+         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
+      }
+
+      return outputStream.toString( StandardCharsets.UTF_8 );
    }
 
    private AspectContext generateAspectContext( final String aspectModel ) {

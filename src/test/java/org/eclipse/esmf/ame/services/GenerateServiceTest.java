@@ -65,7 +65,6 @@ class GenerateServiceTest {
    @Test
    void testAspectModelJsonOpenApiSpec() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
-
       final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
 
       final String payload = generateService.generateJsonOpenApiSpec( "en", testModel, "https://test.com", false, false,
@@ -89,5 +88,26 @@ class GenerateServiceTest {
       assertTrue( payload.contains( "title: AspectModel" ) );
       assertTrue( payload.contains( "version: v1" ) );
       assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
+   }
+
+   @Test
+   void testAspectModelAASX() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final String payload = generateService.generateAASXFile( testModel );
+
+      assertTrue( payload.contains( "aasx" ) );
+   }
+
+   @Test
+   void testAspectModelAASXML() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final String payload = generateService.generateAasXmlFile( testModel );
+
+      assertTrue( payload.contains( "<?xml version='1.0' encoding='UTF-8'?>" ) );
+      assertTrue( payload.contains( "https://admin-shell.io/aas/3/0" ) );
    }
 }
