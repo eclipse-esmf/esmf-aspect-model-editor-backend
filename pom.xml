@@ -73,7 +73,7 @@
         <maven-scm-plugin-version>1.12.2</maven-scm-plugin-version>
         <jacoco-maven-plugin-version>0.8.7</jacoco-maven-plugin-version>
         <maven-surefire-plugin-version>2.22.2</maven-surefire-plugin-version>
-        <cyclonedx-maven-plugin-version>1.4.1</cyclonedx-maven-plugin-version>
+        <cyclonedx-maven-plugin-version>2.7.10</cyclonedx-maven-plugin-version>
         <frontend-maven-plugin-version>1.12.1</frontend-maven-plugin-version>
 
         <!-- General settings -->
@@ -487,6 +487,28 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <!-- Generate admin-shell reflection config -->
+                            <execution>
+                                <id>generate-admin-shell-reflection-config</id>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- The main class of your build-time scanning code -->
+                                    <mainClass>org.eclipse.esmf.ame.buildtime.Aas4jClassSetup</mainClass>
+                                    <!-- Pass the properties file as a commandline param -->
+                                    <commandlineArgs>${project.build.outputDirectory}/adminshell.properties
+                                    </commandlineArgs>
+                                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
                         <version>${native-maven-plugin-version}</version>
@@ -516,7 +538,7 @@
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                 <buildArg>
-                                    --initialize-at-build-time=org.slf4j.LoggerFactory,ch.qos.logback,guru.nidi.graphviz.attribute.,org.apache.velocity.
+                                    --initialize-at-build-time=org.slf4j.LoggerFactory,ch.qos.logback,guru.nidi.graphviz.attribute.,org.apache.velocity.,org.apache.poi.util.LocaleUtil
                                 </buildArg>
                                 <buildArg>-J-Xmx8G</buildArg>
                                 <buildArg>-H:+ReportExceptionStackTraces</buildArg>
