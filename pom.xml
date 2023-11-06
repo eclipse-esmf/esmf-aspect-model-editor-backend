@@ -45,6 +45,7 @@
         <lombok-version>1.18.24</lombok-version>
         <commons-io-version>2.13.0</commons-io-version>
         <commons-validator-version>1.7</commons-validator-version>
+        <commons-code-version>1.15</commons-code-version>
         <port-allocator-version>1.2</port-allocator-version>
         <process-exec-version>0.9</process-exec-version>
         <mockito-inline-version>5.1.1</mockito-inline-version>
@@ -72,7 +73,7 @@
         <maven-scm-plugin-version>1.12.2</maven-scm-plugin-version>
         <jacoco-maven-plugin-version>0.8.7</jacoco-maven-plugin-version>
         <maven-surefire-plugin-version>2.22.2</maven-surefire-plugin-version>
-        <cyclonedx-maven-plugin-version>1.4.1</cyclonedx-maven-plugin-version>
+        <cyclonedx-maven-plugin-version>2.7.10</cyclonedx-maven-plugin-version>
         <frontend-maven-plugin-version>1.12.1</frontend-maven-plugin-version>
 
         <!-- General settings -->
@@ -136,6 +137,11 @@
         <dependency>
             <groupId>org.eclipse.esmf</groupId>
             <artifactId>esmf-aspect-meta-model-java</artifactId>
+            <version>${esmf-sdk-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.esmf</groupId>
+            <artifactId>esmf-aspect-model-aas-generator</artifactId>
             <version>${esmf-sdk-version}</version>
         </dependency>
         <dependency>
@@ -248,6 +254,11 @@
             <groupId>com.github.marschall</groupId>
             <artifactId>memoryfilesystem</artifactId>
             <version>${memoryfilesystem-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commons-code-version}</version>
         </dependency>
 
         <!-- Third party dependencies for testing -->
@@ -476,6 +487,28 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <!-- Generate admin-shell reflection config -->
+                            <execution>
+                                <id>generate-admin-shell-reflection-config</id>
+                                <phase>process-classes</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- The main class of your build-time scanning code -->
+                                    <mainClass>org.eclipse.esmf.ame.buildtime.Aas4jClassSetup</mainClass>
+                                    <!-- Pass the properties file as a commandline param -->
+                                    <commandlineArgs>${project.build.outputDirectory}/adminshell.properties
+                                    </commandlineArgs>
+                                    <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
                         <version>${native-maven-plugin-version}</version>
@@ -505,7 +538,7 @@
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>--report-unsupported-elements-at-runtime</buildArg>
                                 <buildArg>
-                                    --initialize-at-build-time=org.slf4j.LoggerFactory,ch.qos.logback,guru.nidi.graphviz.attribute.,org.apache.velocity.
+                                    --initialize-at-build-time=org.slf4j.LoggerFactory,ch.qos.logback,guru.nidi.graphviz.attribute.,org.apache.velocity.,org.apache.poi.util.LocaleUtil
                                 </buildArg>
                                 <buildArg>-J-Xmx8G</buildArg>
                                 <buildArg>-H:+ReportExceptionStackTraces</buildArg>

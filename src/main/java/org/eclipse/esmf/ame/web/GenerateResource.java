@@ -76,6 +76,28 @@ public class GenerateResource {
    }
 
    /**
+    * Handles the request to generate an AASX file based on the given aspect model.
+    *
+    * @param aspectModel The model provided in the request body used to generate the AASX file.
+    * @return A {@link ResponseEntity} containing the result of the AASX file generation.
+    */
+   @PostMapping( "aasx" )
+   public ResponseEntity<String> assx( @RequestBody final String aspectModel ) {
+      return ResponseEntity.ok( generateService.generateAASXFile( aspectModel ) );
+   }
+
+   /**
+    * Handles the request to generate an AAS XML file based on the provided aspect model.
+    *
+    * @param aspectModel The model provided in the request body used to generate the AAS XML file.
+    * @return A {@link ResponseEntity} containing the result of the AAS XML file generation.
+    */
+   @PostMapping( "aas-xml" )
+   public ResponseEntity<String> assXml( @RequestBody final String aspectModel ) {
+      return ResponseEntity.ok( generateService.generateAasXmlFile( aspectModel ) );
+   }
+
+   /**
     * This method is used to generate an OpenAPI specification of the Aspect Model
     *
     * @param aspectModel the Aspect Model Data
