@@ -228,12 +228,16 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       FileInputStream fileInputStream = channelMap.remove( lockKey );
 
       try {
-         fileInputStream.close();
-         return true;
+         if ( fileInputStream != null ) {
+            fileInputStream.close();
+            return true;
+         }
       } catch ( IOException e ) {
          throw new FileHandlingException(
                "Cannot unlock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage() );
       }
+
+      return false;
    }
 
    private synchronized Optional<Map<String, List<String>>> getNamespaces() {
@@ -278,7 +282,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       try ( final Stream<Path> paths = getAllSubFilePaths( file.toPath() ) ) {
 
          return paths.filter( this::isPathRelevant ).map( Path::toString )
-                     .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) ).filter( StringUtils::isNotBlank )
+                     .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) )
+                     .filter( StringUtils::isNotBlank )
                      .toList();
       } catch ( final IOException e ) {
          throw new FileReadException( "Can not read shared folder file structure", e );
@@ -363,7 +368,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final int lastFileSeparatorIndex = path.lastIndexOf( File.separator );
 
       if ( lastFileSeparatorIndex != -1 ) {
-         return path.substring( 0, lastFileSeparatorIndex ) + LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR
+         return path.substring( 0, lastFileSeparatorIndex )
+               + LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR
                + path.substring( lastFileSeparatorIndex + 1 );
       }
 
@@ -381,7 +387,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final int lastStringIndex = aspectFileName.lastIndexOf( ":" );
 
       if ( lastStringIndex != -1 ) {
-         return aspectFileName.substring( 0, lastStringIndex ) + "#" + aspectFileName.substring( lastStringIndex + 1 );
+         return aspectFileName.substring( 0, lastStringIndex ) + "#" + aspectFileName.substring(
+               lastStringIndex + 1 );
       }
 
       return aspectFileName;
@@ -499,7 +506,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
          }
          FileUtils.forceDelete( file );
       } catch ( final IOException e ) {
-         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ), e );
+         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ),
+               e );
       }
    }
 

@@ -83,7 +83,16 @@ public class FileHandlingResource {
       final String filename = Optional.ofNullable( headers.get( FILE_NAME ) )
                                       .orElseThrow( () -> new FileNotFoundException( "Please specify a file name" ) );
 
+      if ( isValidParam( namespace ) && isValidParam( filename ) ) {
+         throw new IllegalArgumentException( "Invalid headers parameter" );
+      }
+
       return ResponseEntity.ok( isLocking ? fileHandlingService.lockFile( namespace, filename )
             : fileHandlingService.unlockFile( namespace, filename ) );
+   }
+
+   private boolean isValidParam( String fileName ) {
+      return fileName != null && !fileName.isEmpty() && !fileName.contains( ".." ) && fileName.matches(
+            "[A-Za-z0-9_\\-\\.]+" );
    }
 }
