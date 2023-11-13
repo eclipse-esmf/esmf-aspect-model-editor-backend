@@ -14,10 +14,9 @@
 package org.eclipse.esmf.ame.repository.strategy;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -67,7 +66,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    private final ApplicationSettings applicationSettings;
    private final FileSystem importFileSystem;
    private final String rootPath;
-   private final ConcurrentHashMap<String, FileChannel> channelMap = new ConcurrentHashMap<>();
+   private final ConcurrentHashMap<String, FileInputStream> channelMap = new ConcurrentHashMap<>();
    private Optional<Map<String, List<String>>> namespaces = Optional.empty();
 
    public LocalFolderResolverStrategy( final ApplicationSettings applicationSettings, final FileSystem importFileSystem,
@@ -213,40 +212,28 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       }
 
       String lockKey = namespace + ":" + fileName;
-      try ( RandomAccessFile randomAccessFile = new RandomAccessFile( modelAsFile, "rw" ) ) {
-         FileChannel fileChannel = randomAccessFile.getChannel();
-
-         FileLock lock = fileChannel.lock();
-         if ( lock != null ) {
-            // Note: This lock is advisory and may not prevent external deletion or modification,
-            // especially on systems like Unix/Linux/Mac.
-            channelMap.put( lockKey, fileChannel );
-            return true;
-         }
+      try {
+         FileInputStream fileInputStream = new FileInputStream( modelAsFile );
+         channelMap.put( lockKey, fileInputStream );
+         return true;
       } catch ( IOException e ) {
          throw new FileHandlingException(
                "Cannot lock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage() );
       }
-
-      return false;
    }
 
    @Override
    public boolean unlockFile( @NonNull String namespace, @NonNull String fileName ) {
       String lockKey = namespace + ":" + fileName;
-      FileChannel fileChannel = channelMap.remove( lockKey );
+      FileInputStream fileInputStream = channelMap.remove( lockKey );
 
-      if ( fileChannel != null ) {
-         try {
-            fileChannel.close();
-            return true;
-         } catch ( IOException e ) {
-            throw new FileHandlingException(
-                  "Cannot unlock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage() );
-         }
+      try {
+         fileInputStream.close();
+         return true;
+      } catch ( IOException e ) {
+         throw new FileHandlingException(
+               "Cannot unlock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage() );
       }
-
-      return false;
    }
 
    private synchronized Optional<Map<String, List<String>>> getNamespaces() {
