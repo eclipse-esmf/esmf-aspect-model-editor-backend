@@ -213,10 +213,10 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       }
 
       String lockKey = namespace + ":" + fileName;
-      try ( RandomAccessFile randomAccessFile = new RandomAccessFile( modelAsFile, "rw" );
-            FileChannel fileChannel = randomAccessFile.getChannel();
-            FileLock lock = fileChannel.tryLock() ) {
+      try ( RandomAccessFile randomAccessFile = new RandomAccessFile( modelAsFile, "rw" ) ) {
+         FileChannel fileChannel = randomAccessFile.getChannel();
 
+         FileLock lock = fileChannel.lock();
          if ( lock != null ) {
             // Note: This lock is advisory and may not prevent external deletion or modification,
             // especially on systems like Unix/Linux/Mac.

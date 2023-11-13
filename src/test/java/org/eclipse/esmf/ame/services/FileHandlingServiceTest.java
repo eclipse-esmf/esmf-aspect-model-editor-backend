@@ -15,8 +15,6 @@ package org.eclipse.esmf.ame.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.nio.file.Path;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +35,6 @@ class FileHandlingServiceTest {
    private static final String VERSION = "1.0.0";
    private static final String EXAMPLE_NAMESPACE = "org.eclipse.esmf.example";
    private static final String NAMESPACE_VERSION = EXAMPLE_NAMESPACE + ":" + VERSION;
-
-   private static final Path RESOURCE_PATH = Path.of( "src", "test", "resources", "services" );
-   private static final Path TEST_NAMESPACE_PATH = Path.of( RESOURCE_PATH.toString(), NAMESPACE_VERSION );
-
    private static final String TEST_MODEL = "AspectModelForService.ttl";
 
    @Test
