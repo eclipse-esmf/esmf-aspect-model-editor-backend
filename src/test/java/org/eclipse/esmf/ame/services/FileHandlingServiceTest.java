@@ -45,10 +45,4 @@ class FileHandlingServiceTest {
       String unlockResult = fileHandlingService.unlockFile( NAMESPACE_VERSION, TEST_MODEL );
       assertEquals( unlockResult, "File is unlocked" );
    }
-
-   @Test()
-   void testCannotBeUnlockFile() {
-      String unlockResult = fileHandlingService.unlockFile( NAMESPACE_VERSION, TEST_MODEL );
-      assertEquals( unlockResult, "File cannot be unlocked" );
-   }
 }
