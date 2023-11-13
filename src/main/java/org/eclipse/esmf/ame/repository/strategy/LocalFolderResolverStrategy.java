@@ -15,7 +15,9 @@ package org.eclipse.esmf.ame.repository.strategy;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,6 +39,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
+import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.FileWriteException;
@@ -53,6 +57,7 @@ import org.springframework.stereotype.Service;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import lombok.NonNull;
 
 @Service
 public class LocalFolderResolverStrategy implements ModelResolverStrategy {
@@ -62,6 +67,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    private final ApplicationSettings applicationSettings;
    private final FileSystem importFileSystem;
    private final String rootPath;
+   private final ConcurrentHashMap<String, FileChannel> channelMap = new ConcurrentHashMap<>();
    private Optional<Map<String, List<String>>> namespaces = Optional.empty();
 
    public LocalFolderResolverStrategy( final ApplicationSettings applicationSettings, final FileSystem importFileSystem,
@@ -181,10 +187,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       }
 
       try ( Stream<Path> paths = Files.walk( importStoragePath ) ) {
-         return getListOfAspectModels(
-               paths.filter( Files::isRegularFile )
-                    .map( Path::toString )
-                    .toList() );
+         return getListOfAspectModels( paths.filter( Files::isRegularFile ).map( Path::toString ).toList() );
       } catch ( IOException e ) {
          LOG.error( "Cannot find files in the imported package." );
          throw new FileNotFoundException( "Cannot find files in the imported package.", e );
@@ -200,6 +203,50 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final String aspectName = FilenameUtils.removeExtension( inputFile.getName() );
       final String versionedNamespace = String.format( "%s:%s", namespace, version );
       return Tuple.of( aspectName, versionedNamespace );
+   }
+
+   @Override
+   public boolean lockFile( @NonNull String namespace, @NonNull String fileName ) {
+      File modelAsFile = getModelAsFile( namespace, fileName );
+      if ( modelAsFile == null ) {
+         throw new FileHandlingException( "File not found for namespace: " + namespace + " and fileName: " + fileName );
+      }
+
+      String lockKey = namespace + ":" + fileName;
+      try ( RandomAccessFile randomAccessFile = new RandomAccessFile( modelAsFile, "rw" );
+            FileChannel fileChannel = randomAccessFile.getChannel();
+            FileLock lock = fileChannel.tryLock() ) {
+
+         if ( lock != null ) {
+            // Note: This lock is advisory and may not prevent external deletion or modification,
+            // especially on systems like Unix/Linux/Mac.
+            channelMap.put( lockKey, fileChannel );
+            return true;
+         }
+      } catch ( IOException e ) {
+         throw new FileHandlingException(
+               "Cannot lock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage() );
+      }
+
+      return false;
+   }
+
+   @Override
+   public boolean unlockFile( @NonNull String namespace, @NonNull String fileName ) {
+      String lockKey = namespace + ":" + fileName;
+      FileChannel fileChannel = channelMap.remove( lockKey );
+
+      if ( fileChannel != null ) {
+         try {
+            fileChannel.close();
+            return true;
+         } catch ( IOException e ) {
+            throw new FileHandlingException(
+                  "Cannot unlock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage() );
+         }
+      }
+
+      return false;
    }
 
    private synchronized Optional<Map<String, List<String>>> getNamespaces() {
