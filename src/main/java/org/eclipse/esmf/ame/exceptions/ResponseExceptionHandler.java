@@ -157,7 +157,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    }
 
    /**
-    * Method for handling exception to type {@link InvalidNamespaceException}
+    * Method for handling exception to type {@link FileCannotDeleteException}
     *
     * @param request the Http request
     * @param e the exception which occurred
@@ -166,6 +166,19 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    @ExceptionHandler( FileCannotDeleteException.class )
    public ResponseEntity<Object> handleInvalidAspectModelException( final WebRequest request,
          final FileCannotDeleteException e ) {
+      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
+   }
+
+   /**
+    * Method for handling exception to type {@link FileHandlingException}
+    *
+    * @param request the Http request
+    * @param e the exception which occurred
+    * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
+    */
+   @ExceptionHandler( FileHandlingException.class )
+   public ResponseEntity<Object> handleInvalidAspectModelException( final WebRequest request,
+         final FileHandlingException e ) {
       return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
    }
 

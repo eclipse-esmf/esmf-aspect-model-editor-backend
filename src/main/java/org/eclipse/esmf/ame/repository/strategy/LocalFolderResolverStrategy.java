@@ -14,6 +14,7 @@
 package org.eclipse.esmf.ame.repository.strategy;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,6 +38,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
+import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.FileWriteException;
@@ -53,6 +56,7 @@ import org.springframework.stereotype.Service;
 
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+import lombok.NonNull;
 
 @Service
 public class LocalFolderResolverStrategy implements ModelResolverStrategy {
@@ -62,6 +66,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
    private final ApplicationSettings applicationSettings;
    private final FileSystem importFileSystem;
    private final String rootPath;
+   private final ConcurrentHashMap<String, FileInputStream> channelMap = new ConcurrentHashMap<>();
    private Optional<Map<String, List<String>>> namespaces = Optional.empty();
 
    public LocalFolderResolverStrategy( final ApplicationSettings applicationSettings, final FileSystem importFileSystem,
@@ -181,10 +186,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       }
 
       try ( Stream<Path> paths = Files.walk( importStoragePath ) ) {
-         return getListOfAspectModels(
-               paths.filter( Files::isRegularFile )
-                    .map( Path::toString )
-                    .toList() );
+         return getListOfAspectModels( paths.filter( Files::isRegularFile ).map( Path::toString ).toList() );
       } catch ( IOException e ) {
          LOG.error( "Cannot find files in the imported package." );
          throw new FileNotFoundException( "Cannot find files in the imported package.", e );
@@ -200,6 +202,42 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final String aspectName = FilenameUtils.removeExtension( inputFile.getName() );
       final String versionedNamespace = String.format( "%s:%s", namespace, version );
       return Tuple.of( aspectName, versionedNamespace );
+   }
+
+   @Override
+   public boolean lockFile( @NonNull String namespace, @NonNull String fileName ) {
+      File modelAsFile = getModelAsFile( namespace, fileName );
+      if ( modelAsFile == null ) {
+         throw new FileHandlingException( "File not found for namespace: " + namespace + " and fileName: " + fileName );
+      }
+
+      String lockKey = namespace + ":" + fileName;
+      try {
+         FileInputStream fileInputStream = new FileInputStream( modelAsFile );
+         channelMap.put( lockKey, fileInputStream );
+         return true;
+      } catch ( IOException e ) {
+         throw new FileHandlingException(
+               "Cannot lock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage() );
+      }
+   }
+
+   @Override
+   public boolean unlockFile( @NonNull String namespace, @NonNull String fileName ) {
+      String lockKey = namespace + ":" + fileName;
+      FileInputStream fileInputStream = channelMap.remove( lockKey );
+
+      try {
+         if ( fileInputStream != null ) {
+            fileInputStream.close();
+            return true;
+         }
+      } catch ( IOException e ) {
+         throw new FileHandlingException(
+               "Cannot unlock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage() );
+      }
+
+      return false;
    }
 
    private synchronized Optional<Map<String, List<String>>> getNamespaces() {
@@ -244,7 +282,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       try ( final Stream<Path> paths = getAllSubFilePaths( file.toPath() ) ) {
 
          return paths.filter( this::isPathRelevant ).map( Path::toString )
-                     .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) ).filter( StringUtils::isNotBlank )
+                     .map( path -> excludeStandaloneFiles( rootSharedFolder, path ) )
+                     .filter( StringUtils::isNotBlank )
                      .toList();
       } catch ( final IOException e ) {
          throw new FileReadException( "Can not read shared folder file structure", e );
@@ -329,7 +368,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final int lastFileSeparatorIndex = path.lastIndexOf( File.separator );
 
       if ( lastFileSeparatorIndex != -1 ) {
-         return path.substring( 0, lastFileSeparatorIndex ) + LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR
+         return path.substring( 0, lastFileSeparatorIndex )
+               + LocalFolderResolverUtils.NAMESPACE_VERSION_NAME_SEPARATOR
                + path.substring( lastFileSeparatorIndex + 1 );
       }
 
@@ -347,7 +387,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
       final int lastStringIndex = aspectFileName.lastIndexOf( ":" );
 
       if ( lastStringIndex != -1 ) {
-         return aspectFileName.substring( 0, lastStringIndex ) + "#" + aspectFileName.substring( lastStringIndex + 1 );
+         return aspectFileName.substring( 0, lastStringIndex ) + "#" + aspectFileName.substring(
+               lastStringIndex + 1 );
       }
 
       return aspectFileName;
@@ -465,7 +506,8 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
          }
          FileUtils.forceDelete( file );
       } catch ( final IOException e ) {
-         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ), e );
+         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ),
+               e );
       }
    }
 
