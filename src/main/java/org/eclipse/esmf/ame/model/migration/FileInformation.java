@@ -22,7 +22,6 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class FileInformation {
-
    @JsonInclude( JsonInclude.Include.NON_NULL )
    @JsonProperty( "name" )
    public String name;
@@ -30,4 +29,7 @@ public class FileInformation {
    @JsonInclude( JsonInclude.Include.NON_NULL )
    @JsonProperty( "success" )
    public Boolean success;
+
+   @JsonProperty( "message" )
+   public String message;
 }
