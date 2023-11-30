@@ -153,7 +153,7 @@ public class ModelService {
       }
 
       final FileInformation aspectModelFile = new FileInformation( fileName + ModelUtils.TTL_EXTENSION,
-            modelIsSuccess );
+            modelIsSuccess, model.isSuccess() ? "File is valid" : model.getCause().getMessage() );
 
       namespace.addAspectModelFile( aspectModelFile );
    }
