@@ -114,6 +114,8 @@ public class ViolationFormatter
 
       if ( violation.cause() instanceof UrnNotFoundException urnNotFoundException ) {
          violationError.setFocusNode( urnNotFoundException.getUrn() );
+         violationError.setFix( List.of(
+               "Ensure the referred element is available. If it's in a different model of the same namespace, include it in your workspace or the imported package." ) );
       }
 
       return violationError;
