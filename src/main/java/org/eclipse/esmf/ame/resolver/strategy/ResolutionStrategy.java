@@ -124,8 +124,9 @@ public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
          return Try.success( currentAspectModel );
       }
 
-      return Try.failure( new UrnNotFoundException( String.format( "%s cannot be resolved correctly.", aspectModelUrn ),
-            aspectModelUrn ) );
+      return Try.failure( new UrnNotFoundException( String.format(
+            "The model failed to load because the reference '%s' in the same namespace was unresolved.",
+            aspectModelUrn ), aspectModelUrn ) );
    }
 
    protected abstract Try<Model> getModelFromFileSystem( AspectModelUrn aspectModelUrn, Path rootPath );
