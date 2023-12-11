@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.jena.rdf.model.Model;
-import org.eclipse.esmf.ame.model.ProcessPath;
+import org.eclipse.esmf.ame.model.StoragePaths;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,8 +44,8 @@ class FileSystemStrategyTest {
 
    @BeforeEach
    void setUp() {
-      ProcessPath processPath = Mockito.mock( ProcessPath.class );
-      Mockito.when( processPath.getPath() ).thenReturn( resourcesPath );
+      StoragePaths StoragePaths = Mockito.mock( StoragePaths.class );
+      Mockito.when( StoragePaths.getPath() ).thenReturn( resourcesPath );
    }
 
    @Test
