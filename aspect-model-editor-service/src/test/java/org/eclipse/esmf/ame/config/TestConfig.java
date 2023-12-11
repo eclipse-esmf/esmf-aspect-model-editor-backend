@@ -36,14 +36,10 @@ public class TestConfig {
    @Autowired
    private ApplicationSettings applicationSettings;
 
-   @SneakyThrows
    @Bean
    public ModelResolverRepository modelResolverRepository() {
-      FileSystem fileSystem = MemoryFileSystemBuilder.newEmpty().build();
-      String rootPath = Path.of( "src", "test", "resources", "services" ).toAbsolutePath().toString();
-
       LocalFolderResolverStrategy localFolderResolverStrategy = new LocalFolderResolverStrategy( applicationSettings,
-            fileSystem, rootPath );
+            importFileSystem(), modelPath() );
       return new ModelResolverRepository( List.of( localFolderResolverStrategy ) );
    }
 
@@ -51,5 +47,16 @@ public class TestConfig {
    public AspectModelValidator getAspectModelValidator() {
       JsConstraint.setEvaluateJavaScript( false );
       return new AspectModelValidator();
+   }
+
+   @SneakyThrows
+   @Bean
+   public FileSystem importFileSystem() {
+      return MemoryFileSystemBuilder.newEmpty().build();
+   }
+
+   @Bean
+   public String modelPath() {
+      return Path.of( "src", "test", "resources", "services" ).toAbsolutePath().toString();
    }
 }

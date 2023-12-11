@@ -23,21 +23,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import org.eclipse.esmf.ame.config.TestConfig;
 import org.eclipse.esmf.ame.services.model.FileValidationReport;
 import org.eclipse.esmf.ame.services.model.NamespaceFileCollection;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith( SpringExtension.class )
-@SpringBootTest
+@SpringBootTest( classes = PackageService.class )
+@Import( TestConfig.class )
 @ActiveProfiles( "test" )
 class PackageServiceTest {
-
    @Autowired
    private PackageService packageService;
 
