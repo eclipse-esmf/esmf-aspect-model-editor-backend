@@ -21,17 +21,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
+import org.eclipse.esmf.ame.config.TestConfig;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith( SpringExtension.class )
 @SpringBootTest( classes = GenerateService.class )
 @DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
+@Import( TestConfig.class )
+@ActiveProfiles( "test" )
 class GenerateServiceTest {
 
    @Autowired
