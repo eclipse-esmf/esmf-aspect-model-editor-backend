@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.esmf.ame.config.TestConfig;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.model.NamespaceFileCollection;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
@@ -35,16 +36,17 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith( SpringExtension.class )
-@SpringBootTest
+@SpringBootTest( classes = ModelService.class )
 @DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
+@Import( TestConfig.class )
 @ActiveProfiles( "test" )
 class ModelServiceTest {
-
    @Autowired
    private ModelService modelService;
 

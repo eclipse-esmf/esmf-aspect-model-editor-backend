@@ -34,7 +34,7 @@ public class ApplicationSettings {
 
    private static final String MIGRATION_PATH = ASPECT_MODEL_PATH + File.separator + MIGRATION_END_PATH;
 
-   private String fileType;
+   private String fileType = ".ttl";
 
    public static Path getAspectModelEditorStoragePath() {
       return Path.of( ASPECT_MODEL_PATH );

@@ -19,6 +19,8 @@ import java.util.List;
 
 import org.eclipse.esmf.ame.repository.ModelResolverRepository;
 import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
+import org.eclipse.esmf.aspectmodel.shacl.constraint.JsConstraint;
+import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -43,5 +45,11 @@ public class TestConfig {
       LocalFolderResolverStrategy localFolderResolverStrategy = new LocalFolderResolverStrategy( applicationSettings,
             fileSystem, rootPath );
       return new ModelResolverRepository( List.of( localFolderResolverStrategy ) );
+   }
+
+   @Bean
+   public AspectModelValidator getAspectModelValidator() {
+      JsConstraint.setEvaluateJavaScript( false );
+      return new AspectModelValidator();
    }
 }
