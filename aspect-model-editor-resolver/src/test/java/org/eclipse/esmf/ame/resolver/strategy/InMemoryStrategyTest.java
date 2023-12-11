@@ -22,11 +22,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.jena.rdf.model.Model;
-import org.eclipse.esmf.ame.model.repository.AspectModelInformation;
+import org.eclipse.esmf.ame.resolver.strategy.model.NamespaceFileContent;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
@@ -35,14 +36,14 @@ import io.vavr.NotImplementedError;
 import io.vavr.control.Try;
 
 @ExtendWith( SpringExtension.class )
+@ActiveProfiles( "test" )
 class InMemoryStrategyTest {
-
-   private static final Path resourcesPath = Path.of( "src", "test", "resources", "strategy" );
+   private static final Path resourcesPath = Path.of( "src", "test", "resources", "resolver" );
    private static final String version = "1.0.0";
    private static final String versionedNamespace = "org.eclipse.esmf.example" + ":" + version;
    private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example", version );
-   private static final String aspectModelFile = "AspectModelForStrategy.ttl";
-   private static final String aspectModelurn = "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModelForStrategy";
+   private static final String aspectModelFile = "AspectModelForResolver.ttl";
+   private static final String aspectModelurn = "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModelForResolver";
    private static final String causeMessage = "AspectModelUrn is not set";
 
    private static Path rootPath;
@@ -57,7 +58,7 @@ class InMemoryStrategyTest {
    @Test
    void testApplySuccess() throws IOException {
       final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ), StandardCharsets.UTF_8 );
-      AspectModelInformation aspectModelInformation = new AspectModelInformation( versionedNamespace, aspectModelFile,
+      NamespaceFileContent aspectModelInformation = new NamespaceFileContent( versionedNamespace, aspectModelFile,
             fileToTest );
 
       final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( aspectModelInformation, rootPath, fileSystem );
@@ -69,14 +70,14 @@ class InMemoryStrategyTest {
    @Test
    void testApplyFailureNullAndFailureAspectModelUrn() throws IOException {
       final String fileToTest = Files.readString( eclipseTestPath.resolve( aspectModelFile ), StandardCharsets.UTF_8 );
-      AspectModelInformation aspectModelInformation = new AspectModelInformation( versionedNamespace, aspectModelFile,
+      NamespaceFileContent aspectModelInformation = new NamespaceFileContent( versionedNamespace, aspectModelFile,
             fileToTest );
 
       final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( aspectModelInformation, rootPath, fileSystem );
       final Try<Model> result = inMemoryStrategy.apply( null );
 
       assertTrue( result.isFailure() );
-      assertTrue( result.getCause() instanceof NotImplementedError );
+      assertInstanceOf( NotImplementedError.class, result.getCause() );
       assertEquals( causeMessage, result.getCause().getMessage() );
    }
 }

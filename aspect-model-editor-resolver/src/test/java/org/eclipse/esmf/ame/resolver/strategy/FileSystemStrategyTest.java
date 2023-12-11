@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.jena.rdf.model.Model;
-import org.eclipse.esmf.ame.model.StoragePaths;
+import org.eclipse.esmf.ame.model.StoragePath;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,17 +34,17 @@ import io.vavr.control.Try;
 
 @ExtendWith( SpringExtension.class )
 class FileSystemStrategyTest {
-   private static final Path resourcesPath = Path.of( "src", "test", "resources", "strategy" );
+   private static final Path resourcesPath = Path.of( "src", "test", "resources", "resolver" );
    private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example", "1.0.0" );
 
-   private static final String aspectModelFile = "AspectModelForStrategy.ttl";
-   private static final String aspectModelurn = "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModelForStrategy";
+   private static final String aspectModelFile = "AspectModelForResolver.ttl";
+   private static final String aspectModelurn = "urn:samm:org.eclipse.esmf.example:1.0.0#AspectModelForResolver";
 
    private static final String causeMessage = "AspectModelUrn is not set";
 
    @BeforeEach
    void setUp() {
-      StoragePaths StoragePaths = Mockito.mock( StoragePaths.class );
+      StoragePath StoragePaths = Mockito.mock( StoragePath.class );
       Mockito.when( StoragePaths.getPath() ).thenReturn( resourcesPath );
    }
 
@@ -68,7 +68,7 @@ class FileSystemStrategyTest {
       final Try<Model> result = fileSystemStrategy.apply( null );
 
       assertTrue( result.isFailure() );
-      assertTrue( result.getCause() instanceof NotImplementedError );
+      assertInstanceOf( NotImplementedError.class, result.getCause() );
       assertEquals( causeMessage, result.getCause().getMessage() );
    }
 }
