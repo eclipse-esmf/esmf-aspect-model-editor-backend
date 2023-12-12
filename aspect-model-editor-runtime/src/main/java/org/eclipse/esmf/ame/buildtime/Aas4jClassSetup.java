@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
 import org.eclipse.esmf.ame.substitution.AdminShellConfig;
-import org.eclipse.esmf.ame.substitution.ImplementationInfo;
 import org.eclipse.esmf.ame.substitution.Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_ReflectionHelper;
 
 import io.github.classgraph.ClassGraph;
@@ -162,7 +161,8 @@ public class Aas4jClassSetup {
                                                                                           interfaceName ) );
                                  if ( !interfaceClassInfos.isEmpty() ) {
                                     final Class<?> implementedClass = interfaceClassInfos.get( 0 ).loadClass();
-                                    defaultImplementations.add( new ImplementationInfo( implementedClass, x ) );
+                                    defaultImplementations.add(
+                                          new ReflectionHelper.ImplementationInfo( implementedClass, x ) );
                                  }
                               } );
       return defaultImplementations;
