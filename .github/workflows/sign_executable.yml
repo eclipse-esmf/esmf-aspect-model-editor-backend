@@ -2,7 +2,8 @@ name: "Create Tagged Release"
 
 on:
   push:
-
+  pull_request:
+    branches: [ '**' ]
 jobs:
   trigger-build:
     runs-on: ubuntu-latest
