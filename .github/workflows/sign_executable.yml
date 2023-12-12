@@ -10,8 +10,7 @@ jobs:
     steps:
       - name: Trigger Jenkins Job, for singing executable
         run: |
-          curl -X POST "https://ci.eclipse.org/esmf/project/Sign-Native-Image/generic-webhook-trigger/invoke?token=GITHUB_BOT_TOKEN" \
+          curl -X POST https://ci.eclipse.org/esmf/project/Sign-Native-Image/github-webhook/ \
+          -H "Authorization: token ${{ secrets.eclipse-esmf-bot }}" \
           -H "Content-Type: application/json" \
-          -d '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
-        env:
-          GITHUB_BOT_TOKEN: ${{ secrets.eclipse-esmf-bot }}
+          -d '{"event_type": "trigger_jenkins"}'
