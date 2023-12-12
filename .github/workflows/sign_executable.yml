@@ -1,6 +1,7 @@
 name: "Create Tagged Release"
 
-on: [ push ]
+on:
+  push:
 
 jobs:
   trigger-build:
