@@ -1,0 +1,15 @@
+name: "Create Tagged Release"
+
+on: [ push ]
+
+jobs:
+  trigger-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins Job, for singing executable
+        run: |
+          curl -X POST "https://ci.eclipse.org/esmf/project/Sign-Native-Image/generic-webhook-trigger/invoke?token=GITHUB_BOT_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
+        env:
+          GITHUB_BOT_TOKEN: ${{ secrets.eclipse-esmf-bot }}
