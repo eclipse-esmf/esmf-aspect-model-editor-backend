@@ -19,6 +19,7 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <!-- Multi module dependencies -->
         <dependency>
             <groupId>org.eclipse.esmf</groupId>
             <artifactId>aspect-model-editor-core</artifactId>
@@ -27,10 +28,14 @@
             <groupId>org.eclipse.esmf</groupId>
             <artifactId>aspect-model-editor-resolver</artifactId>
         </dependency>
+
+        <!-- ESMF dependencies -->
         <dependency>
             <groupId>org.eclipse.esmf</groupId>
             <artifactId>esmf-aspect-model-validator</artifactId>
         </dependency>
+
+        <!-- Third party dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -39,6 +44,8 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
         </dependency>
+
+        <!-- Third party testing dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

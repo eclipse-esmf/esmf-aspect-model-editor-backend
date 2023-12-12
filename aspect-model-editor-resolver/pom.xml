@@ -19,15 +19,20 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <!-- Multi module dependencies -->
         <dependency>
             <groupId>org.eclipse.esmf</groupId>
             <artifactId>aspect-model-editor-core</artifactId>
         </dependency>
+
+        <!-- Third party dependencies for developing-->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok-version}</version>
         </dependency>
+
+        <!-- Third party testing dependencies for developing-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

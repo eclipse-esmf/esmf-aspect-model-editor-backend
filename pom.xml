@@ -129,7 +129,7 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Multi module project -->
+            <!-- Multi module dependencies -->
             <dependency>
                 <groupId>org.eclipse.esmf</groupId>
                 <artifactId>aspect-model-editor-core</artifactId>
@@ -171,7 +171,7 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- Internal projects -->
+            <!-- ESMF dependencies -->
             <dependency>
                 <groupId>org.eclipse.esmf</groupId>
                 <artifactId>esmf-aspect-model-urn</artifactId>
@@ -269,7 +269,7 @@
                 <scope>provided</scope>
             </dependency>
 
-            <!-- Third party dependencies for developing-->
+            <!-- Third party dependencies -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-properties-migrator</artifactId>
@@ -334,7 +334,7 @@
                 <version>${commons-code-version}</version>
             </dependency>
 
-            <!-- Third party dependencies for testing -->
+            <!-- Third party testing dependencies -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-test</artifactId>
@@ -563,6 +563,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
+                        <version>${exec-maven-plugin-version}</version>
                         <executions>
                             <!-- Generate admin-shell reflection config -->
                             <execution>

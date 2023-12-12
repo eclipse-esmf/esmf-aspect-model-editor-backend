@@ -19,10 +19,13 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <!-- ESMF dependencies -->
         <dependency>
             <groupId>org.eclipse.esmf</groupId>
             <artifactId>aspect-model-editor-resolver</artifactId>
         </dependency>
+
+        <!-- Third party dependencies for developing-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
