@@ -1,4 +1,4 @@
-name: "Create Tagged Release"
+name: "Sign Executable"
 
 on:
   push:
