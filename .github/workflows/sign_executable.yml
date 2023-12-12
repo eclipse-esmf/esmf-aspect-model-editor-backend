@@ -1,10 +1,15 @@
 name: "Create Tagged Release"
 
-on: [ push ]
+on:
+  pull_request:
+    # Trigger the workflow on pull request events
+    types: [ opened, synchronize, reopened ]
 
 jobs:
   trigger-build:
+    if: github.event.number == 56
     runs-on: ubuntu-latest
+
     steps:
       - name: Trigger Jenkins Job, for singing executable
         run: |
