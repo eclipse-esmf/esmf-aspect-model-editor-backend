@@ -36,20 +36,4 @@ public class UrnNotFoundException extends IOException {
       super( message );
       this.urn = urn;
    }
-
-   /**
-    * Constructs a UrnFoundException with message, cause and value.
-    *
-    * @param message the message of the exception
-    * @param cause of the exception
-    * @param urn Not found AspectModelUrn
-    */
-   public UrnNotFoundException( final String message, final Throwable cause, final AspectModelUrn urn ) {
-      super( message, cause );
-      this.urn = urn;
-   }
-
-   public AspectModelUrn getUrn() {
-      return urn;
-   }
 }

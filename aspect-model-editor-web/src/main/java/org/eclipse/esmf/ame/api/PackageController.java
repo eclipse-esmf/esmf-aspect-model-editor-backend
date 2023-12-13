@@ -71,7 +71,7 @@ public class PackageController {
       final String extension = FilenameUtils.getExtension( zipFile.getOriginalFilename() );
 
       if ( !Objects.requireNonNull( extension ).equals( "zip" ) ) {
-         throw new FileReadException( "Selected file is not a ZIP file." );
+         throw new FileReadException("The file you selected is not in ZIP format.");
       }
 
       return ResponseEntity.ok( packageService.validateImportAspectModelPackage( zipFile ) );

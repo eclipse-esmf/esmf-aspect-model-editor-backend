@@ -16,7 +16,6 @@
 
     <artifactId>aspect-model-editor-repository</artifactId>
     <name>ESMF Aspect Model Editor Repository</name>
-    <packaging>jar</packaging>
 
     <dependencies>
         <!-- Multi module dependencies -->

@@ -16,7 +16,6 @@
 
     <artifactId>aspect-model-editor-runtime</artifactId>
     <name>ESMF Aspect Model Editor Runtime</name>
-    <packaging>jar</packaging>
 
     <properties>
         <main.class>org.eclipse.esmf.ame.Application</main.class>
@@ -70,6 +69,24 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec-maven-plugin-version}</version>
+                <configuration>
+                    <mainClass>${main.class}</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <profiles>
         <profile>
@@ -134,10 +151,10 @@
                                 <buildArg>-J-Xmx8G</buildArg>
                                 <buildArg>-H:+ReportExceptionStackTraces</buildArg>
                                 <buildArg>
-                                    -H:ReflectionConfigurationFiles=${project.basedir}/.graalvm/reflect-config.json
+                                    -H:ReflectionConfigurationFiles=${maven.multiModuleProjectDirectory}/.graalvm/reflect-config.json
                                 </buildArg>
                                 <buildArg>
-                                    -H:ResourceConfigurationFiles=${project.basedir}/.graalvm/resource-config.json
+                                    -H:ResourceConfigurationFiles=${maven.multiModuleProjectDirectory}/.graalvm/resource-config.json
                                 </buildArg>
                             </buildArgs>
                         </configuration>

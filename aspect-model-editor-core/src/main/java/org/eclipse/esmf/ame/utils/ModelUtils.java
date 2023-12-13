@@ -19,7 +19,6 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,10 +27,7 @@ import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.aspectmodel.resolver.AspectModelResolver;
 import org.eclipse.esmf.aspectmodel.resolver.services.TurtleLoader;
-import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
-import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
-import org.eclipse.esmf.aspectmodel.validation.services.ViolationFormatter;
 import org.eclipse.esmf.metamodel.AspectContext;
 
 import io.vavr.control.Try;
@@ -54,13 +50,7 @@ public class ModelUtils {
     */
    public static AspectContext getAspectContext( Try<AspectContext> context ) {
       return context.recover( throwable -> {
-         // Another exception, e.g. syntax error. Let the validator handle this
-         final List<Violation> violations = new AspectModelValidator().validateModel(
-               context.map( AspectContext::rdfModel ) );
-
-         throw new FileReadException(
-               String.format( "The generation process encountered failures due to the following violations: %s",
-                     new ViolationFormatter().apply( violations ) ) );
+         throw new FileReadException( throwable.getMessage() );
       } ).get();
    }
 

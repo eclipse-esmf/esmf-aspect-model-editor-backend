@@ -16,7 +16,6 @@
 
     <artifactId>aspect-model-editor-resolver</artifactId>
     <name>ESMF Aspect Model Editor Resolver</name>
-    <packaging>jar</packaging>
 
     <dependencies>
         <!-- Multi module dependencies -->

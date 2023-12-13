@@ -16,7 +16,6 @@
 
     <artifactId>aspect-model-editor-core</artifactId>
     <name>ESMF Aspect Model Editor Core</name>
-    <packaging>jar</packaging>
 
     <dependencies>
         <!-- ESMF dependencies -->

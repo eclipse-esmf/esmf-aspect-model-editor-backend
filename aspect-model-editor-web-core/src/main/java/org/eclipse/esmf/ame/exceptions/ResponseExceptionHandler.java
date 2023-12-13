@@ -15,22 +15,29 @@ package org.eclipse.esmf.ame.exceptions;
 
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 
+import java.util.Objects;
+
 import org.eclipse.esmf.ame.model.ErrorResponse;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.InvalidNamespaceException;
 import org.eclipse.esmf.metamodel.loader.AspectLoadingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.util.WebUtils;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Provides custom exception handling for the REST API.
@@ -38,6 +45,8 @@ import jakarta.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    private static final Logger LOG = LoggerFactory.getLogger( ResponseExceptionHandler.class );
+
+   private MessageSource messageSource;
 
    /**
     * Method for handling exception to type {@link FileNotFoundException}
@@ -47,7 +56,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
     */
    @ExceptionHandler( FileNotFoundException.class )
-   public ResponseEntity<Object> handleInvalidStateTransitionException( final WebRequest request,
+   public ResponseEntity<ErrorResponse> handleInvalidStateTransitionException( final WebRequest request,
          final FileNotFoundException e ) {
       return error( HttpStatus.NOT_FOUND, request, e, e.getMessage() );
    }
@@ -60,7 +69,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
     */
    @ExceptionHandler( FileWriteException.class )
-   public ResponseEntity<Object> handleInvalidStateTransitionException( final WebRequest request,
+   public ResponseEntity<ErrorResponse> handleInvalidStateTransitionException( final WebRequest request,
          final FileWriteException e ) {
       return error( HttpStatus.BAD_REQUEST, request, e, e.getMessage() );
    }
@@ -73,9 +82,9 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
     */
    @ExceptionHandler( FileReadException.class )
-   public ResponseEntity<Object> handleInvalidStateTransitionException( final WebRequest request,
+   public ResponseEntity<ErrorResponse> handleInvalidStateTransitionException( final WebRequest request,
          final FileReadException e ) {
-      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
+      return error( HttpStatus.CONFLICT, request, e, e.getMessage() );
    }
 
    /**
@@ -86,9 +95,9 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
     */
    @ExceptionHandler( CreateFileException.class )
-   public ResponseEntity<Object> handleInvalidStateTransitionException( final WebRequest request,
+   public ResponseEntity<ErrorResponse> handleInvalidStateTransitionException( final WebRequest request,
          final CreateFileException e ) {
-      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
+      return error( HttpStatus.CONFLICT, request, e, e.getMessage() );
    }
 
    /**
@@ -99,22 +108,9 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
     */
    @ExceptionHandler( IllegalArgumentException.class )
-   public ResponseEntity<Object> handleInvalidStateTransitionException( final WebRequest request,
+   public ResponseEntity<ErrorResponse> handleInvalidStateTransitionException( final WebRequest request,
          final IllegalArgumentException e ) {
-      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
-   }
-
-   /**
-    * Method for handling exception to type {@link AspectModelPrintDocumentationException}
-    *
-    * @param request the Http request
-    * @param e the exception which occurred
-    * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
-    */
-   @ExceptionHandler( AspectModelPrintDocumentationException.class )
-   public ResponseEntity<Object> handleInvalidStateTransitionException( final WebRequest request,
-         final AspectModelPrintDocumentationException e ) {
-      return error( HttpStatus.BAD_REQUEST, request, e, e.getMessage() );
+      return error( HttpStatus.CONFLICT, request, e, e.getMessage() );
    }
 
    /**
@@ -125,9 +121,9 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
     */
    @ExceptionHandler( AspectLoadingException.class )
-   public ResponseEntity<Object> handleAspectLoadingException( final WebRequest request,
+   public ResponseEntity<ErrorResponse> handleAspectLoadingException( final WebRequest request,
          final AspectLoadingException e ) {
-      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
+      return error( HttpStatus.CONFLICT, request, e, e.getMessage() );
    }
 
    /**
@@ -138,9 +134,9 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
     */
    @ExceptionHandler( InvalidAspectModelException.class )
-   public ResponseEntity<Object> handleInvalidAspectModelException( final WebRequest request,
+   public ResponseEntity<ErrorResponse> handleInvalidAspectModelException( final WebRequest request,
          final InvalidAspectModelException e ) {
-      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
+      return error( HttpStatus.CONFLICT, request, e, e.getMessage() );
    }
 
    /**
@@ -151,9 +147,9 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
     */
    @ExceptionHandler( InvalidNamespaceException.class )
-   public ResponseEntity<Object> handleInvalidAspectModelException( final WebRequest request,
+   public ResponseEntity<ErrorResponse> handleInvalidAspectModelException( final WebRequest request,
          final InvalidNamespaceException e ) {
-      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
+      return error( HttpStatus.CONFLICT, request, e, e.getMessage() );
    }
 
    /**
@@ -164,9 +160,9 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
     */
    @ExceptionHandler( FileCannotDeleteException.class )
-   public ResponseEntity<Object> handleInvalidAspectModelException( final WebRequest request,
+   public ResponseEntity<ErrorResponse> handleInvalidAspectModelException( final WebRequest request,
          final FileCannotDeleteException e ) {
-      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
+      return error( HttpStatus.CONFLICT, request, e, e.getMessage() );
    }
 
    /**
@@ -177,12 +173,12 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
     * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
     */
    @ExceptionHandler( FileHandlingException.class )
-   public ResponseEntity<Object> handleInvalidAspectModelException( final WebRequest request,
+   public ResponseEntity<ErrorResponse> handleInvalidAspectModelException( final WebRequest request,
          final FileHandlingException e ) {
-      return error( HttpStatus.UNPROCESSABLE_ENTITY, request, e, e.getMessage() );
+      return error( HttpStatus.CONFLICT, request, e, e.getMessage() );
    }
 
-   private ResponseEntity<Object> error( final HttpStatus responseCode, final WebRequest request,
+   private ResponseEntity<ErrorResponse> error( final HttpStatus responseCode, final WebRequest request,
          final RuntimeException e, final String message ) {
       logRequest( request, e, responseCode );
 
@@ -217,5 +213,39 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
          final HttpStatus httpStatus ) {
       return String.format( "Handling exception %s with response code %s of request %s", ex.getClass().getName(),
             httpStatus.value(), requestURL );
+   }
+
+   private ResponseEntity<ErrorResponse> handleExceptionInternal(Exception ex, @Nullable ErrorResponse body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
+
+      if (isResponseCommitted(request)) {
+         logger.warn("Response already committed. Ignoring: " + ex);
+         return null;
+      }
+
+      if (statusCode.equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+         request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
+      }
+
+      if (body == null && ex instanceof org.springframework.web.ErrorResponse) {
+         return handleErrorResponse(ex, headers, statusCode, request);
+      }
+
+      return new ResponseEntity<>(body, headers, statusCode);
+   }
+
+   private boolean isResponseCommitted(WebRequest request) {
+      if (request instanceof ServletWebRequest) {
+         HttpServletResponse response = ((ServletWebRequest) request).getResponse();
+         return response != null && response.isCommitted();
+      }
+      return false;
+   }
+
+   private ResponseEntity<ErrorResponse> handleErrorResponse(Exception ex, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
+      ResponseEntity<Object> entity = super.handleExceptionInternal(ex, null, headers, statusCode, request);
+      Object responseBody = Objects.requireNonNull( entity ).getBody();
+      ErrorResponse errorResponse = (responseBody instanceof ErrorResponse) ? (ErrorResponse) responseBody : null;
+
+      return new ResponseEntity<>(errorResponse, entity.getHeaders(), entity.getStatusCode());
    }
 }

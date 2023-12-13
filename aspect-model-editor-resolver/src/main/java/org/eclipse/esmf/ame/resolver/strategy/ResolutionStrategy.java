@@ -144,7 +144,7 @@ public abstract class ResolutionStrategy extends AbstractResolutionStrategy {
          return resultTry.get();
       } catch ( IOException e ) {
          LOG.error( "Cannot read file." );
-         throw new FileReadException( "Error reading the Aspect Model file.", e );
+         throw new FileReadException("Failed to read the Aspect Model file. Please check if the file exists and is accessible.", e);
       }
    }
 

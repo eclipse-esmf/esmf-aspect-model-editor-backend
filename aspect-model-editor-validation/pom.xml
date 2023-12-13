@@ -16,7 +16,6 @@
 
     <artifactId>aspect-model-editor-validation</artifactId>
     <name>ESMF Aspect Model Editor Validation</name>
-    <packaging>jar</packaging>
 
     <dependencies>
         <!-- Multi module dependencies -->

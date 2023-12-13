@@ -359,8 +359,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 422\", function () {\r",
-							"    pm.response.to.have.status(422);\r",
+							"pm.test(\"Status code is 409\", function () {\r",
+							"    pm.response.to.have.status(409);\r",
 							"    pm.expect(pm.response.json().error.message).to.contain(\"[line: 17, col: 1 ] Triples not terminated by DOT\");\r",
 							"});"
 						],
@@ -489,6 +489,7 @@
 							"pm.test(\"Status code is 200\", function () {\r",
 							"    pm.response.to.have.status(200);\r",
 							"});\r",
+							"\r",
 							"pm.test(\"Response body is valid\", function () {\r",
 							"    pm.expect(pm.response.json()['property1']).to.exist\r",
 							"});"
@@ -571,8 +572,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 400\", function () {\r",
-							"    pm.response.to.have.status(422);\r",
+							"pm.test(\"Status code is 409\", function () {\r",
+							"    pm.response.to.have.status(409);\r",
 							"});\r",
 							""
 						],
@@ -611,8 +612,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 400\", function () {\r",
-							"    pm.response.to.have.status(422);\r",
+							"pm.test(\"Status code is 409\", function () {\r",
+							"    pm.response.to.have.status(409);\r",
 							"});\r",
 							""
 						],
@@ -789,8 +790,9 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(422);\r",
+							"pm.test(\"Status code is 409\", function () {\r",
+							"    pm.response.to.have.status(409);\r",
+							"    pm.expect(pm.response.json().error.message).to.contain(\"Could not load Aspect model, please make sure the model is valid\")\r",
 							"});"
 						],
 						"type": "text/javascript"
@@ -850,8 +852,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(422);\r",
+							"pm.test(\"Status code is 409\", function () {\r",
+							"    pm.response.to.have.status(409);\r",
 							"});"
 						],
 						"type": "text/javascript"

@@ -219,7 +219,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
          return true;
       } catch ( IOException e ) {
          throw new FileHandlingException(
-               "Cannot lock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage() );
+               "Cannot lock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage(), e.getCause() );
       }
    }
 
@@ -235,7 +235,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
          }
       } catch ( IOException e ) {
          throw new FileHandlingException(
-               "Cannot unlock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage() );
+               "Cannot unlock file: " + fileName + " in namespace: " + namespace + ". Reason: " + e.getMessage(), e.getCause() );
       }
 
       return false;
@@ -287,7 +287,7 @@ public class LocalFolderResolverStrategy implements ModelResolverStrategy {
                      .filter( StringUtils::isNotBlank )
                      .toList();
       } catch ( final IOException e ) {
-         throw new FileReadException( "Can not read shared folder file structure", e );
+         throw new FileReadException("An error occurred while attempting to access the shared folder's file structure. Please check your permissions or network connection and try again.", e);
       }
    }
 

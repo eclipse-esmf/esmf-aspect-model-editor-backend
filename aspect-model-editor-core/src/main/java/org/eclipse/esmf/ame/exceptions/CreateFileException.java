@@ -23,15 +23,6 @@ public class CreateFileException extends RuntimeException {
    private static final long serialVersionUID = 1L;
 
    /**
-    * Constructs a CreateFileException with message.
-    *
-    * @param message the message of the exception
-    */
-   public CreateFileException( final String message ) {
-      super( message );
-   }
-
-   /**
     * Constructs a CreateFileException with message and cause.
     *
     * @param message the message of the exception

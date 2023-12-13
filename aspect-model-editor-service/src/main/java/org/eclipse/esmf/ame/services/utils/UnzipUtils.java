@@ -66,7 +66,7 @@ public class UnzipUtils {
          }
       } catch ( IOException e ) {
          LOG.error( "Package cannot be imported." );
-         throw new FileReadException( "Package cannot be imported.", e );
+         throw new FileReadException("An error occurred while importing the package.", e);
       }
    }
 
@@ -147,7 +147,7 @@ public class UnzipUtils {
 
          return stringBuilder.toString();
       } catch ( IOException e ) {
-         throw new FileReadException( "Cannot read file in package.", e );
+         throw new FileReadException("An error occurred while reading the file in the package. Please check if the file exists or is accessible.", e);
       }
    }
 }

@@ -59,7 +59,6 @@
 
     <properties>
         <os.platform/>
-        <main.class>org.eclipse.esmf.ame.Application</main.class>
 
         <!-- Internal esmf dependencies -->
         <esmf-sdk-version>2.4.2</esmf-sdk-version>
@@ -387,15 +386,12 @@
     </dependencyManagement>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+        </resources>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${exec-maven-plugin-version}</version>
-                <configuration>
-                    <mainClass>${main.class}</mainClass>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-plugin</artifactId>

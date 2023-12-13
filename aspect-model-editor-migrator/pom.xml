@@ -16,7 +16,6 @@
 
     <artifactId>aspect-model-editor-migrator</artifactId>
     <name>ESMF Aspect Model Editor Migrator</name>
-    <packaging>jar</packaging>
 
     <dependencies>
         <!-- ESMF dependencies -->
