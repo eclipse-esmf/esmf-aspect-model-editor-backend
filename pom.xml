@@ -65,7 +65,7 @@
 
         <!-- Versions of third party dependencies -->
         <spring-boot-version>3.0.0</spring-boot-version>
-        <lombok-version>1.18.24</lombok-version>
+        <lombok-version>1.18.26</lombok-version>
         <commons-io-version>2.13.0</commons-io-version>
         <commons-validator-version>1.7</commons-validator-version>
         <commons-code-version>1.15</commons-code-version>
