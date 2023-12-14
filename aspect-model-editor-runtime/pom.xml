@@ -18,6 +18,7 @@
     <name>ESMF Aspect Model Editor Runtime</name>
 
     <properties>
+        <integration-test-port/>
         <main.class>org.eclipse.esmf.ame.Application</main.class>
     </properties>
 
@@ -80,7 +81,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>${exec-maven-plugin-version}</version>
                 <configuration>
                     <mainClass>${main.class}</mainClass>
                 </configuration>
@@ -96,7 +96,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>${exec-maven-plugin-version}</version>
                         <executions>
                             <!-- Generate admin-shell reflection config -->
                             <execution>
@@ -119,7 +118,6 @@
                     <plugin>
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
-                        <version>${native-maven-plugin-version}</version>
                         <extensions>true</extensions>
                         <executions>
                             <execution>
@@ -151,10 +149,10 @@
                                 <buildArg>-J-Xmx8G</buildArg>
                                 <buildArg>-H:+ReportExceptionStackTraces</buildArg>
                                 <buildArg>
-                                    -H:ReflectionConfigurationFiles=${maven.multiModuleProjectDirectory}/.graalvm/reflect-config.json
+                                    -H:ReflectionConfigurationFiles=${project.basedir}/.graalvm/reflect-config.json
                                 </buildArg>
                                 <buildArg>
-                                    -H:ResourceConfigurationFiles=${maven.multiModuleProjectDirectory}/.graalvm/resource-config.json
+                                    -H:ResourceConfigurationFiles=${project.basedir}/.graalvm/resource-config.json
                                 </buildArg>
                             </buildArgs>
                         </configuration>
@@ -162,7 +160,6 @@
                     <plugin>
                         <groupId>org.springframework.boot</groupId>
                         <artifactId>spring-boot-maven-plugin</artifactId>
-                        <version>${spring-boot-version}</version>
                         <executions>
                             <execution>
                                 <id>process-test-aot</id>
@@ -198,7 +195,6 @@
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
-                        <version>${frontend-maven-plugin-version}</version>
                         <executions>
                             <execution>
                                 <id>install-node-and-npm</id>
@@ -242,7 +238,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-resources-plugin</artifactId>
-                        <version>${maven-resources-plugin-version}</version>
                         <executions>
                             <execution>
                                 <id>copy-resources</id>
@@ -265,12 +260,10 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>port-allocator-maven-plugin</artifactId>
-                        <version>${port-allocator-version}</version>
                         <dependencies>
                             <dependency>
                                 <groupId>classworlds</groupId>
                                 <artifactId>classworlds</artifactId>
-                                <version>${classworlds-version}</version>
                             </dependency>
                         </dependencies>
                         <executions>
@@ -292,7 +285,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
-                        <version>${maven-antrun-plugin-version}</version>
                         <executions>
                             <!-- Adjust Postman environment target URL -->
                             <execution>
@@ -322,7 +314,6 @@
                     <plugin>
                         <groupId>com.bazaarvoice.maven.plugins</groupId>
                         <artifactId>process-exec-maven-plugin</artifactId>
-                        <version>${process-exec-version}</version>
                         <executions>
                             <!--Start process-->
                             <execution>
@@ -362,7 +353,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>${exec-maven-plugin-version}</version>
                         <executions>
                             <execution>
                                 <id>Add execution right´s on native-image</id>
@@ -385,7 +375,6 @@
                     <plugin>
                         <groupId>com.bazaarvoice.maven.plugins</groupId>
                         <artifactId>process-exec-maven-plugin</artifactId>
-                        <version>${process-exec-version}</version>
                         <executions>
                             <!--Start process-->
                             <execution>
@@ -424,7 +413,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <version>${exec-maven-plugin-version}</version>
                         <inherited>false</inherited>
                         <executions>
                             <execution>
