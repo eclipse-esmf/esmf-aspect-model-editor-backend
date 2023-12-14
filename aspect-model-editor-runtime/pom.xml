@@ -18,7 +18,6 @@
     <name>ESMF Aspect Model Editor Runtime</name>
 
     <properties>
-        <integration-test-port/>
         <main.class>org.eclipse.esmf.ame.Application</main.class>
     </properties>
 
@@ -264,6 +263,7 @@
                             <dependency>
                                 <groupId>classworlds</groupId>
                                 <artifactId>classworlds</artifactId>
+                                <version>${classworlds-version}</version>
                             </dependency>
                         </dependencies>
                         <executions>

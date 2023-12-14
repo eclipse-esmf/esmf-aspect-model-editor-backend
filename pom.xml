@@ -378,11 +378,6 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
-                <groupId>classworlds</groupId>
-                <artifactId>classworlds</artifactId>
-                <version>${classworlds-version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-engine</artifactId>
                 <version>${junit-version}</version>
