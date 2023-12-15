@@ -58,8 +58,11 @@ public class ModelController {
     */
    @GetMapping()
    public ResponseEntity<String> getModel( @RequestHeader final Map<String, String> headers ) {
-      final Optional<String> optionalNameSpace = Optional.of(
-            ModelUtils.sanitizeFileInformation( headers.get( NAMESPACE ) ) );
+      final Optional<String> optionalNameSpace =
+            headers.get( NAMESPACE ) != null ?
+                  Optional.of( ModelUtils.sanitizeFileInformation( headers.get( NAMESPACE ) ) ) :
+                  Optional.empty();
+
       final Optional<String> optionalFilename = Optional.of(
             ModelUtils.sanitizeFileInformation( headers.get( FILE_NAME ) ) );
 
