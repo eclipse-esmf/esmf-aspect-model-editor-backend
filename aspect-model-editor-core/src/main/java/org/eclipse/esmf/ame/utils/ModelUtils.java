@@ -107,4 +107,17 @@ public class ModelUtils {
    private static Try<Model> loadFromUrl( final URL url ) {
       return Try.ofSupplier( () -> TurtleLoader.openUrl( url ) ).flatMap( TurtleLoader::loadTurtle );
    }
+
+   /**
+    * Sanitizes the file name to remove any path information and retain only the base file name.
+    * This method is used to ensure that the file name does not contain any directory path components,
+    * which helps prevent path traversal attacks. It extracts only the file name portion from a given
+    * string that may represent a path.
+    *
+    * @param fileName The file name string potentially including path information.
+    * @return The sanitized base file name without any path components.
+    */
+   public static String sanitizeFileInformation( String fileName ) {
+      return new File( fileName ).getName();
+   }
 }

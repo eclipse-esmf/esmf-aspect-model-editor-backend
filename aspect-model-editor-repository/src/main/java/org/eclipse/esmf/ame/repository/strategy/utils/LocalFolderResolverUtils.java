@@ -13,6 +13,8 @@
 
 package org.eclipse.esmf.ame.repository.strategy.utils;
 
+import java.io.File;
+
 import javax.annotation.Nonnull;
 
 import org.eclipse.esmf.ame.resolver.strategy.model.FolderStructure;

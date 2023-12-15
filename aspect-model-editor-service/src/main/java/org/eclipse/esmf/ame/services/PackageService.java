@@ -92,7 +92,7 @@ public class PackageService {
 
       Map<String, NamespaceFileReport> validFiles =
             aspectModelFiles.stream()
-                            .flatMap( data -> data.getFiles().stream().map( fileName -> {
+                            .flatMap( data -> sanitizeIncomingFiles( data.getFiles() ).stream().map( fileName -> {
                                String aspectModel = strategy.getModelAsString( data.getNamespace(), fileName );
                                AspectModelToExportCache.put( data.getNamespace() + ":" + fileName, aspectModel );
                                final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( aspectModel );
@@ -184,23 +184,29 @@ public class PackageService {
    public List<String> importAspectModelPackage( final List<NamespaceFileCollection> aspectModelFiles ) {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
 
-      return aspectModelFiles.stream().flatMap( data -> data.getFiles().stream().map( fileName -> {
-         try {
-            final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath( data.getNamespace() );
-            folderStructure.setFileName( fileName );
-            String aspectModel = ResolverUtils.readString(
-                  importFileSystem.getPath( folderStructure.toString() ), StandardCharsets.UTF_8 );
-            Optional<String> namespaceVersion = Optional.of(
-                  folderStructure.getFileRootPath() + File.separator + folderStructure.getVersion() );
+      return aspectModelFiles.stream().flatMap(
+            data -> sanitizeIncomingFiles( data.getFiles() ).stream().map( fileName -> {
+               try {
+                  final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath(
+                        data.getNamespace() );
+                  folderStructure.setFileName( fileName );
+                  String aspectModel = ResolverUtils.readString(
+                        importFileSystem.getPath( folderStructure.toString() ), StandardCharsets.UTF_8 );
+                  Optional<String> namespaceVersion = Optional.of(
+                        folderStructure.getFileRootPath() + File.separator + folderStructure.getVersion() );
 
-            strategy.saveModel( namespaceVersion, Optional.of( fileName ), aspectModel );
+                  strategy.saveModel( namespaceVersion, Optional.of( fileName ), aspectModel );
 
-            return folderStructure.toString();
-         } catch ( final IOException e ) {
-            throw new FileNotFoundException(
-                  String.format( "Cannot import Aspect Model with name %s to workspace", fileName ) );
-         }
-      } ) ).toList();
+                  return folderStructure.toString();
+               } catch ( final IOException e ) {
+                  throw new FileNotFoundException(
+                        String.format( "Cannot import Aspect Model with name %s to workspace", fileName ) );
+               }
+            } ) ).toList();
+   }
+
+   private List<String> sanitizeIncomingFiles( List<String> incomingFiles ) {
+      return incomingFiles.stream().map( ModelUtils::sanitizeFileInformation ).toList();
    }
 
    private List<ElementMissingReport> getMissingAspectModelFiles( final ViolationReport violationReport,
