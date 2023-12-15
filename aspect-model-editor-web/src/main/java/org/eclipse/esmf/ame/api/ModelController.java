@@ -80,9 +80,15 @@ public class ModelController {
    @PostMapping( consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public ResponseEntity<String> createModel( @RequestHeader final Map<String, String> headers,
          @RequestBody final String turtleData ) {
-      final Optional<String> namespace = Optional.of( ModelUtils.sanitizeFileInformation( headers.get( NAMESPACE ) ) );
-      final Optional<String> fileName = Optional.of( ModelUtils.sanitizeFileInformation( headers.get( FILE_NAME ) ) );
-      modelService.saveModel( namespace, fileName, turtleData );
+      final Optional<String> optionalNameSpace =
+            headers.get( NAMESPACE ) != null ?
+                  Optional.of( ModelUtils.sanitizeFileInformation( headers.get( NAMESPACE ) ) ) :
+                  Optional.empty();
+
+      final Optional<String> optionalFilename = Optional.of(
+            ModelUtils.sanitizeFileInformation( headers.get( FILE_NAME ) ) );
+      
+      modelService.saveModel( optionalNameSpace, optionalFilename, turtleData );
 
       return new ResponseEntity<>( HttpStatus.CREATED );
    }
