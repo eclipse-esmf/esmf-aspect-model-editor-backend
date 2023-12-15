@@ -117,6 +117,8 @@ public class ModelUtils {
     *
     * @param fileInformation The file name string potentially including path information.
     * @return The sanitized base file name without any path components.
+    *
+    * @throws FileHandlingException If the file contains path information´s.
     */
    public static String sanitizeFileInformation( String fileInformation ) {
       if ( fileInformation.contains( File.separator ) || fileInformation.contains( ".." ) ) {
