@@ -22,6 +22,7 @@ import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.model.NamespaceFileCollection;
 import org.eclipse.esmf.ame.services.ModelService;
 import org.eclipse.esmf.ame.utils.MigratorUtils;
+import org.eclipse.esmf.ame.utils.ModelUtils;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -57,8 +58,10 @@ public class ModelController {
     */
    @GetMapping()
    public ResponseEntity<String> getModel( @RequestHeader final Map<String, String> headers ) {
-      final Optional<String> optionalNameSpace = Optional.ofNullable( headers.get( NAMESPACE ) );
-      final Optional<String> optionalFilename = Optional.ofNullable( headers.get( FILE_NAME ) );
+      final Optional<String> optionalNameSpace = Optional.of(
+            ModelUtils.sanitizeFileInformation( headers.get( NAMESPACE ) ) );
+      final Optional<String> optionalFilename = Optional.of(
+            ModelUtils.sanitizeFileInformation( headers.get( FILE_NAME ) ) );
 
       final String filename = optionalFilename.orElseThrow(
             () -> new FileNotFoundException( "Please specify a file name" ) );
@@ -74,8 +77,8 @@ public class ModelController {
    @PostMapping( consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public ResponseEntity<String> createModel( @RequestHeader final Map<String, String> headers,
          @RequestBody final String turtleData ) {
-      final Optional<String> namespace = Optional.ofNullable( headers.get( NAMESPACE ) );
-      final Optional<String> fileName = Optional.ofNullable( headers.get( FILE_NAME ) );
+      final Optional<String> namespace = Optional.of( ModelUtils.sanitizeFileInformation( headers.get( NAMESPACE ) ) );
+      final Optional<String> fileName = Optional.of( ModelUtils.sanitizeFileInformation( headers.get( FILE_NAME ) ) );
       modelService.saveModel( namespace, fileName, turtleData );
 
       return new ResponseEntity<>( HttpStatus.CREATED );
@@ -144,8 +147,10 @@ public class ModelController {
     */
    @DeleteMapping()
    public void deleteModel( @RequestHeader final Map<String, String> headers ) {
-      final Optional<String> optionalNameSpace = Optional.ofNullable( headers.get( NAMESPACE ) );
-      final Optional<String> optionalFilename = Optional.ofNullable( headers.get( FILE_NAME ) );
+      final Optional<String> optionalNameSpace = Optional.of(
+            ModelUtils.sanitizeFileInformation( headers.get( NAMESPACE ) ) );
+      final Optional<String> optionalFilename = Optional.of(
+            ModelUtils.sanitizeFileInformation( headers.get( FILE_NAME ) ) );
 
       final String namespace = optionalNameSpace.orElseThrow(
             () -> new FileNotFoundException( "Please specify a namespace" ) );
