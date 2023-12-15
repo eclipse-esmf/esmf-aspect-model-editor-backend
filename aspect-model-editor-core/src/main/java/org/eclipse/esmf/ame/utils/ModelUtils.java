@@ -24,6 +24,7 @@ import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.Model;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
+import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.aspectmodel.resolver.AspectModelResolver;
 import org.eclipse.esmf.aspectmodel.resolver.services.TurtleLoader;
@@ -114,10 +115,15 @@ public class ModelUtils {
     * which helps prevent path traversal attacks. It extracts only the file name portion from a given
     * string that may represent a path.
     *
-    * @param fileName The file name string potentially including path information.
+    * @param fileInformation The file name string potentially including path information.
     * @return The sanitized base file name without any path components.
     */
-   public static String sanitizeFileInformation( String fileName ) {
-      return new File( fileName ).getName();
+   public static String sanitizeFileInformation( String fileInformation ) {
+      if ( fileInformation.contains( File.separator ) || fileInformation.contains( ".." ) ) {
+         throw new FileHandlingException(
+               "Invalid file information: The provided string must not contain directory separators or relative path components." );
+      }
+
+      return new File( fileInformation ).getName();
    }
 }
