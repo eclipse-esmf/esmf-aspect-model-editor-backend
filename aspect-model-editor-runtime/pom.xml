@@ -226,7 +226,7 @@
                                 </goals>
                                 <configuration>
                                     <workingDirectory>${project.build.directory}</workingDirectory>
-                                    <arguments>install newman-reporter-htmlextra@{newman-reporter-version}</arguments>
+                                    <arguments>install . newman-reporter-htmlextra@{newman-reporter-version}</arguments>
                                 </configuration>
                             </execution>
                         </executions>
