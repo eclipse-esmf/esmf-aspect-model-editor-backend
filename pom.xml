@@ -88,6 +88,7 @@
         <newman-version>6.0.0</newman-version>
         <node-version>16.14.2</node-version>
         <exec-maven-plugin-version>3.0.0</exec-maven-plugin-version>
+        <wagon-maven-plugin-version>1.0</wagon-maven-plugin-version>
         <maven-antrun-plugin-version>3.0.0</maven-antrun-plugin-version>
         <build-helper-maven-plugin-version>3.3.0</build-helper-maven-plugin-version>
         <maven-site-plugin-version>3.10.0</maven-site-plugin-version>
@@ -402,8 +403,8 @@
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>${exec-maven-plugin-version}</version>
+                    <artifactId>wagon-maven-plugin</artifactId>
+                    <version>${wagon-maven-plugin-version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.graalvm.buildtools</groupId>

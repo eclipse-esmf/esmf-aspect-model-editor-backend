@@ -89,6 +89,37 @@
 
     <profiles>
         <profile>
+            <id>copy-font-configuration</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Copy font configuration files from the GraalVM directory (pointed to by JAVA_HOME in native builds) to the output directory -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>wagon-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-fontconfig-bfc</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>download-single</goal>
+                                </goals>
+                                <configuration>
+                                    <url>file://${env.JAVA_HOME}/lib</url>
+                                    <fromFile>fontconfig.bfc</fromFile>
+                                    <toFile>${project.build.outputDirectory}/fontconfig.bfc</toFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>native-image</id>
             <build>
                 <plugins>
@@ -146,7 +177,6 @@
                                     --initialize-at-build-time=org.slf4j.LoggerFactory,ch.qos.logback,guru.nidi.graphviz.attribute.,org.apache.velocity.,org.apache.poi.util.LocaleUtil
                                 </buildArg>
                                 <buildArg>-J-Xmx8G</buildArg>
-                                <buildArg>-H:ConfigurationFileDirectories=conf MainClass</buildArg>
                                 <buildArg>-H:+ReportExceptionStackTraces</buildArg>
                                 <buildArg>-H:JNIConfigurationFiles=${project.basedir}/.graalvm/jni-config.json</buildArg>
                                 <buildArg>-H:ReflectionConfigurationFiles=${project.basedir}/.graalvm/reflect-config.json</buildArg>
