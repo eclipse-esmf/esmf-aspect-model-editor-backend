@@ -995,6 +995,10 @@
         "sun.awt.resources.awt",
         "sun.awt.resources.awt_de"
       ]
+    },
+    {
+      "name":"sun.awt.resources.awtosx",
+      "classNames":["sun.awt.resources.awtosx"]
     }
   ]
 }
