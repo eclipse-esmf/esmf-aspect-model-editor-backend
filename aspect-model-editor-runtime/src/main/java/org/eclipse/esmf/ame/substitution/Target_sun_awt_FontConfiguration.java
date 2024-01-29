@@ -30,7 +30,7 @@ import org.eclipse.esmf.ame.Application;
  * This only works in conjuction with a build setup that makes the font config available in the build time class path,
  * see copy-fontconfig-bfc in pom.xml; as well as a corresponding entry in resource-config.json.
  */
-@TargetClass( className = "sun.awt.FontConfiguration", onlyWith = IsMacOrWindows.class )
+@TargetClass( className = "sun.awt.FontConfiguration", onlyWith = IsWindows.class )
 @SuppressWarnings( {
       "unused",
       "squid:S00101" // Class name uses GraalVM substitution class naming schema, see

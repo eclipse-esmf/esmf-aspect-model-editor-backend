@@ -18,10 +18,9 @@ import java.util.function.BooleanSupplier;
 /**
  * Conditional to execute substitution only on Windows. Use with com.oracle.svm.core.annotate.Substitute's onlyWith attribute.
  */
-public class IsMacOrWindows implements BooleanSupplier {
+public class IsWindows implements BooleanSupplier {
    @Override
    public boolean getAsBoolean() {
-      String osName = System.getProperty("os.name").toLowerCase();
-      return osName.contains("mac") || osName.contains("osx") || osName.contains("windows");
+      return System.getProperty( "os.name", "" ).startsWith( "Windows" );
    }
 }
