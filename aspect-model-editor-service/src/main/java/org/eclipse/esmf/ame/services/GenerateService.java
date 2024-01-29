@@ -101,7 +101,12 @@ public class GenerateService {
 
       AspectContext aspectContext = generateAspectContext( aspectModel );
 
-      generator.generateAASXFile( aspectContext.aspect(), name -> outputStream );
+      try {
+         generator.generateAASXFile( aspectContext.aspect(), name -> outputStream );
+      } catch ( IOException e ) {
+         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
+         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
+      }
 
       return outputStream.toString( StandardCharsets.UTF_8 );
    }
@@ -112,7 +117,12 @@ public class GenerateService {
 
       AspectContext aspectContext = generateAspectContext( aspectModel );
 
-      generator.generateAasXmlFile( aspectContext.aspect(), name -> outputStream );
+      try {
+         generator.generateAasXmlFile( aspectContext.aspect(), name -> outputStream );
+      } catch ( IOException e ) {
+         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
+         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
+      }
 
       return outputStream.toString( StandardCharsets.UTF_8 );
    }
