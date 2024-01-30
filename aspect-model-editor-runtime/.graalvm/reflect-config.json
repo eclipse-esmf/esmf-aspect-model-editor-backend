@@ -7488,15 +7488,6 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.jsonb.JsonbAutoConfiguration",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
     "name": "org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener",
     "queryAllPublicConstructors": true,
     "methods": [
@@ -7528,15 +7519,6 @@
         "parameterTypes": []
       }
     ]
-  },
-  {
-    "name": "org.springframework.boot.autoconfigure.security.SecurityDataConfiguration",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.security.SecurityProperties",
@@ -7640,15 +7622,6 @@
   },
   {
     "name": "org.springframework.boot.autoconfigure.sql.init.DataSourceInitializationConfiguration",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "org.springframework.boot.autoconfigure.sql.init.R2dbcInitializationConfiguration",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -8915,13 +8888,6 @@
     ]
   },
   {
-    "name": "org.springframework.boot.loader.LaunchedURLClassLoader",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true
-  },
-  {
     "name": "org.springframework.boot.logging.java.JavaLoggingSystem$Factory",
     "queryAllPublicConstructors": true,
     "methods": [
@@ -10120,25 +10086,7 @@
     ]
   },
   {
-    "name": "org.springframework.http.ReactiveHttpInputMessage",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
     "name": "org.springframework.http.codec.CodecConfigurer",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "org.springframework.http.codec.multipart.DefaultPartHttpMessageReader",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -10380,15 +10328,6 @@
     ]
   },
   {
-    "name": "org.springframework.http.server.reactive.HttpHandler",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
     "name": "org.springframework.jmx.export.MBeanExporter",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
@@ -10596,15 +10535,6 @@
     "name": "org.springframework.security.authentication.ProviderManager",
     "allDeclaredFields": true,
     "queryAllDeclaredMethods": true
-  },
-  {
-    "name": "org.springframework.security.authentication.ReactiveAuthenticationManager",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
   },
   {
     "name": "org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent",
