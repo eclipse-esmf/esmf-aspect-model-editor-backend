@@ -1,82 +1,232 @@
 [
   {
-    "name": "[B"
+    "name": "[B",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[I"
+    "name": "[I",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Lcom.fasterxml.jackson.databind.deser.BeanDeserializerModifier;"
+    "name": "[Lcom.fasterxml.jackson.databind.deser.BeanDeserializerModifier;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Lcom.fasterxml.jackson.databind.deser.Deserializers;"
+    "name": "[Lcom.fasterxml.jackson.databind.deser.Deserializers;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Lcom.fasterxml.jackson.databind.deser.KeyDeserializers;"
+    "name": "[Lcom.fasterxml.jackson.databind.deser.KeyDeserializers;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Lcom.fasterxml.jackson.databind.deser.ValueInstantiators;"
+    "name": "[Lcom.fasterxml.jackson.databind.deser.ValueInstantiators;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Lcom.fasterxml.jackson.databind.ser.BeanSerializerModifier;"
+    "name": "[Lcom.fasterxml.jackson.databind.ser.BeanSerializerModifier;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Lcom.fasterxml.jackson.databind.ser.Serializers;"
+    "name": "[Lcom.fasterxml.jackson.databind.ser.Serializers;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Ljava.io.Serializable;"
+    "name": "[Ljava.io.Serializable;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Ljava.lang.CharSequence;"
+    "name": "[Ljava.lang.CharSequence;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Ljava.lang.Class;"
+    "name": "[Ljava.lang.Class;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Ljava.lang.Comparable;"
+    "name": "[Ljava.lang.Comparable;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Ljava.lang.Object;"
+    "name": "[Ljava.lang.Object;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Ljava.lang.String;"
+    "name": "[Ljava.lang.String;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Ljava.lang.annotation.Annotation;"
+    "name": "[Ljava.lang.annotation.Annotation;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Ljava.lang.constant.Constable;"
+    "name": "[Ljava.lang.constant.Constable;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Ljava.lang.constant.ConstantDesc;"
+    "name": "[Ljava.lang.constant.ConstantDesc;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Ljava.math.BigDecimal;"
+    "name": "[Ljava.math.BigDecimal;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Lorg.graphper.layout.dot.DNode;"
+    "name": "[Lorg.graphper.layout.dot.DNode;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Lorg.springframework.boot.context.config.ConfigDataLocation;"
+    "name": "[Lorg.springframework.boot.context.config.ConfigDataLocation;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Lorg.springframework.core.annotation.AnnotationAttributes;"
+    "name": "[Lorg.springframework.core.annotation.AnnotationAttributes;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Lorg.springframework.util.ConcurrentReferenceHashMap$Segment;"
+    "name": "[Lorg.springframework.util.ConcurrentReferenceHashMap$Segment;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Lorg.springframework.web.bind.annotation.RequestMethod;"
+    "name": "[Lorg.springframework.web.bind.annotation.RequestMethod;",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "[Z"
+    "name": "[Z",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "boolean",
     "queryAllDeclaredMethods": true
   },
   {
-    "name": "ch.qos.logback.classic.LoggerContext"
+    "name": "ch.qos.logback.classic.LoggerContext",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "ch.qos.logback.classic.pattern.DateConverter",
@@ -152,506 +302,318 @@
   },
   {
     "name": "com.fasterxml.jackson.annotation.JacksonAnnotation",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.annotation.JsonIgnoreProperties",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.annotation.JsonInclude",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "com.fasterxml.jackson.annotation.JsonInclude$Include"
+    "name": "com.fasterxml.jackson.annotation.JsonInclude$Include",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.annotation.JsonProperty",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "com.fasterxml.jackson.core.JsonGenerator"
+    "name": "com.fasterxml.jackson.core.JsonGenerator",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.core.ObjectCodec",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "getJsonFactory",
-        "parameterTypes": []
-      },
-      {
-        "name": "readValues",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonParser",
-          "com.fasterxml.jackson.core.type.ResolvedType"
-        ]
-      },
-      {
-        "name": "readValues",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonParser",
-          "com.fasterxml.jackson.core.type.TypeReference"
-        ]
-      },
-      {
-        "name": "readValues",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonParser",
-          "java.lang.Class"
-        ]
-      }
-    ]
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.core.TreeCodec",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.core.Versioned",
-    "queryAllDeclaredMethods": true,
-    "queryAllPublicMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.databind.Module",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "getDependencies",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.databind.ObjectMapper",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "createArrayNode",
-        "parameterTypes": []
-      },
-      {
-        "name": "createObjectNode",
-        "parameterTypes": []
-      },
-      {
-        "name": "getFactory",
-        "parameterTypes": []
-      },
-      {
-        "name": "missingNode",
-        "parameterTypes": []
-      },
-      {
-        "name": "nullNode",
-        "parameterTypes": []
-      },
-      {
-        "name": "readTree",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonParser"
-        ]
-      },
-      {
-        "name": "readValue",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonParser",
-          "com.fasterxml.jackson.core.type.ResolvedType"
-        ]
-      },
-      {
-        "name": "readValue",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonParser",
-          "com.fasterxml.jackson.core.type.TypeReference"
-        ]
-      },
-      {
-        "name": "readValue",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonParser",
-          "java.lang.Class"
-        ]
-      },
-      {
-        "name": "readValues",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonParser",
-          "com.fasterxml.jackson.core.type.ResolvedType"
-        ]
-      },
-      {
-        "name": "readValues",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonParser",
-          "com.fasterxml.jackson.core.type.TypeReference"
-        ]
-      },
-      {
-        "name": "readValues",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonParser",
-          "java.lang.Class"
-        ]
-      },
-      {
-        "name": "treeAsTokens",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.TreeNode"
-        ]
-      },
-      {
-        "name": "treeToValue",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.TreeNode",
-          "java.lang.Class"
-        ]
-      },
-      {
-        "name": "version",
-        "parameterTypes": []
-      },
-      {
-        "name": "writeTree",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonGenerator",
-          "com.fasterxml.jackson.core.TreeNode"
-        ]
-      },
-      {
-        "name": "writeValue",
-        "parameterTypes": [
-          "com.fasterxml.jackson.core.JsonGenerator",
-          "java.lang.Object"
-        ]
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "com.fasterxml.jackson.core.io.IOContext"
+    "name": "com.fasterxml.jackson.core.io.IOContext",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.core.base.GeneratorBase",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
-    "allPublicMethods": true
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.databind.ext.CoreXMLSerializers",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.databind.ext.Java7SupportImpl",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.databind.module.SimpleModule",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "addAbstractTypeMapping",
-        "parameterTypes": [
-          "java.lang.Class",
-          "java.lang.Class"
-        ]
-      },
-      {
-        "name": "addDeserializer",
-        "parameterTypes": [
-          "java.lang.Class",
-          "com.fasterxml.jackson.databind.JsonDeserializer"
-        ]
-      },
-      {
-        "name": "addKeyDeserializer",
-        "parameterTypes": [
-          "java.lang.Class",
-          "com.fasterxml.jackson.databind.KeyDeserializer"
-        ]
-      },
-      {
-        "name": "addKeySerializer",
-        "parameterTypes": [
-          "java.lang.Class",
-          "com.fasterxml.jackson.databind.JsonSerializer"
-        ]
-      },
-      {
-        "name": "addSerializer",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.JsonSerializer"
-        ]
-      },
-      {
-        "name": "addSerializer",
-        "parameterTypes": [
-          "java.lang.Class",
-          "com.fasterxml.jackson.databind.JsonSerializer"
-        ]
-      },
-      {
-        "name": "addValueInstantiator",
-        "parameterTypes": [
-          "java.lang.Class",
-          "com.fasterxml.jackson.databind.deser.ValueInstantiator"
-        ]
-      },
-      {
-        "name": "getModuleName",
-        "parameterTypes": []
-      },
-      {
-        "name": "getTypeId",
-        "parameterTypes": []
-      },
-      {
-        "name": "registerSubtypes",
-        "parameterTypes": [
-          "java.util.Collection"
-        ]
-      },
-      {
-        "name": "registerSubtypes",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.jsontype.NamedType[]"
-        ]
-      },
-      {
-        "name": "registerSubtypes",
-        "parameterTypes": [
-          "java.lang.Class[]"
-        ]
-      },
-      {
-        "name": "setAbstractTypes",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.module.SimpleAbstractTypeResolver"
-        ]
-      },
-      {
-        "name": "setDeserializerModifier",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.deser.BeanDeserializerModifier"
-        ]
-      },
-      {
-        "name": "setDeserializers",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.module.SimpleDeserializers"
-        ]
-      },
-      {
-        "name": "setKeyDeserializers",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.module.SimpleKeyDeserializers"
-        ]
-      },
-      {
-        "name": "setKeySerializers",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.module.SimpleSerializers"
-        ]
-      },
-      {
-        "name": "setMixInAnnotation",
-        "parameterTypes": [
-          "java.lang.Class",
-          "java.lang.Class"
-        ]
-      },
-      {
-        "name": "setSerializerModifier",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.ser.BeanSerializerModifier"
-        ]
-      },
-      {
-        "name": "setSerializers",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.module.SimpleSerializers"
-        ]
-      },
-      {
-        "name": "setValueInstantiators",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.module.SimpleValueInstantiators"
-        ]
-      },
-      {
-        "name": "setupModule",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.Module$SetupContext"
-        ]
-      },
-      {
-        "name": "version",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector"
+    "name": "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.dataformat.xml.XmlMapper",
-    "allDeclaredConstructors" : true,
-    "allPublicConstructors" : true,
-    "allDeclaredMethods" : true,
-    "allPublicMethods" : true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator",
-    "allDeclaredConstructors" : true,
-    "allPublicConstructors" : true,
-    "allDeclaredMethods" : true,
-    "allPublicMethods" : true,
-    "fields":[{"name":"_nextName"}]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.datatype.jdk8.Jdk8Module",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.fasterxml.jackson.datatype.jsr310.JavaTimeModule",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.BBHeader$ReadAndWriteCounterRef",
-    "fields": [
-      {
-        "name": "writeCounter"
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.BBHeader$ReadCounterRef",
-    "fields": [
-      {
-        "name": "readCounter"
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.BLCHeader$DrainStatusRef",
-    "fields": [
-      {
-        "name": "drainStatus"
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.BaseMpscLinkedArrayQueueColdProducerFields",
-    "fields": [
-      {
-        "name": "producerLimit"
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.BaseMpscLinkedArrayQueueConsumerFields",
-    "fields": [
-      {
-        "name": "consumerIndex"
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.BaseMpscLinkedArrayQueueProducerFields",
-    "fields": [
-      {
-        "name": "producerIndex"
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.BoundedLocalCache",
-    "fields": [
-      {
-        "name": "refreshes"
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "com.github.benmanes.caffeine.cache.Caffeine"
+    "name": "com.github.benmanes.caffeine.cache.Caffeine",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.PS",
-    "fields": [
-      {
-        "name": "key"
-      },
-      {
-        "name": "value"
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.PSMS",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.SSMS",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": [
-          "com.github.benmanes.caffeine.cache.Caffeine",
-          "com.github.benmanes.caffeine.cache.AsyncCacheLoader",
-          "boolean"
-        ]
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.StripedBuffer",
-    "fields": [
-      {
-        "name": "tableBusy"
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "com.github.jsonldjava.core.JsonLdProcessor"
+    "name": "com.github.jsonldjava.core.JsonLdProcessor",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "com.github.marschall.memoryfilesystem.FileSystemContext",
@@ -874,16 +836,40 @@
     "queryAllDeclaredConstructors": true
   },
   {
-    "name": "io.vavr.control.Try"
+    "name": "io.vavr.control.Try",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "jakarta.activation.MimeType"
+    "name": "jakarta.activation.MimeType",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "jakarta.annotation.ManagedBean"
+    "name": "jakarta.annotation.ManagedBean",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "jakarta.annotation.PostConstruct"
+    "name": "jakarta.annotation.PostConstruct",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "jakarta.annotation.PreDestroy",
@@ -958,10 +944,22 @@
     "queryAllPublicMethods": true
   },
   {
-    "name": "jakarta.servlet.ServletRegistration"
+    "name": "jakarta.servlet.ServletRegistration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "jakarta.servlet.ServletRequest"
+    "name": "jakarta.servlet.ServletRequest",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "jakarta.servlet.http.HttpServlet",
@@ -984,25 +982,67 @@
     ]
   },
   {
-    "name": "jakarta.servlet.http.PushBuilder"
+    "name": "jakarta.servlet.http.PushBuilder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "jakarta.validation.Validator"
+    "name": "jakarta.validation.Validator",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "jakarta.validation.ValidatorFactory"
+    "name": "jakarta.validation.ValidatorFactory",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "jakarta.validation.bootstrap.GenericBootstrap"
+    "name": "jakarta.validation.bootstrap.GenericBootstrap",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "jakarta.validation.executable.ExecutableValidator"
+    "name": "jakarta.validation.executable.ExecutableValidator",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "jakarta.websocket.server.ServerContainer"
+    "name": "jakarta.websocket.server.ServerContainer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "jakarta.xml.bind.Binder"
+    "name": "jakarta.xml.bind.Binder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.awt.Canvas",
@@ -1043,10 +1083,22 @@
     "queryAllPublicMethods": true
   },
   {
-    "name": "java.io.File"
+    "name": "java.io.File",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "java.io.FilePermission"
+    "name": "java.io.FilePermission",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.io.Serializable",
@@ -1175,7 +1227,13 @@
     "queryAllDeclaredMethods": true
   },
   {
-    "name": "java.lang.RuntimePermission"
+    "name": "java.lang.RuntimePermission",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.lang.StackWalker",
@@ -1195,7 +1253,13 @@
     ]
   },
   {
-    "name": "java.lang.StackWalker$Option"
+    "name": "java.lang.StackWalker$Option",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.lang.StackWalker$StackFrame",
@@ -1406,10 +1470,22 @@
     ]
   },
   {
-    "name": "java.net.NetPermission"
+    "name": "java.net.NetPermission",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "java.net.SocketPermission"
+    "name": "java.net.SocketPermission",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.net.URLClassLoader",
@@ -1471,28 +1547,76 @@
     "queryAllDeclaredMethods": true
   },
   {
-    "name": "java.nio.file.Path"
+    "name": "java.nio.file.Path",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "java.security.AlgorithmParametersSpi"
+    "name": "java.security.AlgorithmParametersSpi",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "java.security.AllPermission"
+    "name": "java.security.AllPermission",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "java.security.KeyStoreSpi"
+    "name": "java.security.KeyStoreSpi",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "java.security.SecureRandomParameters"
+    "name": "java.security.SecureRandomParameters",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "java.security.SecurityPermission"
+    "name": "java.security.SecurityPermission",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "java.sql.Date"
+    "name": "java.sql.Date",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "java.sql.DriverManager"
+    "name": "java.sql.DriverManager",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.util.AbstractCollection",
@@ -1526,7 +1650,13 @@
     "queryAllDeclaredMethods": true
   },
   {
-    "name": "java.util.Enumeration"
+    "name": "java.util.Enumeration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.util.HashSet",
@@ -1560,7 +1690,13 @@
     ]
   },
   {
-    "name": "java.util.PropertyPermission"
+    "name": "java.util.PropertyPermission",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.util.RandomAccess",
@@ -1582,17 +1718,35 @@
     ]
   },
   {
-    "name": "java.util.concurrent.Executor"
+    "name": "java.util.concurrent.Executor",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.util.concurrent.ThreadFactory",
     "queryAllPublicMethods": true
   },
   {
-    "name": "java.util.function.Consumer"
+    "name": "java.util.function.Consumer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "java.util.logging.LogManager"
+    "name": "java.util.logging.LogManager",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.util.logging.SimpleFormatter",
@@ -1604,7 +1758,13 @@
     ]
   },
   {
-    "name": "java.util.stream.Collector"
+    "name": "java.util.stream.Collector",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.util.stream.Collectors",
@@ -1627,10 +1787,22 @@
     ]
   },
   {
-    "name": "javax.naming.InitialContext"
+    "name": "javax.naming.InitialContext",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "javax.naming.ldap.LdapContext"
+    "name": "javax.naming.ldap.LdapContext",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "javax.security.auth.x500.X500Principal",
@@ -1649,7 +1821,13 @@
     ]
   },
   {
-    "name": "javax.sql.DataSource"
+    "name": "javax.sql.DataSource",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "javax.xml.datatype.Duration",
@@ -2519,7 +2697,13 @@
     ]
   },
   {
-    "name": "org.apache.catalina.startup.Tomcat"
+    "name": "org.apache.catalina.startup.Tomcat",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.apache.catalina.util.CharsetMapper",
@@ -2683,7 +2867,13 @@
     ]
   },
   {
-    "name": "org.apache.coyote.UpgradeProtocol"
+    "name": "org.apache.coyote.UpgradeProtocol",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.apache.coyote.http11.AbstractHttp11Protocol",
@@ -2699,7 +2889,13 @@
     "queryAllPublicMethods": true
   },
   {
-    "name": "org.apache.logging.log4j.spi.ExtendedLogger"
+    "name": "org.apache.logging.log4j.spi.ExtendedLogger",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.apache.logging.log4j.message.DefaultFlowMessageFactory",
@@ -2720,7 +2916,13 @@
     ]
   },
   {
-    "name": "org.apache.logging.slf4j.SLF4JProvider"
+    "name": "org.apache.logging.slf4j.SLF4JProvider",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.apache.tomcat.util.net.AbstractEndpoint",
@@ -2742,7 +2944,13 @@
     "queryAllDeclaredMethods": true
   },
   {
-    "name": "org.apache.tomcat.websocket.server.WsSci"
+    "name": "org.apache.tomcat.websocket.server.WsSci",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.apache.velocity.app.event.implement.EscapeHtmlReference",
@@ -3299,7 +3507,7 @@
     "allPublicFields": true
   },
   {
-    "name" : "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlSerializer",
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlSerializer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -5902,7 +6110,13 @@
     ]
   },
   {
-    "name": "org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel"
+    "name": "org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator",
@@ -6159,13 +6373,31 @@
     "allDeclaredFields": true
   },
   {
-    "name": "org.slf4j.Logger"
+    "name": "org.slf4j.Logger",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.slf4j.bridge.SLF4JBridgeHandler"
+    "name": "org.slf4j.bridge.SLF4JBridgeHandler",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.slf4j.spi.LocationAwareLogger"
+    "name": "org.slf4j.spi.LocationAwareLogger",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.aop.framework.AopInfrastructureBean",
@@ -6710,7 +6942,13 @@
     "queryAllDeclaredMethods": true
   },
   {
-    "name": "org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication$Type"
+    "name": "org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication$Type",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.condition.OnBeanCondition",
@@ -6764,7 +7002,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.condition.SearchStrategy"
+    "name": "org.springframework.boot.autoconfigure.condition.SearchStrategy",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration",
@@ -6969,7 +7213,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration$HttpMessageConvertersAutoConfigurationRuntimeHints"
+    "name": "org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration$HttpMessageConvertersAutoConfigurationRuntimeHints",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration$NotReactiveWebApplicationCondition",
@@ -7047,7 +7297,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.http.JsonbHttpMessageConvertersConfiguration"
+    "name": "org.springframework.boot.autoconfigure.http.JsonbHttpMessageConvertersConfiguration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration",
@@ -7106,9 +7362,15 @@
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
     "allPublicMethods": true,
-    "methods":[
-      {"name":"<init>","parameterTypes":[] },
-      {"name":"jsonComponentModule","parameterTypes":[] }
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      },
+      {
+        "name": "jsonComponentModule",
+        "parameterTypes": []
+      }
     ]
   },
   {
@@ -7226,7 +7488,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.jsonb.JsonbAutoConfiguration"
+    "name": "org.springframework.boot.autoconfigure.jsonb.JsonbAutoConfiguration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.logging.ConditionEvaluationReportLoggingListener",
@@ -7262,7 +7530,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.security.SecurityDataConfiguration"
+    "name": "org.springframework.boot.autoconfigure.security.SecurityDataConfiguration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.security.SecurityProperties",
@@ -7365,10 +7639,22 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.sql.init.DataSourceInitializationConfiguration"
+    "name": "org.springframework.boot.autoconfigure.sql.init.DataSourceInitializationConfiguration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.springframework.boot.autoconfigure.sql.init.R2dbcInitializationConfiguration"
+    "name": "org.springframework.boot.autoconfigure.sql.init.R2dbcInitializationConfiguration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.sql.init.SqlInitializationAutoConfiguration",
@@ -7483,7 +7769,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration"
+    "name": "org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.validation.ValidatorAdapter",
@@ -7558,7 +7850,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.web.WebResourcesRuntimeHints"
+    "name": "org.springframework.boot.autoconfigure.web.WebResourcesRuntimeHints",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration",
@@ -7582,7 +7880,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.web.client.RestTemplateBuilderConfigurer"
+    "name": "org.springframework.boot.autoconfigure.web.client.RestTemplateBuilderConfigurer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration",
@@ -7868,7 +8172,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryConfiguration$EmbeddedJetty"
+    "name": "org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryConfiguration$EmbeddedJetty",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryConfiguration$EmbeddedTomcat",
@@ -7891,7 +8201,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryConfiguration$EmbeddedUndertow"
+    "name": "org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryConfiguration$EmbeddedUndertow",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryCustomizer",
@@ -8740,7 +9056,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.web.client.RestTemplateBuilder"
+    "name": "org.springframework.boot.web.client.RestTemplateBuilder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.web.context.ServerPortInfoApplicationContextInitializer",
@@ -9077,7 +9399,13 @@
     ]
   },
   {
-    "name": "org.springframework.boot.web.servlet.FilterRegistrationBean"
+    "name": "org.springframework.boot.web.servlet.FilterRegistrationBean",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.boot.web.servlet.RegistrationBean",
@@ -9362,16 +9690,40 @@
     ]
   },
   {
-    "name": "org.springframework.boot.web.servlet.server.ServletWebServerFactory"
+    "name": "org.springframework.boot.web.servlet.server.ServletWebServerFactory",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.springframework.cache.Cache"
+    "name": "org.springframework.cache.Cache",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.springframework.cache.CacheManager"
+    "name": "org.springframework.cache.CacheManager",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.springframework.cache.interceptor.CacheAspectSupport"
+    "name": "org.springframework.cache.interceptor.CacheAspectSupport",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.context.ApplicationContext",
@@ -9554,7 +9906,13 @@
     "queryAllDeclaredMethods": true
   },
   {
-    "name": "org.springframework.context.support.PropertySourcesPlaceholderConfigurer"
+    "name": "org.springframework.context.support.PropertySourcesPlaceholderConfigurer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.core.Ordered",
@@ -9762,13 +10120,31 @@
     ]
   },
   {
-    "name": "org.springframework.http.ReactiveHttpInputMessage"
+    "name": "org.springframework.http.ReactiveHttpInputMessage",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.springframework.http.codec.CodecConfigurer"
+    "name": "org.springframework.http.codec.CodecConfigurer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.springframework.http.codec.multipart.DefaultPartHttpMessageReader"
+    "name": "org.springframework.http.codec.multipart.DefaultPartHttpMessageReader",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.http.converter.AbstractGenericHttpMessageConverter",
@@ -9972,7 +10348,13 @@
     ]
   },
   {
-    "name": "org.springframework.http.converter.json.GsonHttpMessageConverter"
+    "name": "org.springframework.http.converter.json.GsonHttpMessageConverter",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.http.converter.json.Jackson2ObjectMapperBuilder",
@@ -9998,10 +10380,22 @@
     ]
   },
   {
-    "name": "org.springframework.http.server.reactive.HttpHandler"
+    "name": "org.springframework.http.server.reactive.HttpHandler",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.springframework.jmx.export.MBeanExporter"
+    "name": "org.springframework.jmx.export.MBeanExporter",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.scheduling.SchedulingTaskExecutor",
@@ -10097,7 +10491,13 @@
     "queryAllDeclaredMethods": true
   },
   {
-    "name": "org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler"
+    "name": "org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.security.access.expression.AbstractSecurityExpressionHandler",
@@ -10175,7 +10575,13 @@
     "queryAllPublicMethods": true
   },
   {
-    "name": "org.springframework.security.authentication.AuthenticationManagerResolver"
+    "name": "org.springframework.security.authentication.AuthenticationManagerResolver",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.security.authentication.AuthenticationProvider",
@@ -10192,7 +10598,13 @@
     "queryAllDeclaredMethods": true
   },
   {
-    "name": "org.springframework.security.authentication.ReactiveAuthenticationManager"
+    "name": "org.springframework.security.authentication.ReactiveAuthenticationManager",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent",
@@ -10786,10 +11198,22 @@
     ]
   },
   {
-    "name": "org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity"
+    "name": "org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.springframework.security.config.http.SessionCreationPolicy"
+    "name": "org.springframework.security.config.http.SessionCreationPolicy",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.security.context.DelegatingApplicationListener",
@@ -10801,7 +11225,13 @@
     "queryAllPublicMethods": true
   },
   {
-    "name": "org.springframework.security.core.userdetails.UserDetailsService"
+    "name": "org.springframework.security.core.userdetails.UserDetailsService",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.security.provisioning.InMemoryUserDetailsManager",
@@ -10923,7 +11353,13 @@
     "queryAllPublicMethods": true
   },
   {
-    "name": "org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer"
+    "name": "org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.security.web.context.SecurityContextHolderFilter",
@@ -11133,10 +11569,22 @@
     "queryAllDeclaredMethods": true
   },
   {
-    "name": "org.springframework.web.client.RestTemplate"
+    "name": "org.springframework.web.client.RestTemplate",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.springframework.web.context.ConfigurableWebApplicationContext"
+    "name": "org.springframework.web.context.ConfigurableWebApplicationContext",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.web.context.ServletContextAware",
@@ -11144,10 +11592,22 @@
     "queryAllPublicMethods": true
   },
   {
-    "name": "org.springframework.web.context.request.RequestContextListener"
+    "name": "org.springframework.web.context.request.RequestContextListener",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.springframework.web.context.support.GenericWebApplicationContext"
+    "name": "org.springframework.web.context.support.GenericWebApplicationContext",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.web.context.support.WebApplicationObjectSupport",
@@ -11326,7 +11786,13 @@
     "queryAllPublicMethods": true
   },
   {
-    "name": "org.springframework.web.multipart.MultipartFile"
+    "name": "org.springframework.web.multipart.MultipartFile",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.springframework.web.multipart.MultipartResolver",
