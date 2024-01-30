@@ -332,6 +332,18 @@
     ]
   },
   {
+    "name": "com.fasterxml.jackson.core.io.IOContext"
+  },
+  {
+    "name": "com.fasterxml.jackson.core.base.GeneratorBase",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": ["int", "com.fasterxml.jackson.core.ObjectCodec", "com.fasterxml.jackson.core.io.IOContext"]
+      }
+    ]
+  },
+  {
     "name": "com.fasterxml.jackson.databind.ext.CoreXMLSerializers",
     "methods": [
       {
@@ -505,15 +517,21 @@
     ]
   },
   {
-    "name": "com.fasterxml.jackson.dataformat.xml.XmlMapper"
+    "name": "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector"
+  },
+  {
+    "name": "com.fasterxml.jackson.dataformat.xml.XmlMapper",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true
   },
   {
     "name": "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator",
-    "fields": [
-      {
-        "name": "_nextName"
-      }
-    ]
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true
   },
   {
     "name": "com.fasterxml.jackson.datatype.jdk8.Jdk8Module",
@@ -535,16 +553,10 @@
   },
   {
     "name": "com.fasterxml.jackson.module.paramnames.ParameterNamesModule",
-    "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "setupModule",
-        "parameterTypes": [
-          "com.fasterxml.jackson.databind.Module$SetupContext"
-        ]
-      }
-    ]
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true
   },
   {
     "name": "com.github.benmanes.caffeine.cache.BBHeader$ReadAndWriteCounterRef",
@@ -2698,6 +2710,24 @@
     "name": "org.apache.logging.log4j.spi.ExtendedLogger"
   },
   {
+    "name": "org.apache.logging.log4j.message.DefaultFlowMessageFactory",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "org.apache.logging.log4j.message.ParameterizedMessageFactory",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
     "name": "org.apache.logging.slf4j.SLF4JProvider"
   },
   {
@@ -3007,6 +3037,15 @@
     ]
   },
   {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper",
+    "allPublicMethods": true,
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.core.serialization.EnumSerializer",
     "methods": [
       {
@@ -3049,9 +3088,6 @@
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.HasDataSpecificationMixin"
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.HasExtensionsMixin"
-  },
-  {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.HasSemanticsMixin"
   },
   {
@@ -3088,7 +3124,7 @@
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.RelationshipElementMixin"
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SpecificAssetIDMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SpecificAssetIdMixin"
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SubmodelElementCollectionMixin"
@@ -3097,7 +3133,44 @@
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SubmodelElementListMixin"
   },
   {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SubmodelMixin"
+  },
+  {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.ValueReferencePairMixin"
+  },
+  {
+    "name" : "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlSerializer",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.cl",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlDeserializer",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlSchemaValidator",
+    "allDeclaredConstructors" : true,
+    "allPublicConstructors" : true,
+    "allDeclaredMethods" : true,
+    "allPublicMethods" : true,
+    "allDeclaredFields" : true,
+    "allPublicFields" : true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.AdministrativeInformationMixin",
@@ -3134,6 +3207,10 @@
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ExtensionMixin"
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.LevelTypeMixin",
+    "queryAllDeclaredMethods": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.HasDataSpecificationMixin",
@@ -3183,7 +3260,7 @@
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ResourceMixin"
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.SpecificAssetIDMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.SpecificAssetIdMixin"
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.SubmodelElementCollectionMixin"
@@ -3216,60 +3293,48 @@
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.LangStringsDefinitionTypeIec61360Serializer",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.LangStringsNameTypeSerializer",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.LangStringsPreferredNameTypeIec61360Serializer",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.LangStringsShortNameTypeIec61360Serializer",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.LangStringsTextTypeSerializer",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.SubmodelElementsSerializer",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.AASSubmodelElements"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements"
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.AbstractLangString"
@@ -3318,7 +3383,7 @@
     "queryAllDeclaredMethods": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXSD"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd"
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.DataTypeIec61360"
@@ -3446,7 +3511,7 @@
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.Resource"
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetID"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId"
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.StateOfEvent"
@@ -3464,6 +3529,9 @@
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList"
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ModelType"
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.ValueList"
@@ -3490,7 +3558,7 @@
         "parameterTypes": []
       },
       {
-        "name": "getTemplateID",
+        "name": "getTemplateId",
         "parameterTypes": []
       },
       {
@@ -3582,7 +3650,7 @@
         "parameterTypes": []
       },
       {
-        "name": "getGlobalAssetID",
+        "name": "getGlobalAssetId",
         "parameterTypes": []
       },
       {
@@ -3698,7 +3766,7 @@
         "parameterTypes": []
       },
       {
-        "name": "getUnitID",
+        "name": "getUnitId",
         "parameterTypes": []
       },
       {
@@ -3878,7 +3946,7 @@
         "parameterTypes": []
       },
       {
-        "name": "getSemanticID",
+        "name": "getSemanticId",
         "parameterTypes": []
       },
       {
@@ -3890,7 +3958,7 @@
         "parameterTypes": []
       },
       {
-        "name": "getValueID",
+        "name": "getValueId",
         "parameterTypes": []
       },
       {
@@ -3925,7 +3993,7 @@
         "parameterTypes": []
       },
       {
-        "name": "getReferredSemanticID",
+        "name": "getReferredSemanticId",
         "parameterTypes": []
       },
       {
@@ -3956,10 +4024,10 @@
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource$Builder"
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId"
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetID$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId$Builder"
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel",
@@ -4008,7 +4076,7 @@
         "parameterTypes": []
       },
       {
-        "name": "getSemanticID",
+        "name": "getSemanticId",
         "parameterTypes": []
       },
       {
@@ -6241,19 +6309,10 @@
   },
   {
     "name": "org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration",
-    "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllDeclaredConstructors": true,
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      },
-      {
-        "name": "jsonComponentModule",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
   },
   {
     "name": "org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration$Jackson2ObjectMapperBuilderCustomizerConfiguration",
@@ -7744,12 +7803,10 @@
   },
   {
     "name": "org.springframework.boot.loader.LaunchedURLClassLoader",
-    "methods": [
-      {
-        "name": "clearCache",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true
   },
   {
     "name": "org.springframework.boot.logging.java.JavaLoggingSystem$Factory",
