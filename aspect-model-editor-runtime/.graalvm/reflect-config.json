@@ -3030,1074 +3030,1884 @@
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper",
-    "allPublicMethods": true,
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
     "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.core.serialization.EnumSerializer",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.AnnotatedRelationshipElementMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.AnnotatedRelationshipElementMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.AssetAdministrationShellMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.AssetAdministrationShellMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.AssetInformationMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.AssetInformationMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.BlobMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.BlobMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.ConceptDescriptionMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.ConceptDescriptionMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.DataSpecificationIec61360Mixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.DataSpecificationIec61360Mixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.EntityMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.EntityMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.EnvironmentMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.EnvironmentMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.ExtensionMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.ExtensionMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.FileMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.FileMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.HasDataSpecificationMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.HasDataSpecificationMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.HasSemanticsMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.HasSemanticsMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.IdentifiableMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.IdentifiableMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.KeyMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.KeyMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.MultiLanguagePropertyMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.MultiLanguagePropertyMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.OperationMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.OperationMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.OperationVariableMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.OperationVariableMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.PropertyMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.PropertyMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.QualifierMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.QualifierMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.RangeMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.RangeMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.ReferableMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.ReferableMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.ReferenceMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.ReferenceMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.RelationshipElementMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.RelationshipElementMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SpecificAssetIdMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SpecificAssetIdMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SubmodelElementCollectionMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SubmodelElementCollectionMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SubmodelElementListMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SubmodelElementListMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SubmodelMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.SubmodelMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.ValueReferencePairMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.mixins.ValueReferencePairMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name" : "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlSerializer",
-    "allDeclaredConstructors" : true,
-    "allPublicConstructors" : true,
-    "allDeclaredMethods" : true,
-    "allPublicMethods" : true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlDeserializer",
-    "allDeclaredConstructors" : true,
-    "allPublicConstructors" : true,
-    "allDeclaredMethods" : true,
-    "allPublicMethods" : true,
-    "allDeclaredFields" : true,
-    "allPublicFields" : true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlSchemaValidator",
-    "allDeclaredConstructors" : true,
-    "allPublicConstructors" : true,
-    "allDeclaredMethods" : true,
-    "allPublicMethods" : true,
-    "allDeclaredFields" : true,
-    "allPublicFields" : true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.AdministrativeInformationMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.AnnotatedRelationshipElementMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.AnnotatedRelationshipElementMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.AssetAdministrationShellMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.AssetInformationMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ConceptDescriptionMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.DataSpecificationIec61360Mixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.EmbeddedDataSpecificationMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.EntityMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.EntityMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.EnvironmentMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.EnvironmentMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ExtensionMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ExtensionMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.LevelTypeMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.HasDataSpecificationMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.HasExtensionsMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.HasSemanticsMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.KeyMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.MultiLanguagePropertyMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.MultiLanguagePropertyMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.OperationMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.OperationMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.OperationVariableMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.OperationVariableMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.PropertyMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.QualifiableMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.QualifierMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.QualifierMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ReferableMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ReferenceMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ResourceMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ResourceMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.SpecificAssetIdMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.SpecificAssetIdMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.SubmodelElementCollectionMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.SubmodelElementCollectionMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.SubmodelElementListMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.SubmodelElementListMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.SubmodelElementMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.SubmodelMixin",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ValueListMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ValueListMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ValueReferencePairMixin"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.mixins.ValueReferencePairMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.EmbeddedDataSpecificationSerializer",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.LangStringsDefinitionTypeIec61360Serializer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
-    "allPublicMethods": true
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.LangStringsNameTypeSerializer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
-    "allPublicMethods": true
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.LangStringsPreferredNameTypeIec61360Serializer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
-    "allPublicMethods": true
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.LangStringsShortNameTypeIec61360Serializer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
-    "allPublicMethods": true
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.LangStringsTextTypeSerializer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
-    "allPublicMethods": true
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.serialization.SubmodelElementsSerializer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
-    "allPublicMethods": true
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.AasSubmodelElements",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.AbstractLangString"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.AbstractLangString",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.AdministrativeInformation",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.AnnotatedRelationshipElement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.AssetAdministrationShell",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.AssetInformation",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.AssetKind"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.AssetKind",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.BasicEventElement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Blob"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Blob",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Capability"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Capability",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.ConceptDescription",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.DataElement",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationContent",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.DataSpecificationIec61360",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.DataTypeDefXsd",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.DataTypeIec61360"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.DataTypeIec61360",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Direction"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Direction",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.EmbeddedDataSpecification",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Entity"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Entity",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.EntityType"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.EntityType",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Environment"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Environment",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.EventElement"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.EventElement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.EventPayload"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.EventPayload",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Extension"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Extension",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.File"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.File",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.HasDataSpecification",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.HasExtensions",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.HasKind",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.HasSemantics",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.Identifiable",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.Key",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.KeyTypes",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LangStringDefinitionTypeIec61360"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LangStringDefinitionTypeIec61360",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LangStringNameType",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LangStringPreferredNameTypeIec61360"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LangStringPreferredNameTypeIec61360",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LangStringShortNameTypeIec61360"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LangStringShortNameTypeIec61360",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LangStringTextType",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LevelType"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.LevelType",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ModellingKind",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.MultiLanguageProperty",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Operation"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Operation",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.OperationVariable",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.Property",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.Qualifiable",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Qualifier"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Qualifier",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.QualifierKind",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Range"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Range",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.Referable",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.Reference",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ReferenceElement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ReferenceTypes",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.RelationshipElement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Resource"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.Resource",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.SpecificAssetId",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.StateOfEvent"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.StateOfEvent",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.Submodel",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElement",
-    "queryAllDeclaredMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementCollection",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.SubmodelElementList",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ModelType"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ModelType",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ValueList"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ValueList",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.ValueReferencePair",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllDeclaredConstructors": true,
-    "methods": [
-      {
-        "name": "getCreator",
-        "parameterTypes": []
-      },
-      {
-        "name": "getEmbeddedDataSpecifications",
-        "parameterTypes": []
-      },
-      {
-        "name": "getRevision",
-        "parameterTypes": []
-      },
-      {
-        "name": "getTemplateId",
-        "parameterTypes": []
-      },
-      {
-        "name": "getVersion",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAdministrativeInformation$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAnnotatedRelationshipElement$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllDeclaredConstructors": true,
-    "methods": [
-      {
-        "name": "getAdministration",
-        "parameterTypes": []
-      },
-      {
-        "name": "getAssetInformation",
-        "parameterTypes": []
-      },
-      {
-        "name": "getCategory",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDerivedFrom",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDescription",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDisplayName",
-        "parameterTypes": []
-      },
-      {
-        "name": "getEmbeddedDataSpecifications",
-        "parameterTypes": []
-      },
-      {
-        "name": "getExtensions",
-        "parameterTypes": []
-      },
-      {
-        "name": "getId",
-        "parameterTypes": []
-      },
-      {
-        "name": "getIdShort",
-        "parameterTypes": []
-      },
-      {
-        "name": "getSubmodels",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetAdministrationShell$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetInformation",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllDeclaredConstructors": true,
-    "methods": [
-      {
-        "name": "getAssetKind",
-        "parameterTypes": []
-      },
-      {
-        "name": "getAssetType",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDefaultThumbnail",
-        "parameterTypes": []
-      },
-      {
-        "name": "getGlobalAssetId",
-        "parameterTypes": []
-      },
-      {
-        "name": "getSpecificAssetIds",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetInformation$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultAssetInformation$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBasicEventElement"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBasicEventElement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBasicEventElement$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBasicEventElement$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBlob$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultCapability"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultCapability",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultCapability$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultCapability$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllDeclaredConstructors": true,
-    "methods": [
-      {
-        "name": "getAdministration",
-        "parameterTypes": []
-      },
-      {
-        "name": "getCategory",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDescription",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDisplayName",
-        "parameterTypes": []
-      },
-      {
-        "name": "getEmbeddedDataSpecifications",
-        "parameterTypes": []
-      },
-      {
-        "name": "getExtensions",
-        "parameterTypes": []
-      },
-      {
-        "name": "getId",
-        "parameterTypes": []
-      },
-      {
-        "name": "getIdShort",
-        "parameterTypes": []
-      },
-      {
-        "name": "getIsCaseOf",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultConceptDescription$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllDeclaredConstructors": true,
-    "methods": [
-      {
-        "name": "getDataType",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDefinition",
-        "parameterTypes": []
-      },
-      {
-        "name": "getLevelType",
-        "parameterTypes": []
-      },
-      {
-        "name": "getPreferredName",
-        "parameterTypes": []
-      },
-      {
-        "name": "getShortName",
-        "parameterTypes": []
-      },
-      {
-        "name": "getSourceOfDefinition",
-        "parameterTypes": []
-      },
-      {
-        "name": "getSymbol",
-        "parameterTypes": []
-      },
-      {
-        "name": "getUnit",
-        "parameterTypes": []
-      },
-      {
-        "name": "getUnitId",
-        "parameterTypes": []
-      },
-      {
-        "name": "getValue",
-        "parameterTypes": []
-      },
-      {
-        "name": "getValueFormat",
-        "parameterTypes": []
-      },
-      {
-        "name": "getValueList",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultDataSpecificationIec61360$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEmbeddedDataSpecification",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllDeclaredConstructors": true,
-    "methods": [
-      {
-        "name": "getDataSpecification",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDataSpecificationContent",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEmbeddedDataSpecification$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEmbeddedDataSpecification$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEntity"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEntity",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEntity$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEntity$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEnvironment$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEventPayload"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEventPayload",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEventPayload$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultEventPayload$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultExtension$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultFile$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllDeclaredConstructors": true,
-    "methods": [
-      {
-        "name": "getType",
-        "parameterTypes": []
-      },
-      {
-        "name": "getValue",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultKey$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringDefinitionTypeIec61360"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringDefinitionTypeIec61360",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringDefinitionTypeIec61360$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringDefinitionTypeIec61360$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringNameType$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringPreferredNameTypeIec61360",
-    "allDeclaredFields": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringPreferredNameTypeIec61360$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringPreferredNameTypeIec61360$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringShortNameTypeIec61360",
-    "allDeclaredFields": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringShortNameTypeIec61360$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringShortNameTypeIec61360$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType",
-    "allDeclaredFields": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLangStringTextType$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLevelType"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLevelType",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLevelType$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultLevelType$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMultiLanguageProperty"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMultiLanguageProperty",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMultiLanguageProperty$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultMultiLanguageProperty$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperation$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultOperationVariable$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllDeclaredConstructors": true,
-    "methods": [
-      {
-        "name": "getCategory",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDescription",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDisplayName",
-        "parameterTypes": []
-      },
-      {
-        "name": "getEmbeddedDataSpecifications",
-        "parameterTypes": []
-      },
-      {
-        "name": "getExtensions",
-        "parameterTypes": []
-      },
-      {
-        "name": "getIdShort",
-        "parameterTypes": []
-      },
-      {
-        "name": "getQualifiers",
-        "parameterTypes": []
-      },
-      {
-        "name": "getSemanticId",
-        "parameterTypes": []
-      },
-      {
-        "name": "getSupplementalSemanticIds",
-        "parameterTypes": []
-      },
-      {
-        "name": "getValue",
-        "parameterTypes": []
-      },
-      {
-        "name": "getValueId",
-        "parameterTypes": []
-      },
-      {
-        "name": "getValueType",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultProperty$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultQualifier"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultQualifier",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultQualifier$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultQualifier$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRange$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllDeclaredConstructors": true,
-    "methods": [
-      {
-        "name": "getKeys",
-        "parameterTypes": []
-      },
-      {
-        "name": "getReferredSemanticId",
-        "parameterTypes": []
-      },
-      {
-        "name": "getType",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReference$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReferenceElement"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReferenceElement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReferenceElement$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultReferenceElement$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultRelationshipElement$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultResource$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSpecificAssetId$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllDeclaredConstructors": true,
-    "methods": [
-      {
-        "name": "getAdministration",
-        "parameterTypes": []
-      },
-      {
-        "name": "getCategory",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDescription",
-        "parameterTypes": []
-      },
-      {
-        "name": "getDisplayName",
-        "parameterTypes": []
-      },
-      {
-        "name": "getEmbeddedDataSpecifications",
-        "parameterTypes": []
-      },
-      {
-        "name": "getExtensions",
-        "parameterTypes": []
-      },
-      {
-        "name": "getId",
-        "parameterTypes": []
-      },
-      {
-        "name": "getIdShort",
-        "parameterTypes": []
-      },
-      {
-        "name": "getKind",
-        "parameterTypes": []
-      },
-      {
-        "name": "getQualifiers",
-        "parameterTypes": []
-      },
-      {
-        "name": "getSemanticId",
-        "parameterTypes": []
-      },
-      {
-        "name": "getSubmodelElements",
-        "parameterTypes": []
-      },
-      {
-        "name": "getSupplementalSemanticIds",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementCollection$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelElementList$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueList$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair$Builder"
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultValueReferencePair$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.esmf.ame.Application",
