@@ -552,13 +552,6 @@
     ]
   },
   {
-    "name": "com.fasterxml.jackson.module.paramnames.ParameterNamesModule",
-    "allDeclaredConstructors" : true,
-    "allPublicConstructors" : true,
-    "allDeclaredMethods" : true,
-    "allPublicMethods" : true
-  },
-  {
     "name": "com.github.benmanes.caffeine.cache.BBHeader$ReadAndWriteCounterRef",
     "fields": [
       {
@@ -3144,15 +3137,6 @@
     "allPublicConstructors" : true,
     "allDeclaredMethods" : true,
     "allPublicMethods" : true
-  },
-  {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.cl",
-    "allDeclaredConstructors" : true,
-    "allPublicConstructors" : true,
-    "allDeclaredMethods" : true,
-    "allPublicMethods" : true,
-    "allDeclaredFields" : true,
-    "allPublicFields" : true
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.XmlDeserializer",
