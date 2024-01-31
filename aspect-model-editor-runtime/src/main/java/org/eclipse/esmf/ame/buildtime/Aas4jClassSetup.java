@@ -39,14 +39,11 @@ import io.github.classgraph.ClassInfoList;
 import io.github.classgraph.ScanResult;
 
 /**
- * This class generates the reflection information normally stored by {@link ReflectionHelper} and serializes it into a
- * .properties file.
+ * This class generates the reflection information normally stored by {@link ReflectionHelper} and serializes it into a .properties file.
  * It is part of the substitution logic for this class, see
  * {@link Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_ReflectionHelper} for more information.
- * Note that this class is <i>only</i> supposed to run at build time (via execution from the Maven build) and is not
- * part of the
- * resulting CLI codebase. Running this class is configured in the pom.xml of the CLI Maven module (via
- * exec-maven-plugin).
+ * Note that this class is <i>only</i> supposed to run at build time (via execution from the Maven build) and is not part of the
+ * resulting CLI codebase. Running this class is configured in the pom.xml of the CLI Maven module (via exec-maven-plugin).
  */
 public class Aas4jClassSetup {
    private final AdminShellConfig config;
@@ -55,9 +52,9 @@ public class Aas4jClassSetup {
       // The following replicates the logic from ReflectionHelper's static constructor, but instead stores its result
       // in the AdminShellConfig object that can then be written to a .properties file
       final ScanResult modelScan = new ClassGraph()
-            .enableClassInfo()
-            .acceptPackagesNonRecursive( MODEL_PACKAGE_NAME )
-            .scan();
+              .enableClassInfo()
+              .acceptPackagesNonRecursive( MODEL_PACKAGE_NAME )
+              .scan();
       config = new AdminShellConfig();
       config.typesWithModelType = scanModelTypes( modelScan );
       config.subtypes = scanSubtypes( modelScan );
@@ -90,9 +87,8 @@ public class Aas4jClassSetup {
    private Set<Class<?>> scanModelTypes( final ScanResult modelScan ) {
       final Set<Class<?>> typesWithModelTypes;
       typesWithModelTypes = MODEL_TYPE_SUPERCLASSES.stream()
-                                                   .flatMap( x -> modelScan.getClassesImplementing( x.getName() )
-                                                                           .loadClasses().stream() )
-                                                   .collect( Collectors.toSet() );
+              .flatMap( x -> modelScan.getClassesImplementing( x.getName() ).loadClasses().stream() )
+              .collect( Collectors.toSet() );
       typesWithModelTypes.addAll( MODEL_TYPE_SUPERCLASSES );
       return typesWithModelTypes;
    }
@@ -102,8 +98,8 @@ public class Aas4jClassSetup {
     */
    private Map<Class<?>, Set<Class<?>>> scanSubtypes( final ScanResult modelScan ) {
       return modelScan.getAllInterfaces().stream()
-                      .filter( this::hasSubclass )
-                      .collect( Collectors.toMap( ClassInfo::loadClass, this::getSubclasses ) );
+              .filter( this::hasSubclass )
+              .collect( Collectors.toMap( ClassInfo::loadClass, this::getSubclasses ) );
    }
 
    /**
@@ -111,9 +107,9 @@ public class Aas4jClassSetup {
     */
    private Set<Class<?>> getSubclasses( final ClassInfo clazzInfo ) {
       return new HashSet<>( clazzInfo.getClassesImplementing()
-                                     .directOnly()
-                                     .filter( ClassInfo::isInterface )
-                                     .loadClasses() );
+              .directOnly()
+              .filter( ClassInfo::isInterface )
+              .loadClasses() );
    }
 
    /**
@@ -121,22 +117,20 @@ public class Aas4jClassSetup {
     */
    private Map<Class<?>, Class<?>> scanMixins( final ScanResult modelScan, final String packageName ) {
       final ScanResult mixinScan = new ClassGraph()
-            .enableClassInfo()
-            .acceptPackagesNonRecursive( packageName )
-            .scan();
+              .enableClassInfo()
+              .acceptPackagesNonRecursive( packageName )
+              .scan();
       final Map<Class<?>, Class<?>> mixins = new HashMap<>();
       mixinScan.getAllClasses()
-               .filter( x -> x.getSimpleName().endsWith( MIXIN_SUFFIX ) )
-               .loadClasses()
-               .forEach( x -> {
-                  final String modelClassName = x.getSimpleName()
-                                                 .substring( 0, x.getSimpleName().length() - MIXIN_SUFFIX.length() );
-                  final ClassInfoList modelClassInfos = modelScan.getAllClasses().filter(
-                        y -> Objects.equals( y.getSimpleName(), modelClassName ) );
-                  if ( !modelClassInfos.isEmpty() ) {
-                     mixins.put( modelClassInfos.get( 0 ).loadClass(), x );
-                  }
-               } );
+              .filter( x -> x.getSimpleName().endsWith( MIXIN_SUFFIX ) )
+              .loadClasses()
+              .forEach( x -> {
+                 final String modelClassName = x.getSimpleName().substring( 0, x.getSimpleName().length() - MIXIN_SUFFIX.length() );
+                 final ClassInfoList modelClassInfos = modelScan.getAllClasses().filter( y -> Objects.equals( y.getSimpleName(), modelClassName ) );
+                 if ( !modelClassInfos.isEmpty() ) {
+                    mixins.put( modelClassInfos.get( 0 ).loadClass(), x );
+                 }
+              } );
       return mixins;
    }
 
@@ -144,27 +138,23 @@ public class Aas4jClassSetup {
     * Logic duplicated from {@link ReflectionHelper#scanDefaultImplementations(ScanResult)}
     */
    private List<ReflectionHelper.ImplementationInfo> scanDefaultImplementations( final ScanResult modelScan ) {
-      final ScanResult defaulImplementationScan = new ClassGraph()
-            .enableClassInfo()
-            .acceptPackagesNonRecursive( DEFAULT_IMPLEMENTATION_PACKAGE_NAME )
-            .scan();
+      final ScanResult defaultImplementationScan = new ClassGraph()
+              .enableClassInfo()
+              .acceptPackagesNonRecursive( DEFAULT_IMPLEMENTATION_PACKAGE_NAME )
+              .scan();
       final List<ReflectionHelper.ImplementationInfo> defaultImplementations = new ArrayList<>();
-      defaulImplementationScan.getAllClasses()
-                              .filter( x -> x.getSimpleName().startsWith( DEFAULT_IMPLEMENTATION_PREFIX ) )
-                              .loadClasses()
-                              .forEach( x -> {
-                                 final String interfaceName = x.getSimpleName().substring(
-                                       DEFAULT_IMPLEMENTATION_PREFIX.length() );// using conventions
-                                 final ClassInfoList interfaceClassInfos = modelScan.getAllClasses()
-                                                                                    .filter( y -> y.isInterface()
-                                                                                          && Objects.equals(
-                                                                                          y.getSimpleName(),
-                                                                                          interfaceName ) );
-                                 if ( !interfaceClassInfos.isEmpty() ) {
-                                    final Class<?> implementedClass = interfaceClassInfos.get( 0 ).loadClass();
-                                    defaultImplementations.add( new ImplementationInfo( implementedClass, x ) );
-                                 }
-                              } );
+      defaultImplementationScan.getAllClasses()
+              .filter( x -> x.getSimpleName().startsWith( DEFAULT_IMPLEMENTATION_PREFIX ) )
+              .loadClasses()
+              .forEach( x -> {
+                 final String interfaceName = x.getSimpleName().substring( DEFAULT_IMPLEMENTATION_PREFIX.length() );// using conventions
+                 final ClassInfoList interfaceClassInfos = modelScan.getAllClasses()
+                         .filter( y -> y.isInterface() && Objects.equals( y.getSimpleName(), interfaceName ) );
+                 if ( !interfaceClassInfos.isEmpty() ) {
+                    final Class<?> implementedClass = interfaceClassInfos.get( 0 ).loadClass();
+                    defaultImplementations.add( new ImplementationInfo( implementedClass, x ) );
+                 }
+              } );
       return defaultImplementations;
    }
 
@@ -172,8 +162,7 @@ public class Aas4jClassSetup {
     * Logic duplicated from {@link ReflectionHelper#scanAasInterfaces()}
     */
    private Set<Class> scanAasInterfaces() {
-      return config.defaultImplementations.stream().map( ReflectionHelper.ImplementationInfo::getInterfaceType )
-                                          .collect( Collectors.toSet() );
+      return config.defaultImplementations.stream().map( ReflectionHelper.ImplementationInfo::getInterfaceType ).collect( Collectors.toSet() );
    }
 
    /**
@@ -181,8 +170,8 @@ public class Aas4jClassSetup {
     */
    private Set<Class<?>> getInterfacesWithoutDefaultImplementation( final ScanResult modelScan ) {
       return modelScan.getAllInterfaces().loadClasses().stream()
-                      .filter( x -> !hasDefaultImplementation( x ) )
-                      .collect( Collectors.toSet() );
+              .filter( x -> !hasDefaultImplementation( x ) )
+              .collect( Collectors.toSet() );
    }
 
    /**

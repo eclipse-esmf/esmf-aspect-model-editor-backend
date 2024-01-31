@@ -89,6 +89,37 @@
 
     <profiles>
         <profile>
+            <id>copy-font-configuration</id>
+            <activation>
+                <os>
+                    <family>windows</family>
+                </os>
+            </activation>
+            <build>
+                <plugins>
+                    <!-- Copy font configuration files from the GraalVM directory (pointed to by JAVA_HOME in native builds) to the output directory -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>wagon-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>copy-fontconfig-bfc</id>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>download-single</goal>
+                                </goals>
+                                <configuration>
+                                    <url>file://${env.JAVA_HOME}/lib</url>
+                                    <fromFile>fontconfig.bfc</fromFile>
+                                    <toFile>${project.build.outputDirectory}/fontconfig.bfc</toFile>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>native-image</id>
             <build>
                 <plugins>
@@ -147,12 +178,12 @@
                                 </buildArg>
                                 <buildArg>-J-Xmx8G</buildArg>
                                 <buildArg>-H:+ReportExceptionStackTraces</buildArg>
-                                <buildArg>
-                                    -H:ReflectionConfigurationFiles=${project.basedir}/.graalvm/reflect-config.json
-                                </buildArg>
-                                <buildArg>
-                                    -H:ResourceConfigurationFiles=${project.basedir}/.graalvm/resource-config.json
-                                </buildArg>
+                                <buildArg>-H:JNIConfigurationFiles=${project.basedir}/.graalvm/jni-config.json</buildArg>
+                                <buildArg>-H:ReflectionConfigurationFiles=${project.basedir}/.graalvm/reflect-config.json</buildArg>
+                                <buildArg>-H:DynamicProxyConfigurationFiles=${project.basedir}/.graalvm/proxy-config.json</buildArg>
+                                <buildArg>-H:ResourceConfigurationFiles=${project.basedir}/.graalvm/resource-config.json</buildArg>
+                                <buildArg>-H:SerializationConfigurationFiles=${project.basedir}/.graalvm/serialization-config.json</buildArg>
+
                             </buildArgs>
                         </configuration>
                     </plugin>

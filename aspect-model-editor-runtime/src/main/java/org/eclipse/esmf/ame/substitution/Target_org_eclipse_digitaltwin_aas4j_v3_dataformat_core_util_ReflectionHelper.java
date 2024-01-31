@@ -15,6 +15,7 @@ package org.eclipse.esmf.ame.substitution;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -32,8 +33,12 @@ import com.oracle.svm.core.annotate.TargetClass;
 /**
  * This is a <a href="https://build-native-java-apps.cc/developer-guide/substitution/">GraalVM substitution class</a>
  * for {@link ReflectionHelper}, the central point of reflection information of the io.admin-shell.aas library. The
- * original ReflectionHelper has a static constructor that initializes several maps and collections (using ClassGraph scans) that hold information
- * about implementations of interfaces etc.. For the build of the native image, this logic is replaced by the following logic:
+ * original
+ * ReflectionHelper
+ * has a static constructor that initializes several maps and collections (using ClassGraph scans) that hold information
+ * about
+ * implementations
+ * of interfaces etc.. For the build of the native image, this logic is replaced by the following logic:
  * <ol>
  *    <li>At build time, the {@link Aas4jClassSetup} is ran (as a standalone program).
  *    This creates an instance of {@link AdminShellConfig} which contains all the information extracted from the ClassGraph scans.</li>
@@ -135,8 +140,9 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    public static List<Class<Enum>> ENUMS;
 
    static {
-      try ( final InputStream input = Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_ReflectionHelper.class.getResourceAsStream(
-            "/adminshell.properties" ) ) {
+      try ( final InputStream input =
+            Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_ReflectionHelper.class.getResourceAsStream(
+                  "/adminshell.properties" ) ) {
          final Properties properties = new Properties();
          properties.load( input );
          final AdminShellConfig config = AdminShellConfig.fromProperties( properties );
@@ -251,4 +257,15 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
     */
    @KeepOriginal
    public static native void setEmptyListsToNull( Object element );
+
+   /**
+    * @param element @see ReflectionHelper#createResetRunnable(Object, Field)
+    * @param field @see ReflectionHelper#createResetRunnable(Object, Field)
+    * @return @see ReflectionHelper#createResetRunnable(Object, Field)
+    *
+    * @throws IllegalAccessException @see ReflectionHelper#createResetRunnable(Object, Field)
+    * @see ReflectionHelper#createResetRunnable(Object, Field)
+    */
+   @KeepOriginal
+   private static native Runnable createResetRunnable( Object element, Field field ) throws IllegalAccessException;
 }

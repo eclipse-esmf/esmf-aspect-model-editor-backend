@@ -61,7 +61,7 @@
         <os.platform/>
 
         <!-- Internal esmf dependencies -->
-        <esmf-sdk-version>2.4.2</esmf-sdk-version>
+        <esmf-sdk-version>2.5.1</esmf-sdk-version>
 
         <!-- Versions of third party dependencies -->
         <spring-boot-version>3.0.0</spring-boot-version>
@@ -81,6 +81,7 @@
         <native-maven-plugin-version>0.9.19</native-maven-plugin-version>
         <commons-exec-version>1.3</commons-exec-version>
         <memoryfilesystem-version>2.7.0</memoryfilesystem-version>
+        <jackson-dataformat-xml-version>2.15.2</jackson-dataformat-xml-version>
 
         <!-- Versions of plugins -->
         <junit-version>5.9.2</junit-version>
@@ -88,6 +89,7 @@
         <newman-version>6.0.0</newman-version>
         <node-version>16.14.2</node-version>
         <exec-maven-plugin-version>3.0.0</exec-maven-plugin-version>
+        <wagon-maven-plugin-version>1.0</wagon-maven-plugin-version>
         <maven-antrun-plugin-version>3.0.0</maven-antrun-plugin-version>
         <build-helper-maven-plugin-version>3.3.0</build-helper-maven-plugin-version>
         <maven-site-plugin-version>3.10.0</maven-site-plugin-version>
@@ -211,6 +213,12 @@
                 <groupId>org.eclipse.esmf</groupId>
                 <artifactId>esmf-aspect-model-aas-generator</artifactId>
                 <version>${esmf-sdk-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-dataformat-xml</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.esmf</groupId>
@@ -280,6 +288,32 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-web</artifactId>
                 <version>${spring-boot-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.core</groupId>
+                        <artifactId>jackson-databind</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.datatype</groupId>
+                        <artifactId>jackson-datatype-jsr310</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.datatype</groupId>
+                        <artifactId>jackson-datatype-jdk8</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.module</groupId>
+                        <artifactId>jackson-module-parameter-names</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.fasterxml.jackson.dataformat</groupId>
+                        <artifactId>jackson-dataformat-xml</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -332,6 +366,11 @@
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>${commons-code-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-xml</artifactId>
+                <version>${jackson-dataformat-xml-version}</version>
             </dependency>
 
             <!-- Third party testing dependencies -->
@@ -402,8 +441,8 @@
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>exec-maven-plugin</artifactId>
-                    <version>${exec-maven-plugin-version}</version>
+                    <artifactId>wagon-maven-plugin</artifactId>
+                    <version>${wagon-maven-plugin-version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.graalvm.buildtools</groupId>
