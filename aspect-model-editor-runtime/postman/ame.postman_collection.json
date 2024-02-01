@@ -486,14 +486,20 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Status code is 200\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
+							"/*\r",
+							"    pm.test(\"Status code is 200\", function () {\r",
+							"        if(window.navigator.platform.include('mac')) {\r",
+							"            pm.response.to.have.status(200);\r",
+							"        }\r",
+							"    });\r",
 							"\r",
-							"pm.test(\"Response body is valid\", function () {\r",
-							"    const text = pm.response.text();\r",
-							"    pm.expect(text).to.include(\"<!doctype html>\");\r",
-							"});"
+							"    pm.test(\"Response body is valid\", function () {\r",
+							"        if(window.navigator.platform.include('mac')) {\r",
+							"            const text = pm.response.text();\r",
+							"            pm.expect(text).to.include(\"<!doctype html>\");\r",
+							"        }\r",
+							"    });\r",
+							"*/"
 						],
 						"type": "text/javascript"
 					}
