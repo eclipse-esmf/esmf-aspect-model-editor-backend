@@ -480,6 +480,49 @@
 			"response": []
 		},
 		{
+			"name": "GetDocumentation",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body is valid\", function () {\r",
+							"    pm.expect(pm.response.json()['property1']).to.exist\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/generate/json-sample",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"generate",
+						"json-sample"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "GetJsonSample",
 			"event": [
 				{
