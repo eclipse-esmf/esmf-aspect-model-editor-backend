@@ -13025,6 +13025,12 @@
     "queryAllDeclaredMethods": true
   },
   {
+    "name":"sun.awt.X11.XToolkit",
+    "allDeclaredFields":true,
+    "allDeclaredMethods":true,
+    "allDeclaredConstructors":true
+  },
+  {
     "name": "sun.awt.Win32FontManager",
     "methods": [
       {
@@ -13032,6 +13038,12 @@
         "parameterTypes": []
       }
     ]
+  },
+  {
+    "name":"sun.awt.Win32GraphicsDevice",
+    "allDeclaredFields":true,
+    "allDeclaredMethods":true,
+    "allDeclaredConstructors":true
   },
   {
     "name": "sun.misc.Unsafe",

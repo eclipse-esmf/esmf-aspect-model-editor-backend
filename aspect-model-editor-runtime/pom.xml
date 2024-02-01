@@ -84,6 +84,29 @@
                     <mainClass>${main.class}</mainClass>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <annotationProcessorPaths combine.children="append">
+                        <path>
+                            <groupId>info.picocli</groupId>
+                            <artifactId>picocli-codegen</artifactId>
+                            <version>${picocli-version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                    <compilerArgs>
+                        <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
+                        <arg>--add-exports</arg>
+                        <arg>java.desktop/sun.awt=ALL-UNNAMED</arg>
+                        <arg>--add-exports</arg>
+                        <arg>java.desktop/sun.font=ALL-UNNAMED</arg>
+                        <arg>--add-exports</arg>
+                        <arg>org.graalvm.sdk/org.graalvm.nativeimage.impl=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                    <forceJavacCompilerUse>true</forceJavacCompilerUse>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -183,7 +206,10 @@
                                 <buildArg>-H:DynamicProxyConfigurationFiles=${project.basedir}/.graalvm/proxy-config.json</buildArg>
                                 <buildArg>-H:ResourceConfigurationFiles=${project.basedir}/.graalvm/resource-config.json</buildArg>
                                 <buildArg>-H:SerializationConfigurationFiles=${project.basedir}/.graalvm/serialization-config.json</buildArg>
-
+                                <buildArg>-J--add-exports=java.desktop/sun.awt=ALL-UNNAMED</buildArg>
+                                <buildArg>-J--add-exports=java.desktop/sun.font=ALL-UNNAMED</buildArg>
+                                <buildArg>-J--add-exports=org.graalvm.sdk/org.graalvm.nativeimage.impl=ALL-UNNAMED</buildArg>
+                                <buildArg>-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.configure=ALL-UNNAMED</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>
