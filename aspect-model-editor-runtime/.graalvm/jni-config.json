@@ -452,98 +452,201 @@
     ]
   },
   {
-    "name":"sun.awt.X11.XToolkit",
-    "allDeclaredFields":true,
-    "allDeclaredMethods":true,
-    "allDeclaredConstructors":true
+    "name": "sun.awt.X11.XToolkit",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.Win32GraphicsDevice",
-    "allDeclaredFields":true,
-    "allDeclaredMethods":true,
-    "allDeclaredConstructors":true
-  },{
-  "name":"sun.awt.AWTAutoShutdown",
-  "methods":[{"name":"notifyToolkitThreadBusy","parameterTypes":[] }, {"name":"notifyToolkitThreadFree","parameterTypes":[] }]
-},
-  {
-    "name":"sun.awt.SunHints",
-    "fields":[{"name":"INTVAL_STROKE_PURE"}]
+    "name": "sun.awt.Win32GraphicsDevice",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.SunToolkit",
-    "methods":[{"name":"awtLock","parameterTypes":[] }, {"name":"awtLockNotify","parameterTypes":[] }, {"name":"awtLockNotifyAll","parameterTypes":[] }, {"name":"awtLockWait","parameterTypes":["long"] }, {"name":"awtUnlock","parameterTypes":[] },{"name":"isTouchKeyboardAutoShowEnabled","parameterTypes":[] }]
+    "name": "sun.awt.AWTAutoShutdown",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.Win32GraphicsConfig",
-    "fields":[{"name":"visual"}]
+    "name": "sun.awt.SunHints",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.Win32GraphicsDevice",
-    "fields":[{"name":"dynamicColorModel"}]
+    "name": "sun.awt.SunToolkit",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.Win32GraphicsEnvironment",
-    "methods":[{"name":"dwmCompositionChanged","parameterTypes":["boolean"] }]
+    "name": "sun.awt.Win32GraphicsConfig",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.image.ByteComponentRaster",
-    "fields":[{"name":"data"}, {"name":"dataOffsets"}, {"name":"pixelStride"}, {"name":"scanlineStride"}, {"name":"type"}]
+    "name": "sun.awt.Win32GraphicsDevice",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.image.GifImageDecoder",
-    "fields":[{"name":"outCode"}, {"name":"prefix"}, {"name":"suffix"}],
-    "methods":[{"name":"readBytes","parameterTypes":["byte[]","int","int"] }, {"name":"sendPixels","parameterTypes":["int","int","int","int","byte[]","java.awt.image.ColorModel"] }]
+    "name": "sun.awt.Win32GraphicsEnvironment",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.image.BufImgSurfaceData$ICMColorData",
-    "fields":[{"name":"pData"}],
-    "methods":[{"name":"<init>","parameterTypes":["long"] }]
+    "name": "sun.awt.image.ByteComponentRaster",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.image.ImageRepresentation",
-    "fields":[{"name":"numSrcLUT"}, {"name":"srcLUTtransIndex"}]
+    "name": "sun.awt.image.GifImageDecoder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.image.IntegerComponentRaster",
-    "fields":[{"name":"data"}, {"name":"dataOffsets"}, {"name":"pixelStride"}, {"name":"scanlineStride"}, {"name":"type"}]
+    "name": "sun.awt.image.BufImgSurfaceData$ICMColorData",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.image.SunVolatileImage",
-    "fields":[{"name":"volSurfaceManager"}]
+    "name": "sun.awt.image.ImageRepresentation",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.image.VolatileSurfaceManager",
-    "fields":[{"name":"sdCurrent"}]
+    "name": "sun.awt.image.IntegerComponentRaster",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.windows.WComponentPeer",
-    "fields":[{"name":"hwnd"}, {"name":"winGraphicsConfig"}],
-    "methods":[{"name":"disposeLater","parameterTypes":[] }, {"name":"replaceSurfaceData","parameterTypes":[] }, {"name":"replaceSurfaceDataLater","parameterTypes":[] }]
+    "name": "sun.awt.image.SunVolatileImage",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.windows.WDesktopPeer",
-    "methods":[{"name":"systemSleepCallback","parameterTypes":["boolean"] }, {"name":"userSessionCallback","parameterTypes":["boolean","java.awt.desktop.UserSessionEvent$Reason"] }]
+    "name": "sun.awt.image.VolatileSurfaceManager",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.windows.WObjectPeer",
-    "fields":[{"name":"createError"}, {"name":"destroyed"}, {"name":"pData"}, {"name":"target"}],
-    "methods":[{"name":"getPeerForTarget","parameterTypes":["java.lang.Object"] }]
+    "name": "sun.awt.windows.WComponentPeer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.windows.WToolkit",
-    "methods":[{"name":"displayChanged","parameterTypes":[] }, {"name":"paletteChanged","parameterTypes":[] }, {"name":"windowsSettingChange","parameterTypes":[] }]
+    "name": "sun.awt.windows.WDesktopPeer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.X11.XErrorHandlerUtil",
-    "methods":[{"name":"init","parameterTypes":["long"] }]
+    "name": "sun.awt.windows.WObjectPeer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.X11GraphicsConfig",
-    "fields":[{"name":"aData"}, {"name":"bitsPerPixel"}]
+    "name": "sun.awt.windows.WToolkit",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
-    "name":"sun.awt.X11GraphicsDevice",
-    "methods":[{"name":"addDoubleBufferVisual","parameterTypes":["int"] }]
+    "name": "sun.awt.X11.XErrorHandlerUtil",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "sun.awt.X11GraphicsConfig",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "sun.awt.X11GraphicsDevice",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   }
 ]
