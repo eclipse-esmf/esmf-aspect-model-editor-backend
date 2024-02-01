@@ -96,13 +96,13 @@
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
-                        <arg>-Aproject=${project.groupId}/${project.artifactId}</arg>
-                        <arg>--add-exports</arg>
-                        <arg>java.desktop/sun.awt=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>java.desktop/sun.font=ALL-UNNAMED</arg>
-                        <arg>--add-exports</arg>
-                        <arg>org.graalvm.sdk/org.graalvm.nativeimage.impl=ALL-UNNAMED</arg>
+                        <buildArg>-Aproject=${project.groupId}/${project.artifactId}</buildArg>
+                        <buildArg>--add-exports</buildArg>
+                        <buildArg>java.desktop/sun.awt=ALL-UNNAMED</buildArg>
+                        <buildArg>--add-exports</buildArg>
+                        <buildArg>java.desktop/sun.font=ALL-UNNAMED</buildArg>
+                        <buildArg>--add-exports</buildArg>
+                        <buildArg>org.graalvm.sdk/org.graalvm.nativeimage.impl=ALL-UNNAMED</buildArg>
                     </compilerArgs>
                     <forceJavacCompilerUse>true</forceJavacCompilerUse>
                 </configuration>
@@ -185,24 +185,24 @@
                             <mainClass>${main.class}</mainClass>
                             <imageName>ame-backend-${project.version}-${os.platform}</imageName>
                             <buildArgs>
-                                <arg>-Dspring.graal.remove-unused-autoconfig=true</arg>
-                                <arg>-Dspring.graal.remove-yaml-support=true</arg>
-                                <arg>--no-fallback</arg>
-                                <arg>--report-unsupported-elements-at-runtime</arg>
-                                <arg>
+                                <buildArg>-Dspring.graal.remove-unused-autoconfig=true</buildArg>
+                                <buildArg>-Dspring.graal.remove-yaml-support=true</buildArg>
+                                <buildArg>--no-fallback</buildArg>
+                                <buildArg>--report-unsupported-elements-at-runtime</buildArg>
+                                <buildArg>
                                     --initialize-at-build-time=org.slf4j.LoggerFactory,ch.qos.logback,guru.nidi.graphviz.attribute.,org.apache.velocity.,org.apache.poi.util.LocaleUtil
-                                </arg>
-                                <arg>-J-Xmx8G</arg>
-                                <arg>-H:+ReportExceptionStackTraces</arg>
-                                <arg>-H:JNIConfigurationFiles=${project.basedir}/.graalvm/jni-config.json</arg>
-                                <arg>-H:ReflectionConfigurationFiles=${project.basedir}/.graalvm/reflect-config.json</arg>
-                                <arg>-H:DynamicProxyConfigurationFiles=${project.basedir}/.graalvm/proxy-config.json</arg>
-                                <arg>-H:ResourceConfigurationFiles=${project.basedir}/.graalvm/resource-config.json</arg>
-                                <arg>-H:SerializationConfigurationFiles=${project.basedir}/.graalvm/serialization-config.json</arg>
-                                <arg>-J--add-exports=java.desktop/sun.awt=ALL-UNNAMED</arg>
-                                <arg>-J--add-exports=java.desktop/sun.font=ALL-UNNAMED</arg>
-                                <arg>-J--add-exports=org.graalvm.sdk/org.graalvm.nativeimage.impl=ALL-UNNAMED</arg>
-                                <arg>-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.configure=ALL-UNNAMED</arg>
+                                </buildArg>
+                                <buildArg>-J-Xmx8G</buildArg>
+                                <buildArg>-H:+ReportExceptionStackTraces</buildArg>
+                                <buildArg>-H:JNIConfigurationFiles=${project.basedir}/.graalvm/jni-config.json</buildArg>
+                                <buildArg>-H:ReflectionConfigurationFiles=${project.basedir}/.graalvm/reflect-config.json</buildArg>
+                                <buildArg>-H:DynamicProxyConfigurationFiles=${project.basedir}/.graalvm/proxy-config.json</buildArg>
+                                <buildArg>-H:ResourceConfigurationFiles=${project.basedir}/.graalvm/resource-config.json</buildArg>
+                                <buildArg>-H:SerializationConfigurationFiles=${project.basedir}/.graalvm/serialization-config.json</buildArg>
+                                <buildArg>-J--add-exports=java.desktop/sun.awt=ALL-UNNAMED</buildArg>
+                                <buildArg>-J--add-exports=java.desktop/sun.font=ALL-UNNAMED</buildArg>
+                                <buildArg>-J--add-exports=org.graalvm.sdk/org.graalvm.nativeimage.impl=ALL-UNNAMED</buildArg>
+                                <buildArg>-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.configure=ALL-UNNAMED</buildArg>
                             </buildArgs>
                         </configuration>
                     </plugin>
