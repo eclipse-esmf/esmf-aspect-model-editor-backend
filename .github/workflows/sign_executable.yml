@@ -11,7 +11,7 @@ jobs:
       - name: Trigger Jenkins Job, for singing executable
         run: |
           DATA='{"repository": {"url": "https://github.com/eclipse-cbi/org.eclipse.cbi", "html_url": "https://github.com/eclipse-cbi/org.eclipse.cbi", "owner": { "name": "eclipse-cbi"}}, "pusher": { "name": "foobar", "email": "foo@bar.com"}}'
-          SHA1="$(echo -n "${DATA}" | openssl dgst -sha1 -hmac ${{ secrets.GITHUB_TOKEN }}" | sed 's/SHA1(stdin)= //')"
+          SHA1="$(echo -n "${DATA}" | openssl dgst -sha1 -hmac ${{ secrets.WEBHOOK_SECRET }}" | sed 's/SHA1(stdin)= //')"
         
           curl -X POST https://ci.eclipse.org/esmf/job/Sign-Native-Image/github-webhook/ \
           -H "Content-Type: application/json" \
