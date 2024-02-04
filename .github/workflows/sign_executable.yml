@@ -13,6 +13,6 @@ jobs:
           DATA='{"repository": {"url": "https://github.com/eclipse-cbi/org.eclipse.cbi", "html_url": "https://github.com/eclipse-cbi/org.eclipse.cbi", "owner": { "name": "eclipse-cbi"}}, "pusher": { "name": "foobar", "email": "foo@bar.com"}}'
           SHA1="$(echo -n "${DATA}" | openssl dgst -sha1 -hmac "${WEBHOOK_SECRET}" | sed 's/SHA1(stdin)= //')"
         
-          curl -X POST https://ci.eclipse.org/esmf/job/Sign-Native-Image/github-webhook/ -H "Content-Type: application/json" \
-          -H "X-GitHub-Event: push" -H "X-Hub-Signature: sha1=${SHA1}"
+          curl -X POST https://ci.eclipse.org/esmf/github-webhook/ -H "Content-Type: application/json" \
+          -H "X-GitHub-Event: push" -H "X-Hub-Signature: sha1=${SHA1}" -d "${DATA}"
 
