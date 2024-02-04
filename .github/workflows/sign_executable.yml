@@ -1,0 +1,16 @@
+name: "Sign Executable"
+
+on:
+  push:
+  pull_request:
+    branches: [ '**' ]
+jobs:
+  trigger-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Jenkins Job, for singing executable
+        run: |
+          DATA='{"repository": {"url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "html_url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "owner": { "name": "eclipse-cbi"}}, "pusher": { "name": "foobar", "email": "foo@bar.com"}}'
+          SHA1="$(echo -n "${DATA}" | openssl dgst -sha1 -hmac "${WEBHOOK_SECRET}" | sed 's/SHA1(stdin)= //')"
+        
+          curl -X POST https://ci.eclipse.org/esmf/github-webhook/ -H "Content-Type: application/json" -H "X-GitHub-Event: push" -H "X-Hub-Signature: sha1=${SHA1}" -d "${DATA}"
