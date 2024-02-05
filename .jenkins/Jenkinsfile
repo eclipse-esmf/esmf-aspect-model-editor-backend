@@ -38,33 +38,25 @@ pipeline {
                              https://api.github.com/repos/${repo}/releases/tags/${tagName} | jq -r '.id'
                     """, returnStdout: true).trim()
 
-                    def asset = sh(script: """
+                    def assetId = sh(script: """
                         curl -s -H "Authorization: Bearer \$GITHUB_TOKEN" \\
-                        -H "Accept: application/vnd.github+json" \\
-                        https://api.github.com/repos/${repo}/releases/${releaseId}/assets | jq -c '.[] | select(.name | endswith(".exe"))'
+                        "https://api.github.com/repos/${repo}/releases/${releaseId}/assets" | \\
+                        jq '.[] | select(.name == "${fileName}").id'
                     """, returnStdout: true).trim()
 
-                    if (asset) {
-                        sh """
-                        curl -L \
-                             -X PATCH \
-                             -H "Accept: application/vnd.github+json" \\
-                             -H "Authorization: Bearer \$GITHUB_TOKEN" \
-                             -H "Content-Type: application/octet-stream" \
-                             --data-binary @${fileName} \
-                             "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${fileName}"
-                        """
-                    } else {
-                        sh """
-                        curl -L \
-                             -X POST \
-                             -H "Accept: application/vnd.github+json" \\
-                             -H "Authorization: Bearer \$GITHUB_TOKEN" \
-                             -H "Content-Type: application/octet-stream" \
-                             --data-binary @${fileName} \
-                             "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${fileName}"
-                        """
+                    if (assetId) {
+                        sh "curl -s -X DELETE -H \"Authorization: Bearer \$GITHUB_TOKEN\" \"https://api.github.com/repos/${repo}/releases/assets/${assetId}\""
                     }
+
+                    sh """
+                    curl -L \
+                         -X POST \
+                         -H "Accept: application/vnd.github+json" \\
+                         -H "Authorization: Bearer \$GITHUB_TOKEN" \
+                         -H "Content-Type: application/octet-stream" \
+                         --data-binary @${fileName} \
+                         "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${fileName}"
+                    """
                 }
             }
         }
