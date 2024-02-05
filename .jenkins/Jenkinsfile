@@ -4,7 +4,7 @@ pipeline {
     // This file is required to sign the binaries for Windows and MacOs, see https://wiki.eclipse.org/IT_Infrastructure_Doc#Sign_my_Jar.2Fplugins.2FWindows_exe.2FmacOS_App_files.3F
 
     environment {
-        GITHUB_TOKEN = credentials('github-bot')
+        GITHUB_TOKEN = credentials('github-bot-token')
     }
 
     stages {
@@ -37,6 +37,7 @@ pipeline {
                              -H "Authorization: Bearer <YOUR-TOKEN>" \\
                              -H "X-GitHub-Api-Version: 2022-11-28" \\
                              https://api.github.com/repos/${repo}/releases/tags/${tagName}
+
                     """
                     def releaseId = sh(script: """
                         curl -s -L \\
