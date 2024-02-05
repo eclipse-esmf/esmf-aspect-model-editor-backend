@@ -32,7 +32,7 @@ pipeline {
                     def fileName = "signed.exe"
                     def uploadUrl = "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${fileName}" as Object
 
-                    sh script: """
+                    sh """
                         curl -L \
                              -X POST \
                              -H "Accept: application/vnd.github+json" \\
@@ -40,7 +40,7 @@ pipeline {
                              -H "Content-Type: application/octet-stream" \
                              --data-binary @${fileName} \
                              "${uploadUrl}"
-                    """, env: ['GITHUB_TOKEN': env.GITHUB_TOKEN]
+                    """
                 }
             }
         }
