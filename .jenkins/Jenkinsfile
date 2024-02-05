@@ -23,7 +23,7 @@ pipeline {
         stage('Install GH CLI') {
             steps {
                 script {
-                    sh 'if ! command -v gh &> /dev/null; then echo "gh could not be found, installing..."; sudo apt update && sudo apt install gh -y; else echo "gh is already installed"; fi'
+                    sh 'if ! command -v gh &> /dev/null; then echo "gh could not be found, installing..."; apt update && apt install gh -y; else echo "gh is already installed"; fi'
                 }
             }
         }
