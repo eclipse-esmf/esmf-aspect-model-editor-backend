@@ -10,8 +10,7 @@ jobs:
     steps:
       - name: Trigger Jenkins Job, for singing executable
         run: |
-          DATA='{"repository": {"url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "html_url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "owner": { "name": "ESMF"}}, "pusher": { "name": "GitHub Action", "email": "esmf-dev@eclipse.org"}}'
           SHA1="$(echo -n "${DATA}" | openssl dgst -sha1 -hmac "${WEBHOOK_SECRET}" | sed 's/SHA1(stdin)= //')"
 
           curl -L https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/releases/download/v5.1.1/ame-backend-5.1.1-win.exe -o ame-backend-5.1.1-win.exe
-          curl -X POST https://ci.eclipse.org/esmf/github-webhook/ -H "Content-Type: application/json" -H "X-GitHub-Event: push" -H "X-Hub-Signature: sha1=${SHA1}" -d "${DATA}" -F "file=@ame-backend-5.1.1-win.exe"
+          curl -X POST https://ci.eclipse.org/esmf/github-webhook/ -H "Content-Type: application/json" -H "X-GitHub-Event: push" -H "X-Hub-Signature: sha1=${SHA1}" -F "file=@ame-backend-5.1.1-win.exe"
