@@ -3,6 +3,10 @@ pipeline {
 
     // This file is required to sign the binaries for Windows and MacOs, see https://wiki.eclipse.org/IT_Infrastructure_Doc#Sign_my_Jar.2Fplugins.2FWindows_exe.2FmacOS_App_files.3F
 
+    environment {
+        GITHUB_TOKEN = credentials('github-bot')
+    }
+
     stages {
         stage('Download') {
             steps {
@@ -20,26 +24,21 @@ pipeline {
             }
         }
 
-        stage('Install GH CLI') {
+        stage('Upload File to GitHub Release') {
             steps {
                 script {
-                    sh 'if ! command -v gh &> /dev/null; then echo "gh could not be found, installing..."; apt update && apt install gh -y; else echo "gh is already installed"; fi'
-                }
-            }
-        }
+                    def repo = "eclipse-esmf/esmf-aspect-model-editor-backend"
+                    def tag = "v5.2.1"
+                    def fileName = "signed.exe"
+                    def uploadUrl = "https://uploads.github.com/repos/${repo}/releases/tags/${tag}/assets?name=${fileName}" as Object
 
-        stage('Verify GH CLI Installation') {
-            steps {
-                script {
-                    sh 'gh --version'
-                }
-            }
-        }
-
-        stage('Upload Signed File') {
-            steps {
-                script {
-                    sh "gh release upload v5.2.1 signed.exe --clobber"
+                    // Führen Sie den Upload durch
+                    sh """
+                        curl -H "Authorization: token ${GITHUB_TOKEN}" \
+                             -H "Content-Type: application/octet-stream" \
+                             --data-binary @${fileName} \
+                             "${uploadUrl}"
+                    """
                 }
             }
         }
