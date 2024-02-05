@@ -60,13 +60,13 @@ jobs:
           release_branch_name=${release_version%.*}.x
           echo "release_branch_name=$release_branch_name" >> $GITHUB_ENV
 
-      - name: Create Release branch
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          git config --global user.email "github-actions@github.com"
-          git config --global user.name "github-actions"
-          git checkout -b ${{ env.release_branch_name }}
-          git push origin ${{ env.release_branch_name }}
+        - name: Create Release branch
+          if: matrix.os == 'ubuntu-latest'
+          run: |
+            git config --global user.email "github-actions@github.com"
+            git config --global user.name "github-actions"
+            git checkout -b ${{ env.release_branch_name }}
+            git push origin ${{ env.release_branch_name }}
 
       - name: Set maven version
         if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'

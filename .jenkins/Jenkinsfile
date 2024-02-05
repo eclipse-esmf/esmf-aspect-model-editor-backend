@@ -19,5 +19,13 @@ pipeline {
                 }
             }
         }
+
+        stage('Upload Signed File') {
+            steps {
+                script {
+                    sh "gh release upload v5.2.1 signed.exe --clobber"
+                }
+            }
+        }
     }
 }
