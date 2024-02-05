@@ -30,7 +30,9 @@ pipeline {
                     def repo = "eclipse-esmf/esmf-aspect-model-editor-backend"
                     def releaseId = "v5.2.1"
                     def fileName = "signed.exe"
-                    def uploadUrl = "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${fileName}" as Object
+                    https://uploads.github.com/repos/OWNER/REPO/releases/RELEASE_ID/assets?name=FILE_NAME
+
+                    def uploadUrl = "https://uploads.github.com/repos/${repo}/releases/tags/${releaseId}/assets?name=${fileName}" as Object
 
                     sh """
                         curl -L \
