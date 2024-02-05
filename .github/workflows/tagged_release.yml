@@ -99,6 +99,18 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Create Zip File with specified windows awt library
+        if: matrix.os == 'windows-latest'
+        run: |
+          $sourceFolder = "aspect-model-editor-runtime/target"
+          $zipFile = "aspect-model-editor-v${{ github.event.inputs.release_version }}-win.zip"
+          $tempDir = New-Item -ItemType Directory -Force -Path "$Env:TEMP\zip_temp"
+          Get-ChildItem "$sourceFolder" -Filter "*.exe" | Copy-Item -Destination $tempDir
+          Get-ChildItem "$sourceFolder" -Filter "*.dll" | Copy-Item -Destination $tempDir
+          Compress-Archive -Path $tempDir\* -DestinationPath $zipFile
+          Remove-Item -Recurse -Force $tempDir
+        shell: pwsh
+
       - name: Create GitHub release (Mac)
         if: ${{ (matrix.os == 'macos-latest') &&  (!contains( github.ref, '-M' )) }}
         uses: svenstaro/upload-release-action@latest
@@ -143,6 +155,11 @@ jobs:
           file: aspect-model-editor-runtime/target/ame-backend!(*.txt)-linux
           tag: v${{ github.event.inputs.release_version }}
 
+      - name: Setup Git
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
       - name: Create GitHub release (Windows)
         if: ${{ (matrix.os == 'windows-latest') && (!contains( github.ref, '-M' )) }}
         uses: svenstaro/upload-release-action@latest
@@ -151,7 +168,7 @@ jobs:
           overwrite: true
           prerelease: false
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: aspect-model-editor-runtime/target/ame-backend!(*.txt)-win.exe
+          file: aspect-model-editor-v${{ github.event.inputs.release_version }}-win.zip
           tag: v${{ github.event.inputs.release_version }}
 
       - name: Create GitHub pre-release (Windows)
@@ -162,5 +179,5 @@ jobs:
           overwrite: true
           prerelease: true
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: aspect-model-editor-runtime/target/ame-backend!(*.txt)-win.exe
+          file: aspect-model-editor-v${{ github.event.inputs.release_version }}-win.zip
           tag: v${{ github.event.inputs.release_version }}
