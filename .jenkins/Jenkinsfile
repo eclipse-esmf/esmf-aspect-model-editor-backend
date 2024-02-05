@@ -29,3 +29,56 @@ pipeline {
         }
     }
 }
+
+pipeline {
+    agent any
+
+    environment {
+        GH_TOKEN = credentials('github-bot')
+    }
+
+    stages {
+        stage('Download') {
+            steps {
+                script {
+                    sh 'curl -L "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/releases/download/v5.1.1/ame-backend-5.1.1-win.exe" -o unsigned.exe'
+                }
+            }
+        }
+
+        stage('Sign') {
+            steps {
+                script {
+                    sh 'curl -o signed.exe -F file=@unsigned.exe https://cbi.eclipse.org/authenticode/sign'
+                }
+            }
+        }
+
+        stage('Install GH CLI') {
+            steps {
+                script {
+                    sh 'if ! command -v gh &> /dev/null; then echo "gh could not be found, installing..."; sudo apt update && sudo apt install gh -y; else echo "gh is already installed"; fi'
+                }
+            }
+        }
+
+        stage('Verify GH CLI Installation') {
+            steps {
+                script {
+                    sh 'gh --version'
+                }
+            }
+        }
+
+        stage('Upload Signed File') {
+            steps {
+                script {
+                    sh 'echo $GH_TOKEN | gh auth login --with-token'
+
+                    sh 'gh release upload v5.2.1 signed.exe --clobber --repo eclipse-esmf/esmf-aspect-model-editor-backend'
+                }
+            }
+        }
+    }
+}
+
