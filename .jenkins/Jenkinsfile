@@ -28,17 +28,19 @@ pipeline {
             steps {
                 script {
                     def repo = "eclipse-esmf/esmf-aspect-model-editor-backend"
-                    def tag = "v5.2.1"
+                    def releaseId = "v5.2.1"
                     def fileName = "signed.exe"
-                    def uploadUrl = "https://uploads.github.com/repos/${repo}/releases/tags/${tag}/assets?name=${fileName}" as Object
+                    def uploadUrl = "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${fileName}" as Object
 
-                    // Führen Sie den Upload durch
-                    sh """
-                        curl -H "Authorization: token ${GITHUB_TOKEN}" \
+                    sh script: """
+                        curl -L \
+                             -X POST \
+                             -H "Accept: application/vnd.github+json" \\
+                             -H "Authorization: Bearer \$GITHUB_TOKEN" \
                              -H "Content-Type: application/octet-stream" \
                              --data-binary @${fileName} \
                              "${uploadUrl}"
-                    """
+                    """, env: ['GITHUB_TOKEN': env.GITHUB_TOKEN]
                 }
             }
         }
