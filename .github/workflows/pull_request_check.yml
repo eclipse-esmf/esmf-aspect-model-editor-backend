@@ -59,6 +59,10 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up MSVC
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: Creating native image (Win)
         if: matrix.os == 'windows-latest'
         run: mvn install -P native-image -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
