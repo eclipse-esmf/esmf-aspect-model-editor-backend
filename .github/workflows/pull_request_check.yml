@@ -59,6 +59,11 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set up MSVC
+        if: matrix.os == 'windows-latest'
+        run: |
+          call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+
       - name: Creating native image (Win)
         if: matrix.os == 'windows-latest'
         run: mvn install -P native-image -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
