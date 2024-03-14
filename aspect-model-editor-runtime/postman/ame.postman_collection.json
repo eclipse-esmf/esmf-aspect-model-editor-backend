@@ -1085,7 +1085,7 @@
 					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:io.aspectmodel:1.0.0#> .\r\n\r\n:AspectDefault a samm:Aspect ;\r\n    samm:properties (:property1) ;\r\n    samm:operations () .\r\n\r\n:property1 a samm:Property;\r\n    samm:characteristic :Characteristic1 .\r\n\r\n:Characteristic1 a samm:Characteristic ;\r\n    samm:dataType xsd:string .\r\n"
 				},
 				"url": {
-					"raw": "http://localhost:{{port}}/ame/api/generate/aas-xml",
+					"raw": "http://localhost:{{port}}/ame/api/generate/aas-json",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -1095,7 +1095,7 @@
 						"ame",
 						"api",
 						"generate",
-						"aas-xml"
+						"aas-json"
 					]
 				}
 			},

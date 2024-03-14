@@ -2841,6 +2841,24 @@
     ]
   },
   {
+    "name": "org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.apache.commons.compress.archivers.zip.ZipArchiveEntry",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
     "name": "org.apache.coyote.AbstractProtocol",
     "methods": [
       {
@@ -3255,15 +3273,6 @@
     "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.AnnotatedRelationshipElementMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.AssetAdministrationShellMixin",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
@@ -3291,7 +3300,7 @@
     "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.ConceptDescriptionMixin",
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.DataSpecificationIec61360Mixin",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -3300,7 +3309,7 @@
     "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.DataSpecificationIec61360Mixin",
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.EndpointMixin",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -3345,24 +3354,6 @@
     "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.HasDataSpecificationMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.HasSemanticsMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.IdentifiableMixin",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
@@ -3381,34 +3372,7 @@
     "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.MultiLanguagePropertyMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.OperationMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.OperationVariableMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.PropertyMixin",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -3435,15 +3399,6 @@
     "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.ReferableMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.ReferenceMixin",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
@@ -3462,43 +3417,7 @@
     "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.SpecificAssetIdMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.SubmodelElementCollectionMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.SubmodelElementListMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.SubmodelMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.json.internal.mixins.ValueReferencePairMixin",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -3624,15 +3543,6 @@
     "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.mixins.LevelTypeMixin",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
-  },
-  {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.mixins.HasDataSpecificationMixin",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
@@ -3661,6 +3571,15 @@
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.mixins.KeyMixin",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.mixins.LevelTypeMixin",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -3822,6 +3741,51 @@
     "allPublicFields": true
   },
   {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.serialization.AbstractLangStringSerializer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.serialization.AbstractLangStringsSerializer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.serialization.AssetAdministrationShellSerializer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.serialization.DataElementSerializer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.serialization.EmbeddedDataSpecificationSerializer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.serialization.LangStringsDefinitionTypeIec61360Serializer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
@@ -3859,6 +3823,42 @@
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.serialization.LangStringsTextTypeSerializer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.serialization.NoEntryWrapperSerializer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.serialization.OperationVariableSerializer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.serialization.RefersToSerializer",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.dataformat.xml.internal.serialization.SubmodelElementSerializer",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -4650,7 +4650,7 @@
     "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBasicOperationResult",
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBaseOperationResult",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -4659,7 +4659,7 @@
     "allPublicFields": true
   },
   {
-    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBasicOperationResult$Builder",
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultBaseOperationResult$Builder",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
@@ -5371,6 +5371,24 @@
   },
   {
     "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodel$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
+  },
+  {
+    "name": "org.eclipse.digitaltwin.aas4j.v3.model.impl.DefaultSubmodelDescriptor$Builder",
     "allDeclaredConstructors": true,
     "allPublicConstructors": true,
     "allDeclaredMethods": true,
