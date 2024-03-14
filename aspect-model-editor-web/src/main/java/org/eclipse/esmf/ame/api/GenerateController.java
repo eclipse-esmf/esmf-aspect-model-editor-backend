@@ -98,6 +98,17 @@ public class GenerateController {
    }
 
    /**
+    * Handles the request to generate an AAS JSON file based on the provided aspect model.
+    *
+    * @param aspectModel The model provided in the request body used to generate the AAS XML file.
+    * @return A {@link ResponseEntity} containing the result of the AAS XML file generation.
+    */
+   @PostMapping( "aas-json" )
+   public ResponseEntity<String> assJson( @RequestBody final String aspectModel ) {
+      return ResponseEntity.ok( generateService.generateAasJsonFile( aspectModel ) );
+   }
+
+   /**
     * This method is used to generate an OpenAPI specification of the Aspect Model
     *
     * @param aspectModel the Aspect Model Data

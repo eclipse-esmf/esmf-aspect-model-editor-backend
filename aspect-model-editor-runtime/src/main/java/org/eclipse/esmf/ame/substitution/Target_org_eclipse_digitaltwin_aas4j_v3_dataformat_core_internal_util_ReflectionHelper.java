@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.util.ReflectionHelper;
 import org.eclipse.esmf.ame.buildtime.Aas4jClassSetup;
 
 import com.oracle.svm.core.annotate.Alias;
@@ -29,14 +28,13 @@ import com.oracle.svm.core.annotate.KeepOriginal;
 import com.oracle.svm.core.annotate.RecomputeFieldValue;
 import com.oracle.svm.core.annotate.Substitute;
 import com.oracle.svm.core.annotate.TargetClass;
+import org.eclipse.digitaltwin.aas4j.v3.dataformat.core.internal.util.ReflectionHelper;
 
 /**
  * This is a <a href="https://build-native-java-apps.cc/developer-guide/substitution/">GraalVM substitution class</a>
- * for {@link ReflectionHelper}, the central point of reflection information of the io.admin-shell.aas library. The
- * original
+ * for {@link ReflectionHelper}, the central point of reflection information of the io.admin-shell.aas library. The original
  * ReflectionHelper
- * has a static constructor that initializes several maps and collections (using ClassGraph scans) that hold information
- * about
+ * has a static constructor that initializes several maps and collections (using ClassGraph scans) that hold information about
  * implementations
  * of interfaces etc.. For the build of the native image, this logic is replaced by the following logic:
  * <ol>
@@ -47,7 +45,6 @@ import com.oracle.svm.core.annotate.TargetClass;
  *    <li>The original ReflectionHelper is substituted by this class. The fields holding the information are initialized with the
  *    values read from the .properties file.</li>
  * </ol>
- * <p>
  * Unfortunately, the ClassGraph logic in the ReflectionHelper is part of its static constructor, which means it can't be overridden by a
  * regular substitution method. For this reason, the whole class must be substituted which means that (1) all public static fields need to
  * be aliased and (2) all methods with public interfaces need to be mentioned explicitly with @KeepOriginal.
@@ -56,10 +53,12 @@ import com.oracle.svm.core.annotate.TargetClass;
 @TargetClass( ReflectionHelper.class )
 @SuppressWarnings( {
       "unused",
-      "squid:S00101", "NewClassNamingConvention"  // Class name uses GraalVM substitution class naming schema, see
+      "squid:S00101", // Class name uses GraalVM substitution class naming schema, see
       // https://github.com/oracle/graal/tree/master/substratevm/src/com.oracle.svm.core/src/com/oracle/svm/core/jdk
+      "NewClassNamingConvention",
+      "checkstyle:TypeName"
 } )
-public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_ReflectionHelper {
+public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_internal_util_ReflectionHelper {
    @Alias
    @RecomputeFieldValue( kind = RecomputeFieldValue.Kind.FromAlias )
    private static final String ROOT_PACKAGE_NAME = "org.eclipse.digitaltwin.aas4j.v3";
@@ -91,8 +90,7 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    /**
     * @see ReflectionHelper#INTERFACES
     */
-   @SuppressWarnings( { "NonConstantFieldWithUpperCaseName", "rawtypes" } )
-   // Field name and signature must match substituted class
+   @SuppressWarnings( { "NonConstantFieldWithUpperCaseName", "rawtypes" } ) // Field name and signature must match substituted class
    @Alias
    @RecomputeFieldValue( kind = RecomputeFieldValue.Kind.FromAlias )
    public static Set<Class> INTERFACES;
@@ -116,8 +114,7 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    /**
     * @see ReflectionHelper#DEFAULT_IMPLEMENTATIONS
     */
-   @SuppressWarnings( { "NonConstantFieldWithUpperCaseName", "rawtypes" } )
-   // Field name and signature must match substituted class
+   @SuppressWarnings( { "NonConstantFieldWithUpperCaseName", "rawtypes" } ) // Field name and signature must match substituted class
    @Alias
    @RecomputeFieldValue( kind = RecomputeFieldValue.Kind.FromAlias )
    public static List<ReflectionHelper.ImplementationInfo> DEFAULT_IMPLEMENTATIONS;
@@ -133,15 +130,14 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    /**
     * @see ReflectionHelper#ENUMS
     */
-   @SuppressWarnings( { "NonConstantFieldWithUpperCaseName", "rawtypes" } )
-   // Field name and signature must match substituted class
+   @SuppressWarnings( { "NonConstantFieldWithUpperCaseName", "rawtypes" } ) // Field name and signature must match substituted class
    @Alias
    @RecomputeFieldValue( kind = RecomputeFieldValue.Kind.FromAlias )
    public static List<Class<Enum>> ENUMS;
 
    static {
       try ( final InputStream input =
-            Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_ReflectionHelper.class.getResourceAsStream(
+            Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_internal_util_ReflectionHelper.class.getResourceAsStream(
                   "/adminshell.properties" ) ) {
          final Properties properties = new Properties();
          properties.load( input );
@@ -162,7 +158,6 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    /**
     * @param type see {@link ReflectionHelper#isModelInterface(Class)}
     * @return see {@link ReflectionHelper#isModelInterface(Class)}
-    *
     * @see ReflectionHelper#isModelInterface(Class)
     */
    @KeepOriginal
@@ -171,7 +166,6 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    /**
     * @param type see {@link ReflectionHelper#isDefaultImplementation(Class)}
     * @return see {@link ReflectionHelper#isDefaultImplementation(Class)}
-    *
     * @see ReflectionHelper#isDefaultImplementation(Class)
     */
    @KeepOriginal
@@ -180,7 +174,6 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    /**
     * @param interfaceType see {@link ReflectionHelper#hasDefaultImplementation(Class)}
     * @return see {@link ReflectionHelper#hasDefaultImplementation(Class)}
-    *
     * @see ReflectionHelper#hasDefaultImplementation(Class)
     */
    @KeepOriginal
@@ -190,7 +183,6 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
     * @param <T> see {@link ReflectionHelper#getDefaultImplementation(Class)}
     * @param interfaceType see {@link ReflectionHelper#getDefaultImplementation(Class)}
     * @return see {@link ReflectionHelper#getDefaultImplementation(Class)}
-    *
     * @see ReflectionHelper#getDefaultImplementation(Class)
     */
    @KeepOriginal
@@ -199,7 +191,6 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    /**
     * @param type see {@link ReflectionHelper#hasDefaultImplementation(Class)}
     * @return see {@link ReflectionHelper#hasDefaultImplementation(Class)}
-    *
     * @see ReflectionHelper#hasDefaultImplementation(Class)
     */
    @KeepOriginal
@@ -208,7 +199,6 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    /**
     * @param type see {@link ReflectionHelper#getAasInterface(Class)}
     * @return see {@link ReflectionHelper#getAasInterface(Class)}
-    *
     * @see ReflectionHelper#getAasInterface(Class)
     */
    @KeepOriginal
@@ -217,7 +207,6 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    /**
     * @param type see {@link ReflectionHelper#getAasInterfaces(Class)}
     * @return see {@link ReflectionHelper#getAasInterfaces(Class)}
-    *
     * @see ReflectionHelper#getAasInterfaces(Class)
     */
    @KeepOriginal
@@ -226,7 +215,6 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    /**
     * @param clazz see {@link ReflectionHelper#getModelType(Class)}
     * @return see {@link ReflectionHelper#getModelType(Class)}
-    *
     * @see ReflectionHelper#getModelType(Class)
     */
    @KeepOriginal
@@ -235,7 +223,6 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
    /**
     * @param clazz see {@link ReflectionHelper#getMostSpecificTypeWithModelType(Class)}
     * @return see {@link ReflectionHelper#getMostSpecificTypeWithModelType(Class)}
-    *
     * @see ReflectionHelper#getMostSpecificTypeWithModelType(Class)
     */
    @KeepOriginal
@@ -245,7 +232,6 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
     * @param clazz see {@link ReflectionHelper#getSuperTypes(Class, boolean)}
     * @param recursive {@link ReflectionHelper#getSuperTypes(Class, boolean)}
     * @return see {@link ReflectionHelper#getSuperTypes(Class, boolean)}
-    *
     * @see ReflectionHelper#getSuperTypes(Class, boolean)
     */
    @KeepOriginal
@@ -262,7 +248,6 @@ public final class Target_org_eclipse_digitaltwin_aas4j_v3_dataformat_core_util_
     * @param element @see ReflectionHelper#createResetRunnable(Object, Field)
     * @param field @see ReflectionHelper#createResetRunnable(Object, Field)
     * @return @see ReflectionHelper#createResetRunnable(Object, Field)
-    *
     * @throws IllegalAccessException @see ReflectionHelper#createResetRunnable(Object, Field)
     * @see ReflectionHelper#createResetRunnable(Object, Field)
     */
