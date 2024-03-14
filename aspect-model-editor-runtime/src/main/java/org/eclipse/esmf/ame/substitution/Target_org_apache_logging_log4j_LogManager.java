@@ -13,12 +13,11 @@
 
 package org.eclipse.esmf.ame.substitution;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.spi.LoggerContextFactory;
-
 import com.oracle.svm.core.annotate.Alias;
 import com.oracle.svm.core.annotate.RecomputeFieldValue;
 import com.oracle.svm.core.annotate.TargetClass;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.spi.LoggerContextFactory;
 
 /**
  * This is a <a href="https://build-native-java-apps.cc/developer-guide/substitution/">GraalVM substitution class</a>
@@ -29,8 +28,9 @@ import com.oracle.svm.core.annotate.TargetClass;
 @TargetClass( LogManager.class )
 @SuppressWarnings( {
       "unused",
-      "squid:S00101" // Class name uses GraalVM substitution class naming schema, see
+      "squid:S00101", // Class name uses GraalVM substitution class naming schema, see
       // https://github.com/oracle/graal/tree/master/substratevm/src/com.oracle.svm.core/src/com/oracle/svm/core/jdk
+      "checkstyle:TypeName"
 } )
 public final class Target_org_apache_logging_log4j_LogManager {
    @Alias

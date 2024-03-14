@@ -24,7 +24,8 @@ import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.ame.resolver.strategy.utils.ResolverUtils;
 import org.eclipse.esmf.ame.utils.ModelUtils;
-import org.eclipse.esmf.aspectmodel.aas.AspectModelAASGenerator;
+import org.eclipse.esmf.aspectmodel.aas.AasFileFormat;
+import org.eclipse.esmf.aspectmodel.aas.AspectModelAasGenerator;
 import org.eclipse.esmf.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
 import org.eclipse.esmf.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
 import org.eclipse.esmf.aspectmodel.generator.jsonschema.AspectModelJsonSchemaGenerator;
@@ -96,23 +97,34 @@ public class GenerateService {
    }
 
    public String generateAASXFile( String aspectModel ) {
-      final AspectModelAASGenerator generator = new AspectModelAASGenerator();
+      final AspectModelAasGenerator generator = new AspectModelAasGenerator();
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
       AspectContext aspectContext = generateAspectContext( aspectModel );
 
-      generator.generateAASXFile( aspectContext.aspect(), name -> outputStream );
+      generator.generate( AasFileFormat.AASX, aspectContext.aspect(), name -> outputStream );
 
       return outputStream.toString( StandardCharsets.UTF_8 );
    }
 
    public String generateAasXmlFile( String aspectModel ) {
-      final AspectModelAASGenerator generator = new AspectModelAASGenerator();
+      final AspectModelAasGenerator generator = new AspectModelAasGenerator();
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
       AspectContext aspectContext = generateAspectContext( aspectModel );
 
-      generator.generateAasXmlFile( aspectContext.aspect(), name -> outputStream );
+      generator.generate( AasFileFormat.XML, aspectContext.aspect(), name -> outputStream );
+
+      return outputStream.toString( StandardCharsets.UTF_8 );
+   }
+
+   public String generateAasJsonFile( String aspectModel ) {
+      final AspectModelAasGenerator generator = new AspectModelAasGenerator();
+      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+      AspectContext aspectContext = generateAspectContext( aspectModel );
+
+      generator.generate( AasFileFormat.JSON, aspectContext.aspect(), name -> outputStream );
 
       return outputStream.toString( StandardCharsets.UTF_8 );
    }

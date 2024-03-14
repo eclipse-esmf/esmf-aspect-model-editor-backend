@@ -106,7 +106,7 @@ class GenerateServiceTest {
    }
 
    @Test
-   void testAspectModelAASXML() throws IOException {
+   void testAspectModelAASXml() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
 
@@ -114,5 +114,18 @@ class GenerateServiceTest {
 
       assertTrue( payload.contains( "<?xml version='1.0' encoding='UTF-8'?>" ) );
       assertTrue( payload.contains( "https://admin-shell.io/aas/3/0" ) );
+   }
+
+   @Test
+   void testAspectModelAASJson() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final String payload = generateService.generateAasJsonFile( testModel );
+
+      assertTrue( payload.contains( "{" ) );
+      assertTrue( payload.contains( "}" ) );
+      assertTrue( payload.contains( "assetAdministrationShells" ) );
+      assertTrue( payload.contains( "submodels" ) );
    }
 }
