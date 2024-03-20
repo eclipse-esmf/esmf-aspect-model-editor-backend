@@ -1046,41 +1046,39 @@
   },
   {
     "name": "java.awt.Canvas",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.awt.Component",
-    "methods": [
-      {
-        "name": "getFontMetrics",
-        "parameterTypes": [
-          "java.awt.Font"
-        ]
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.awt.Font",
-    "methods": [
-      {
-        "name": "<init>",
-        "parameterTypes": [
-          "java.lang.String",
-          "int",
-          "int"
-        ]
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.io.Closeable",
-    "queryAllDeclaredMethods": true,
-    "queryAllPublicMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.io.File",
@@ -1102,34 +1100,39 @@
   },
   {
     "name": "java.io.Serializable",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllPublicMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.lang.AutoCloseable",
-    "queryAllDeclaredMethods": true,
-    "queryAllPublicMethods": true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.lang.CharSequence",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.lang.Class",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "getModule",
-        "parameterTypes": []
-      },
-      {
-        "name": "getSimpleName",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
     "name": "java.lang.ClassLoader",
@@ -1148,45 +1151,39 @@
   },
   {
     "name": "java.lang.Cloneable",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.lang.Comparable",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.lang.Enum",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "valueOf",
-        "parameterTypes": [
-          "java.lang.Class",
-          "java.lang.String"
-        ]
-      }
-    ]
+    "allPublicFields": true
   },
   {
     "name": "java.lang.Iterable",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "queryAllPublicMethods": true,
-    "methods": [
-      {
-        "name": "forEach",
-        "parameterTypes": [
-          "java.util.function.Consumer"
-        ]
-      },
-      {
-        "name": "spliterator",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
     "name": "java.lang.Module",
@@ -1223,8 +1220,12 @@
   },
   {
     "name": "java.lang.Object",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.lang.RuntimePermission",
@@ -1272,19 +1273,19 @@
   },
   {
     "name": "java.lang.String",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "equals",
-        "parameterTypes": [
-          "java.lang.Object"
-        ]
-      }
-    ]
+    "allPublicFields": true
   },
   {
     "name": "java.lang.Void",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
     "queryAllDeclaredMethods": true,
     "queryAllDeclaredConstructors": true
@@ -1620,34 +1621,48 @@
   },
   {
     "name": "java.util.AbstractCollection",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.util.AbstractList",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.util.AbstractSet",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.util.ArrayList",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "isEmpty",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
     "name": "java.util.Collection",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.util.Enumeration",
@@ -1660,34 +1675,30 @@
   },
   {
     "name": "java.util.HashSet",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "isEmpty",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
     "name": "java.util.List",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.util.Optional",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "get",
-        "parameterTypes": []
-      },
-      {
-        "name": "isPresent",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
     "name": "java.util.PropertyPermission",
@@ -1700,13 +1711,21 @@
   },
   {
     "name": "java.util.RandomAccess",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.util.Set",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "java.util.concurrent.Callable",
@@ -1768,23 +1787,21 @@
   },
   {
     "name": "java.util.stream.Collectors",
-    "methods": [
-      {
-        "name": "toList",
-        "parameterTypes": []
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "java.util.stream.Stream",
-    "methods": [
-      {
-        "name": "collect",
-        "parameterTypes": [
-          "java.util.stream.Collector"
-        ]
-      }
-    ]
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "javax.naming.InitialContext",
@@ -6476,19 +6493,21 @@
   },
   {
     "name": "org.eclipse.esmf.characteristic.Quantifiable",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.esmf.characteristic.impl.DefaultQuantifiable",
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
     "allDeclaredFields": true,
-    "queryAllDeclaredMethods": true,
-    "methods": [
-      {
-        "name": "getUnit",
-        "parameterTypes": []
-      }
-    ]
+    "allPublicFields": true
   },
   {
     "name": "org.eclipse.esmf.metamodel.Aspect",

@@ -74,7 +74,7 @@
         <mockito-inline-version>5.1.1</mockito-inline-version>
         <cglib-version>3.3.0</cglib-version>
         <classworlds-version>1.1</classworlds-version>
-        <graal-svm-version>23.0.1</graal-svm-version>
+        <graal-svm-version>23.0.3</graal-svm-version>
         <slf4j-api-version>2.0.5</slf4j-api-version>
         <jakarta-validation-api-version>3.0.2</jakarta-validation-api-version>
         <jakarta-version>6.0.0</jakarta-version>
@@ -276,6 +276,11 @@
                 <artifactId>svm</artifactId>
                 <version>${graal-svm-version}</version>
                 <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.graalvm.sdk</groupId>
+                <artifactId>graal-sdk</artifactId>
+                <version>${graal-svm-version}</version>
             </dependency>
 
             <!-- Third party dependencies -->
