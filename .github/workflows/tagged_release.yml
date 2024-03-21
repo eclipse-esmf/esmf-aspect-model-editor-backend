@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, windows-latest, ubuntu-20.04 ]
+        os: [ macos-latest, windows-latest, ubuntu-latest ]
 
     steps:
       - name: Checkout project
@@ -54,14 +54,14 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Set versions
-        if: matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           release_version=${{ github.event.inputs.release_version }}
           release_branch_name=${release_version%.*}.x
           echo "release_branch_name=$release_branch_name" >> $GITHUB_ENV
 
       - name: Create Release branch
-        if: matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "github-actions"
@@ -69,7 +69,7 @@ jobs:
           git push origin ${{ env.release_branch_name }}
 
       - name: Set maven version
-        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
         run: mvn versions:set -DnewVersion=${{ github.event.inputs.release_version }}
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -87,7 +87,7 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Linux)
-        if: matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-latest'
         run: mvn install -P native-image -DskipTests -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
 
         env:
@@ -138,7 +138,7 @@ jobs:
           tag: v${{ github.event.inputs.release_version }}
 
       - name: Create GitHub release (Linux)
-        if: ${{ (matrix.os == 'ubuntu-20.04') &&  (!contains( github.ref, '-M' )) }}
+        if: ${{ (matrix.os == 'ubuntu-latest') &&  (!contains( github.ref, '-M' )) }}
         uses: svenstaro/upload-release-action@latest
         with:
           file_glob: true
@@ -149,7 +149,7 @@ jobs:
           tag: v${{ github.event.inputs.release_version }}
 
       - name: Create GitHub pre-release (Linux)
-        if: ${{ (matrix.os == 'ubuntu-20.04') &&  (contains( github.ref, '-M' )) }}
+        if: ${{ (matrix.os == 'ubuntu-latest') &&  (contains( github.ref, '-M' )) }}
         uses: svenstaro/upload-release-action@latest
         with:
           file_glob: true
