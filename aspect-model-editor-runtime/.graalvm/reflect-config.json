@@ -1046,30 +1046,36 @@
   },
   {
     "name": "java.awt.Canvas",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": []
+      }
+    ]
   },
   {
     "name": "java.awt.Component",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
+    "methods": [
+      {
+        "name": "getFontMetrics",
+        "parameterTypes": [
+          "java.awt.Font"
+        ]
+      }
+    ]
   },
   {
     "name": "java.awt.Font",
-    "allDeclaredConstructors": true,
-    "allPublicConstructors": true,
-    "allDeclaredMethods": true,
-    "allPublicMethods": true,
-    "allDeclaredFields": true,
-    "allPublicFields": true
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.String",
+          "int",
+          "int"
+        ]
+      }
+    ]
   },
   {
     "name": "java.io.Closeable",
