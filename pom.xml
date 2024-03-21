@@ -277,11 +277,6 @@
                 <version>${graal-svm-version}</version>
                 <scope>provided</scope>
             </dependency>
-            <dependency>
-                <groupId>org.graalvm.sdk</groupId>
-                <artifactId>graal-sdk</artifactId>
-                <version>${graal-svm-version}</version>
-            </dependency>
 
             <!-- Third party dependencies -->
             <dependency>
