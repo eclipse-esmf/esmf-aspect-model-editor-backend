@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
+        os: [ macos-latest, windows-latest, ubuntu-20.04 ]
 
     steps:
       - name: Checkout project
@@ -54,7 +54,7 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Linux)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
         run: mvn install -P native-image -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -76,7 +76,7 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Linux
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
         run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=linux
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
