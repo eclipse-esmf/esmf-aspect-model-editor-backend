@@ -96,33 +96,33 @@ public class GenerateService {
       }
    }
 
-   public String generateAASXFile( String aspectModel ) {
+   public String generateAASXFile( final String aspectModel ) {
       final AspectModelAasGenerator generator = new AspectModelAasGenerator();
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      AspectContext aspectContext = generateAspectContext( aspectModel );
+      final AspectContext aspectContext = generateAspectContext( aspectModel );
 
       generator.generate( AasFileFormat.AASX, aspectContext.aspect(), name -> outputStream );
 
       return outputStream.toString( StandardCharsets.UTF_8 );
    }
 
-   public String generateAasXmlFile( String aspectModel ) {
+   public String generateAasXmlFile( final String aspectModel ) {
       final AspectModelAasGenerator generator = new AspectModelAasGenerator();
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      AspectContext aspectContext = generateAspectContext( aspectModel );
+      final AspectContext aspectContext = generateAspectContext( aspectModel );
 
       generator.generate( AasFileFormat.XML, aspectContext.aspect(), name -> outputStream );
 
       return outputStream.toString( StandardCharsets.UTF_8 );
    }
 
-   public String generateAasJsonFile( String aspectModel ) {
+   public String generateAasJsonFile( final String aspectModel ) {
       final AspectModelAasGenerator generator = new AspectModelAasGenerator();
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      AspectContext aspectContext = generateAspectContext( aspectModel );
+      final AspectContext aspectContext = generateAspectContext( aspectModel );
 
       generator.generate( AasFileFormat.JSON, aspectContext.aspect(), name -> outputStream );
 
@@ -140,12 +140,11 @@ public class GenerateService {
    }
 
    public String generateYamlOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
-         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption ) {
+         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption,
+         final Optional<String> resourcePath, final Optional<String> yamlProperties ) {
       try {
-         final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
-
-         return generator.applyForYaml( ResolverUtils.resolveAspectFromModel( aspectModel ),
-               useSemanticVersion, baseUrl, Optional.empty(), Optional.empty(), includeQueryApi, pagingOption,
+         return new AspectModelOpenApiGenerator().applyForYaml( ResolverUtils.resolveAspectFromModel( aspectModel ),
+               useSemanticVersion, baseUrl, resourcePath, yamlProperties, includeQueryApi, pagingOption,
                Locale.forLanguageTag( language ) );
       } catch ( final IOException e ) {
          LOG.error( "YAML OpenAPI specification could not be generated." );
@@ -154,13 +153,12 @@ public class GenerateService {
    }
 
    public String generateJsonOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
-         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption ) {
+         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption,
+         final Optional<String> resourcePath, final Optional<JsonNode> jsonProperties ) {
       try {
-         final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
-
-         final JsonNode json = generator.applyForJson(
+         final JsonNode json = new AspectModelOpenApiGenerator().applyForJson(
                ResolverUtils.resolveAspectFromModel( aspectModel ), useSemanticVersion, baseUrl,
-               Optional.empty(), Optional.empty(), includeQueryApi, pagingOption, LocaleUtils.toLocale( language ) );
+               resourcePath, jsonProperties, includeQueryApi, pagingOption, LocaleUtils.toLocale( language ) );
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
          final ObjectMapper objectMapper = new ObjectMapper();

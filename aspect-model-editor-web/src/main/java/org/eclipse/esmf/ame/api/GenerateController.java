@@ -25,6 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Controller class that supports the generation of the aspect model into other formats.
  */
@@ -47,8 +50,7 @@ public class GenerateController {
    @PostMapping( "documentation" )
    public ResponseEntity<byte[]> generateHtml( @RequestBody final String aspectModel,
          @RequestParam( name = "language" ) final String language ) throws IOException {
-      return ResponseEntity.ok(
-            generateService.generateHtmlDocument( aspectModel, language ) );
+      return ResponseEntity.ok( generateService.generateHtmlDocument( aspectModel, language ) );
    }
 
    /**
@@ -131,14 +133,36 @@ public class GenerateController {
          @RequestParam( name = "includeQueryApi", defaultValue = "false" ) final boolean includeQueryApi,
          @RequestParam( name = "useSemanticVersion", defaultValue = "false" ) final boolean useSemanticVersion,
          @RequestParam( name = "pagingOption", defaultValue = "TIME_BASED_PAGING" )
-         final Optional<PagingOption> pagingOption ) {
+         final Optional<PagingOption> pagingOption,
+         @RequestParam( name = "resourcePath", defaultValue = "" ) final String resourcePath,
+         @RequestParam( name = "ymlProperties", defaultValue = "" ) final String ymlProperties,
+         @RequestParam( name = "jsonProperties", defaultValue = "" ) final String jsonProperties )
+         throws JsonProcessingException {
 
-      final String openApiOutput = output.equals( "json" ) ?
-            generateService.generateJsonOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
-                  useSemanticVersion, pagingOption ) :
-            generateService.generateYamlOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
-                  useSemanticVersion, pagingOption );
+      final Optional<String> properties =
+            !resourcePath.isEmpty() && (!ymlProperties.isEmpty() || !jsonProperties.isEmpty())
+                  ? Optional.of( !ymlProperties.isEmpty() ? ymlProperties : jsonProperties )
+                  : Optional.empty();
+
+      final String openApiOutput = generateOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
+            useSemanticVersion, pagingOption, resourcePath, properties, output );
 
       return ResponseEntity.ok( openApiOutput );
+   }
+
+   private String generateOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
+         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption,
+         final String resourcePath, final Optional<String> properties, final String output )
+         throws JsonProcessingException {
+
+      if ( output.equals( "json" ) ) {
+         final ObjectMapper objectMapper = new ObjectMapper();
+         return generateService.generateJsonOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
+               useSemanticVersion, pagingOption, Optional.of( resourcePath ),
+               Optional.of( objectMapper.readTree( properties.orElse( "{}" ) ) ) );
+      }
+
+      return generateService.generateYamlOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
+            useSemanticVersion, pagingOption, Optional.of( resourcePath ), properties );
    }
 }
