@@ -2,8 +2,7 @@
 	"info": {
 		"_postman_id": "26a275be-9ff5-4002-a3c8-9cdd4bcf4f29",
 		"name": "AME.POSTMAN.RESOURCES",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "30151852"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{

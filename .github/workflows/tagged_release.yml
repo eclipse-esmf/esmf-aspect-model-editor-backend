@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-latest, windows-latest, ubuntu-latest ]
+        os: [ macos-12, windows-latest, ubuntu-20.04 ]
 
     steps:
       - name: Checkout project
@@ -54,14 +54,14 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Set versions
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
         run: |
           release_version=${{ github.event.inputs.release_version }}
           release_branch_name=${release_version%.*}.x
           echo "release_branch_name=$release_branch_name" >> $GITHUB_ENV
 
       - name: Create Release branch
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
         run: |
           git config --global user.email "github-actions@github.com"
           git config --global user.name "github-actions"
@@ -69,7 +69,7 @@ jobs:
           git push origin ${{ env.release_branch_name }}
 
       - name: Set maven version
-        if: matrix.os == 'macos-latest' || matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'macos-12' || matrix.os == 'ubuntu-20.04'
         run: mvn versions:set -DnewVersion=${{ github.event.inputs.release_version }}
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -81,13 +81,13 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Mac)
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-12'
         run: mvn install -P native-image -DskipTests -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Linux)
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-20.04'
         run: mvn install -P native-image -DskipTests -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
 
         env:
@@ -116,7 +116,7 @@ jobs:
         shell: pwsh
 
       - name: Create GitHub release (Mac)
-        if: ${{ (matrix.os == 'macos-latest') &&  (!contains( github.ref, '-M' )) }}
+        if: ${{ (matrix.os == 'macos-12') &&  (!contains( github.ref, '-M' )) }}
         uses: svenstaro/upload-release-action@latest
         with:
           file_glob: true
@@ -127,7 +127,7 @@ jobs:
           tag: v${{ github.event.inputs.release_version }}
 
       - name: Create GitHub pre-release (Mac)
-        if: ${{ (matrix.os == 'macos-latest') &&  (contains( github.ref, '-M' )) }}
+        if: ${{ (matrix.os == 'macos-12') &&  (contains( github.ref, '-M' )) }}
         uses: svenstaro/upload-release-action@latest
         with:
           file_glob: true
@@ -138,7 +138,7 @@ jobs:
           tag: v${{ github.event.inputs.release_version }}
 
       - name: Create GitHub release (Linux)
-        if: ${{ (matrix.os == 'ubuntu-latest') &&  (!contains( github.ref, '-M' )) }}
+        if: ${{ (matrix.os == 'ubuntu-20.04') &&  (!contains( github.ref, '-M' )) }}
         uses: svenstaro/upload-release-action@latest
         with:
           file_glob: true
@@ -149,7 +149,7 @@ jobs:
           tag: v${{ github.event.inputs.release_version }}
 
       - name: Create GitHub pre-release (Linux)
-        if: ${{ (matrix.os == 'ubuntu-latest') &&  (contains( github.ref, '-M' )) }}
+        if: ${{ (matrix.os == 'ubuntu-20.04') &&  (contains( github.ref, '-M' )) }}
         uses: svenstaro/upload-release-action@latest
         with:
           file_glob: true
