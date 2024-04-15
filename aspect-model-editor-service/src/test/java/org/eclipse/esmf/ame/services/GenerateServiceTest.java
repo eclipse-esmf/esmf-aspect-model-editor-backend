@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 import org.eclipse.esmf.ame.config.TestConfig;
+import org.eclipse.esmf.ame.exceptions.GenerationException;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +32,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @ExtendWith( SpringExtension.class )
 @SpringBootTest( classes = GenerateService.class )
@@ -68,12 +72,12 @@ class GenerateServiceTest {
    }
 
    @Test
-   void testAspectModelJsonOpenApiSpec() throws IOException {
+   void testAspectModelJsonOpenApiSpecWithoutResourcePath() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
 
       final String payload = generateService.generateJsonOpenApiSpec( "en", testModel, "https://test.com", false, false,
-            Optional.of( PagingOption.TIME_BASED_PAGING ) );
+            Optional.of( PagingOption.TIME_BASED_PAGING ), Optional.empty(), Optional.empty() );
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
@@ -82,17 +86,123 @@ class GenerateServiceTest {
    }
 
    @Test
-   void testAspectModelYamlOpenApiSpec() throws IOException {
+   void testAspectModelJsonOpenApiSpecWithResourcePath() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final ObjectMapper objectMapper = new ObjectMapper();
+      final Optional<JsonNode> jsonProperties = Optional.of( objectMapper.readTree( """
+            {
+              "resourceId": {
+                "name": "resourceId",
+                "in": "path",
+                "description": "An example resource Id.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+            """ ) );
+
+      final String payload = generateService.generateJsonOpenApiSpec( "en", testModel, "https://test.com", false, false,
+            Optional.of( PagingOption.TIME_BASED_PAGING ), Optional.of( "/resource/{resourceId}" ), jsonProperties );
+
+      assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
+      assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"AspectModelForService\"" ) );
+      assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
+      assertTrue( payload.contains( "\"/resource/{resourceId}\"" ) );
+      assertTrue( payload.contains( "\"name\" : \"resourceId\"" ) );
+      assertTrue( payload.contains( "\"in\" : \"path\"" ) );
+   }
+
+   @Test
+   void testAspectModelJsonOpenApiSpecWithWrongResourcePathProperties() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final ObjectMapper objectMapper = new ObjectMapper();
+      final Optional<JsonNode> jsonProperties = Optional.of( objectMapper.readTree( """
+            {
+              "wrongId": {
+                "name": "wrongId",
+                "in": "path",
+                "description": "An example resource Id.",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+            """ ) );
+
+      assertThrows( GenerationException.class, () -> {
+         generateService.generateJsonOpenApiSpec( "en", testModel, "https://test.com", false, false,
+               Optional.of( PagingOption.TIME_BASED_PAGING ), Optional.of( "/resource/{resourceId}" ), jsonProperties );
+      } );
+   }
+
+   @Test
+   void testAspectModelYamlOpenApiSpecWithoutResourcePath() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
 
       final String payload = generateService.generateYamlOpenApiSpec( "en", testModel, "https://test.com", false, false,
-            Optional.of( PagingOption.TIME_BASED_PAGING ) );
+            Optional.of( PagingOption.TIME_BASED_PAGING ), Optional.empty(), Optional.empty() );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
       assertTrue( payload.contains( "title: AspectModel" ) );
       assertTrue( payload.contains( "version: v1" ) );
       assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
+   }
+
+   @Test
+   void testAspectModelYamlOpenApiSpecWithResourcePath() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final Optional<String> yamlProperties = Optional.of( """
+               resourceId:
+                       name: resourceId
+                       in: path
+                       description: An example resource Id.
+                       required: true
+                       schema:
+                         type: string
+            """ );
+
+      final String payload = generateService.generateYamlOpenApiSpec( "en", testModel, "https://test.com", false, false,
+            Optional.of( PagingOption.TIME_BASED_PAGING ), Optional.of( "/resource/{resourceId}" ), yamlProperties );
+
+      assertTrue( payload.contains( "openapi: 3.0.3" ) );
+      assertTrue( payload.contains( "title: AspectModel" ) );
+      assertTrue( payload.contains( "version: v1" ) );
+      assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
+      assertTrue( payload.contains( "/resource/{resourceId}" ) );
+      assertTrue( payload.contains( "name: resourceId" ) );
+      assertTrue( payload.contains( "in: path" ) );
+   }
+
+   @Test
+   void testAspectModelYamlOpenApiSpecWithWrongResourcePathProperties() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final Optional<String> yamlProperties = Optional.of( """
+               wrongId:
+                       name: wrongId
+                       in: path
+                       description: An example resource Id.
+                       required: true
+                       schema:
+                         type: string
+            """ );
+
+      assertThrows( GenerationException.class, () -> {
+         generateService.generateYamlOpenApiSpec( "en", testModel, "https://test.com", false, false,
+               Optional.of( PagingOption.TIME_BASED_PAGING ), Optional.of( "/resource/{resourceId}" ), yamlProperties );
+      } );
    }
 
    @Test

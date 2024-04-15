@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.commons.lang3.LocaleUtils;
+import org.eclipse.esmf.ame.exceptions.GenerationException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.ame.resolver.strategy.utils.ResolverUtils;
@@ -50,6 +51,7 @@ public class GenerateService {
 
    private static final String COULD_NOT_LOAD_ASPECT = "Could not load Aspect";
    private static final String COULD_NOT_LOAD_ASPECT_MODEL = "Could not load Aspect model, please make sure the model is valid.";
+   public static final String WRONG_RESOURCE_PATH_ID = "The resource path ID and properties ID do not match. Please verify and correct them.";
 
    public GenerateService() {
       DataType.setupTypeMapping();
@@ -96,33 +98,33 @@ public class GenerateService {
       }
    }
 
-   public String generateAASXFile( String aspectModel ) {
+   public String generateAASXFile( final String aspectModel ) {
       final AspectModelAasGenerator generator = new AspectModelAasGenerator();
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      AspectContext aspectContext = generateAspectContext( aspectModel );
+      final AspectContext aspectContext = generateAspectContext( aspectModel );
 
       generator.generate( AasFileFormat.AASX, aspectContext.aspect(), name -> outputStream );
 
       return outputStream.toString( StandardCharsets.UTF_8 );
    }
 
-   public String generateAasXmlFile( String aspectModel ) {
+   public String generateAasXmlFile( final String aspectModel ) {
       final AspectModelAasGenerator generator = new AspectModelAasGenerator();
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      AspectContext aspectContext = generateAspectContext( aspectModel );
+      final AspectContext aspectContext = generateAspectContext( aspectModel );
 
       generator.generate( AasFileFormat.XML, aspectContext.aspect(), name -> outputStream );
 
       return outputStream.toString( StandardCharsets.UTF_8 );
    }
 
-   public String generateAasJsonFile( String aspectModel ) {
+   public String generateAasJsonFile( final String aspectModel ) {
       final AspectModelAasGenerator generator = new AspectModelAasGenerator();
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      AspectContext aspectContext = generateAspectContext( aspectModel );
+      final AspectContext aspectContext = generateAspectContext( aspectModel );
 
       generator.generate( AasFileFormat.JSON, aspectContext.aspect(), name -> outputStream );
 
@@ -140,13 +142,19 @@ public class GenerateService {
    }
 
    public String generateYamlOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
-         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption ) {
+         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption,
+         final Optional<String> resourcePath, final Optional<String> yamlProperties ) {
       try {
-         final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
-
-         return generator.applyForYaml( ResolverUtils.resolveAspectFromModel( aspectModel ),
-               useSemanticVersion, baseUrl, Optional.empty(), Optional.empty(), includeQueryApi, pagingOption,
+         final String ymlOutput = new AspectModelOpenApiGenerator().applyForYaml(
+               ResolverUtils.resolveAspectFromModel( aspectModel ),
+               useSemanticVersion, baseUrl, resourcePath, yamlProperties, includeQueryApi, pagingOption,
                Locale.forLanguageTag( language ) );
+
+         if ( ymlOutput.equals( "--- {}\n" ) ) {
+            throw new GenerationException( WRONG_RESOURCE_PATH_ID );
+         }
+
+         return ymlOutput;
       } catch ( final IOException e ) {
          LOG.error( "YAML OpenAPI specification could not be generated." );
          throw new InvalidAspectModelException( "Error generating YAML OpenAPI specification", e );
@@ -154,20 +162,25 @@ public class GenerateService {
    }
 
    public String generateJsonOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
-         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption ) {
+         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption,
+         final Optional<String> resourcePath, final Optional<JsonNode> jsonProperties ) {
       try {
-         final AspectModelOpenApiGenerator generator = new AspectModelOpenApiGenerator();
-
-         final JsonNode json = generator.applyForJson(
+         final JsonNode json = new AspectModelOpenApiGenerator().applyForJson(
                ResolverUtils.resolveAspectFromModel( aspectModel ), useSemanticVersion, baseUrl,
-               Optional.empty(), Optional.empty(), includeQueryApi, pagingOption, LocaleUtils.toLocale( language ) );
+               resourcePath, jsonProperties, includeQueryApi, pagingOption, LocaleUtils.toLocale( language ) );
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
          final ObjectMapper objectMapper = new ObjectMapper();
 
          objectMapper.writerWithDefaultPrettyPrinter().writeValue( out, json );
 
-         return out.toString();
+         final String jsonOutput = out.toString();
+
+         if ( jsonOutput.equals( "{ }" ) ) {
+            throw new GenerationException( WRONG_RESOURCE_PATH_ID );
+         }
+
+         return jsonOutput;
       } catch ( final IOException e ) {
          LOG.error( "JSON OpenAPI specification could not be generated." );
          throw new InvalidAspectModelException( "Error generating JSON OpenAPI specification", e );
