@@ -166,6 +166,19 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    }
 
    /**
+    * Method for handling exception to type {@link GenerationException}
+    *
+    * @param request the Http request
+    * @param e the exception which occurred
+    * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
+    */
+   @ExceptionHandler( GenerationException.class )
+   public ResponseEntity<ErrorResponse> handleInvalidAspectModelException( final WebRequest request,
+         final GenerationException e ) {
+      return error( HttpStatus.BAD_REQUEST, request, e, e.getMessage() );
+   }
+
+   /**
     * Method for handling exception to type {@link FileHandlingException}
     *
     * @param request the Http request
@@ -215,37 +228,40 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
             httpStatus.value(), requestURL );
    }
 
-   private ResponseEntity<ErrorResponse> handleExceptionInternal(Exception ex, @Nullable ErrorResponse body, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
+   private ResponseEntity<ErrorResponse> handleExceptionInternal( final Exception ex,
+         @Nullable final ErrorResponse body,
+         final HttpHeaders headers, final HttpStatusCode statusCode, final WebRequest request ) {
 
-      if (isResponseCommitted(request)) {
-         logger.warn("Response already committed. Ignoring: " + ex);
+      if ( isResponseCommitted( request ) ) {
+         logger.warn( "Response already committed. Ignoring: " + ex );
          return null;
       }
 
-      if (statusCode.equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-         request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
+      if ( statusCode.equals( HttpStatus.INTERNAL_SERVER_ERROR ) ) {
+         request.setAttribute( WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST );
       }
 
-      if (body == null && ex instanceof org.springframework.web.ErrorResponse) {
-         return handleErrorResponse(ex, headers, statusCode, request);
+      if ( body == null && ex instanceof org.springframework.web.ErrorResponse ) {
+         return handleErrorResponse( ex, headers, statusCode, request );
       }
 
-      return new ResponseEntity<>(body, headers, statusCode);
+      return new ResponseEntity<>( body, headers, statusCode );
    }
 
-   private boolean isResponseCommitted(WebRequest request) {
-      if (request instanceof ServletWebRequest) {
-         HttpServletResponse response = ((ServletWebRequest) request).getResponse();
+   private boolean isResponseCommitted( final WebRequest request ) {
+      if ( request instanceof ServletWebRequest ) {
+         final HttpServletResponse response = ((ServletWebRequest) request).getResponse();
          return response != null && response.isCommitted();
       }
       return false;
    }
 
-   private ResponseEntity<ErrorResponse> handleErrorResponse(Exception ex, HttpHeaders headers, HttpStatusCode statusCode, WebRequest request) {
-      ResponseEntity<Object> entity = super.handleExceptionInternal(ex, null, headers, statusCode, request);
-      Object responseBody = Objects.requireNonNull( entity ).getBody();
-      ErrorResponse errorResponse = (responseBody instanceof ErrorResponse) ? (ErrorResponse) responseBody : null;
+   private ResponseEntity<ErrorResponse> handleErrorResponse( final Exception ex, final HttpHeaders headers,
+         final HttpStatusCode statusCode, final WebRequest request ) {
+      final ResponseEntity<Object> entity = super.handleExceptionInternal( ex, null, headers, statusCode, request );
+      final Object responseBody = Objects.requireNonNull( entity ).getBody();
+      final ErrorResponse errorResponse = (responseBody instanceof ErrorResponse) ? (ErrorResponse) responseBody : null;
 
-      return new ResponseEntity<>(errorResponse, entity.getHeaders(), entity.getStatusCode());
+      return new ResponseEntity<>( errorResponse, entity.getHeaders(), entity.getStatusCode() );
    }
 }

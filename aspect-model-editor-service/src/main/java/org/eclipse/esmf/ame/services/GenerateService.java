@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import org.apache.commons.lang3.LocaleUtils;
+import org.eclipse.esmf.ame.exceptions.GenerationException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.ame.resolver.strategy.utils.ResolverUtils;
@@ -50,6 +51,7 @@ public class GenerateService {
 
    private static final String COULD_NOT_LOAD_ASPECT = "Could not load Aspect";
    private static final String COULD_NOT_LOAD_ASPECT_MODEL = "Could not load Aspect model, please make sure the model is valid.";
+   public static final String WRONG_RESOURCE_PATH_ID = "The resource path ID and properties ID do not match. Please verify and correct them.";
 
    public GenerateService() {
       DataType.setupTypeMapping();
@@ -143,9 +145,16 @@ public class GenerateService {
          final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption,
          final Optional<String> resourcePath, final Optional<String> yamlProperties ) {
       try {
-         return new AspectModelOpenApiGenerator().applyForYaml( ResolverUtils.resolveAspectFromModel( aspectModel ),
+         final String ymlOutput = new AspectModelOpenApiGenerator().applyForYaml(
+               ResolverUtils.resolveAspectFromModel( aspectModel ),
                useSemanticVersion, baseUrl, resourcePath, yamlProperties, includeQueryApi, pagingOption,
                Locale.forLanguageTag( language ) );
+
+         if ( ymlOutput.equals( "--- {}\n" ) ) {
+            throw new GenerationException( WRONG_RESOURCE_PATH_ID );
+         }
+
+         return ymlOutput;
       } catch ( final IOException e ) {
          LOG.error( "YAML OpenAPI specification could not be generated." );
          throw new InvalidAspectModelException( "Error generating YAML OpenAPI specification", e );
@@ -165,7 +174,13 @@ public class GenerateService {
 
          objectMapper.writerWithDefaultPrettyPrinter().writeValue( out, json );
 
-         return out.toString();
+         final String jsonOutput = out.toString();
+
+         if ( jsonOutput.equals( "{ }" ) ) {
+            throw new GenerationException( WRONG_RESOURCE_PATH_ID );
+         }
+
+         return jsonOutput;
       } catch ( final IOException e ) {
          LOG.error( "JSON OpenAPI specification could not be generated." );
          throw new InvalidAspectModelException( "Error generating JSON OpenAPI specification", e );
