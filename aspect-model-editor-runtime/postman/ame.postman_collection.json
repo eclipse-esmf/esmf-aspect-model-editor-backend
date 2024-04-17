@@ -2,7 +2,8 @@
 	"info": {
 		"_postman_id": "26a275be-9ff5-4002-a3c8-9cdd4bcf4f29",
 		"name": "AME.POSTMAN.RESOURCES",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30151852"
 	},
 	"item": [
 		{
@@ -601,18 +602,19 @@
 							"    pm.response.to.have.status(200);\r",
 							"});\r",
 							"pm.test(\"Response body is valid\", function () {\r",
-							"    pm.expect(pm.response.json()[\"components\"][\"schemas\"][\"urn_samm_org.eclipse.esmf.samm_characteristic_2.1.0_Boolean\"][\"type\"]).to.equal(\"boolean\");\r",
-							"    pm.expect(pm.response.json()[\"components\"][\"schemas\"][\"urn_samm_org.eclipse.examples_1.0.0_Coordinate\"][\"type\"]).to.equal(\"number\");\r",
-							"    pm.expect(pm.response.json()[\"components\"][\"schemas\"][\"urn_samm_org.eclipse.examples_1.0.0_MetresAboveMeanSeaLevel\"][\"type\"]).to.equal(\"number\");\r",
-							"    pm.expect(pm.response.json()[\"components\"][\"schemas\"][\"urn_samm_org.eclipse.examples_1.0.0_SpatialPosition\"][\"type\"]).to.equal(\"object\");\r",
+							"    pm.expect(pm.response.json()[\"components\"][\"schemas\"][\"Boolean\"][\"type\"]).to.equal(\"boolean\");\r",
+							"    pm.expect(pm.response.json()[\"components\"][\"schemas\"][\"Coordinate\"][\"type\"]).to.equal(\"number\");\r",
+							"    pm.expect(pm.response.json()[\"components\"][\"schemas\"][\"MetresAboveMeanSeaLevel\"][\"type\"]).to.equal(\"number\");\r",
+							"    pm.expect(pm.response.json()[\"components\"][\"schemas\"][\"SpatialPosition\"][\"type\"]).to.equal(\"object\");\r",
 							"\r",
-							"    pm.expect(pm.response.json()[\"properties\"][\"isMoving\"][\"$ref\"]).to.equal(\"#/components/schemas/urn_samm_org.eclipse.esmf.samm_characteristic_2.1.0_Boolean\");\r",
-							"    pm.expect(pm.response.json()[\"properties\"][\"position\"][\"$ref\"]).to.equal(\"#/components/schemas/urn_samm_org.eclipse.examples_1.0.0_SpatialPosition\");\r",
-							"    pm.expect(pm.response.json()[\"properties\"][\"speed\"][\"$ref\"]).to.equal(\"#/components/schemas/urn_samm_org.eclipse.examples_1.0.0_Speed\");\r",
-							"    pm.expect(pm.response.json()[\"properties\"][\"speedLimitWarning\"][\"$ref\"]).to.equal(\"#/components/schemas/urn_samm_org.eclipse.examples_1.0.0_TrafficLight\");\r",
+							"    pm.expect(pm.response.json()[\"properties\"][\"isMoving\"][\"$ref\"]).to.equal(\"#/components/schemas/Boolean\");\r",
+							"    pm.expect(pm.response.json()[\"properties\"][\"position\"][\"$ref\"]).to.equal(\"#/components/schemas/SpatialPositionCharacteristic\");\r",
+							"    pm.expect(pm.response.json()[\"properties\"][\"speed\"][\"$ref\"]).to.equal(\"#/components/schemas/Speed\");\r",
+							"    pm.expect(pm.response.json()[\"properties\"][\"speedLimitWarning\"][\"$ref\"]).to.equal(\"#/components/schemas/TrafficLight\");\r",
 							"});"
 						],
-						"type": "text/javascript"
+						"type": "text/javascript",
+						"packages": {}
 					}
 				}
 			],
@@ -1404,6 +1406,299 @@
 						"api",
 						"generate",
 						"aas-json"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateJsonAsyncApiSpec",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response body is valid\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData.asyncapi).to.equal(\"3.0.0\");\r",
+							"    pm.expect(jsonData.id).to.equal(\"application:id\");\r",
+							"\r",
+							"    pm.expect(jsonData.info.title).to.equal(\"movement MQTT API\");\r",
+							"    pm.expect(jsonData.info.version).to.equal(\"v1\");\r",
+							"\r",
+							"    pm.expect(jsonData.defaultContentType).to.equal(\"application/json\");\r",
+							"    pm.expect(jsonData.channels.Movement.address).to.equal(\"foo/bar\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:org.eclipse.examples:1.0.0#> .\r\n\r\n:Movement a samm:Aspect ;\r\n   samm:preferredName \"movement\"@en ;\r\n   samm:description \"Aspect for movement information\"@en ;\r\n   samm:properties ( :isMoving :position :speed :speedLimitWarning ) ;\r\n   samm:operations ( ) ;\r\n   samm:events ( ) .\r\n\r\n:isMoving a samm:Property ;\r\n   samm:preferredName \"is moving\"@en ;\r\n   samm:description \"Flag indicating whether the asset is currently moving\"@en ;\r\n   samm:characteristic samm-c:Boolean .\r\n\r\n:position a samm:Property ;\r\n   samm:preferredName \"position\"@en ;\r\n   samm:description \"Indicates a position\"@en ;\r\n   samm:characteristic :SpatialPositionCharacteristic .\r\n\r\n:speed a samm:Property ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"speed of vehicle\"@en ;\r\n   samm:characteristic :Speed .\r\n\r\n:speedLimitWarning a samm:Property ;\r\n   samm:preferredName \"speed limit warning\"@en ;\r\n   samm:description \"Indicates if the speed limit is adhered to.\"@en ;\r\n   samm:characteristic :TrafficLight .\r\n\r\n:SpatialPositionCharacteristic a samm-c:SingleEntity ;\r\n   samm:preferredName \"spatial position characteristic\"@en ;\r\n   samm:description \"Represents a single position in space with optional z coordinate.\"@en ;\r\n   samm:dataType :SpatialPosition .\r\n\r\n:Speed a samm-c:Measurement ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"Scalar representation of speed of an object in kilometers per hour.\"@en ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:kilometrePerHour .\r\n\r\n:TrafficLight a samm-c:Enumeration ;\r\n   samm:preferredName \"warning level\"@en ;\r\n   samm:description \"Represents if speed of position change is within specification (green), within tolerance (yellow), or outside specification (red).\"@en ;\r\n   samm:dataType xsd:string ;\r\n   samm-c:values ( \"green\" \"yellow\" \"red\" ) .\r\n\r\n:SpatialPosition a samm:Entity ;\r\n   samm:preferredName \"spatial position\"@en ;\r\n   samm:description \"Represents latitude, longitude and altitude information in the WGS84 geodetic reference datum\"@en ;\r\n   samm:see <https://www.w3.org/2003/01/geo/> ;\r\n   samm:properties ( :latitude :longitude [ samm:property :altitude; samm:optional true ] ) .\r\n\r\n:latitude a samm:Property ;\r\n   samm:preferredName \"latitude\"@en ;\r\n   samm:description \"latitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"9.1781\"^^xsd:decimal .\r\n\r\n:longitude a samm:Property ;\r\n   samm:preferredName \"longitude\"@en ;\r\n   samm:description \"longitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#long> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"48.80835\"^^xsd:decimal .\r\n\r\n:altitude a samm:Property ;\r\n   samm:preferredName \"altitude\"@en ;\r\n   samm:description \"Elevation above sea level zero\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#alt> ;\r\n   samm:characteristic :MetresAboveMeanSeaLevel ;\r\n   samm:exampleValue \"153\"^^xsd:float .\r\n\r\n:Coordinate a samm-c:Measurement ;\r\n   samm:preferredName \"coordinate\"@en ;\r\n   samm:description \"Representing the geographical coordinate\"@en ;\r\n   samm:dataType xsd:decimal ;\r\n   samm-c:unit unit:degreeUnitOfAngle .\r\n\r\n:MetresAboveMeanSeaLevel a samm-c:Measurement ;\r\n   samm:preferredName \"metres above mean sea level\"@en ;\r\n   samm:description \"Signifies the vertical distance in reference to a historic mean sea level as a vertical datum\"@en ;\r\n   samm:see <https://en.wikipedia.org/wiki/Height_above_sea_level> ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:metre .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/generate/async-api-spec?language=en&output=json&applicationId=application:id&channelAddress=foo/bar&useSemanticVersion=false&writeSeparateFiles=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"generate",
+						"async-api-spec"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en"
+						},
+						{
+							"key": "output",
+							"value": "json"
+						},
+						{
+							"key": "applicationId",
+							"value": "application:id"
+						},
+						{
+							"key": "channelAddress",
+							"value": "foo/bar"
+						},
+						{
+							"key": "useSemanticVersion",
+							"value": "false"
+						},
+						{
+							"key": "writeSeparateFiles",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateJsonAsyncApiSpecPackage",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response body is valid\", function () {\r",
+							"    const jsonData = pm.response.text();\r",
+							"    pm.expect(jsonData).to.include(\"json\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:org.eclipse.examples:1.0.0#> .\r\n\r\n:Movement a samm:Aspect ;\r\n   samm:preferredName \"movement\"@en ;\r\n   samm:description \"Aspect for movement information\"@en ;\r\n   samm:properties ( :isMoving :position :speed :speedLimitWarning ) ;\r\n   samm:operations ( ) ;\r\n   samm:events ( ) .\r\n\r\n:isMoving a samm:Property ;\r\n   samm:preferredName \"is moving\"@en ;\r\n   samm:description \"Flag indicating whether the asset is currently moving\"@en ;\r\n   samm:characteristic samm-c:Boolean .\r\n\r\n:position a samm:Property ;\r\n   samm:preferredName \"position\"@en ;\r\n   samm:description \"Indicates a position\"@en ;\r\n   samm:characteristic :SpatialPositionCharacteristic .\r\n\r\n:speed a samm:Property ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"speed of vehicle\"@en ;\r\n   samm:characteristic :Speed .\r\n\r\n:speedLimitWarning a samm:Property ;\r\n   samm:preferredName \"speed limit warning\"@en ;\r\n   samm:description \"Indicates if the speed limit is adhered to.\"@en ;\r\n   samm:characteristic :TrafficLight .\r\n\r\n:SpatialPositionCharacteristic a samm-c:SingleEntity ;\r\n   samm:preferredName \"spatial position characteristic\"@en ;\r\n   samm:description \"Represents a single position in space with optional z coordinate.\"@en ;\r\n   samm:dataType :SpatialPosition .\r\n\r\n:Speed a samm-c:Measurement ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"Scalar representation of speed of an object in kilometers per hour.\"@en ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:kilometrePerHour .\r\n\r\n:TrafficLight a samm-c:Enumeration ;\r\n   samm:preferredName \"warning level\"@en ;\r\n   samm:description \"Represents if speed of position change is within specification (green), within tolerance (yellow), or outside specification (red).\"@en ;\r\n   samm:dataType xsd:string ;\r\n   samm-c:values ( \"green\" \"yellow\" \"red\" ) .\r\n\r\n:SpatialPosition a samm:Entity ;\r\n   samm:preferredName \"spatial position\"@en ;\r\n   samm:description \"Represents latitude, longitude and altitude information in the WGS84 geodetic reference datum\"@en ;\r\n   samm:see <https://www.w3.org/2003/01/geo/> ;\r\n   samm:properties ( :latitude :longitude [ samm:property :altitude; samm:optional true ] ) .\r\n\r\n:latitude a samm:Property ;\r\n   samm:preferredName \"latitude\"@en ;\r\n   samm:description \"latitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"9.1781\"^^xsd:decimal .\r\n\r\n:longitude a samm:Property ;\r\n   samm:preferredName \"longitude\"@en ;\r\n   samm:description \"longitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#long> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"48.80835\"^^xsd:decimal .\r\n\r\n:altitude a samm:Property ;\r\n   samm:preferredName \"altitude\"@en ;\r\n   samm:description \"Elevation above sea level zero\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#alt> ;\r\n   samm:characteristic :MetresAboveMeanSeaLevel ;\r\n   samm:exampleValue \"153\"^^xsd:float .\r\n\r\n:Coordinate a samm-c:Measurement ;\r\n   samm:preferredName \"coordinate\"@en ;\r\n   samm:description \"Representing the geographical coordinate\"@en ;\r\n   samm:dataType xsd:decimal ;\r\n   samm-c:unit unit:degreeUnitOfAngle .\r\n\r\n:MetresAboveMeanSeaLevel a samm-c:Measurement ;\r\n   samm:preferredName \"metres above mean sea level\"@en ;\r\n   samm:description \"Signifies the vertical distance in reference to a historic mean sea level as a vertical datum\"@en ;\r\n   samm:see <https://en.wikipedia.org/wiki/Height_above_sea_level> ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:metre .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/generate/async-api-spec?language=en&output=json&applicationId=application:id&channelAddress=foo/bar&useSemanticVersion=false&writeSeparateFiles=true",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"generate",
+						"async-api-spec"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en"
+						},
+						{
+							"key": "output",
+							"value": "json"
+						},
+						{
+							"key": "applicationId",
+							"value": "application:id"
+						},
+						{
+							"key": "channelAddress",
+							"value": "foo/bar"
+						},
+						{
+							"key": "useSemanticVersion",
+							"value": "false"
+						},
+						{
+							"key": "writeSeparateFiles",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateYamlAsyncApiSpec",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response body is valid\", function () {\r",
+							"    const jsonData = pm.response.text();\r",
+							"    pm.expect(jsonData).to.include(\"asyncapi: 3.0.0\");\r",
+							"    pm.expect(jsonData).to.include(\"id: application:id\");\r",
+							"\r",
+							"    pm.expect(jsonData).to.include(\"title: movement MQTT API\");\r",
+							"    pm.expect(jsonData).to.include(\"version: v1\");\r",
+							"\r",
+							"    pm.expect(jsonData).to.include(\"defaultContentType: application/json\");\r",
+							"    pm.expect(jsonData).to.include(\"address: foo/bar\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:org.eclipse.examples:1.0.0#> .\r\n\r\n:Movement a samm:Aspect ;\r\n   samm:preferredName \"movement\"@en ;\r\n   samm:description \"Aspect for movement information\"@en ;\r\n   samm:properties ( :isMoving :position :speed :speedLimitWarning ) ;\r\n   samm:operations ( ) ;\r\n   samm:events ( ) .\r\n\r\n:isMoving a samm:Property ;\r\n   samm:preferredName \"is moving\"@en ;\r\n   samm:description \"Flag indicating whether the asset is currently moving\"@en ;\r\n   samm:characteristic samm-c:Boolean .\r\n\r\n:position a samm:Property ;\r\n   samm:preferredName \"position\"@en ;\r\n   samm:description \"Indicates a position\"@en ;\r\n   samm:characteristic :SpatialPositionCharacteristic .\r\n\r\n:speed a samm:Property ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"speed of vehicle\"@en ;\r\n   samm:characteristic :Speed .\r\n\r\n:speedLimitWarning a samm:Property ;\r\n   samm:preferredName \"speed limit warning\"@en ;\r\n   samm:description \"Indicates if the speed limit is adhered to.\"@en ;\r\n   samm:characteristic :TrafficLight .\r\n\r\n:SpatialPositionCharacteristic a samm-c:SingleEntity ;\r\n   samm:preferredName \"spatial position characteristic\"@en ;\r\n   samm:description \"Represents a single position in space with optional z coordinate.\"@en ;\r\n   samm:dataType :SpatialPosition .\r\n\r\n:Speed a samm-c:Measurement ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"Scalar representation of speed of an object in kilometers per hour.\"@en ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:kilometrePerHour .\r\n\r\n:TrafficLight a samm-c:Enumeration ;\r\n   samm:preferredName \"warning level\"@en ;\r\n   samm:description \"Represents if speed of position change is within specification (green), within tolerance (yellow), or outside specification (red).\"@en ;\r\n   samm:dataType xsd:string ;\r\n   samm-c:values ( \"green\" \"yellow\" \"red\" ) .\r\n\r\n:SpatialPosition a samm:Entity ;\r\n   samm:preferredName \"spatial position\"@en ;\r\n   samm:description \"Represents latitude, longitude and altitude information in the WGS84 geodetic reference datum\"@en ;\r\n   samm:see <https://www.w3.org/2003/01/geo/> ;\r\n   samm:properties ( :latitude :longitude [ samm:property :altitude; samm:optional true ] ) .\r\n\r\n:latitude a samm:Property ;\r\n   samm:preferredName \"latitude\"@en ;\r\n   samm:description \"latitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"9.1781\"^^xsd:decimal .\r\n\r\n:longitude a samm:Property ;\r\n   samm:preferredName \"longitude\"@en ;\r\n   samm:description \"longitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#long> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"48.80835\"^^xsd:decimal .\r\n\r\n:altitude a samm:Property ;\r\n   samm:preferredName \"altitude\"@en ;\r\n   samm:description \"Elevation above sea level zero\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#alt> ;\r\n   samm:characteristic :MetresAboveMeanSeaLevel ;\r\n   samm:exampleValue \"153\"^^xsd:float .\r\n\r\n:Coordinate a samm-c:Measurement ;\r\n   samm:preferredName \"coordinate\"@en ;\r\n   samm:description \"Representing the geographical coordinate\"@en ;\r\n   samm:dataType xsd:decimal ;\r\n   samm-c:unit unit:degreeUnitOfAngle .\r\n\r\n:MetresAboveMeanSeaLevel a samm-c:Measurement ;\r\n   samm:preferredName \"metres above mean sea level\"@en ;\r\n   samm:description \"Signifies the vertical distance in reference to a historic mean sea level as a vertical datum\"@en ;\r\n   samm:see <https://en.wikipedia.org/wiki/Height_above_sea_level> ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:metre .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/generate/async-api-spec?language=en&output=yaml&applicationId=application:id&channelAddress=foo/bar&useSemanticVersion=false&writeSeparateFiles=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"generate",
+						"async-api-spec"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en"
+						},
+						{
+							"key": "output",
+							"value": "yaml"
+						},
+						{
+							"key": "applicationId",
+							"value": "application:id"
+						},
+						{
+							"key": "channelAddress",
+							"value": "foo/bar"
+						},
+						{
+							"key": "useSemanticVersion",
+							"value": "false"
+						},
+						{
+							"key": "writeSeparateFiles",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateYamlAsyncApiSpecPackage",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response body is valid\", function () {\r",
+							"    const jsonData = pm.response.text();\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:org.eclipse.examples:1.0.0#> .\r\n\r\n:Movement a samm:Aspect ;\r\n   samm:preferredName \"movement\"@en ;\r\n   samm:description \"Aspect for movement information\"@en ;\r\n   samm:properties ( :isMoving :position :speed :speedLimitWarning ) ;\r\n   samm:operations ( ) ;\r\n   samm:events ( ) .\r\n\r\n:isMoving a samm:Property ;\r\n   samm:preferredName \"is moving\"@en ;\r\n   samm:description \"Flag indicating whether the asset is currently moving\"@en ;\r\n   samm:characteristic samm-c:Boolean .\r\n\r\n:position a samm:Property ;\r\n   samm:preferredName \"position\"@en ;\r\n   samm:description \"Indicates a position\"@en ;\r\n   samm:characteristic :SpatialPositionCharacteristic .\r\n\r\n:speed a samm:Property ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"speed of vehicle\"@en ;\r\n   samm:characteristic :Speed .\r\n\r\n:speedLimitWarning a samm:Property ;\r\n   samm:preferredName \"speed limit warning\"@en ;\r\n   samm:description \"Indicates if the speed limit is adhered to.\"@en ;\r\n   samm:characteristic :TrafficLight .\r\n\r\n:SpatialPositionCharacteristic a samm-c:SingleEntity ;\r\n   samm:preferredName \"spatial position characteristic\"@en ;\r\n   samm:description \"Represents a single position in space with optional z coordinate.\"@en ;\r\n   samm:dataType :SpatialPosition .\r\n\r\n:Speed a samm-c:Measurement ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"Scalar representation of speed of an object in kilometers per hour.\"@en ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:kilometrePerHour .\r\n\r\n:TrafficLight a samm-c:Enumeration ;\r\n   samm:preferredName \"warning level\"@en ;\r\n   samm:description \"Represents if speed of position change is within specification (green), within tolerance (yellow), or outside specification (red).\"@en ;\r\n   samm:dataType xsd:string ;\r\n   samm-c:values ( \"green\" \"yellow\" \"red\" ) .\r\n\r\n:SpatialPosition a samm:Entity ;\r\n   samm:preferredName \"spatial position\"@en ;\r\n   samm:description \"Represents latitude, longitude and altitude information in the WGS84 geodetic reference datum\"@en ;\r\n   samm:see <https://www.w3.org/2003/01/geo/> ;\r\n   samm:properties ( :latitude :longitude [ samm:property :altitude; samm:optional true ] ) .\r\n\r\n:latitude a samm:Property ;\r\n   samm:preferredName \"latitude\"@en ;\r\n   samm:description \"latitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"9.1781\"^^xsd:decimal .\r\n\r\n:longitude a samm:Property ;\r\n   samm:preferredName \"longitude\"@en ;\r\n   samm:description \"longitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#long> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"48.80835\"^^xsd:decimal .\r\n\r\n:altitude a samm:Property ;\r\n   samm:preferredName \"altitude\"@en ;\r\n   samm:description \"Elevation above sea level zero\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#alt> ;\r\n   samm:characteristic :MetresAboveMeanSeaLevel ;\r\n   samm:exampleValue \"153\"^^xsd:float .\r\n\r\n:Coordinate a samm-c:Measurement ;\r\n   samm:preferredName \"coordinate\"@en ;\r\n   samm:description \"Representing the geographical coordinate\"@en ;\r\n   samm:dataType xsd:decimal ;\r\n   samm-c:unit unit:degreeUnitOfAngle .\r\n\r\n:MetresAboveMeanSeaLevel a samm-c:Measurement ;\r\n   samm:preferredName \"metres above mean sea level\"@en ;\r\n   samm:description \"Signifies the vertical distance in reference to a historic mean sea level as a vertical datum\"@en ;\r\n   samm:see <https://en.wikipedia.org/wiki/Height_above_sea_level> ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:metre .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/generate/async-api-spec?language=en&output=yaml&applicationId=application:id&channelAddress=foo/bar&useSemanticVersion=false&writeSeparateFiles=true",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"generate",
+						"async-api-spec"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "en"
+						},
+						{
+							"key": "output",
+							"value": "yaml"
+						},
+						{
+							"key": "applicationId",
+							"value": "application:id"
+						},
+						{
+							"key": "channelAddress",
+							"value": "foo/bar"
+						},
+						{
+							"key": "useSemanticVersion",
+							"value": "false"
+						},
+						{
+							"key": "writeSeparateFiles",
+							"value": "true"
+						}
 					]
 				}
 			},
