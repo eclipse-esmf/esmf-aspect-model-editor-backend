@@ -15,11 +15,13 @@ package org.eclipse.esmf.ame.services;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.zip.ZipInputStream;
 
 import org.eclipse.esmf.ame.config.TestConfig;
 import org.eclipse.esmf.ame.exceptions.GenerationException;
@@ -237,5 +239,69 @@ class GenerateServiceTest {
       assertTrue( payload.contains( "}" ) );
       assertTrue( payload.contains( "assetAdministrationShells" ) );
       assertTrue( payload.contains( "submodels" ) );
+   }
+
+   @Test
+   void testAspectModelJsonAsyncApiSpec() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final String payload = new String(
+            generateService.generateAsyncApiSpec( testModel, "en", "json", "application:id", "foo/bar",
+                  false, false ), StandardCharsets.UTF_8 );
+
+      assertTrue( payload.contains( "\"asyncapi\":\"3.0.0\"" ) );
+      assertTrue( payload.contains( "\"id\":\"application:id\"" ) );
+      assertTrue( payload.contains( "\"title\":\"AspectModelForService MQTT API\"" ) );
+      assertTrue( payload.contains( "\"version\":\"v1\"" ) );
+      assertTrue( payload.contains( "\"defaultContentType\":\"application/json\"" ) );
+      assertTrue( payload.contains( "\"address\":\"foo/bar\"" ) );
+   }
+
+   @Test
+   void testAspectModelJsonAsyncApiSpecWithSeparateFiles() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final byte[] payload = generateService.generateAsyncApiSpec( testModel, "en", "json", "application:id", "foo/bar",
+            false, true );
+
+      assertTrue( isValidZipFile( payload ) );
+   }
+
+   @Test
+   void testAspectModelYAMLAsyncApiSpec() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final String payload = new String(
+            generateService.generateAsyncApiSpec( testModel, "en", "yaml", "application:id", "foo/bar",
+                  false, false ), StandardCharsets.UTF_8 );
+
+      assertTrue( payload.contains( "asyncapi: 3.0.0" ) );
+      assertTrue( payload.contains( "id: application:id" ) );
+      assertTrue( payload.contains( "title: AspectModelForService MQTT API" ) );
+      assertTrue( payload.contains( "version: v1" ) );
+      assertTrue( payload.contains( "defaultContentType: application/json" ) );
+      assertTrue( payload.contains( "address: foo/bar" ) );
+   }
+
+   @Test
+   void testAspectModelYAMLAsyncApiSpecWithSeparateFiles() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final byte[] payload = generateService.generateAsyncApiSpec( testModel, "en", "yaml", "application:id", "foo/bar",
+            false, true );
+
+      assertTrue( isValidZipFile( payload ) );
+   }
+
+   private boolean isValidZipFile( final byte[] payload ) {
+      try ( final ZipInputStream zis = new ZipInputStream( new ByteArrayInputStream( payload ) ) ) {
+         return zis.getNextEntry() != null;
+      } catch ( final IOException e ) {
+         return false;
+      }
    }
 }

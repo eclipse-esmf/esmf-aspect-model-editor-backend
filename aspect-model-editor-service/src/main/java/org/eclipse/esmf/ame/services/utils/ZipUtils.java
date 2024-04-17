@@ -20,6 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,14 +44,35 @@ public class ZipUtils {
 
    static final int BUFFER = 1024;
 
+   public static byte[] createAsyncApiPackage( final Map<Path, byte[]> content ) {
+      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+      try ( final ZipOutputStream zos = new ZipOutputStream( outputStream ) ) {
+         for ( final Map.Entry<Path, byte[]> entry : content.entrySet() ) {
+            final ZipEntry zipEntry = new ZipEntry( entry.getKey().toString() );
+            zos.putNextEntry( zipEntry );
+
+            final byte[] bytes = entry.getValue();
+            zos.write( bytes, 0, bytes.length );
+
+            zos.closeEntry();
+         }
+      } catch ( final IOException e ) {
+         LOG.error( "Failed to create the asynchronous API ZIP file." );
+         throw new CreateFileException( "An error occurred while creating the ZIP file for the async API.", e );
+      }
+
+      return outputStream.toByteArray();
+   }
+
    public static byte[] createPackageFromCache( final Map<String, String> exportCache ) throws IOException {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      try ( ZipOutputStream zos = new ZipOutputStream( outputStream ) ) {
-         Set<String> zipFolderSet = new HashSet<>();
-         Set<String> zipVersionedNamespaceSet = new HashSet<>();
+      try ( final ZipOutputStream zos = new ZipOutputStream( outputStream ) ) {
+         final Set<String> zipFolderSet = new HashSet<>();
+         final Set<String> zipVersionedNamespaceSet = new HashSet<>();
 
-         for ( Map.Entry<String, String> entry : exportCache.entrySet() ) {
+         for ( final Map.Entry<String, String> entry : exportCache.entrySet() ) {
             final String[] fileStructure = entry.getKey().split( ":" );
             final String aspectModel = entry.getValue();
 
@@ -85,7 +107,8 @@ public class ZipUtils {
          final String storagePath ) throws IOException {
       final String zipFile = aspectModelPath + File.separator + zipFileName;
 
-      try ( FileOutputStream fos = new FileOutputStream( zipFile ); ZipOutputStream zos = new ZipOutputStream( fos ) ) {
+      try ( final FileOutputStream fos = new FileOutputStream( zipFile );
+            final ZipOutputStream zos = new ZipOutputStream( fos ) ) {
 
          final List<File> fileList = getFileList( new File( storagePath ), new ArrayList<>(), storagePath );
 

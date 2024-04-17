@@ -18,6 +18,7 @@ import java.util.Optional;
 
 import org.eclipse.esmf.ame.services.GenerateService;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -140,9 +141,9 @@ public class GenerateController {
          throws JsonProcessingException {
 
       final Optional<String> properties =
-            !resourcePath.isEmpty() && (!ymlProperties.isEmpty() || !jsonProperties.isEmpty())
-                  ? Optional.of( !ymlProperties.isEmpty() ? ymlProperties : jsonProperties )
-                  : Optional.empty();
+            !resourcePath.isEmpty() && (!ymlProperties.isEmpty() || !jsonProperties.isEmpty()) ?
+                  Optional.of( !ymlProperties.isEmpty() ? ymlProperties : jsonProperties ) :
+                  Optional.empty();
 
       final String openApiOutput = generateOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
             useSemanticVersion, pagingOption, resourcePath, properties, output );
@@ -164,5 +165,43 @@ public class GenerateController {
 
       return generateService.generateYamlOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
             useSemanticVersion, pagingOption, Optional.of( resourcePath ), properties );
+   }
+
+   /**
+    * This method is used to generate an AsyncApi specification of the Aspect Model
+    *
+    * @param aspectModel the Aspect Model Data
+    * @param language of the generated AsyncApi specification
+    * @param output of the AsyncApi specification
+    * @param applicationId Sets the application id, e.g. an identifying URL
+    * @param channelAddress Sets the channel address (i.e., for MQTT, the topic's name)
+    * @param useSemanticVersion if set to true, the complete semantic version of the Aspect Model will be used as
+    *       the version of the API, otherwise only the major part of the Aspect Version is used as the version of the
+    *       API.
+    * @param writeSeparateFiles Create separate files for each schema
+    * @return The AsyncApi specification
+    */
+   @PostMapping( "async-api-spec" )
+   public ResponseEntity<byte[]> asyncApiSpec( @RequestBody final String aspectModel,
+         @RequestParam( name = "language", defaultValue = "en" ) final String language,
+         @RequestParam( name = "output", defaultValue = "yaml" ) final String output,
+         @RequestParam( name = "applicationId", defaultValue = "" ) final String applicationId,
+         @RequestParam( name = "channelAddress", defaultValue = "" ) final String channelAddress,
+         @RequestParam( name = "useSemanticVersion", defaultValue = "false" ) final boolean useSemanticVersion,
+         @RequestParam( name = "writeSeparateFiles", defaultValue = "false" ) final boolean writeSeparateFiles ) {
+      final byte[] asyncApiSpec = generateService.generateAsyncApiSpec( aspectModel, language, output, applicationId,
+            channelAddress, useSemanticVersion, writeSeparateFiles );
+
+      return buildResponse( asyncApiSpec, writeSeparateFiles );
+   }
+
+   private ResponseEntity<byte[]> buildResponse( final byte[] asyncApiSpec, final boolean writeSeparateFiles ) {
+      final ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
+
+      if ( writeSeparateFiles ) {
+         responseBuilder.header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"async-api-package.zip\"" );
+      }
+
+      return responseBuilder.body( asyncApiSpec );
    }
 }
