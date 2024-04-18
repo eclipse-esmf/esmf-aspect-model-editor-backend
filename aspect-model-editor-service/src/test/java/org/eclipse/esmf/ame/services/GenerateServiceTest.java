@@ -70,7 +70,7 @@ class GenerateServiceTest {
 
       final String payload = generateService.jsonSchema( testModel, "en-EN" );
 
-      assertTrue( payload.contains( "#/components/schemas/urn_samm_org.eclipse.esmf.example_1.0.0_Characteristic" ) );
+      assertTrue( payload.contains( "#/components/schemas/Characteristic" ) );
    }
 
    @Test
