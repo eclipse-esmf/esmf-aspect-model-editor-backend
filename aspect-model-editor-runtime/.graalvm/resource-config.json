@@ -74,6 +74,9 @@
         "pattern": "\\Qopenapi/OffsetBasedPaging.json\\E"
       },
       {
+        "pattern": "\\Qasyncapi/AsyncApiRootJson.json\\E"
+      },
+      {
         "pattern": "\\Qcom/eclipsesource/v8/V8.class\\E"
       },
       {

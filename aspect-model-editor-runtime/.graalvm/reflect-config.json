@@ -5634,6 +5634,18 @@
           "boolean",
           "java.util.Optional"
         ]
+      },
+      {
+        "name": "asyncApiSpec",
+        "parameterTypes": [
+          "java.lang.String",
+          "java.lang.String",
+          "java.lang.String",
+          "java.lang.String",
+          "java.lang.String",
+          "boolean",
+          "boolean"
+        ]
       }
     ]
   },
@@ -13411,21 +13423,21 @@
   },
   {
     "name": "sun.awt.X11FontManager",
-    "allDeclaredConstructors" : true,
-    "allPublicConstructors" : true,
-    "allDeclaredMethods" : true,
-    "allPublicMethods" : true,
-    "allDeclaredFields" : true,
-    "allPublicFields" : true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "sun.font.FontConfigManager",
-    "allDeclaredConstructors" : true,
-    "allPublicConstructors" : true,
-    "allDeclaredMethods" : true,
-    "allPublicMethods" : true,
-    "allDeclaredFields" : true,
-    "allPublicFields" : true
+    "allDeclaredConstructors": true,
+    "allPublicConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true,
+    "allPublicFields": true
   },
   {
     "name": "sun.misc.Unsafe",

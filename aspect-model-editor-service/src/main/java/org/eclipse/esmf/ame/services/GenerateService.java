@@ -16,17 +16,26 @@ package org.eclipse.esmf.ame.services;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.LocaleUtils;
+import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.GenerationException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
 import org.eclipse.esmf.ame.resolver.strategy.utils.ResolverUtils;
+import org.eclipse.esmf.ame.services.utils.ZipUtils;
 import org.eclipse.esmf.ame.utils.ModelUtils;
 import org.eclipse.esmf.aspectmodel.aas.AasFileFormat;
 import org.eclipse.esmf.aspectmodel.aas.AspectModelAasGenerator;
+import org.eclipse.esmf.aspectmodel.generator.asyncapi.AspectModelAsyncApiGenerator;
+import org.eclipse.esmf.aspectmodel.generator.asyncapi.AsyncApiSchemaArtifact;
+import org.eclipse.esmf.aspectmodel.generator.asyncapi.AsyncApiSchemaGenerationConfig;
+import org.eclipse.esmf.aspectmodel.generator.asyncapi.AsyncApiSchemaGenerationConfigBuilder;
 import org.eclipse.esmf.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
 import org.eclipse.esmf.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
 import org.eclipse.esmf.aspectmodel.generator.jsonschema.AspectModelJsonSchemaGenerator;
@@ -34,13 +43,17 @@ import org.eclipse.esmf.aspectmodel.generator.openapi.AspectModelOpenApiGenerato
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 import org.eclipse.esmf.aspectmodel.resolver.services.DataType;
 import org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel;
+import org.eclipse.esmf.metamodel.Aspect;
 import org.eclipse.esmf.metamodel.AspectContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import com.google.common.collect.ImmutableMap;
 
 import io.vavr.control.Try;
@@ -48,7 +61,7 @@ import io.vavr.control.Try;
 @Service
 public class GenerateService {
    private static final Logger LOG = LoggerFactory.getLogger( GenerateService.class );
-
+   private static final ObjectMapper YAML_MAPPER = new YAMLMapper().enable( YAMLGenerator.Feature.MINIMIZE_QUOTES );
    private static final String COULD_NOT_LOAD_ASPECT = "Could not load Aspect";
    private static final String COULD_NOT_LOAD_ASPECT_MODEL = "Could not load Aspect model, please make sure the model is valid.";
    public static final String WRONG_RESOURCE_PATH_ID = "The resource path ID and properties ID do not match. Please verify and correct them.";
@@ -90,8 +103,7 @@ public class GenerateService {
 
    public String sampleJSONPayload( final String aspectModel ) {
       try {
-         return new AspectModelJsonPayloadGenerator(
-               generateAspectContext( aspectModel ) ).generateJson();
+         return new AspectModelJsonPayloadGenerator( generateAspectContext( aspectModel ) ).generateJson();
       } catch ( final IOException e ) {
          LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
          throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
@@ -144,21 +156,15 @@ public class GenerateService {
    public String generateYamlOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
          final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption,
          final Optional<String> resourcePath, final Optional<String> yamlProperties ) {
-      try {
-         final String ymlOutput = new AspectModelOpenApiGenerator().applyForYaml(
-               ResolverUtils.resolveAspectFromModel( aspectModel ),
-               useSemanticVersion, baseUrl, resourcePath, yamlProperties, includeQueryApi, pagingOption,
-               Locale.forLanguageTag( language ) );
+      final String ymlOutput = new AspectModelOpenApiGenerator().applyForYaml(
+            ResolverUtils.resolveAspectFromModel( aspectModel ), useSemanticVersion, baseUrl, resourcePath,
+            yamlProperties, includeQueryApi, pagingOption, Locale.forLanguageTag( language ) );
 
-         if ( ymlOutput.equals( "--- {}\n" ) ) {
-            throw new GenerationException( WRONG_RESOURCE_PATH_ID );
-         }
-
-         return ymlOutput;
-      } catch ( final IOException e ) {
-         LOG.error( "YAML OpenAPI specification could not be generated." );
-         throw new InvalidAspectModelException( "Error generating YAML OpenAPI specification", e );
+      if ( ymlOutput.equals( "--- {}\n" ) ) {
+         throw new GenerationException( WRONG_RESOURCE_PATH_ID );
       }
+
+      return ymlOutput;
    }
 
    public String generateJsonOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
@@ -166,8 +172,8 @@ public class GenerateService {
          final Optional<String> resourcePath, final Optional<JsonNode> jsonProperties ) {
       try {
          final JsonNode json = new AspectModelOpenApiGenerator().applyForJson(
-               ResolverUtils.resolveAspectFromModel( aspectModel ), useSemanticVersion, baseUrl,
-               resourcePath, jsonProperties, includeQueryApi, pagingOption, LocaleUtils.toLocale( language ) );
+               ResolverUtils.resolveAspectFromModel( aspectModel ), useSemanticVersion, baseUrl, resourcePath,
+               jsonProperties, includeQueryApi, pagingOption, LocaleUtils.toLocale( language ) );
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
          final ObjectMapper objectMapper = new ObjectMapper();
@@ -184,6 +190,85 @@ public class GenerateService {
       } catch ( final IOException e ) {
          LOG.error( "JSON OpenAPI specification could not be generated." );
          throw new InvalidAspectModelException( "Error generating JSON OpenAPI specification", e );
+      }
+   }
+
+   public byte[] generateAsyncApiSpec( final String aspectModel, final String language, final String output,
+         final String applicationId, final String channelAddress, final boolean useSemanticVersion,
+         final boolean writeSeparateFiles ) {
+      final AspectModelAsyncApiGenerator generator = new AspectModelAsyncApiGenerator();
+      final AsyncApiSchemaGenerationConfig config = buildAsyncApiSchemaGenerationConfig( applicationId, channelAddress,
+            useSemanticVersion, language );
+
+      final Aspect aspect = ResolverUtils.resolveAspectFromModel( aspectModel );
+      final AsyncApiSchemaArtifact asyncApiSpec = generator.apply( aspect, config );
+
+      if ( writeSeparateFiles ) {
+         return generateZipFile( asyncApiSpec, output );
+      }
+
+      return generateSingleFile( asyncApiSpec, output );
+   }
+
+   private AsyncApiSchemaGenerationConfig buildAsyncApiSchemaGenerationConfig( final String applicationId,
+         final String channelAddress, final boolean useSemanticVersion, final String language ) {
+      return AsyncApiSchemaGenerationConfigBuilder.builder().useSemanticVersion( useSemanticVersion )
+                                                  .applicationId( applicationId ).channelAddress( channelAddress )
+                                                  .locale( LocaleUtils.toLocale( language ) ).build();
+   }
+
+   private byte[] generateZipFile( final AsyncApiSchemaArtifact asyncApiSpec, final String output ) {
+      if ( output.equals( "json" ) ) {
+         return jsonZip( asyncApiSpec.getContentWithSeparateSchemasAsJson() );
+      }
+
+      return yamlZip( asyncApiSpec.getContentWithSeparateSchemasAsYaml() );
+   }
+
+   private byte[] jsonZip( final Map<Path, JsonNode> separateFilesContent ) {
+      final ObjectMapper objectMapper = new ObjectMapper();
+      final Map<Path, byte[]> content = new HashMap<>();
+
+      for ( final Map.Entry<Path, JsonNode> entry : separateFilesContent.entrySet() ) {
+         try {
+            final byte[] bytes = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes( entry.getValue() );
+            content.put( entry.getKey(), bytes );
+         } catch ( final JsonProcessingException e ) {
+            LOG.error( "Failed to convert JSON to bytes.", e );
+            throw new FileHandlingException( "Failed to get JSON async api.", e );
+         }
+      }
+
+      return ZipUtils.createAsyncApiPackage( content );
+   }
+
+   private byte[] yamlZip( final Map<Path, String> separateFilesContent ) {
+      final Map<Path, byte[]> content = new HashMap<>();
+
+      for ( final Map.Entry<Path, String> entry : separateFilesContent.entrySet() ) {
+         final byte[] bytes = entry.getValue().getBytes( StandardCharsets.UTF_8 );
+         content.put( entry.getKey(), bytes );
+      }
+
+      return ZipUtils.createAsyncApiPackage( content );
+   }
+
+   private byte[] generateSingleFile( final AsyncApiSchemaArtifact asyncApiSpec, final String output ) {
+      final JsonNode json = asyncApiSpec.getContent();
+
+      if ( output.equals( "yaml" ) ) {
+         return jsonToYaml( json ).getBytes( StandardCharsets.UTF_8 );
+      }
+
+      return json.toString().getBytes( StandardCharsets.UTF_8 );
+   }
+
+   private String jsonToYaml( final JsonNode json ) {
+      try {
+         return YAML_MAPPER.writeValueAsString( json );
+      } catch ( final JsonProcessingException e ) {
+         LOG.error( "JSON could not be converted to YAML", e );
+         throw new FileHandlingException( "Failed to get YAML async api.", e );
       }
    }
 }
