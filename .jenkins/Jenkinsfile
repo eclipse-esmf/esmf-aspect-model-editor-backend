@@ -13,8 +13,8 @@ pipeline {
     stages {
         stage('Example') {
             steps {
-                echo params.artifact_url
-                echo "Artifact URL: ${env.ARTIFACT_URL}"
+                echo
+                echo "Artifact URL: ${params.artifact_url}"
                 echo "VERSION: ${env.VERSION}"
             }
         }
