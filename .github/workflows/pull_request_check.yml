@@ -131,6 +131,7 @@ jobs:
 
       - name: Commit artifact_url and version changes and push to pre release branch for jenkins
         if: matrix.os == 'windows-latest'
+        shell: bash
         run: |
           ARTIFACT_URL="https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/actions/runs/8847860794/artifacts/1450721842"
           ENCODED_URL=$(echo "$ARTIFACT_URL" | jq -sRr @uri)
