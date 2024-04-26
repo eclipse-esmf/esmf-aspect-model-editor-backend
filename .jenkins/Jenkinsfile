@@ -3,8 +3,8 @@ pipeline {
 
     environment {
         GITHUB_TOKEN = credentials('github-bot-token')
-        ARTIFACT_URL = params.artifact_url.split("/").last()
-        VERSION = params.version.split("/").last()
+        ARTIFACT_URL = params.artifact_url
+        VERSION = params.version
     }
 
     stages {
