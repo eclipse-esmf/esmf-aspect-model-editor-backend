@@ -18,9 +18,7 @@ pipeline {
                 }
             }
         }
-    }
 
-    stages {
         stage('Example') {
             steps {
                 echo "Artifact URL: ${env.artifact_url}"
