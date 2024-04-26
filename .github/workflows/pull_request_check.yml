@@ -86,3 +86,56 @@ jobs:
         run: mvn install -DskipTests -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-postman-integration-tests -D os.platform=win
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload binary (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ame-backend-${{ matrix.os }}
+          path: |
+            aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win.exe
+            aspect-model-editor-runtime/target/*.dll
+            aspect-model-editor-runtime/target/*.bat
+            aspect-model-editor-runtime/target/lib/
+
+      - name: Upload binary (Linux)
+        if: matrix.os == 'ubuntu-20.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ame-backend-${{ matrix.os }}
+          path: |
+            aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux
+            aspect-model-editor-runtime/target/*.so
+
+      - name: Upload binary (Mac)
+        if: matrix.os == 'macos-12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ame-backend-${{ matrix.os }}
+          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac
+
+      - name: Get Artifact ID (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          # Get the list of artifacts for the specified workflow run
+          response=$(curl -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository_owner }}/$(echo '${{ github.repository }}' | cut -d'/' -f2)/actions/runs/${{ github.run_id }}/artifacts")
+          
+          # Filter out the ID of the artifact with a name that contains "windows"
+          artifact_id=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("windows")) | .id')
+          
+          # Save the artifact ID in an environment variable
+          echo "ARTIFACT_ID=$artifact_id" >> $GITHUB_ENV
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Jenkins Job, for signing executable
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          DATA='{"repository": {"url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "html_url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "owner": { "name": "ESMF"}}, "pusher": { "name": "GitHub Action", "email": "esmf-dev@eclipse.org"}}'
+          SHA1="$(echo -n "${DATA}" | openssl dgst -sha1 -hmac "${WEBHOOK_SECRET}" | sed 's/SHA1(stdin)= //')"
+          ARTIFACT_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ env.ARTIFACT_ID }}"
+          ENCODED_URL=$(echo "$ARTIFACT_URL" | jq -sRr @uri)
+          PARAMS="artifact_url=$ENCODED_URL&version=0.0.1"
+          curl -X POST https://ci.eclipse.org/esmf/github-webhook/?${PARAMS} -H "Content-Type: application/json" -H "X-GitHub-Event: push" -H "X-Hub-Signature: sha1=${SHA1}" -d "${DATA}"
