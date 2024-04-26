@@ -131,6 +131,7 @@ jobs:
 
       - name: Trigger Jenkins Job, for signing executable
         if: matrix.os == 'windows-latest'
+        shell: bash
         run: |
           DATA='{"repository": {"url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "html_url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "owner": { "name": "ESMF"}}, "pusher": { "name": "GitHub Action", "email": "esmf-dev@eclipse.org"}}'
           SHA1="$(echo -n "${DATA}" | openssl dgst -sha1 -hmac "${WEBHOOK_SECRET}" | sed 's/SHA1(stdin)= //')"
