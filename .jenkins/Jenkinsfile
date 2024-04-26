@@ -9,12 +9,19 @@ pipeline {
         stage('Read parameters file') {
             steps {
                 script {
-                    // Read properties file
-                    def props = readProperties file: 'parameters.txt'
+                    if (fileExists('parameters.txt')) {
+                        // Read properties from the file
+                        def props = readProperties file: 'parameters.txt'
 
-                    // Set environment variables
-                    env.artifact_url = props['artifact_url']
-                    env.version = props['version']
+                        // Set environment variables
+                        env.ARTIFACT_URL = props['artifact_url']
+                        env.VERSION = props['version']
+
+                        echo "Artifact URL: ${env.ARTIFACT_URL}"
+                        echo "Version: ${env.VERSION}"
+                    } else {
+                        echo "Error: parameters.txt does not exist."
+                    }
                 }
             }
         }
