@@ -30,7 +30,6 @@ pipeline {
                         echo "Error: parameters.txt does not exist."
                     }
                 }
-                }
             }
         }
 
