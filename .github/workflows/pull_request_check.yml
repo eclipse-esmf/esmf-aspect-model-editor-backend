@@ -138,4 +138,4 @@ jobs:
           ARTIFACT_URL="https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/actions/runs/8847860794/artifacts/1450721842"
           ENCODED_URL=$(echo "$ARTIFACT_URL" | jq -sRr @uri)
           PARAMS="artifact_url=$ENCODED_URL&version=0.0.1"
-          curl -X POST https://ci.eclipse.org/esmf/github-webhook/ -H "Content-Type: application/json" -H "X-GitHub-Event: push" -H "X-Hub-Signature: sha1=${SHA1}" -d "{\"artifact_url\": \"$ENCODED_URL\", \"version\": \"0.0.1\", \"additional_data\": $DATA}""
+          curl -X POST https://ci.eclipse.org/esmf/github-webhook/ -H "Content-Type: application/json" -H "X-GitHub-Event: push" -H "X-Hub-Signature: sha1=${SHA1}" -d '{"artifact_url": "$ENCODED_URL", "version": "0.0.1", "additional_data": $DATA}"'
