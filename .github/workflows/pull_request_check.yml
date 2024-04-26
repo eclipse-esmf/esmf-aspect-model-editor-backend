@@ -86,3 +86,28 @@ jobs:
         run: mvn install -DskipTests -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-postman-integration-tests -D os.platform=win
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload binary (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ame-backend-${{ matrix.os }}
+          path: |
+            aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win.exe
+            aspect-model-editor-runtime/target/*.dll
+            aspect-model-editor-runtime/target/*.bat
+            aspect-model-editor-runtime/target/lib/
+
+      - name: Upload binary (Linux)
+        if: matrix.os == 'ubuntu-20.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ame-backend-${{ matrix.os }}
+          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux
+
+      - name: Upload binary (Mac)
+        if: matrix.os == 'macos-12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ame-backend-${{ matrix.os }}
+          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac
