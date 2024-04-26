@@ -10,18 +10,26 @@ pipeline {
             steps {
                 script {
                     if (fileExists('parameters.txt')) {
-                        // Read properties from the file
-                        def props = readProperties file: 'parameters.txt'
+                        // Read the file
+                        def fileContent = readFile('parameters.txt').trim()
 
-                        // Set environment variables
-                        env.ARTIFACT_URL = props['artifact_url']
-                        env.VERSION = props['version']
+                        // Split the file content into lines
+                        def lines = fileContent.split("\n")
 
-                        echo "Artifact URL: ${env.ARTIFACT_URL}"
-                        echo "Version: ${env.VERSION}"
+                        // Iterate over the lines and set the environment variables
+                        lines.each { line ->
+                            def parts = line.split('=')
+                            if (parts.size() == 2) {
+                                env[parts[0]] = parts[1]
+                            }
+                        }
+
+                        echo "Artifact URL: ${env.artifact_url}"
+                        echo "Version: ${env.version}"
                     } else {
                         echo "Error: parameters.txt does not exist."
                     }
+                }
                 }
             }
         }
