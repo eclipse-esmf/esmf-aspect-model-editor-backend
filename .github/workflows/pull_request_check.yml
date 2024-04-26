@@ -129,13 +129,29 @@ jobs:
       #        env:
       #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Commit artifact_url and version changes and push to pre release branch for jenkins
+        if: matrix.os == 'windows-latest'
+        run: |
+          ARTIFACT_URL="https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/actions/runs/8847860794/artifacts/1450721842"
+          ENCODED_URL=$(echo "$ARTIFACT_URL" | jq -sRr @uri)
+          BRANCH_NAME="pre_release_configuration"
+
+          echo "artifact_url=$ENCODED_URL" > parameters.txt
+          echo "version=0.0.1" >> parameters.txt
+
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions"
+          git checkout -b $BRANCH_NAME
+          git add parameters.txt
+          git commit -m "Add parameters.txt with artifact_url and version"
+          git push origin $BRANCH_NAME
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Trigger Jenkins Job, for signing executable
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          ARTIFACT_URL="https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/actions/runs/8847860794/artifacts/1450721842"
-          ENCODED_URL=$(echo "$ARTIFACT_URL" | jq -sRr @uri)
-          PARAMS="artifact_url=$ENCODED_URL&version=0.0.1"
           DATA='{"repository": {"url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "html_url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "owner": { "name": "ESMF"}}, "pusher": { "name": "GitHub Action", "email": "esmf-dev@eclipse.org"}}'
           SHA1="$(echo -n "${DATA}" | openssl dgst -sha1 -hmac "${WEBHOOK_SECRET}" | sed 's/SHA1(stdin)= //')"
-          curl -X POST https://ci.eclipse.org/esmf/github-webhook/ -H "Content-Type: application/json" -H "X-GitHub-Event: push" -H "X-Hub-Signature: sha1=${SHA1}" -d "${DATA}" -d artifact_url=$ARTIFACT_URL
+          curl -X POST https://ci.eclipse.org/esmf/github-webhook/ -H "Content-Type: application/json" -H "X-GitHub-Event: push" -H "X-Hub-Signature: sha1=${SHA1}" -d "${DATA}"

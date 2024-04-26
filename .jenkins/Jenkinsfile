@@ -5,15 +5,24 @@ pipeline {
         GITHUB_TOKEN = credentials('github-bot-token')
     }
 
-    parameters {
-        string(name: 'artifact_url', defaultValue: '', description: 'Artifact Url')
-        string(name: 'version', defaultValue: '', description: 'Release Version')
-    }
+    stages {
+        stage('Read parameters file') {
+            steps {
+                script {
+                    // Read properties file
+                    def props = readProperties file: 'parameters.txt'
+
+                    // Set environment variables
+                    env.artifact_url = props['artifact_url']
+                    env.version = props['version']
+                }
+            }
+        }
 
     stages {
         stage('Example') {
             steps {
-                echo "Artifact URL: ${params.artifact_url}"
+                echo "Artifact URL: ${env.artifact_url}"
                 echo "VERSION: ${env.VERSION}"
             }
         }
