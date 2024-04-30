@@ -91,7 +91,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: aspect-model-editor-v0.0.1-winx
+          name: aspect-model-editor-v0.0.1-win
           path: |
             aspect-model-editor-runtime/target/ame-backend-0.0.1-win.exe
             aspect-model-editor-runtime/target/*.dll
