@@ -129,7 +129,7 @@ jobs:
       #        env:
       #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Commit artifact_url and version changes and push to pre release branch for jenkins
+      - name: Commit Artifact url and version changes and push to pre release branch for jenkins (Windows)
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
@@ -137,14 +137,14 @@ jobs:
           ENCODED_URL=$(echo "$ARTIFACT_URL" | jq -sRr @uri)
           BRANCH_NAME="pre_release_configuration"
 
-          echo "artifact_url=$ENCODED_URL" > parameters.txt
+          echo "artifact_url_win=$ENCODED_URL" > parameters.txt
           echo "version=0.0.1" >> parameters.txt
 
           git config --global user.email "github-actions@github.com"
           git config --global user.name "github-actions"
           git checkout -b $BRANCH_NAME
           git add parameters.txt
-          git commit -m "Add parameters.txt with artifact_url and version"
+          git commit -m "Add parameters.txt with artifact_url_win and version"
           git push origin $BRANCH_NAME
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
