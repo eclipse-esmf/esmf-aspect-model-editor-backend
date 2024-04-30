@@ -36,7 +36,7 @@ pipeline {
         stage('Download and unpack artifact') {
             steps {
                 script {
-                    sh "curl -L ${env.artifact_url_win} -o aspect-model-editor-v${env.version}-win.zip"
+                    sh "curl -L ${env.artifact_url_win}"
                     sh "ls -a"
                     sh "mkdir -p unpack_dir"
                     sh "unzip -o aspect-model-editor-v${env.version}-win.zip -d unpack_dir"
