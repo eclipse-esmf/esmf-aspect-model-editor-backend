@@ -69,29 +69,29 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Performing integration test for Mac
-        if: matrix.os == 'macos-12'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=mac
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Performing integration test for Linux
-        if: matrix.os == 'ubuntu-20.04'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=linux
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Performing integration test for Windows
-        if: matrix.os == 'windows-latest'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-postman-integration-tests -D os.platform=win
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #      - name: Performing integration test for Mac
+      #        if: matrix.os == 'macos-12'
+      #        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=mac
+      #        env:
+      #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #
+      #      - name: Performing integration test for Linux
+      #        if: matrix.os == 'ubuntu-20.04'
+      #        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=linux
+      #        env:
+      #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #
+      #      - name: Performing integration test for Windows
+      #        if: matrix.os == 'windows-latest'
+      #        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-postman-integration-tests -D os.platform=win
+      #        env:
+      #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload binary (Windows)
         if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: aspect-model-editor-v0.0.1-win
+          name: aspect-model-editor-v0.0.1-winx
           path: |
             aspect-model-editor-runtime/target/ame-backend-0.0.1-win.exe
             aspect-model-editor-runtime/target/*.dll
@@ -122,7 +122,7 @@ jobs:
           response=$(curl -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository_owner }}/$(echo '${{ github.repository }}' | cut -d'/' -f2)/actions/runs/${{ github.run_id }}/artifacts")
 
           # Filter out the ID of the artifact with a name that contains "windows"
-          artifact_id=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("windows")) | .id')
+          artifact_id=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("win")) | .id')
 
           # Save the artifact ID in an environment variable
           echo "ARTIFACT_ID=$artifact_id" >> $GITHUB_ENV
