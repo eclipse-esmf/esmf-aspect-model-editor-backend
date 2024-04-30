@@ -133,11 +133,10 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          ARTIFACT_URL="https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/actions/runs/8847860794/artifacts/1450721842"
-          ENCODED_URL=$(echo "$ARTIFACT_URL" | jq -sRr @uri)
+          ARTIFACT_URL_WIN="https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/actions/runs/8847860794/artifacts/1450721842"
           BRANCH_NAME="pre_release_configuration"
 
-          echo "artifact_url_win=$ENCODED_URL" > parameters.txt
+          echo "artifact_url_win=$ARTIFACT_URL_WIN" > parameters.txt
           echo "version=0.0.1" >> parameters.txt
 
           git config --global user.email "github-actions@github.com"
