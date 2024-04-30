@@ -129,24 +129,24 @@ jobs:
       #        env:
       #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
       #
-      #      - name: Commit Artifact url and version changes and push to pre release branch for jenkins (Windows)
-      #        if: matrix.os == 'windows-latest'
-      #        shell: bash
-      #        run: |
-      #          ARTIFACT_URL_WIN="https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/actions/runs/8895505105/artifacts/1460568944"
-      #          BRANCH_NAME="pre_release_configuration"
-      #
-      #          echo "artifact_url_win=$ARTIFACT_URL_WIN" > parameters.txt
-      #          echo "version=DEV-SNAPSHOT" >> parameters.txt
-      #
-      #          git config --global user.email "github-actions@github.com"
-      #          git config --global user.name "github-actions"
-      #          git checkout -b $BRANCH_NAME
-      #          git add parameters.txt
-      #          git commit -m "Add parameters.txt with artifact_url_win and version"
-      #          git push origin $BRANCH_NAME
-      #        env:
-      #          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Commit Artifact url and version changes and push to pre release branch for jenkins (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          ARTIFACT_URL_WIN="https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/actions/runs/8896019931/artifacts/1460699620"
+          BRANCH_NAME="pre_release_configuration"
+
+          echo "artifact_url_win=$ARTIFACT_URL_WIN" > parameters.txt
+          echo "version=DEV-SNAPSHOT" >> parameters.txt
+
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions"
+          git checkout -b $BRANCH_NAME
+          git add parameters.txt
+          git commit -m "Add parameters.txt with artifact_url_win and version"
+          git push origin $BRANCH_NAME
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Trigger Jenkins Job, for signing executable
         if: matrix.os == 'windows-latest'
