@@ -133,7 +133,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          ARTIFACT_URL_WIN="https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/actions/runs/8896019931/artifacts/1460699620"
+          ARTIFACT_URL_WIN="https://api.github.com/repos/eclipse-esmf/esmf-aspect-model-editor-backend/actions/artifacts/1460699620/zip"
           BRANCH_NAME="pre_release_configuration"
 
           echo "artifact_url_win=$ARTIFACT_URL_WIN" > parameters.txt
