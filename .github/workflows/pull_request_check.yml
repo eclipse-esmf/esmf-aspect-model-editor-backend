@@ -6,8 +6,7 @@ on:
   pull_request:
     branches: [ '**' ]
 
-permissions:
-  actions: write
+permissions: write-all
 
 jobs:
   build:
