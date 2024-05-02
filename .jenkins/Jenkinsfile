@@ -64,15 +64,34 @@ pipeline {
                     def repo = "eclipse-esmf/esmf-aspect-model-editor-backend"
                     def tagName = "v${env.version}"
                     def fileName = "aspect-model-editor-v${env.version}-win-signed.zip"
+                    def releaseId = ""
 
-                    def releaseId = sh(script: """
+                    def tagExists = sh(script: """
                         curl -s -L \\
                              -H "Accept: application/vnd.github+json" \\
                              -H "Authorization: Bearer \$GITHUB_BOT_TOKEN" \\
-                             -X POST \\
-                             -d '{ "tag_name": "${tagName}", "name": "${tagName}", "body": "Release ${tagName}" }' \\
-                             https://api.github.com/repos/${repo}/releases | jq -r '.id'
+                             https://api.github.com/repos/${repo}/git/refs/tags/${tagName} | jq -r '.ref'
                     """, returnStdout: true).trim()
+
+                    if (tagExists == "null") {
+                        // Tag does not exist, create a new one
+                        releaseId = sh(script: """
+                            curl -s -L \\
+                                 -H "Accept: application/vnd.github+json" \\
+                                 -H "Authorization: Bearer \$GITHUB_BOT_TOKEN" \\
+                                 -X POST \\
+                                 -d '{ "tag_name": "${tagName}", "name": "${tagName}", "body": "Release ${tagName}" }' \\
+                                 https://api.github.com/repos/${repo}/releases | jq -r '.id'
+                        """, returnStdout: true).trim()
+                    } else {
+                        // Tag exists, use the existing one
+                        releaseId = sh(script: """
+                            curl -s -L \\
+                                 -H "Accept: application/vnd.github+json" \\
+                                 -H "Authorization: Bearer \$GITHUB_BOT_TOKEN" \\
+                                 https://api.github.com/repos/${repo}/releases/tags/${tagName} | jq -r '.id'
+                        """, returnStdout: true).trim()
+                    }
 
                     sh """
                     curl -L \
