@@ -63,9 +63,9 @@ pipeline {
         stage('Release signed WINDOWS artifact to GitHub Releases') {
             steps {
                 script {
-                    def repo = "eclipse-esmf/esmf-aspect-model-editor"
+                    def repo = "eclipse-esmf/esmf-aspect-model-editor-backend"
                     def tagName = "v${env.version}"
-                    def fileName = "aspect-model-editor-v${env.version}-win.zip"
+                    def fileName = "aspect-model-editor-v${env.version}-win-signed.zip"
 
                     def releaseId = sh(script: """
                         curl -s -L \\
