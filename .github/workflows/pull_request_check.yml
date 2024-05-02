@@ -6,8 +6,6 @@ on:
   pull_request:
     branches: [ '**' ]
 
-permissions: write-all
-
 jobs:
   build:
     name: Check if passes all requirements
