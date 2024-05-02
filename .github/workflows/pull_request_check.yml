@@ -19,121 +19,121 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@v3
 
-      #      - name: Configure Pagefile
-      #        if: matrix.os == 'windows-latest'
-      #        # Fix for "LINK : fatal error LNK1171: unable to load mspdbcore.dll (error code: 1455)":
-      #        # This seems to be caused by running out of memory; increasing page file
-      #        # size suggested here:
-      #        # https://github.com/actions/virtual-environments/issues/3420#issuecomment-861342418
-      #        uses: al-cheb/configure-pagefile-action@v1.2
-      #        with:
-      #          minimum-size: 16GB
-      #          maximum-size: 16GB
-      #          disk-root: "C:"
-      #
-      #      - name: Setup graalvm ce
-      #        uses: graalvm/setup-graalvm@v1
-      #        with:
-      #          version: '22.3.1'
-      #          java-version: '17'
-      #          components: 'native-image,js'
-      #          github-token: ${{ secrets.GITHUB_TOKEN }}
-      #
-      #      - name: Cache maven packages
-      #        uses: actions/cache@v3
-      #        with:
-      #          path: ~/.m2/repository
-      #          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-      #          restore-keys: |
-      #            ${{ runner.os }}-maven-
-      #
-      #      - name: Creating native image (Mac)
-      #        if: matrix.os == 'macos-12'
-      #        run: mvn install -P native-image -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
-      #        env:
-      #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #
-      #      - name: Creating native image (Linux)
-      #        if: matrix.os == 'ubuntu-20.04'
-      #        run: mvn install -P native-image -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
-      #        env:
-      #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #
-      #      - name: Set up MSVC
-      #        if: matrix.os == 'windows-latest'
-      #        uses: ilammy/msvc-dev-cmd@v1
-      #
-      #      - name: Creating native image (Win)
-      #        if: matrix.os == 'windows-latest'
-      #        run: mvn install -P native-image -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
-      #        env:
-      #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #
-      #      #      - name: Performing integration test for Mac
-      #      #        if: matrix.os == 'macos-12'
-      #      #        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=mac
-      #      #        env:
-      #      #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #      #
-      #      #      - name: Performing integration test for Linux
-      #      #        if: matrix.os == 'ubuntu-20.04'
-      #      #        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=linux
-      #      #        env:
-      #      #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #      #
-      #      #      - name: Performing integration test for Windows
-      #      #        if: matrix.os == 'windows-latest'
-      #      #        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-postman-integration-tests -D os.platform=win
-      #      #        env:
-      #      #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #
-      #      - name: Upload binary (Windows)
-      #        if: matrix.os == 'windows-latest'
-      #        uses: actions/upload-artifact@v4
-      #        with:
-      #          name: aspect-model-editor-vDEV-SNAPSHOT-win
-      #          path: |
-      #            aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win.exe
-      #            aspect-model-editor-runtime/target/*.dll
-      #            aspect-model-editor-runtime/target/*.bat
-      #            aspect-model-editor-runtime/target/lib/
-      #
-      #      - name: Upload binary (Linux)
-      #        if: matrix.os == 'ubuntu-20.04'
-      #        uses: actions/upload-artifact@v4
-      #        with:
-      #          name: ame-backend-${{ matrix.os }}
-      #          path: |
-      #            aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux
-      #            aspect-model-editor-runtime/target/*.so
-      #
-      #      - name: Upload binary (Mac)
-      #        if: matrix.os == 'macos-12'
-      #        uses: actions/upload-artifact@v4
-      #        with:
-      #          name: ame-backend-${{ matrix.os }}
-      #          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac
-      #
-      #      - name: Get Artifact ID (Windows)
-      #        if: matrix.os == 'windows-latest'
-      #        shell: bash
-      #        run: |
-      #          # Get the list of artifacts for the specified workflow run
-      #          response=$(curl -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository_owner }}/$(echo '${{ github.repository }}' | cut -d'/' -f2)/actions/runs/${{ github.run_id }}/artifacts")
-      #
-      #          # Filter out the ID of the artifact with a name that contains "windows"
-      #          artifact_id=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("win")) | .id')
-      #
-      #          # Save the artifact ID in an environment variable
-      #          echo "ARTIFACT_ID=$artifact_id" >> $GITHUB_ENV
-      #        env:
-      #          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #
+      - name: Configure Pagefile
+        if: matrix.os == 'windows-latest'
+        # Fix for "LINK : fatal error LNK1171: unable to load mspdbcore.dll (error code: 1455)":
+        # This seems to be caused by running out of memory; increasing page file
+        # size suggested here:
+        # https://github.com/actions/virtual-environments/issues/3420#issuecomment-861342418
+        uses: al-cheb/configure-pagefile-action@v1.2
+        with:
+          minimum-size: 16GB
+          maximum-size: 16GB
+          disk-root: "C:"
+
+      - name: Setup graalvm ce
+        uses: graalvm/setup-graalvm@v1
+        with:
+          version: '22.3.1'
+          java-version: '17'
+          components: 'native-image,js'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cache maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Creating native image (Mac)
+        if: matrix.os == 'macos-12'
+        run: mvn install -P native-image -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Creating native image (Linux)
+        if: matrix.os == 'ubuntu-20.04'
+        run: mvn install -P native-image -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up MSVC
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Creating native image (Win)
+        if: matrix.os == 'windows-latest'
+        run: mvn install -P native-image -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Performing integration test for Mac
+        if: matrix.os == 'macos-12'
+        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=mac
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Performing integration test for Linux
+        if: matrix.os == 'ubuntu-20.04'
+        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=linux
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Performing integration test for Windows
+        if: matrix.os == 'windows-latest'
+        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-postman-integration-tests -D os.platform=win
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload binary (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: aspect-model-editor-vDEV-SNAPSHOT-win
+          path: |
+            aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win.exe
+            aspect-model-editor-runtime/target/*.dll
+            aspect-model-editor-runtime/target/*.bat
+            aspect-model-editor-runtime/target/lib/
+
+      - name: Upload binary (Linux)
+        if: matrix.os == 'ubuntu-20.04'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ame-backend-${{ matrix.os }}
+          path: |
+            aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux
+            aspect-model-editor-runtime/target/*.so
+
+      - name: Upload binary (Mac)
+        if: matrix.os == 'macos-12'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ame-backend-${{ matrix.os }}
+          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac
+
+      - name: Get Artifact ID (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          # Get the list of artifacts for the specified workflow run
+          response=$(curl -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository_owner }}/$(echo '${{ github.repository }}' | cut -d'/' -f2)/actions/runs/${{ github.run_id }}/artifacts")
+
+          # Filter out the ID of the artifact with a name that contains "windows"
+          artifact_id=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("win")) | .id')
+
+          # Save the artifact ID in an environment variable
+          echo "ARTIFACT_ID=$artifact_id" >> $GITHUB_ENV
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Commit Artifact url and version changes and push to pre release branch for jenkins (Windows)
         if: matrix.os == 'windows-latest'
         shell: bash
         run: |
-          ARTIFACT_URL_WIN="https://api.github.com/repos/eclipse-esmf/esmf-aspect-model-editor-backend/actions/artifacts/1460699620/zip"
+          ARTIFACT_URL_WIN="https://api.github.com/repos/eclipse-esmf/esmf-aspect-model-editor-backend/actions/artifacts/$ARTIFACT_ID/zip"
           BRANCH_NAME="pre_release_configuration"
 
           echo "artifact_url_win=$ARTIFACT_URL_WIN" > parameters.txt
