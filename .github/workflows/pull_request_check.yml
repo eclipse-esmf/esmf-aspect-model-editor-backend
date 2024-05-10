@@ -146,8 +146,8 @@ jobs:
           BRANCH_NAME="pre_release_configuration"
 
           echo "artifact_url_win=$ARTIFACT_URL_WIN" > parameters.txt
-          echo "artifact_url_mac=$ARTIFACT_URL_MAC" > parameters.txt
-          echo "version=${{ github.event.inputs.release_version }}" >> parameters.txt
+          echo "artifact_url_mac=$ARTIFACT_URL_MAC" >> parameters.txt
+          echo "version=DEV-SNAPSHOT" >> parameters.txt
 
           git config --global user.email "github-actions@github.com"
           git config --global user.name "github-actions"
