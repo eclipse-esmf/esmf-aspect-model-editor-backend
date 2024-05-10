@@ -113,3 +113,52 @@ jobs:
         with:
           name: ame-backend-${{ matrix.os }}
           path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # Sign (Windows & Mac) executable
+      - name: Get Artifact ID (Windows & Mac)
+        shell: bash
+        run: |
+          # Get the list of artifacts for the specified workflow run
+          response=$(curl -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository_owner }}/$(echo '${{ github.repository }}' | cut -d'/' -f2)/actions/runs/${{ github.run_id }}/artifacts")
+
+          # Filter out the ID of the artifact with a name that contains "mac"
+          artifact_id_mac=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("mac")) | .id')
+          artifact_id_win=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("win")) | .id')
+
+          # Save the artifact ID in an environment variable
+          echo "ARTIFACT_ID_MAC=$artifact_id_mac" >> $GITHUB_ENV
+          echo "ARTIFACT_ID_WIN=$artifact_id_win" >> $GITHUB_ENV
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit Artifact url and version changes and push to pre release branch for jenkins (Windows & Mac)
+        shell: bash
+        run: |
+          ARTIFACT_URL_WIN="https://api.github.com/repos/eclipse-esmf/esmf-aspect-model-editor-backend/actions/artifacts/$ARTIFACT_ID_WIN/zip"
+          ARTIFACT_URL_MAC="https://api.github.com/repos/eclipse-esmf/esmf-aspect-model-editor-backend/actions/artifacts/$ARTIFACT_ID_MAC/zip"
+          BRANCH_NAME="pre_release_configuration"
+
+          echo "artifact_url_win=$ARTIFACT_URL_WIN" > parameters.txt
+          echo "artifact_url_mac=$ARTIFACT_URL_MAC" > parameters.txt
+          echo "version=${{ github.event.inputs.release_version }}" >> parameters.txt
+
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "github-actions"
+          git checkout -b $BRANCH_NAME
+          git add parameters.txt
+          git commit -m "Add parameters.txt with artifact_url_win, artifact_url_mac and version"
+          git push origin $BRANCH_NAME
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Jenkins Job, for signing executable
+        shell: bash
+        run: |
+          DATA='{"repository": {"url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "html_url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "owner": { "name": "ESMF"}}, "pusher": { "name": "GitHub Action", "email": "esmf-dev@eclipse.org"}}'
+          SHA1="$(echo -n "${DATA}" | openssl dgst -sha1 -hmac "${WEBHOOK_SECRET}" | sed 's/SHA1(stdin)= //')"
+          curl -X POST https://ci.eclipse.org/esmf/github-webhook/ -H "Content-Type: application/json" -H "X-GitHub-Event: push" -H "X-Hub-Signature: sha1=${SHA1}" -d "${DATA}"
+

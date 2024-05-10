@@ -24,7 +24,8 @@ pipeline {
                             }
                         }
 
-                        echo "Artifact URL: ${env.artifact_url_win}"
+                        echo "Artifact URL Win: ${env.artifact_url_win}"
+                        echo "Artifact URL Mac: ${env.artifact_url_mac}"
                         echo "Version: ${env.version}"
                     } else {
                         echo "Error: parameters.txt does not exist."
@@ -33,7 +34,7 @@ pipeline {
             }
         }
 
-        stage('Download and unpack artifact') {
+        stage('Download and unpack Windows artifact') {
             steps {
                 script {
                     sh "curl -L -H 'Accept: application/vnd.github.v3+json' \
@@ -47,7 +48,19 @@ pipeline {
             }
         }
 
-        stage('Sign Applications') {
+        stage('Download Mac artifact') {
+            steps {
+                script {
+                    sh "curl -L -H 'Accept: application/vnd.github.v3+json' \
+                        -H 'Authorization: Bearer ${GITHUB_BOT_TOKEN}' \
+                        '${env.artifact_url_mac}' \
+                        --output 'ame-backend-${env.version}-mac'"
+                    sh "ls -a"
+                }
+            }
+        }
+
+        stage('Sign Windows Applications') {
             steps {
                 script {
                     sh "mkdir -p signed_dir"
@@ -58,12 +71,23 @@ pipeline {
             }
         }
 
-        stage('Release signed WINDOWS artifact to GitHub Releases') {
+        stage('Sign Mac Applications') {
+            steps {
+                script {
+                    sh "mkdir -p signed_dir"
+                    sh "curl -o signed_dir/ame-backend-${env.version}-mac -F file=@ame-backend-${env.version}-mac https://cbi.eclipse.org/macos/codesign/sign"
+                    sh "ls -a"
+                }
+            }
+        }
+
+        stage('Release signed Windows and Mac artifact to GitHub Releases') {
             steps {
                 script {
                     def repo = "eclipse-esmf/esmf-aspect-model-editor-backend"
                     def tagName = "v${env.version}"
-                    def fileName = "aspect-model-editor-v${env.version}-win-signed.zip"
+                    def fileNameWin = "aspect-model-editor-v${env.version}-win-signed.zip"
+                    def fileNameMac = "ame-backend-${env.version}-mac"
                     def releaseId = ""
 
                     def tagExists = sh(script: """
@@ -100,7 +124,17 @@ pipeline {
                          -H "Authorization: Bearer \$GITHUB_BOT_TOKEN" \
                          -H "Content-Type: application/octet-stream" \
                          --data-binary @${fileName} \
-                         "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${fileName}"
+                         "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${fileNameWin}"
+                    """
+
+                    sh """
+                    curl -L \
+                         -X POST \
+                         -H "Accept: application/vnd.github+json" \\
+                         -H "Authorization: Bearer \$GITHUB_BOT_TOKEN" \
+                         -H "Content-Type: application/octet-stream" \
+                         --data-binary @${fileName} \
+                         "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${fileNameMac}"
                     """
 
                     sh """
