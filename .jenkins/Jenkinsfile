@@ -81,10 +81,10 @@ pipeline {
                     mkdir -p "AspectModelEditorBackend.app/Contents/MacOS"
         
                     # Move the downloaded file into the MacOS folder
-                    mv "unpack_dir/ame-backend-${env.version}-mac" "AspectModelEditorBackend.app/Contents/MacOS/"
+                    mv "unpack_dir/ame-backend-\${env.version}-mac" "AspectModelEditorBackend.app/Contents/MacOS/"
         
                     # Set the executable permission
-                    chmod +x "AspectModelEditorBackend.app/Contents/MacOS/ame-backend-${env.version}-mac"
+                    chmod +x "AspectModelEditorBackend.app/Contents/MacOS/ame-backend-\${env.version}-mac"
         
                     # Create a basic Info.plist file
                     cat << EOF > MyApp.app/Contents/Info.plist
@@ -97,7 +97,7 @@ pipeline {
                             <key>CFBundleName</key>
                             <string>AspectModelEditorBackend</string>
                             <key>CFBundleVersion</key>
-                            <string>${env.version}</string>
+                            <string>\${env.version}</string>
                             <key>CFBundlePackageType</key>
                             <string>APPL</string>
                             <key>CFBundleExecutable</key>
@@ -111,7 +111,7 @@ pipeline {
                     #!/bin/bash
         
                     # Absolute path to the main executable
-                    APP_PATH="\\$(dirname "\\$0")/ame-backend-${env.version}-mac"
+                    APP_PATH="\\$(dirname "\\$0")/ame-backend-\${env.version}-mac"
         
                     # AppleScript that opens a new Terminal window and runs the application
                     osascript <<EOS
