@@ -73,12 +73,70 @@ pipeline {
             }
         }
 
+        stage('Create MacOS .app structure') {
+            steps {
+                script {
+                    sh '''
+                    # Define the version
+                    version=$env.version
+        
+                    # Create the .app structure
+                    mkdir -p "AspectModelEditorBackend.app/Contents/MacOS"
+        
+                    # Move the downloaded file into the MacOS folder
+                    mv "unpack_dir/ame-backend-${version}-mac" "AspectModelEditorBackend.app/Contents/MacOS/"
+        
+                    # Set the executable permission
+                    chmod +x "AspectModelEditorBackend.app/Contents/MacOS/ame-backend-${version}-mac"
+        
+                    # Create a basic Info.plist file
+                    cat << EOF > MyApp.app/Contents/Info.plist
+                    <?xml version="1.0" encoding="UTF-8"?>
+                    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+                    <plist version="1.0">
+                        <dict>
+                            <key>CFBundleIdentifier</key>
+                            <string>org.eclipse.ame</string>
+                            <key>CFBundleName</key>
+                            <string>AspectModelEditorBackend</string>
+                            <key>CFBundleVersion</key>
+                            <string>${version}</string>
+                            <key>CFBundlePackageType</key>
+                            <string>APPL</string>
+                            <key>CFBundleExecutable</key>
+                            <string>start.sh</string>
+                        </dict>
+                    </plist>
+                    EOF
+                                
+                    # Create start.sh file
+                    cat << EOF > AspectModelEditorBackend.app/Contents/MacOS/start.sh
+                    #!/bin/bash
+        
+                    # Absolute path to the main executable
+                    APP_PATH="\\$(dirname "\\$0")/ame-backend-${version}-mac"
+        
+                    # AppleScript that opens a new Terminal window and runs the application
+                    osascript <<EOS
+                    tell application "Terminal"
+                        do script "cd '\\$(dirname "\\$APP_PATH")'; ./\\$(basename "\\$APP_PATH"); exit"
+                        activate
+                    end tell
+                    EOS
+                    EOF
+        
+                    # Set the executable permission for start.sh
+                    chmod +x "AspectModelEditorBackend.app/Contents/MacOS/start.sh"
+                    '''
+                }
+            }
+        }
+
         stage('Sign Mac Applications') {
             steps {
                 script {
-                    sh "mkdir -p signed_dir"
-                    sh "curl -o signed_dir/ame-backend-${env.version}-mac -F file=@unpack_dir/ame-backend-${env.version}-mac -F entitlements=@entitlements.plist https://cbi.eclipse.org/macos/codesign/sign"
-                    sh "ls -a signed_dir"
+                    sh "curl -o AspectModelEditorBackend-${env.version}.app -F file=@AspectModelEditorBackend.app -F entitlements=@entitlements.plist https://cbi.eclipse.org/macos/codesign/sign"
+                    sh "ls -a"
                 }
             }
         }
@@ -86,7 +144,7 @@ pipeline {
         stage('MacOS Notarization') {
             steps {
                 script {
-                    def macOsFile = "signed_dir/ame-backend-${env.version}-mac"
+                    def macOsFile = "AspectModelEditorBackend-${env.version}.app"
 
                     def jsonOptions = "options={\"primaryBundleId\": \"org.eclipse.esmf\", \"staple\": true};type=application/json"
 
@@ -110,9 +168,9 @@ pipeline {
                         error("Notarization failed.")
                     }
 
-                    sh "rm '${dmg}'"
+                    sh "rm '${macOsFile}'"
 
-                    sh "curl -JO -o signed_dir/ame-backend-${env.version}-mac https://cbi.eclipse.org/macos/xcrun/${uuid}/download"
+                    sh "curl -JO -o AspectModelEditorBackend-${env.version}.app https://cbi.eclipse.org/macos/xcrun/${uuid}/download"
                 }
             }
         }
@@ -123,7 +181,7 @@ pipeline {
                     def repo = "eclipse-esmf/esmf-aspect-model-editor-backend"
                     def tagName = "v${env.version}"
                     def fileNameWin = "aspect-model-editor-v${env.version}-win-signed.zip"
-                    def fileNameMac = "ame-backend-${env.version}-mac"
+                    def fileNameMac = "AspectModelEditorBackend-${env.version}.app"
                     def releaseId = ""
 
                     def tagExists = sh(script: """
