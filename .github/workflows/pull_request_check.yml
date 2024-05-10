@@ -111,7 +111,7 @@ jobs:
         if: matrix.os == 'macos-12'
         uses: actions/upload-artifact@v4
         with:
-          name: ame-backend-${{ matrix.os }}
+          name: aspect-model-editor-vDEV-SNAPSHOT-mac
           path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac
 
   release:
@@ -128,13 +128,13 @@ jobs:
           # Get the list of artifacts for the specified workflow run
           response=$(curl -H "Authorization: Bearer $TOKEN" -H "Accept: application/vnd.github+json" "https://api.github.com/repos/${{ github.repository_owner }}/$(echo '${{ github.repository }}' | cut -d'/' -f2)/actions/runs/${{ github.run_id }}/artifacts")
 
-          # Filter out the ID of the artifact with a name that contains "mac"
-          artifact_id_mac=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("mac")) | .id')
+          # Filter out the ID of the artifacts
           artifact_id_win=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("win")) | .id')
+          artifact_id_mac=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("mac")) | .id')
 
           # Save the artifact ID in an environment variable
-          echo "ARTIFACT_ID_MAC=$artifact_id_mac" >> $GITHUB_ENV
           echo "ARTIFACT_ID_WIN=$artifact_id_win" >> $GITHUB_ENV
+          echo "ARTIFACT_ID_MAC=$artifact_id_mac" >> $GITHUB_ENV
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
