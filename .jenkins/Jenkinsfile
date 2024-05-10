@@ -86,8 +86,7 @@ pipeline {
         stage('MacOS Notarization') {
             steps {
                 script {
-                    def buildDir = "${WORKSPACE}/signed_dir"
-                    def macOsFile = "ame-backend-${env.version}-mac"
+                    def macOsFile = "signed_dir/ame-backend-${env.version}-mac"
 
                     def jsonOptions = "options={\"primaryBundleId\": \"org.eclipse.esmf\", \"staple\": true};type=application/json"
 
@@ -113,7 +112,7 @@ pipeline {
 
                     sh "rm '${dmg}'"
 
-                    sh "curl -JO https://cbi.eclipse.org/macos/xcrun/${uuid}/download"
+                    sh "curl -JO -o signed_dir/ame-backend-${env.version}-mac https://cbi.eclipse.org/macos/xcrun/${uuid}/download"
                 }
             }
         }
