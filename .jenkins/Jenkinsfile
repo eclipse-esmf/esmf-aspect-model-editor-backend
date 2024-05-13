@@ -76,7 +76,7 @@ pipeline {
         stage('Sign Mac Applications') {
             steps {
                 script {
-                    sh "curl -o AspectModelEditorBackend-${env.version}.dmg -F file=@ame-backend.dmg -F entitlements=@entitlements.plist https://cbi.eclipse.org/macos/codesign/sign"
+                    sh "curl -o AspectModelEditorBackend-${env.version}.dmg -F file=@unpack_dir/ame-backend.dmg -F entitlements=@entitlements.plist https://cbi.eclipse.org/macos/codesign/sign"
                     sh "ls -a"
                 }
             }
