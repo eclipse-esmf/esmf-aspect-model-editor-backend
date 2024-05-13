@@ -123,7 +123,7 @@ pipeline {
                     def repo = "eclipse-esmf/esmf-aspect-model-editor-backend"
                     def tagName = "v${env.version}"
                     def fileNameWin = "aspect-model-editor-v${env.version}-win-signed.zip"
-                    def fileNameMac = "AspectModelEditorBackend-${env.version}.app"
+                    def fileNameMac = "ame-backend-${env.version}-mac.zip"
                     def releaseId = ""
 
                     def tagExists = sh(script: """
