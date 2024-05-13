@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper;
+
 pipeline {
     agent any
 
@@ -61,9 +63,6 @@ pipeline {
         }
 
         stage('Download Mac artifact') {
-            agent {
-                label 'macos'
-            }
             steps {
                 script {
                     sh "curl -L -H 'Accept: application/vnd.github.v3+json' \
@@ -71,12 +70,6 @@ pipeline {
                         '${env.artifact_url_mac}' \
                         --output 'aspect-model-editor-v${env.version}-mac.zip'"
                     sh "unzip -o aspect-model-editor-v${env.version}-mac.zip -d unpack_dir"
-
-                    sh """
-                        mkdir dmg_contents
-                        cp unpack_dir/ame-backend-DEV-SNAPSHOT-mac dmg_contents/
-                        hdiutil create -volname "ame-backend-DEV-SNAPSHOT-mac" -srcfolder dmg_contents -ov -format UDBZ ame-backend.dmg
-                    """
                     sh "ls -a unpack_dir"
                 }
             }
@@ -85,8 +78,9 @@ pipeline {
         stage('Sign Mac Applications') {
             steps {
                 script {
-                    sh "curl -o AspectModelEditorBackend-${env.version}.dmg -F file=@ame-backend.dmg -F entitlements=@entitlements.plist https://cbi.eclipse.org/macos/codesign/sign"
-                    sh "ls -a"
+                    sh "mkdir -p signed_dir"
+                    sh "curl -o signed_dir/ame-backend-${env.version}-mac -F file=@unpack_dir/ame-backend-${env.version}-mac -F entitlements=@entitlements.plist https://cbi.eclipse.org/macos/codesign/sign"
+                    sh "ls -a signed_dir"
                 }
             }
         }
@@ -94,23 +88,20 @@ pipeline {
         stage('MacOS Notarization') {
             steps {
                 script {
-                    def macOsFile = "AspectModelEditorBackend-${env.version}.dmg"
+                    def macOsFile = "signed_dir/ame-backend-${env.version}-mac"
 
                     def jsonOptions = "options={\"primaryBundleId\": \"org.eclipse.esmf\", \"staple\": true};type=application/json"
-
                     def response = sh(script: "curl -s -X POST -F file=@${macOsFile} -F '${jsonOptions}' https://cbi.eclipse.org/macos/xcrun/notarize", returnStdout: true).trim()
 
-                    def jsonSlurper = new groovy.json.JsonSlurper()
-                    def object = jsonSlurper.parseText(response)
-                    def uuid = object.uuid
-                    def status = object.notarizationStatus.status
+                    def jsonSlurper = new JsonSlurper()
+                    def json = jsonSlurper.parseText(response)
+                    def uuid = json.uuid
+                    def status = json.notarizationStatus.status
 
                     while (status == 'IN_PROGRESS') {
                         sleep(time: 1, unit: 'MINUTES')
                         response = sh(script: "curl -s https://cbi.eclipse.org/macos/xcrun/${uuid}/status", returnStdout: true).trim()
-                        def inProgressResponse = jsonSlurper.parseText(response)
-                        uuid = inProgressResponse.uuid
-                        status = inProgressResponse.notarizationStatus.status
+                        json = jsonSlurper.parseText(response)
                     }
 
                     if (status != 'COMPLETE') {
