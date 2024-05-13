@@ -95,16 +95,15 @@ pipeline {
 
                     def jsonSlurper = new JsonSlurper()
                     def json = jsonSlurper.parseText(response)
-                    def uuid = json.uuid
-                    def status = json.notarizationStatus.status
+                    String uuid = json.uuid
 
-                    while (status == 'IN_PROGRESS') {
+                    while (json.notarizationStatus.status == 'IN_PROGRESS') {
                         sleep(time: 1, unit: 'MINUTES')
                         response = sh(script: "curl -s https://cbi.eclipse.org/macos/xcrun/${uuid}/status", returnStdout: true).trim()
                         json = jsonSlurper.parseText(response)
                     }
 
-                    if (status != 'COMPLETE') {
+                    if (json.notarizationStatus.status != 'COMPLETE') {
                         echo "Notarization failed: ${response}"
                         error("Notarization failed.")
                     }
