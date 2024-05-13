@@ -107,19 +107,12 @@ jobs:
             aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux
             aspect-model-editor-runtime/target/*.so
 
-      - name: Create DMG (MAC)
-        if: matrix.os == 'macos-12'
-        run: |
-          mkdir dmg_contents
-          cp aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac dmg_contents/
-          hdiutil create -volname "MyApp" -srcfolder dmg_contents -ov -format UDBZ ame-backend.dmg
-
       - name: Upload binary (Mac)
         if: matrix.os == 'macos-12'
         uses: actions/upload-artifact@v4
         with:
           name: aspect-model-editor-vDEV-SNAPSHOT-mac
-          path: ame-backend.dmg
+          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac
 
   release:
     needs: build
