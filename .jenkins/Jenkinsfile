@@ -87,7 +87,7 @@ pipeline {
                     chmod +x "AspectModelEditorBackend.app/Contents/MacOS/ame-backend-${env.version}-mac"
         
                     # Create a basic Info.plist file
-                    cat << EOF > MyApp.app/Contents/Info.plist
+                    cat << EOF > AspectModelEditorBackend.app/Contents/Info.plist
                     <?xml version="1.0" encoding="UTF-8"?>
                     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
                     <plist version="1.0">
