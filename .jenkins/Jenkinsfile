@@ -159,7 +159,7 @@ pipeline {
                          -H "Accept: application/vnd.github+json" \\
                          -H "Authorization: Bearer \$GITHUB_BOT_TOKEN" \
                          -H "Content-Type: application/octet-stream" \
-                         --data-binary @${fileName} \
+                         --data-binary @${fileNameWin} \
                          "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${fileNameWin}"
                     """
 
@@ -169,7 +169,7 @@ pipeline {
                          -H "Accept: application/vnd.github+json" \\
                          -H "Authorization: Bearer \$GITHUB_BOT_TOKEN" \
                          -H "Content-Type: application/octet-stream" \
-                         --data-binary @${fileName} \
+                         --data-binary @${fileNameMac} \
                          "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${fileNameMac}"
                     """
 
