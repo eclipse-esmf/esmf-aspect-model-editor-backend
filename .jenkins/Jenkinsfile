@@ -39,12 +39,14 @@ pipeline {
         stage('Download and unpack Windows artifact') {
             steps {
                 script {
+                    def winOsFile = "ame-backend-v${env.version}-win.zip"
                     sh "curl -L -H 'Accept: application/vnd.github.v3+json' \
                         -H 'Authorization: Bearer ${GITHUB_BOT_TOKEN}' \
                         '${env.artifact_url_win}' \
-                        --output 'aspect-model-editor-v${env.version}-win.zip'"
+                        --output '${winOsFile}'"
                     sh "mkdir -p unpack_dir"
-                    sh "unzip -o aspect-model-editor-v${env.version}-win.zip -d unpack_dir"
+                    sh "unzip -o ame-backend-v${env.version}-win.zip -d unpack_dir"
+                    sh "rm '${winOsFile}'"
                     sh "ls -a unpack_dir"
                 }
             }
@@ -56,7 +58,7 @@ pipeline {
                     sh "mkdir -p signed_dir"
                     sh "find unpack_dir -name '*.dll' -exec mv {} signed_dir \\;"
                     sh "curl -o signed_dir/ame-backend-${env.version}-win.exe -F file=@unpack_dir/ame-backend-${env.version}-win.exe https://cbi.eclipse.org/authenticode/sign"
-                    sh "zip -r aspect-model-editor-v${env.version}-win.zip signed_dir"
+                    sh "zip -r ame-backend-v${env.version}-win.zip signed_dir"
                     sh "ls -a signed_dir"
                 }
             }
@@ -65,11 +67,13 @@ pipeline {
         stage('Download Mac artifact') {
             steps {
                 script {
+                    def macOsFile = "ame-backend-v${env.version}-mac.zip"
                     sh "curl -L -H 'Accept: application/vnd.github.v3+json' \
                         -H 'Authorization: Bearer ${GITHUB_BOT_TOKEN}' \
                         '${env.artifact_url_mac}' \
-                        --output 'aspect-model-editor-v${env.version}-mac.zip'"
-                    sh "unzip -o aspect-model-editor-v${env.version}-mac.zip -d unpack_dir"
+                        --output '${macOsFile}'"
+                    sh "unzip -o ame-backend-v${env.version}-mac.zip -d unpack_dir"
+                    sh "rm '${macOsFile}'"
                     sh "ls -a unpack_dir"
                 }
             }
@@ -112,7 +116,7 @@ pipeline {
 
                     sh "rm '${macOsFile}'"
 
-                    sh "curl -JO -o ame-backend-${env.version}-mac.zip https://cbi.eclipse.org/macos/xcrun/${uuid}/download"
+                    sh "curl -JO -o ame-backend-v${env.version}-mac.zip https://cbi.eclipse.org/macos/xcrun/${uuid}/download"
                 }
             }
         }
@@ -122,8 +126,8 @@ pipeline {
                 script {
                     def repo = "eclipse-esmf/esmf-aspect-model-editor-backend"
                     def tagName = "v${env.version}"
-                    def fileNameWin = "aspect-model-editor-v${env.version}-win.zip"
-                    def fileNameMac = "ame-backend-${env.version}-mac.zip"
+                    def fileNameWin = "ame-backend-v${env.version}-win.zip"
+                    def fileNameMac = "ame-backend-v${env.version}-mac.zip"
                     def releaseId = ""
 
                     def tagExists = sh(script: """
