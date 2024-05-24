@@ -92,9 +92,9 @@ pipeline {
         stage('MacOS Notarization') {
             steps {
                 script {
-                    sh "zip -j ame-backend-${env.version}-mac.zip signed_dir/ame-backend-${env.version}-mac"
+                    sh "zip -j ame-backend-v${env.version}-mac.zip signed_dir/ame-backend-${env.version}-mac"
 
-                    def macOsFile = "ame-backend-${env.version}-mac.zip"
+                    def macOsFile = "ame-backend-v${env.version}-mac.zip"
 
                     def jsonOptions = "options={\"primaryBundleId\": \"org.eclipse.esmf\", \"staple\": true};type=application/json"
                     def response = sh(script: "curl -X POST -F file=@${macOsFile} -F '${jsonOptions}' https://cbi.eclipse.org/macos/xcrun/notarize", returnStdout: true).trim()
