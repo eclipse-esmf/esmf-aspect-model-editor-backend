@@ -158,6 +158,94 @@ class GenerateServiceTest {
    }
 
    @Test
+   void testAspectModelJsonOpenApiSpecWithIncludeCrud() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
+            false, false,
+            "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, true,
+            false, false, false );
+
+      final String payload = generateService.generateJsonOpenApiSpec( testModel, config );
+
+      assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
+      assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"AspectModelForService\"" ) );
+      assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
+      assertTrue( payload.contains( "\"get\" : " ) );
+      assertTrue( payload.contains( "\"post\" : " ) );
+      assertTrue( payload.contains( "\"patch\" : " ) );
+      assertTrue( payload.contains( "\"put\" : " ) );
+   }
+
+   @Test
+   void testAspectModelJsonOpenApiSpecWithIncludePost() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
+            false, false,
+            "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
+            true, false, false );
+
+      final String payload = generateService.generateJsonOpenApiSpec( testModel, config );
+
+      assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
+      assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"AspectModelForService\"" ) );
+      assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
+      assertTrue( payload.contains( "\"get\" : " ) );
+      assertTrue( payload.contains( "\"post\" : " ) );
+      assertFalse( payload.contains( "\"patch\" : " ) );
+      assertFalse( payload.contains( "\"put\" : " ) );
+   }
+
+   @Test
+   void testAspectModelJsonOpenApiSpecWithIncludePatch() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
+            false, false,
+            "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
+            false, false, true );
+
+      final String payload = generateService.generateJsonOpenApiSpec( testModel, config );
+
+      assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
+      assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"AspectModelForService\"" ) );
+      assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
+      assertTrue( payload.contains( "\"get\" : " ) );
+      assertFalse( payload.contains( "\"post\" : " ) );
+      assertTrue( payload.contains( "\"patch\" : " ) );
+      assertFalse( payload.contains( "\"put\" : " ) );
+   }
+
+   @Test
+   void testAspectModelJsonOpenApiSpecWithIncludePut() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
+            false, false,
+            "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
+            false, true, false );
+
+      final String payload = generateService.generateJsonOpenApiSpec( testModel, config );
+
+      assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
+      assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"AspectModelForService\"" ) );
+      assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
+      assertTrue( payload.contains( "\"get\" : " ) );
+      assertFalse( payload.contains( "\"post\" : " ) );
+      assertFalse( payload.contains( "\"patch\" : " ) );
+      assertTrue( payload.contains( "\"put\" : " ) );
+   }
+
+   @Test
    void testAspectModelYamlOpenApiSpecWithoutResourcePath() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
@@ -230,6 +318,98 @@ class GenerateServiceTest {
             false, false, false );
 
       assertThrows( GenerationException.class, () -> generateService.generateYamlOpenApiSpec( testModel, config ) );
+   }
+
+   @Test
+   void testAspectModelYamlOpenApiSpecWithIncludeCrud() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
+            false, false,
+            "https://test.com", "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
+            PagingOption.TIME_BASED_PAGING, false, true,
+            false, false, false );
+
+      final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
+
+      assertTrue( payload.contains( "openapi: 3.0.3" ) );
+      assertTrue( payload.contains( "title: AspectModel" ) );
+      assertTrue( payload.contains( "version: v1" ) );
+      assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
+      assertTrue( payload.contains( "get:" ) );
+      assertTrue( payload.contains( "post:" ) );
+      assertTrue( payload.contains( "patch:" ) );
+      assertTrue( payload.contains( "put:" ) );
+   }
+
+   @Test
+   void testAspectModelYamlOpenApiSpecWithIncludePost() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
+            false, false,
+            "https://test.com", "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
+            PagingOption.TIME_BASED_PAGING, false, false,
+            true, false, false );
+
+      final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
+
+      assertTrue( payload.contains( "openapi: 3.0.3" ) );
+      assertTrue( payload.contains( "title: AspectModel" ) );
+      assertTrue( payload.contains( "version: v1" ) );
+      assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
+      assertTrue( payload.contains( "get:" ) );
+      assertTrue( payload.contains( "post:" ) );
+      assertFalse( payload.contains( "patch:" ) );
+      assertFalse( payload.contains( "put:" ) );
+   }
+
+   @Test
+   void testAspectModelYamlOpenApiSpecWithIncludePatch() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
+            false, false,
+            "https://test.com", "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
+            PagingOption.TIME_BASED_PAGING, false, false,
+            false, false, true );
+
+      final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
+
+      assertTrue( payload.contains( "openapi: 3.0.3" ) );
+      assertTrue( payload.contains( "title: AspectModel" ) );
+      assertTrue( payload.contains( "version: v1" ) );
+      assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
+      assertTrue( payload.contains( "get:" ) );
+      assertFalse( payload.contains( "post:" ) );
+      assertTrue( payload.contains( "patch:" ) );
+      assertFalse( payload.contains( "put:" ) );
+   }
+
+   @Test
+   void testAspectModelYamlOpenApiSpecWithIncludePut() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
+            false, false,
+            "https://test.com", "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
+            PagingOption.TIME_BASED_PAGING, false, false,
+            false, true, false );
+
+      final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
+
+      assertTrue( payload.contains( "openapi: 3.0.3" ) );
+      assertTrue( payload.contains( "title: AspectModel" ) );
+      assertTrue( payload.contains( "version: v1" ) );
+      assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
+      assertTrue( payload.contains( "get:" ) );
+      assertFalse( payload.contains( "post:" ) );
+      assertFalse( payload.contains( "patch:" ) );
+      assertTrue( payload.contains( "put:" ) );
    }
 
    @Test
