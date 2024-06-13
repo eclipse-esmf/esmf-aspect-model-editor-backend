@@ -20,6 +20,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.Model;
@@ -49,7 +50,7 @@ public class ModelUtils {
     *
     * @throws FileReadException If there are failures in the generation process due to violations in the model.
     */
-   public static AspectContext getAspectContext( Try<AspectContext> context ) {
+   public static AspectContext getAspectContext( final Try<AspectContext> context ) {
       return context.recover( throwable -> {
          throw new FileReadException( throwable.getMessage() );
       } ).get();
@@ -120,12 +121,27 @@ public class ModelUtils {
     *
     * @throws FileHandlingException If the file contains path information´s.
     */
-   public static String sanitizeFileInformation( String fileInformation ) {
+   public static String sanitizeFileInformation( final String fileInformation ) {
       if ( fileInformation.contains( File.separator ) || fileInformation.contains( ".." ) ) {
          throw new FileHandlingException(
                "Invalid file information: The provided string must not contain directory separators or relative path components." );
       }
 
       return new File( fileInformation ).getName();
+   }
+
+   /**
+    * Extracts and concatenates all lines from the provided aspect model string that start with a "#".
+    * This method is typically used to gather all comment lines (which start with "#") from a model represented as a
+    * string.
+    *
+    * @param aspectModel The aspect model represented as a string.
+    * @return A string containing all lines from the aspect model that start with "#", each line separated by a newline.
+    */
+   public static String getCopyRightHeader( final String aspectModel ) {
+      final String[] lines = aspectModel.split( "\\r?\\n" );
+      return Arrays.stream( lines )
+                   .filter( line -> line.startsWith( "#" ) )
+                   .collect( Collectors.joining( "\n" ) );
    }
 }
