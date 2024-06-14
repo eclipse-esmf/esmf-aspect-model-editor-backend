@@ -37,7 +37,9 @@ public class MigratorUtils {
       final VersionedModel versionedModel = migratedFile.getOrElseThrow(
             error -> new InvalidAspectModelException( "Aspect Model cannot be migrated.", error ) );
 
-      return ResolverUtils.getPrettyPrintedVersionedModel( versionedModel,
+      final String prettyPrintedVersionedModel = ResolverUtils.getPrettyPrintedVersionedModel( versionedModel,
             fileSystemStrategy.getAspectModelUrn().getUrn() );
+
+      return ModelUtils.getCopyRightHeader( aspectModel ) + "\n\n" + prettyPrintedVersionedModel;
    }
 }

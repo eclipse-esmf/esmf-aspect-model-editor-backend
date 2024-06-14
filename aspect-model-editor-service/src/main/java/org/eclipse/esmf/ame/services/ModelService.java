@@ -69,7 +69,8 @@ public class ModelService {
       final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
       final String prettyPrintedModel = ResolverUtils.getPrettyPrintedModel( aspectModel );
 
-      return strategy.saveModel( namespace, fileName, prettyPrintedModel );
+      return strategy.saveModel( namespace, fileName,
+            ModelUtils.getCopyRightHeader( aspectModel ) + "\n\n" + prettyPrintedModel );
    }
 
    private void saveVersionedModel( final VersionedModel versionedModel, final String namespace,
@@ -163,6 +164,8 @@ public class ModelService {
    }
 
    public String getFormattedModel( final String aspectModel ) {
-      return ResolverUtils.getPrettyPrintedModel( aspectModel );
+      final String prettyPrintedModel = ResolverUtils.getPrettyPrintedModel( aspectModel );
+
+      return ModelUtils.getCopyRightHeader( aspectModel ) + "\n\n" + prettyPrintedModel;
    }
 }
