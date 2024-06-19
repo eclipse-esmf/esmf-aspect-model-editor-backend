@@ -1372,9 +1372,9 @@
 							"    pm.expect(jsonData).to.include(\"\\\"version\\\" : \\\"v1.0.0\\\"\");\r",
 							"    pm.expect(jsonData).to.include(\"\\\"url\\\" : \\\"http://www.test.com/api/v1.0.0\\\"\");\r",
 							"\r",
-							"    pm.expect(jsonData).to.include(\"\\\"get\\\"\" :\");\r",
-							"    pm.expect(jsonData).to.include(\"\\\"post\\\"\" :\");\r",
-							"    pm.expect(jsonData).to.include(\"\\\"put\\\"\" :\");\r",
+							"    pm.expect(jsonData).to.include(\"\\\"get\\\" :\");\r",
+							"    pm.expect(jsonData).to.include(\"\\\"post\\\" :\");\r",
+							"    pm.expect(jsonData).to.include(\"\\\"put\\\" :\");\r",
 							"    pm.expect(jsonData).to.include(\"\\\"patch\\\" :\");\r",
 							"});"
 						],
