@@ -187,7 +187,7 @@ public class GenerateController {
 
       return new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( language ), false, useSemanticVersion, baseUrl,
             resourcePath, propertiesNode, pagingOption, includeQueryApi, includeCrud, includePost, includePut,
-            includePatch );
+            includePatch, null );
    }
 
    /**
