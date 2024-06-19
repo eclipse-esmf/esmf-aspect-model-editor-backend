@@ -20,7 +20,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.commons.lang3.LocaleUtils;
 import org.eclipse.esmf.ame.exceptions.FileHandlingException;
@@ -40,7 +39,7 @@ import org.eclipse.esmf.aspectmodel.generator.docu.AspectModelDocumentationGener
 import org.eclipse.esmf.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
 import org.eclipse.esmf.aspectmodel.generator.jsonschema.AspectModelJsonSchemaGenerator;
 import org.eclipse.esmf.aspectmodel.generator.openapi.AspectModelOpenApiGenerator;
-import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
+import org.eclipse.esmf.aspectmodel.generator.openapi.OpenApiSchemaGenerationConfig;
 import org.eclipse.esmf.aspectmodel.resolver.services.DataType;
 import org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel;
 import org.eclipse.esmf.metamodel.Aspect;
@@ -153,12 +152,10 @@ public class GenerateService {
       return ModelUtils.getAspectContext( context );
    }
 
-   public String generateYamlOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
-         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption,
-         final Optional<String> resourcePath, final Optional<String> yamlProperties ) {
-      final String ymlOutput = new AspectModelOpenApiGenerator().applyForYaml(
-            ResolverUtils.resolveAspectFromModel( aspectModel ), useSemanticVersion, baseUrl, resourcePath,
-            yamlProperties, includeQueryApi, pagingOption, Locale.forLanguageTag( language ) );
+   public String generateYamlOpenApiSpec( final String aspectModel, final OpenApiSchemaGenerationConfig config ) {
+
+      final String ymlOutput = new AspectModelOpenApiGenerator().apply(
+            ResolverUtils.resolveAspectFromModel( aspectModel ), config ).getContentAsYaml();
 
       if ( ymlOutput.equals( "--- {}\n" ) ) {
          throw new GenerationException( WRONG_RESOURCE_PATH_ID );
@@ -167,13 +164,10 @@ public class GenerateService {
       return ymlOutput;
    }
 
-   public String generateJsonOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
-         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption,
-         final Optional<String> resourcePath, final Optional<JsonNode> jsonProperties ) {
+   public String generateJsonOpenApiSpec( final String aspectModel, final OpenApiSchemaGenerationConfig config ) {
       try {
-         final JsonNode json = new AspectModelOpenApiGenerator().applyForJson(
-               ResolverUtils.resolveAspectFromModel( aspectModel ), useSemanticVersion, baseUrl, resourcePath,
-               jsonProperties, includeQueryApi, pagingOption, LocaleUtils.toLocale( language ) );
+         final JsonNode json = new AspectModelOpenApiGenerator()
+               .apply( ResolverUtils.resolveAspectFromModel( aspectModel ), config ).getContent();
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
          final ObjectMapper objectMapper = new ObjectMapper();

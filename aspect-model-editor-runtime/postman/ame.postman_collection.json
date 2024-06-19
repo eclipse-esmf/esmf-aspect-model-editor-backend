@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "26a275be-9ff5-4002-a3c8-9cdd4bcf4f29",
+		"_postman_id": "c1d51dcb-56f1-4bbd-968f-43220329eada",
 		"name": "AME.POSTMAN.RESOURCES",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "30151852"
@@ -26,13 +26,11 @@
 				"header": [
 					{
 						"key": "NAMESPACE",
-						"value": "org.eclipse.examples:1.0.0",
-						"type": "default"
+						"value": "org.eclipse.examples:1.0.0"
 					},
 					{
 						"key": "FILE-NAME",
-						"value": "Movement.ttl",
-						"type": "default"
+						"value": "Movement.ttl"
 					}
 				],
 				"body": {
@@ -76,8 +74,7 @@
 				"header": [
 					{
 						"key": "FILE-NAME",
-						"value": "latest.ttl",
-						"type": "text"
+						"value": "latest.ttl"
 					}
 				],
 				"body": {
@@ -122,13 +119,11 @@
 				"header": [
 					{
 						"key": "NAMESPACE",
-						"value": "org.eclipse.examples:1.0.0",
-						"type": "text"
+						"value": "org.eclipse.examples:1.0.0"
 					},
 					{
 						"key": "FILE-NAME",
-						"value": "Movement.ttl",
-						"type": "default"
+						"value": "Movement.ttl"
 					}
 				],
 				"url": {
@@ -168,8 +163,7 @@
 				"header": [
 					{
 						"key": "FILE-NAME",
-						"value": "latest.ttl",
-						"type": "text"
+						"value": "latest.ttl"
 					}
 				],
 				"url": {
@@ -413,13 +407,11 @@
 				"header": [
 					{
 						"key": "NAMESPACE",
-						"value": "org.eclipse.examples:1.0.0",
-						"type": "text"
+						"value": "org.eclipse.examples:1.0.0"
 					},
 					{
 						"key": "FILE-NAME",
-						"value": "Movement.ttl",
-						"type": "default"
+						"value": "Movement.ttl"
 					}
 				],
 				"url": {
@@ -511,7 +503,6 @@
 					{
 						"key": "language",
 						"value": "\"en\"",
-						"type": "text",
 						"disabled": true
 					}
 				],
@@ -1273,6 +1264,169 @@
 						{
 							"key": "pagingOption",
 							"value": "NO_PAGING"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateYamlOpenApiSpecCrud",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response body is valid\", function () {\r",
+							"    const jsonData = pm.response.text();\r",
+							"    pm.expect(jsonData).to.include(\"openapi: 3.0.3\");\r",
+							"    pm.expect(jsonData).to.include(\"title: movement\");\r",
+							"    pm.expect(jsonData).to.include(\"version: v1\");\r",
+							"    pm.expect(jsonData).to.include(\"url: http://www.test.com/api/v1\");\r",
+							"\r",
+							"    pm.expect(jsonData).to.include(\"get:\");\r",
+							"    pm.expect(jsonData).to.include(\"post:\");\r",
+							"    pm.expect(jsonData).to.include(\"put:\");\r",
+							"    pm.expect(jsonData).to.include(\"patch:\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"packages": {},
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:org.eclipse.examples:1.0.0#> .\r\n\r\n:Movement a samm:Aspect ;\r\n   samm:preferredName \"movement\"@en ;\r\n   samm:description \"Aspect for movement information\"@en ;\r\n   samm:properties ( :isMoving :position :speed :speedLimitWarning ) ;\r\n   samm:operations ( ) ;\r\n   samm:events ( ) .\r\n\r\n:isMoving a samm:Property ;\r\n   samm:preferredName \"is moving\"@en ;\r\n   samm:description \"Flag indicating whether the asset is currently moving\"@en ;\r\n   samm:characteristic samm-c:Boolean .\r\n\r\n:position a samm:Property ;\r\n   samm:preferredName \"position\"@en ;\r\n   samm:description \"Indicates a position\"@en ;\r\n   samm:characteristic :SpatialPositionCharacteristic .\r\n\r\n:speed a samm:Property ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"speed of vehicle\"@en ;\r\n   samm:characteristic :Speed .\r\n\r\n:speedLimitWarning a samm:Property ;\r\n   samm:preferredName \"speed limit warning\"@en ;\r\n   samm:description \"Indicates if the speed limit is adhered to.\"@en ;\r\n   samm:characteristic :TrafficLight .\r\n\r\n:SpatialPositionCharacteristic a samm-c:SingleEntity ;\r\n   samm:preferredName \"spatial position characteristic\"@en ;\r\n   samm:description \"Represents a single position in space with optional z coordinate.\"@en ;\r\n   samm:dataType :SpatialPosition .\r\n\r\n:Speed a samm-c:Measurement ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"Scalar representation of speed of an object in kilometers per hour.\"@en ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:kilometrePerHour .\r\n\r\n:TrafficLight a samm-c:Enumeration ;\r\n   samm:preferredName \"warning level\"@en ;\r\n   samm:description \"Represents if speed of position change is within specification (green), within tolerance (yellow), or outside specification (red).\"@en ;\r\n   samm:dataType xsd:string ;\r\n   samm-c:values ( \"green\" \"yellow\" \"red\" ) .\r\n\r\n:SpatialPosition a samm:Entity ;\r\n   samm:preferredName \"spatial position\"@en ;\r\n   samm:description \"Represents latitude, longitude and altitude information in the WGS84 geodetic reference datum\"@en ;\r\n   samm:see <https://www.w3.org/2003/01/geo/> ;\r\n   samm:properties ( :latitude :longitude [ samm:property :altitude; samm:optional true ] ) .\r\n\r\n:latitude a samm:Property ;\r\n   samm:preferredName \"latitude\"@en ;\r\n   samm:description \"latitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"9.1781\"^^xsd:decimal .\r\n\r\n:longitude a samm:Property ;\r\n   samm:preferredName \"longitude\"@en ;\r\n   samm:description \"longitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#long> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"48.80835\"^^xsd:decimal .\r\n\r\n:altitude a samm:Property ;\r\n   samm:preferredName \"altitude\"@en ;\r\n   samm:description \"Elevation above sea level zero\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#alt> ;\r\n   samm:characteristic :MetresAboveMeanSeaLevel ;\r\n   samm:exampleValue \"153\"^^xsd:float .\r\n\r\n:Coordinate a samm-c:Measurement ;\r\n   samm:preferredName \"coordinate\"@en ;\r\n   samm:description \"Representing the geographical coordinate\"@en ;\r\n   samm:dataType xsd:decimal ;\r\n   samm-c:unit unit:degreeUnitOfAngle .\r\n\r\n:MetresAboveMeanSeaLevel a samm-c:Measurement ;\r\n   samm:preferredName \"metres above mean sea level\"@en ;\r\n   samm:description \"Signifies the vertical distance in reference to a historic mean sea level as a vertical datum\"@en ;\r\n   samm:see <https://en.wikipedia.org/wiki/Height_above_sea_level> ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:metre .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/generate/open-api-spec?output=yaml&baseUrl=http://www.test.com&includeQueryApi=true&useSemanticVersion=true&pagingOption=NO_PAGING&includeCrud=true",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"generate",
+						"open-api-spec"
+					],
+					"query": [
+						{
+							"key": "output",
+							"value": "yaml"
+						},
+						{
+							"key": "baseUrl",
+							"value": "http://www.test.com"
+						},
+						{
+							"key": "includeQueryApi",
+							"value": "true"
+						},
+						{
+							"key": "useSemanticVersion",
+							"value": "true"
+						},
+						{
+							"key": "pagingOption",
+							"value": "NO_PAGING"
+						},
+						{
+							"key": "includeCrud",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GenerateJsonOpenApiSpecCrud",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Response body is valid\", function () {\r",
+							"    const jsonData = pm.response.text();\r",
+							"    pm.expect(jsonData).to.include(\"\\\"openapi\\\" : \\\"3.0.3\\\"\");\r",
+							"    pm.expect(jsonData).to.include(\"\\\"title\\\" : \\\"movement\\\"\");\r",
+							"    pm.expect(jsonData).to.include(\"\\\"version\\\" : \\\"v1.0.0\\\"\");\r",
+							"    pm.expect(jsonData).to.include(\"\\\"url\\\" : \\\"http://www.test.com/api/v1.0.0\\\"\");\r",
+							"\r",
+							"    pm.expect(jsonData).to.include(\"\\\"get\\\" :\");\r",
+							"    pm.expect(jsonData).to.include(\"\\\"post\\\" :\");\r",
+							"    pm.expect(jsonData).to.include(\"\\\"put\\\" :\");\r",
+							"    pm.expect(jsonData).to.include(\"\\\"patch\\\" :\");\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> .\r\n@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.1.0#> .\r\n@prefix samm-e: <urn:samm:org.eclipse.esmf.samm:entity:2.1.0#> .\r\n@prefix unit: <urn:samm:org.eclipse.esmf.samm:unit:2.1.0#> .\r\n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\r\n@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .\r\n@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .\r\n@prefix : <urn:samm:org.eclipse.examples:1.0.0#> .\r\n\r\n:Movement a samm:Aspect ;\r\n   samm:preferredName \"movement\"@en ;\r\n   samm:description \"Aspect for movement information\"@en ;\r\n   samm:properties ( :isMoving :position :speed :speedLimitWarning ) ;\r\n   samm:operations ( ) ;\r\n   samm:events ( ) .\r\n\r\n:isMoving a samm:Property ;\r\n   samm:preferredName \"is moving\"@en ;\r\n   samm:description \"Flag indicating whether the asset is currently moving\"@en ;\r\n   samm:characteristic samm-c:Boolean .\r\n\r\n:position a samm:Property ;\r\n   samm:preferredName \"position\"@en ;\r\n   samm:description \"Indicates a position\"@en ;\r\n   samm:characteristic :SpatialPositionCharacteristic .\r\n\r\n:speed a samm:Property ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"speed of vehicle\"@en ;\r\n   samm:characteristic :Speed .\r\n\r\n:speedLimitWarning a samm:Property ;\r\n   samm:preferredName \"speed limit warning\"@en ;\r\n   samm:description \"Indicates if the speed limit is adhered to.\"@en ;\r\n   samm:characteristic :TrafficLight .\r\n\r\n:SpatialPositionCharacteristic a samm-c:SingleEntity ;\r\n   samm:preferredName \"spatial position characteristic\"@en ;\r\n   samm:description \"Represents a single position in space with optional z coordinate.\"@en ;\r\n   samm:dataType :SpatialPosition .\r\n\r\n:Speed a samm-c:Measurement ;\r\n   samm:preferredName \"speed\"@en ;\r\n   samm:description \"Scalar representation of speed of an object in kilometers per hour.\"@en ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:kilometrePerHour .\r\n\r\n:TrafficLight a samm-c:Enumeration ;\r\n   samm:preferredName \"warning level\"@en ;\r\n   samm:description \"Represents if speed of position change is within specification (green), within tolerance (yellow), or outside specification (red).\"@en ;\r\n   samm:dataType xsd:string ;\r\n   samm-c:values ( \"green\" \"yellow\" \"red\" ) .\r\n\r\n:SpatialPosition a samm:Entity ;\r\n   samm:preferredName \"spatial position\"@en ;\r\n   samm:description \"Represents latitude, longitude and altitude information in the WGS84 geodetic reference datum\"@en ;\r\n   samm:see <https://www.w3.org/2003/01/geo/> ;\r\n   samm:properties ( :latitude :longitude [ samm:property :altitude; samm:optional true ] ) .\r\n\r\n:latitude a samm:Property ;\r\n   samm:preferredName \"latitude\"@en ;\r\n   samm:description \"latitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#lat> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"9.1781\"^^xsd:decimal .\r\n\r\n:longitude a samm:Property ;\r\n   samm:preferredName \"longitude\"@en ;\r\n   samm:description \"longitude coordinate in space (WGS84)\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#long> ;\r\n   samm:characteristic :Coordinate ;\r\n   samm:exampleValue \"48.80835\"^^xsd:decimal .\r\n\r\n:altitude a samm:Property ;\r\n   samm:preferredName \"altitude\"@en ;\r\n   samm:description \"Elevation above sea level zero\"@en ;\r\n   samm:see <http://www.w3.org/2003/01/geo/wgs84_pos#alt> ;\r\n   samm:characteristic :MetresAboveMeanSeaLevel ;\r\n   samm:exampleValue \"153\"^^xsd:float .\r\n\r\n:Coordinate a samm-c:Measurement ;\r\n   samm:preferredName \"coordinate\"@en ;\r\n   samm:description \"Representing the geographical coordinate\"@en ;\r\n   samm:dataType xsd:decimal ;\r\n   samm-c:unit unit:degreeUnitOfAngle .\r\n\r\n:MetresAboveMeanSeaLevel a samm-c:Measurement ;\r\n   samm:preferredName \"metres above mean sea level\"@en ;\r\n   samm:description \"Signifies the vertical distance in reference to a historic mean sea level as a vertical datum\"@en ;\r\n   samm:see <https://en.wikipedia.org/wiki/Height_above_sea_level> ;\r\n   samm:dataType xsd:float ;\r\n   samm-c:unit unit:metre .\r\n"
+				},
+				"url": {
+					"raw": "http://localhost:{{port}}/ame/api/generate/open-api-spec?output=json&baseUrl=http://www.test.com&includeQueryApi=true&useSemanticVersion=true&pagingOption=NO_PAGING&includeCrud=true",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "{{port}}",
+					"path": [
+						"ame",
+						"api",
+						"generate",
+						"open-api-spec"
+					],
+					"query": [
+						{
+							"key": "output",
+							"value": "json"
+						},
+						{
+							"key": "baseUrl",
+							"value": "http://www.test.com"
+						},
+						{
+							"key": "includeQueryApi",
+							"value": "true"
+						},
+						{
+							"key": "useSemanticVersion",
+							"value": "true"
+						},
+						{
+							"key": "pagingOption",
+							"value": "NO_PAGING"
+						},
+						{
+							"key": "includeCrud",
+							"value": "true"
 						}
 					]
 				}

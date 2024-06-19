@@ -14,9 +14,11 @@
 package org.eclipse.esmf.ame.api;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.eclipse.esmf.ame.services.GenerateService;
+import org.eclipse.esmf.aspectmodel.generator.openapi.OpenApiSchemaGenerationConfig;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 /**
  * Controller class that supports the generation of the aspect model into other formats.
@@ -133,8 +137,11 @@ public class GenerateController {
          @RequestParam( name = "baseUrl", defaultValue = "https://www.eclipse.org" ) final String baseUrl,
          @RequestParam( name = "includeQueryApi", defaultValue = "false" ) final boolean includeQueryApi,
          @RequestParam( name = "useSemanticVersion", defaultValue = "false" ) final boolean useSemanticVersion,
-         @RequestParam( name = "pagingOption", defaultValue = "TIME_BASED_PAGING" )
-         final Optional<PagingOption> pagingOption,
+         @RequestParam( name = "pagingOption", defaultValue = "TIME_BASED_PAGING" ) final PagingOption pagingOption,
+         @RequestParam( name = "includeCrud", defaultValue = "false" ) final boolean includeCrud,
+         @RequestParam( name = "includePost", defaultValue = "false" ) final boolean includePost,
+         @RequestParam( name = "includePut", defaultValue = "false" ) final boolean includePut,
+         @RequestParam( name = "includePatch", defaultValue = "false" ) final boolean includePatch,
          @RequestParam( name = "resourcePath", defaultValue = "" ) final String resourcePath,
          @RequestParam( name = "ymlProperties", defaultValue = "" ) final String ymlProperties,
          @RequestParam( name = "jsonProperties", defaultValue = "" ) final String jsonProperties )
@@ -146,25 +153,41 @@ public class GenerateController {
                   Optional.empty();
 
       final String openApiOutput = generateOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
-            useSemanticVersion, pagingOption, resourcePath, properties, output );
+            useSemanticVersion, pagingOption, resourcePath, includeCrud, includePost, includePut, includePatch,
+            properties, output );
 
       return ResponseEntity.ok( openApiOutput );
    }
 
    private String generateOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
-         final boolean includeQueryApi, final boolean useSemanticVersion, final Optional<PagingOption> pagingOption,
-         final String resourcePath, final Optional<String> properties, final String output )
+         final boolean includeQueryApi, final boolean useSemanticVersion, final PagingOption pagingOption,
+         final String resourcePath, final boolean includeCrud, final boolean includePost, final boolean includePut,
+         final boolean includePatch, final Optional<String> properties, final String output )
          throws JsonProcessingException {
 
-      if ( output.equals( "json" ) ) {
-         final ObjectMapper objectMapper = new ObjectMapper();
-         return generateService.generateJsonOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
-               useSemanticVersion, pagingOption, Optional.of( resourcePath ),
-               Optional.of( objectMapper.readTree( properties.orElse( "{}" ) ) ) );
-      }
+      final ObjectMapper objectMapper = output.equals( "json" ) ?
+            new ObjectMapper() :
+            new ObjectMapper( new YAMLFactory() );
 
-      return generateService.generateYamlOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
-            useSemanticVersion, pagingOption, Optional.of( resourcePath ), properties );
+      final OpenApiSchemaGenerationConfig config = createOpenApiSchemaGenerationConfig( language, baseUrl,
+            useSemanticVersion, resourcePath, pagingOption, includeQueryApi, includeCrud, includePost, includePut,
+            includePatch, properties, objectMapper );
+
+      return output.equals( "json" ) ?
+            generateService.generateJsonOpenApiSpec( aspectModel, config ) :
+            generateService.generateYamlOpenApiSpec( aspectModel, config );
+   }
+
+   private OpenApiSchemaGenerationConfig createOpenApiSchemaGenerationConfig( final String language,
+         final String baseUrl, final boolean useSemanticVersion, final String resourcePath,
+         final PagingOption pagingOption, final boolean includeQueryApi, final boolean includeCrud,
+         final boolean includePost, final boolean includePut, final boolean includePatch,
+         final Optional<String> properties, final ObjectMapper objectMapper ) throws JsonProcessingException {
+      final ObjectNode propertiesNode = objectMapper.readValue( properties.orElse( "{}" ), ObjectNode.class );
+
+      return new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( language ), false, useSemanticVersion, baseUrl,
+            resourcePath, propertiesNode, pagingOption, includeQueryApi, includeCrud, includePost, includePut,
+            includePatch, null );
    }
 
    /**
