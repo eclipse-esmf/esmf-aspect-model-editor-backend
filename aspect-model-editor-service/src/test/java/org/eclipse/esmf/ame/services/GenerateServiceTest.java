@@ -83,7 +83,7 @@ class GenerateServiceTest {
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
             false, false,
             "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
-            false, false, false );
+            false, false, false, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( testModel, config );
 
@@ -116,7 +116,7 @@ class GenerateServiceTest {
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
             false, false,
             "https://test.com", "/resource/{resourceId}", jsonProperties, PagingOption.TIME_BASED_PAGING, false, false,
-            false, false, false );
+            false, false, false, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( testModel, config );
 
@@ -152,7 +152,7 @@ class GenerateServiceTest {
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
             false, false,
             "https://test.com", "/resource/{resourceId}", jsonProperties, PagingOption.TIME_BASED_PAGING, false, false,
-            false, false, false );
+            false, false, false, null );
 
       assertThrows( GenerationException.class, () -> generateService.generateJsonOpenApiSpec( testModel, config ) );
    }
@@ -165,7 +165,7 @@ class GenerateServiceTest {
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
             false, false,
             "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, true,
-            false, false, false );
+            false, false, false, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( testModel, config );
 
@@ -187,7 +187,7 @@ class GenerateServiceTest {
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
             false, false,
             "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
-            true, false, false );
+            true, false, false, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( testModel, config );
 
@@ -209,7 +209,7 @@ class GenerateServiceTest {
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
             false, false,
             "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
-            false, false, true );
+            false, false, true, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( testModel, config );
 
@@ -231,7 +231,7 @@ class GenerateServiceTest {
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
             false, false,
             "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
-            false, true, false );
+            false, true, false, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( testModel, config );
 
@@ -254,7 +254,7 @@ class GenerateServiceTest {
             false, false,
             "https://test.com", "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
             PagingOption.TIME_BASED_PAGING, false, false,
-            false, false, false );
+            false, false, false, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
@@ -283,7 +283,7 @@ class GenerateServiceTest {
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
             false, false,
             "https://test.com", "/resource/{resourceId}", yamlProperties, PagingOption.TIME_BASED_PAGING, false, false,
-            false, false, false );
+            false, false, false, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
@@ -315,7 +315,7 @@ class GenerateServiceTest {
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ),
             false, false,
             "https://test.com", "/resource/{resourceId}", yamlProperties, PagingOption.TIME_BASED_PAGING, false, false,
-            false, false, false );
+            false, false, false, null );
 
       assertThrows( GenerationException.class, () -> generateService.generateYamlOpenApiSpec( testModel, config ) );
    }
@@ -329,7 +329,7 @@ class GenerateServiceTest {
             false, false,
             "https://test.com", "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
             PagingOption.TIME_BASED_PAGING, false, true,
-            false, false, false );
+            false, false, false, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
@@ -352,7 +352,7 @@ class GenerateServiceTest {
             false, false,
             "https://test.com", "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
             PagingOption.TIME_BASED_PAGING, false, false,
-            true, false, false );
+            true, false, false, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
@@ -375,7 +375,7 @@ class GenerateServiceTest {
             false, false,
             "https://test.com", "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
             PagingOption.TIME_BASED_PAGING, false, false,
-            false, false, true );
+            false, false, true, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
@@ -398,7 +398,7 @@ class GenerateServiceTest {
             false, false,
             "https://test.com", "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
             PagingOption.TIME_BASED_PAGING, false, false,
-            false, true, false );
+            false, true, false, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
