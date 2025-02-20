@@ -18,12 +18,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.esmf.ame.MediaTypeExtension;
+import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
-import org.eclipse.esmf.ame.model.NamespaceFileCollection;
 import org.eclipse.esmf.ame.services.ModelService;
-import org.eclipse.esmf.ame.utils.MigratorUtils;
+import org.eclipse.esmf.ame.services.models.MigrationResult;
+import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.utils.ModelUtils;
+import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,19 +36,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller class where all the requests are mapped RequestMapping for the class is "aspect" generates a response
- * based on the mapping by calling the particular request handler methods
+ * Controller class where all the requests are mapped. The RequestMapping for the class is "models".
+ * This class generates a response based on the mapping by calling the particular request handler methods.
  */
 @RestController
 @RequestMapping( "models" )
 public class ModelController {
+   public static final String URN = "aspect-model-urn";
 
-   public static final String FILE_NAME = "file-name";
-   public static final String NAMESPACE = "namespace";
    private final ModelService modelService;
 
    public ModelController( final ModelService modelService ) {
@@ -53,23 +54,20 @@ public class ModelController {
    }
 
    /**
-    * Method used to return a turtle file based on the header parameter: Ame-Model-Urn which consists of
-    * namespace:version:turtleFileName.ttl.
+    * Method used to return a turtle file based on the header parameter: Aspect-Model-Urn which consists of
+    * urn:samm:namespace:version#AspectModelElement
     */
    @GetMapping()
    public ResponseEntity<String> getModel( @RequestHeader final Map<String, String> headers ) {
-      final Optional<String> optionalNameSpace =
-            headers.get( NAMESPACE ) != null ?
-                  Optional.of( ModelUtils.sanitizeFileInformation( headers.get( NAMESPACE ) ) ) :
-                  Optional.empty();
+      final Optional<String> optionalUrn = Optional.of(
+            ModelUtils.sanitizeFileInformation( headers.get( URN ) ) );
 
-      final Optional<String> optionalFilename = Optional.of(
-            ModelUtils.sanitizeFileInformation( headers.get( FILE_NAME ) ) );
+      final String aspectModelUrn = optionalUrn.orElseThrow(
+            () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
 
-      final String filename = optionalFilename.orElseThrow(
-            () -> new FileNotFoundException( "Please specify a file name" ) );
+      final String filePath = headers.get( "file-path" );
 
-      return ResponseEntity.ok( modelService.getModel( optionalNameSpace.orElse( "" ), filename ) );
+      return ResponseEntity.ok( modelService.getModel( aspectModelUrn, filePath ) );
    }
 
    /**
@@ -78,76 +76,22 @@ public class ModelController {
     * @param turtleData To store in file.
     */
    @PostMapping( consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
-   public ResponseEntity<String> createModel( @RequestHeader final Map<String, String> headers,
-         @RequestBody final String turtleData ) {
-      final Optional<String> optionalNameSpace =
-            headers.get( NAMESPACE ) != null ?
-                  Optional.of( ModelUtils.sanitizeFileInformation( headers.get( NAMESPACE ) ) ) :
-                  Optional.empty();
+   public ResponseEntity<String> createOrSaveModel( @RequestBody final String turtleData,
+         @RequestHeader final Map<String, String> headers ) {
+      final Optional<String> optionalUrn = Optional.of(
+            ModelUtils.sanitizeFileInformation( headers.get( URN ) ) );
 
-      final Optional<String> optionalFilename = Optional.of(
-            ModelUtils.sanitizeFileInformation( headers.get( FILE_NAME ) ) );
-      
-      modelService.saveModel( optionalNameSpace, optionalFilename, turtleData );
+      final Optional<String> optionalFileName = Optional.of(
+            ModelUtils.sanitizeFileInformation( headers.get( "file-name" ) ) );
+
+      final String aspectModelUrn = optionalUrn.orElseThrow(
+            () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
+
+      final String fileName = optionalFileName.orElse( "" );
+
+      modelService.createOrSaveModel( turtleData, aspectModelUrn, fileName, ApplicationSettings.getMetaModelStoragePath() );
 
       return new ResponseEntity<>( HttpStatus.CREATED );
-   }
-
-   /**
-    * This Method is used to validate a Turtle file
-    *
-    * @param aspectModel The Aspect Model Data
-    * @return Either an empty array if the model is syntactically correct and conforms to the Aspect Meta Model
-    *       semantics or provides a number of * {@link ViolationReport}s that describe all validation violations.
-    */
-   @PostMapping( "validate" )
-   public ResponseEntity<ViolationReport> validateModel( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( modelService.validateModel( aspectModel ) );
-   }
-
-   /**
-    * This Method is used to migrate a Turtle file. Performs a validation check.
-    *
-    * @param aspectModel - The Aspect Model Data
-    * @return A migrated version of the Aspect Model
-    */
-   @PostMapping( path = "migrate", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
-   public ResponseEntity<String> migrateModel( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( MigratorUtils.migrateModel( aspectModel ) );
-   }
-
-   /**
-    * This Method is used to format a Turtle file.
-    *
-    * @param aspectModel - The Aspect Model Data
-    * @return A formatted version of the Aspect Model
-    */
-   @PostMapping( path = "format", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
-   public ResponseEntity<String> getFormattedModel( @RequestBody final String aspectModel ) {
-      return ResponseEntity.ok( modelService.getFormattedModel( aspectModel ) );
-   }
-
-   /**
-    * This method migrates all Aspect models in the workspace.
-    *
-    * @return A list of Aspect Models that are migrated or not.
-    */
-   @GetMapping( path = "migrate-workspace" )
-   public ResponseEntity<NamespaceFileCollection> migrateWorkspace() {
-      return ResponseEntity.ok( modelService.migrateWorkspace() );
-   }
-
-   /**
-    * Returns a map of key = namespace + version and value = list of turtle files that are present in that namespace.
-    *
-    * @param shouldRefresh - parameter that indicates if the map should be recreated of it should be returned from
-    *       memory.
-    */
-   @GetMapping( "namespaces" )
-   public ResponseEntity<Map<String, List<String>>> getAllNamespaces(
-         @RequestParam( value = "shouldRefresh", required = false, defaultValue = "false" )
-         final boolean shouldRefresh ) {
-      return ResponseEntity.ok( modelService.getAllNamespaces( shouldRefresh ) );
    }
 
    /**
@@ -156,17 +100,67 @@ public class ModelController {
     */
    @DeleteMapping()
    public void deleteModel( @RequestHeader final Map<String, String> headers ) {
-      final Optional<String> optionalNameSpace = Optional.of(
-            ModelUtils.sanitizeFileInformation( headers.get( NAMESPACE ) ) );
-      final Optional<String> optionalFilename = Optional.of(
-            ModelUtils.sanitizeFileInformation( headers.get( FILE_NAME ) ) );
+      final Optional<String> optionalUrn = Optional.of(
+            ModelUtils.sanitizeFileInformation( headers.get( URN ) ) );
 
-      final String namespace = optionalNameSpace.orElseThrow(
-            () -> new FileNotFoundException( "Please specify a namespace" ) );
+      final String aspectModelUrn = optionalUrn.orElseThrow(
+            () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
 
-      final String filename = optionalFilename.orElseThrow(
-            () -> new FileNotFoundException( "Please specify a file name" ) );
+      modelService.deleteModel( aspectModelUrn );
+   }
 
-      modelService.deleteModel( namespace, filename );
+   /**
+    * This Method is used to validate a Turtle file
+    *
+    * @param aspectModel The Aspect Model Data
+    * @return Either an empty array if the model is syntactically correct and conforms to the Aspect Meta Model
+    * semantics or provides a number of * {@link ViolationReport}s that describe all validation violations.
+    */
+   @PostMapping( "validate" )
+   public ResponseEntity<List<ViolationError>> validateModel( @RequestBody final String aspectModel ) {
+      return ResponseEntity.ok( modelService.validateModel( aspectModel ) );
+   }
+
+   /**
+    * This Method is used to migrate a Turtle file. Performs a validation check.
+    *
+    * @param turtleData - The Aspect Model Data
+    * @return A migrated version of the Aspect Model
+    */
+   @PostMapping( path = "migrate", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
+   public ResponseEntity<String> migrateModel( @RequestBody final String turtleData ) {
+      return ResponseEntity.ok( modelService.migrateModel( turtleData ) );
+   }
+
+   /**
+    * This Method is used to format a Turtle file.
+    *
+    * @param turtleData - The Aspect Model Data
+    * @return A formatted version of the Aspect Model
+    */
+   @PostMapping( path = "format", consumes = { MediaType.TEXT_PLAIN_VALUE, MediaTypeExtension.TEXT_TURTLE_VALUE } )
+   public ResponseEntity<String> getFormattedModel( @RequestBody final String turtleData ) {
+      return ResponseEntity.ok( modelService.getFormattedModel( turtleData ) );
+   }
+
+   /**
+    * Returns a map of namespaces to their respective versions and models.
+    * Each namespace is mapped to a list of versions, and each version contains a list of models.
+    *
+    * @return a ResponseEntity containing a map where the key is the namespace and the value is a list of Version objects.
+    */
+   @GetMapping( "namespaces" )
+   public ResponseEntity<Map<String, List<Version>>> getAllNamespaces() {
+      return ResponseEntity.ok( modelService.getAllNamespaces() );
+   }
+
+   /**
+    * This method migrates all Aspect models in the workspace.
+    *
+    * @return A list of Aspect Models that are migrated or not.
+    */
+   @GetMapping( path = "migrate-workspace" )
+   public ResponseEntity<MigrationResult> migrateWorkspace() {
+      return ResponseEntity.ok( modelService.migrateWorkspace() );
    }
 }

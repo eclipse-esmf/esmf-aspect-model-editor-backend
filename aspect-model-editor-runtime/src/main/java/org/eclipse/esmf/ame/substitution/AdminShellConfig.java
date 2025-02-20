@@ -75,8 +75,8 @@ public class AdminShellConfig {
 
    private <K, V> String serialize( final Map<K, V> map, final Function<K, String> keyMapper, final Function<V, String> valueMapper ) {
       return map.entrySet().stream()
-                .map( entry -> String.format( "%s->%s", keyMapper.apply( entry.getKey() ), valueMapper.apply( entry.getValue() ) ) )
-                .collect( Collectors.joining( ";" ) );
+            .map( entry -> String.format( "%s->%s", keyMapper.apply( entry.getKey() ), valueMapper.apply( entry.getValue() ) ) )
+            .collect( Collectors.joining( ";" ) );
    }
 
    private String serialize( final ReflectionHelper.ImplementationInfo<?> info ) {
@@ -110,20 +110,20 @@ public class AdminShellConfig {
          final Function<String, T> elementDeserializer,
          final Collector<? super T, ?, C> collector ) {
       return Arrays.stream( collection.split( "," ) )
-                   .filter( entry -> !entry.isEmpty() )
-                   .map( elementDeserializer )
-                   .collect( collector );
+            .filter( entry -> !entry.isEmpty() )
+            .map( elementDeserializer )
+            .collect( collector );
    }
 
    private static <K, V> Map<K, V> deserializeMap( final String map, final Function<String, K> keyDeserializer,
          final Function<String, V> valueDeserializer ) {
       return Arrays.stream( map.split( ";" ) )
-                   .filter( entry -> !entry.isEmpty() )
-                   .map( entry -> {
-                      final String[] parts = entry.split( "->" );
-                      return Map.entry( keyDeserializer.apply( parts[0] ), valueDeserializer.apply( parts[1] ) );
-                   } )
-                   .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue ) );
+            .filter( entry -> !entry.isEmpty() )
+            .map( entry -> {
+               final String[] parts = entry.split( "->" );
+               return Map.entry( keyDeserializer.apply( parts[0] ), valueDeserializer.apply( parts[1] ) );
+            } )
+            .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue ) );
    }
 
    private static <T> ReflectionHelper.ImplementationInfo<T> deserializeImplementationInfo( final String info ) {

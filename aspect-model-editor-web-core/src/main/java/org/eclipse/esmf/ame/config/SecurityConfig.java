@@ -36,13 +36,12 @@ public class SecurityConfig {
     *
     * @param http an {@link HttpSecurity} instance to configure.
     * @return the configured {@link SecurityFilterChain}.
-    *
     * @throws Exception if there's an error configuring the {@link HttpSecurity}.
     */
    @Bean
    public SecurityFilterChain filterChain( final HttpSecurity http ) throws Exception {
       return http.csrf().disable().authorizeHttpRequests(
-                       requests -> requests.requestMatchers( "/**" ).permitAll().anyRequest().authenticated() )
-                 .build();
+                  requests -> requests.requestMatchers( "/**" ).permitAll().anyRequest().authenticated() )
+            .build();
    }
 }

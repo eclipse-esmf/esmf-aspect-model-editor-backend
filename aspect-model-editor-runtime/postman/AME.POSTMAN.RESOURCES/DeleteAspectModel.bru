@@ -1,0 +1,26 @@
+meta {
+  name: DeleteAspectModel
+  type: http
+  seq: 10
+}
+
+delete {
+  url: http://localhost:{{port}}/ame/api/models
+  body: none
+  auth: none
+}
+
+headers {
+  NAMESPACE: org.eclipse.examples:1.0.0
+  FILE-NAME: Movement.ttl
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+}
+
+docs {
+  Delete an aspect model by urn
+}

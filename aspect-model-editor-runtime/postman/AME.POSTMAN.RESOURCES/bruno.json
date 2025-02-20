@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "AME.POSTMAN.RESOURCES",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

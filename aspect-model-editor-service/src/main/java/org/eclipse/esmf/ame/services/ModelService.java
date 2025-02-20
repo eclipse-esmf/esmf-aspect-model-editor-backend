@@ -13,159 +13,183 @@
 
 package org.eclipse.esmf.ame.services;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.jena.rdf.model.StmtIterator;
-import org.eclipse.esmf.ame.model.FileProcessingResult;
-import org.eclipse.esmf.ame.model.NamespaceFileCollection;
-import org.eclipse.esmf.ame.model.StoragePath;
-import org.eclipse.esmf.ame.model.VersionedNamespaceFiles;
-import org.eclipse.esmf.ame.repository.ModelResolverRepository;
-import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
-import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
-import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
-import org.eclipse.esmf.ame.resolver.strategy.utils.ResolverUtils;
-import org.eclipse.esmf.ame.utils.MigratorUtils;
-import org.eclipse.esmf.ame.utils.ModelUtils;
-import org.eclipse.esmf.ame.validation.model.ViolationReport;
+import org.eclipse.esmf.ame.exceptions.CreateFileException;
+import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
+import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
+import org.eclipse.esmf.ame.services.models.MigrationResult;
+import org.eclipse.esmf.ame.services.models.Version;
+import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
+import org.eclipse.esmf.ame.services.utils.ModelUtils;
+import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.utils.ValidationUtils;
-import org.eclipse.esmf.aspectmodel.resolver.services.DataType;
-import org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel;
+import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
+import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
+import org.eclipse.esmf.aspectmodel.serializer.AspectSerializer;
+import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
-import org.eclipse.esmf.aspectmodel.versionupdate.MigratorService;
+import org.eclipse.esmf.metamodel.AspectModel;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import io.vavr.NotImplementedError;
-import io.vavr.Tuple2;
-import io.vavr.control.Try;
-
+/**
+ * Service class for managing aspect models.
+ * Provides methods to get, create, save, delete, validate, migrate, and format aspect models.
+ */
 @Service
 public class ModelService {
+   private static final Logger LOG = LoggerFactory.getLogger( ModelService.class );
+
    private final AspectModelValidator aspectModelValidator;
-   private final ModelResolverRepository modelResolverRepository;
+   private final AspectModelLoader aspectModelLoader;
+   private final Path modelPath;
 
-   public ModelService( final AspectModelValidator aspectModelValidator,
-         final ModelResolverRepository modelResolverRepository ) {
+   public ModelService( final AspectModelValidator aspectModelValidator, final AspectModelLoader aspectModelLoader, final Path modelPath ) {
       this.aspectModelValidator = aspectModelValidator;
-      this.modelResolverRepository = modelResolverRepository;
-
-      DataType.setupTypeMapping();
+      this.aspectModelLoader = aspectModelLoader;
+      this.modelPath = modelPath;
    }
 
-   public String getModel( final String namespace, final String filename ) {
-      final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
+   public String getModel( final String aspectModelUrn, final String filePath ) {
+      try {
+         final AspectModel aspectModel = ( filePath != null ) ? loadModelFromFile( filePath ) : loadModelFromUrn( aspectModelUrn );
+         validateModel( aspectModel );
 
-      return strategy.getModelAsString( namespace, filename );
+         return aspectModel.files().stream()
+               .filter( a -> a.elements().stream().anyMatch( e -> e.urn().equals( AspectModelUrn.fromUrn( aspectModelUrn ) ) ) ).findFirst()
+               .map( AspectSerializer.INSTANCE::aspectModelFileToString )
+               .orElseThrow( () -> new FileNotFoundException( "Aspect Model not found" ) );
+      } catch ( final ModelResolutionException e ) {
+         throw new FileNotFoundException( e.getMessage(), e );
+      }
    }
 
-   public String saveModel( final Optional<String> namespace, final Optional<String> fileName,
-         final String aspectModel ) {
-      final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-      final String prettyPrintedModel = ResolverUtils.getPrettyPrintedModel( aspectModel );
-
-      return strategy.saveModel( namespace, fileName,
-            ModelUtils.getCopyRightHeader( aspectModel ) + "\n\n" + prettyPrintedModel );
+   private AspectModel loadModelFromFile( final String filePath ) throws ModelResolutionException {
+      final String[] pathParts = filePath.split( "/" );
+      final Path aspectModelPath = constructModelPath( pathParts[0], pathParts[1], pathParts[2] );
+      return aspectModelLoader.load( aspectModelPath.toFile() );
    }
 
-   private void saveVersionedModel( final VersionedModel versionedModel, final String namespace,
-         final String fileName ) {
-
-      final Optional<StmtIterator> esmfStatements = FileSystemStrategy.getEsmfStatements( versionedModel.getModel() );
-
-      final String uri = esmfStatements.stream().findFirst().orElseThrow(
-            () -> new NotImplementedError( "AspectModelUrn cannot be found." ) ).next().getSubject().getURI();
-
-      final String prettyPrintedVersionedModel = ResolverUtils.getPrettyPrintedVersionedModel( versionedModel,
-            AspectModelUrn.fromUrn( uri ).getUrn() );
-
-      saveModel( Optional.of( namespace ), Optional.of( fileName ), prettyPrintedVersionedModel );
+   private AspectModel loadModelFromUrn( final String aspectModelUrn ) {
+      final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplier( AspectModelUrn.fromUrn( aspectModelUrn ),
+            aspectModelLoader );
+      return aspectModelSupplier.get();
    }
 
-   public void deleteModel( final String namespace, final String fileName ) {
-      final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-
-      strategy.deleteModel( namespace, fileName );
+   private void validateModel( final AspectModel aspectModel ) {
+      final List<Violation> violations = aspectModelValidator.validateModel( aspectModel );
+      if ( violations.stream().anyMatch( ValidationUtils.isInvalidSyntaxViolation() ) ) {
+         throw new FileReadException( "Aspect Model is not valid" );
+      }
    }
 
-   public Map<String, List<String>> getAllNamespaces( final boolean shouldRefresh ) {
-      final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-      return strategy.getAllNamespaces( shouldRefresh );
+   public void createOrSaveModel( final String turtleData, final String urn, final String fileName, final Path storagePath ) {
+      try {
+         final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn( urn );
+
+         //TODO Maybe this can be changed or should be ... lok on PackageService line 111
+         final File newFile = ModelUtils.createFile( aspectModelUrn, fileName, storagePath );
+
+         final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplier( turtleData, newFile, aspectModelLoader );
+         final List<Violation> violations = aspectModelValidator.validateModel( aspectModelSupplier );
+
+         if ( violations.stream().anyMatch( ValidationUtils.isInvalidSyntaxViolation() ) ) {
+            throw new FileReadException( "Aspect Model syntax is not valid" );
+         }
+
+         // TODO isProcessingViolation like no dataType should be avoided on frontend ... make every time default string datatype, when
+         //  creating characteristic!
+         AspectSerializer.INSTANCE.write( aspectModelSupplier.get().files().iterator().next() );
+      } catch ( final IOException e ) {
+         throw new CreateFileException( String.format( "Cannot create file %s on workspace", urn ), e );
+      }
    }
 
-   public ViolationReport validateModel( final String aspectModel ) {
-      final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( aspectModel );
-      final Try<VersionedModel> versionedModel = ResolverUtils.fetchVersionModel( fileSystemStrategy );
-      return ValidationUtils.validateModel( versionedModel, aspectModelValidator );
+   public void deleteModel( final String aspectModelUrn ) {
+      try {
+         final AspectModel aspectModel = aspectModelLoader.load( AspectModelUrn.fromUrn( aspectModelUrn ) );
+         aspectModel.files().iterator().next().sourceLocation().ifPresent( uri -> {
+            try {
+               ModelUtils.deleteEmptyFiles( new File( uri ) );
+            } catch ( final Exception e ) {
+               LOG.error( "Failed to delete empty files: {}", e.getMessage() );
+            }
+         } );
+      } catch ( final Exception e ) {
+         LOG.error( "Failed to load AspectModel: {}", e.getMessage() );
+      }
    }
 
-   public String migrateModel( final String aspectModel ) {
-      return MigratorUtils.migrateModel( aspectModel );
+   public List<ViolationError> validateModel( final String turtleData ) {
+      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+      final Supplier<AspectModel> aspectModelSupplier = () -> aspectModelLoader.load( inputStream );
+      final List<Violation> violations = aspectModelValidator.validateModel( aspectModelSupplier );
+      return ValidationUtils.violationErrors( aspectModelSupplier, violations );
    }
 
-   public NamespaceFileCollection migrateWorkspace() {
-      final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-      final File storageDirectory = StoragePath.MetaModel.getPath().toFile();
+   public String migrateModel( final String turtleData ) {
+      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
 
-      final String[] extensions = { "ttl" };
-
-      final List<VersionedNamespaceFiles> versionedNamespaceFiles = new ArrayList<>();
-
-      FileUtils.listFiles( storageDirectory, extensions, true ).stream().map( File::getAbsoluteFile )
-               .forEach( inputFile -> {
-                  if ( !inputFile.getName().equals( "latest.ttl" ) ) {
-                     final Try<VersionedModel> versionedModels = updateModelVersion( inputFile );
-                     final Tuple2<String, String> fileInfo = strategy.convertFileToTuple( inputFile );
-                     final VersionedNamespaceFiles namespaces = resolveNamespace( versionedNamespaceFiles,
-                           fileInfo._2 );
-                     namespaceFileInfo( namespaces, versionedModels, fileInfo._1, fileInfo._2 );
-                  }
-               } );
-
-      return new NamespaceFileCollection( versionedNamespaceFiles );
+      return aspectModel.files().stream().filter( a -> a.sourceLocation().isEmpty() ).findFirst()
+            .map( AspectSerializer.INSTANCE::aspectModelFileToString )
+            .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to migrate" ) );
    }
 
-   private Try<VersionedModel> updateModelVersion( final File inputFile ) {
-      return ResolverUtils.loadModelFromFile( inputFile ).flatMap( new MigratorService()::updateMetaModelVersion );
+   public String getFormattedModel( final String turtleData ) {
+      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+
+      return aspectModel.files().stream().filter( a -> a.sourceLocation().isEmpty() ).findFirst()
+            .map( AspectSerializer.INSTANCE::aspectModelFileToString )
+            .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to formate" ) );
    }
 
-   private VersionedNamespaceFiles resolveNamespace( final List<VersionedNamespaceFiles> namespaces,
-         final String versionedNamespace ) {
-      final Optional<VersionedNamespaceFiles> first = namespaces.stream().filter(
-            namespace -> namespace.versionedNamespace.equals( versionedNamespace ) ).findFirst();
+   public Map<String, List<Version>> getAllNamespaces() {
+      final Stream<URI> uriStream = aspectModelLoader.listContents();
+      return new ModelGroupingUtils( this.modelPath ).groupModelsByNamespaceAndVersion( uriStream );
+   }
 
-      return first.orElseGet( () -> {
-         final VersionedNamespaceFiles namespace = new VersionedNamespaceFiles( versionedNamespace );
-         namespaces.add( namespace );
-         return namespace;
+   public MigrationResult migrateWorkspace() {
+      final List<String> errors = new ArrayList<>();
+
+      try {
+         getAllNamespaces().forEach(
+               ( namespace, versions ) -> versions.forEach( version -> processVersion( namespace, version, errors ) ) );
+         return new MigrationResult( true, errors );
+      } catch ( final Exception e ) {
+         errors.add( e.getMessage() );
+         return new MigrationResult( false, errors );
+      }
+   }
+
+   private void processVersion( final String namespace, final Version version, final List<String> errors ) {
+      version.getModels().forEach( model -> {
+         try {
+            final Path aspectModelPath = constructModelPath( namespace, version.getVersion(), model.getModel() );
+            final AspectModel aspectModel = aspectModelLoader.load( aspectModelPath.toFile() );
+            aspectModel.files().forEach( AspectSerializer.INSTANCE::write );
+         } catch ( final Exception e ) {
+            errors.add( String.format( "Error processing model: %s", model.getModel() ) );
+         }
       } );
    }
 
-   private void namespaceFileInfo( final VersionedNamespaceFiles versionedNamespaceFiles,
-         final Try<VersionedModel> model, final String fileName, final String versionedNamespace ) {
-
-      boolean modelIsSuccess = false;
-
-      if ( model.isSuccess() ) {
-         saveVersionedModel( model.get(), versionedNamespace, fileName + ModelUtils.TTL_EXTENSION );
-         modelIsSuccess = !getModel( versionedNamespaceFiles.versionedNamespace,
-               fileName + ModelUtils.TTL_EXTENSION ).contains( "undefined:" );
-      }
-
-      final FileProcessingResult aspectModelFile = new FileProcessingResult( fileName + ModelUtils.TTL_EXTENSION,
-            modelIsSuccess, model.isSuccess() ? "File is valid" : model.getCause().getMessage() );
-
-      versionedNamespaceFiles.addAspectModelFile( aspectModelFile );
-   }
-
-   public String getFormattedModel( final String aspectModel ) {
-      final String prettyPrintedModel = ResolverUtils.getPrettyPrintedModel( aspectModel );
-
-      return ModelUtils.getCopyRightHeader( aspectModel ) + "\n\n" + prettyPrintedModel;
+   private Path constructModelPath( final String namespace, final String version, final String modelName ) {
+      return Path.of( modelPath.toString(), namespace, version, modelName );
    }
 }

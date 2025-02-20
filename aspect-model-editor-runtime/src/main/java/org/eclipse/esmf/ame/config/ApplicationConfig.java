@@ -13,20 +13,16 @@
 
 package org.eclipse.esmf.ame.config;
 
-import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.esmf.ame.api.ModelController;
-import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.ResponseExceptionHandler;
-import org.eclipse.esmf.ame.model.StoragePath;
-import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
-import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
+import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
+import org.eclipse.esmf.aspectmodel.resolver.FileSystemStrategy;
 import org.eclipse.esmf.aspectmodel.shacl.constraint.JsConstraint;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
+
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -35,8 +31,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
 
 /**
  * Configuration class for setting up various application-level beans and configurations.
@@ -47,18 +41,15 @@ import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
 @EnableConfigurationProperties( ApplicationSettings.class )
 public class ApplicationConfig implements WebMvcConfigurer {
 
-   private final ApplicationSettings applicationSettings;
    private final Environment environment;
    private FileSystem importFileSystem;
 
    /**
     * Constructs an instance of ApplicationConfig with the provided settings and environment.
     *
-    * @param applicationSettings The settings of the application.
     * @param environment The environment the application is running in.
     */
-   public ApplicationConfig( final ApplicationSettings applicationSettings, final Environment environment ) {
-      this.applicationSettings = applicationSettings;
+   public ApplicationConfig( final Environment environment ) {
       this.environment = environment;
    }
 
@@ -70,7 +61,7 @@ public class ApplicationConfig implements WebMvcConfigurer {
    @Override
    public void addCorsMappings( final CorsRegistry registry ) {
       registry.addMapping( "/**" )
-              .allowedMethods( "GET", "POST", "PUT", "DELETE" );
+            .allowedMethods( "GET", "POST", "PUT", "DELETE" );
    }
 
    /**
@@ -87,44 +78,26 @@ public class ApplicationConfig implements WebMvcConfigurer {
    }
 
    /**
-    * Creates and returns an in-memory file system for imports.
-    *
-    * @return a new or existing in-memory file system.
-    */
-   @Bean
-   public FileSystem importFileSystem() {
-      if ( importFileSystem == null ) {
-         try {
-            importFileSystem = MemoryFileSystemBuilder.newEmpty().build();
-         } catch ( IOException e ) {
-            throw new CreateFileException( "Failed to create in-memory import file system.", e );
-         }
-      }
-      return importFileSystem;
-   }
-
-   /**
     * Determines and returns the path for models based on the environment profile.
     *
     * @return the absolute path to the models.
     */
    @Bean
-   public String modelPath() {
+   public Path modelPath() {
       if ( environment.acceptsProfiles( Profiles.of( "test" ) ) ) {
-         return Path.of( "src", "test", "resources", "services" ).toAbsolutePath().toString();
+         return Path.of( "src", "test", "resources", "services" ).toAbsolutePath();
       }
 
-      return StoragePath.MetaModel.getPath().toString();
+      return ApplicationSettings.getMetaModelStoragePath();
    }
 
    /**
-    * Creates a list of model resolver strategies with settings and file systems configured.
+    * Creates a bean of {@link AspectModelLoader} using a {@link FileSystemStrategy} based on the model path.
     *
-    * @return a list containing an instance of LocalFolderResolverStrategy.
+    * @return a new instance of {@link AspectModelLoader}.
     */
    @Bean
-   public List<ModelResolverStrategy> modelStrategies() {
-      return Collections.singletonList(
-            new LocalFolderResolverStrategy( applicationSettings, importFileSystem(), modelPath() ) );
+   public AspectModelLoader aspectModelLoader() {
+      return new AspectModelLoader( new FileSystemStrategy( modelPath() ) );
    }
 }

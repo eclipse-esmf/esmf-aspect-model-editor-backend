@@ -1,0 +1,25 @@
+meta {
+  name: GetLatestAspectModel
+  type: http
+  seq: 4
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models
+  body: none
+  auth: none
+}
+
+headers {
+  FILE-NAME: latest.ttl
+}
+
+tests {
+  test("Status code is 200", function () {
+      expect(res.getStatus()).to.equal(200);
+  });
+}
+
+docs {
+  Get aspect model by urn
+}

@@ -1,0 +1,15 @@
+meta {
+  name: ExportPackage
+  type: http
+  seq: 8
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/package/export
+  body: none
+  auth: none
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.examples:1.0.0#Movement
+}

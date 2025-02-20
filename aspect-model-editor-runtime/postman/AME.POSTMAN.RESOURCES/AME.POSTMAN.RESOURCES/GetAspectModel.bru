@@ -1,0 +1,15 @@
+meta {
+  name: GetAspectModel
+  type: http
+  seq: 2
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models
+  body: none
+  auth: none
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.examples:1.0.0#isMoving
+}

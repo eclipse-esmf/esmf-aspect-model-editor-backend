@@ -13,22 +13,21 @@
 
 package org.eclipse.esmf.ame.services;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.lang3.LocaleUtils;
 import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.GenerationException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
-import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
-import org.eclipse.esmf.ame.resolver.strategy.utils.ResolverUtils;
+import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.ame.services.utils.ZipUtils;
-import org.eclipse.esmf.ame.utils.ModelUtils;
 import org.eclipse.esmf.aspectmodel.aas.AasFileFormat;
 import org.eclipse.esmf.aspectmodel.aas.AspectModelAasGenerator;
 import org.eclipse.esmf.aspectmodel.generator.asyncapi.AspectModelAsyncApiGenerator;
@@ -36,126 +35,114 @@ import org.eclipse.esmf.aspectmodel.generator.asyncapi.AsyncApiSchemaArtifact;
 import org.eclipse.esmf.aspectmodel.generator.asyncapi.AsyncApiSchemaGenerationConfig;
 import org.eclipse.esmf.aspectmodel.generator.asyncapi.AsyncApiSchemaGenerationConfigBuilder;
 import org.eclipse.esmf.aspectmodel.generator.docu.AspectModelDocumentationGenerator;
+import org.eclipse.esmf.aspectmodel.generator.docu.DocumentationGenerationConfig;
+import org.eclipse.esmf.aspectmodel.generator.docu.DocumentationGenerationConfigBuilder;
 import org.eclipse.esmf.aspectmodel.generator.json.AspectModelJsonPayloadGenerator;
 import org.eclipse.esmf.aspectmodel.generator.jsonschema.AspectModelJsonSchemaGenerator;
+import org.eclipse.esmf.aspectmodel.generator.jsonschema.JsonSchemaGenerationConfig;
+import org.eclipse.esmf.aspectmodel.generator.jsonschema.JsonSchemaGenerationConfigBuilder;
 import org.eclipse.esmf.aspectmodel.generator.openapi.AspectModelOpenApiGenerator;
 import org.eclipse.esmf.aspectmodel.generator.openapi.OpenApiSchemaGenerationConfig;
-import org.eclipse.esmf.aspectmodel.resolver.services.DataType;
-import org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel;
-import org.eclipse.esmf.metamodel.Aspect;
-import org.eclipse.esmf.metamodel.AspectContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
+import org.eclipse.esmf.metamodel.AspectModel;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import com.google.common.collect.ImmutableMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
-import io.vavr.control.Try;
-
+/**
+ * Service class for generating various specifications and files from Aspect Models.
+ */
 @Service
 public class GenerateService {
+   public static final String WRONG_RESOURCE_PATH_ID = "The resource path ID and properties ID do not match. Please verify and correct "
+         + "them.";
    private static final Logger LOG = LoggerFactory.getLogger( GenerateService.class );
-   private static final ObjectMapper YAML_MAPPER = new YAMLMapper().enable( YAMLGenerator.Feature.MINIMIZE_QUOTES );
-   private static final String COULD_NOT_LOAD_ASPECT = "Could not load Aspect";
-   private static final String COULD_NOT_LOAD_ASPECT_MODEL = "Could not load Aspect model, please make sure the model is valid.";
-   public static final String WRONG_RESOURCE_PATH_ID = "The resource path ID and properties ID do not match. Please verify and correct them.";
 
-   public GenerateService() {
-      DataType.setupTypeMapping();
+   private final AspectModelLoader aspectModelLoader;
+
+   public GenerateService( final AspectModelLoader aspectModelLoader ) {
+      this.aspectModelLoader = aspectModelLoader;
    }
 
-   public byte[] generateHtmlDocument( final String aspectModel, final String language ) throws IOException {
-      final AspectModelDocumentationGenerator generator = new AspectModelDocumentationGenerator( language,
-            generateAspectContext( aspectModel ) );
+   public byte[] generateHtmlDocument( final String turtleData, final String language ) {
+      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
 
       final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-      generator.generate( artifactName -> byteArrayOutputStream,
-            ImmutableMap.<AspectModelDocumentationGenerator.HtmlGenerationOption, String> builder().build() );
+      final DocumentationGenerationConfig config = DocumentationGenerationConfigBuilder.builder().build();
+      final AspectModelDocumentationGenerator generator = new AspectModelDocumentationGenerator( aspectModel.aspect(), config );
 
+      generator.generate( artifactName -> byteArrayOutputStream );
       return byteArrayOutputStream.toByteArray();
    }
 
-   public String jsonSchema( final String aspectModel, final String language ) {
-      try {
-         final AspectContext aspectContext = generateAspectContext( aspectModel );
+   public String jsonSchema( final String turtleData, final String language ) {
+      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
 
-         final AspectModelJsonSchemaGenerator generator = new AspectModelJsonSchemaGenerator();
-         final JsonNode jsonSchema = generator.apply( aspectContext.aspect(), Locale.forLanguageTag( language ) );
+      final JsonSchemaGenerationConfig config = JsonSchemaGenerationConfigBuilder.builder().locale(
+            Locale.forLanguageTag( language ) ).build();
 
-         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-         final ObjectMapper objectMapper = new ObjectMapper();
+      final AspectModelJsonSchemaGenerator generator = new AspectModelJsonSchemaGenerator( aspectModel.aspect(), config );
 
-         objectMapper.writerWithDefaultPrettyPrinter().writeValue( out, jsonSchema );
-
-         return out.toString();
-      } catch ( final IOException e ) {
-         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
-         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
-      }
+      return generator.generateJson();
    }
 
-   public String sampleJSONPayload( final String aspectModel ) {
-      try {
-         return new AspectModelJsonPayloadGenerator( generateAspectContext( aspectModel ) ).generateJson();
-      } catch ( final IOException e ) {
-         LOG.error( COULD_NOT_LOAD_ASPECT_MODEL );
-         throw new InvalidAspectModelException( COULD_NOT_LOAD_ASPECT, e );
-      }
+   public String sampleJSONPayload( final String turtleData ) {
+      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+
+      final AspectModelJsonPayloadGenerator generator = new AspectModelJsonPayloadGenerator( aspectModel.aspect() );
+
+      return generator.generateJson();
    }
 
-   public String generateAASXFile( final String aspectModel ) {
+   public String generateAASXFile( final String turtleData ) {
+      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+
       final AspectModelAasGenerator generator = new AspectModelAasGenerator();
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      final AspectContext aspectContext = generateAspectContext( aspectModel );
-
-      generator.generate( AasFileFormat.AASX, aspectContext.aspect(), name -> outputStream );
+      generator.generate( AasFileFormat.AASX, aspectModel.aspect(), name -> outputStream );
 
       return outputStream.toString( StandardCharsets.UTF_8 );
    }
 
-   public String generateAasXmlFile( final String aspectModel ) {
+   public String generateAasXmlFile( final String turtleData ) {
+      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+
       final AspectModelAasGenerator generator = new AspectModelAasGenerator();
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      final AspectContext aspectContext = generateAspectContext( aspectModel );
-
-      generator.generate( AasFileFormat.XML, aspectContext.aspect(), name -> outputStream );
+      generator.generate( AasFileFormat.XML, aspectModel.aspect(), name -> outputStream );
 
       return outputStream.toString( StandardCharsets.UTF_8 );
    }
 
-   public String generateAasJsonFile( final String aspectModel ) {
+   public String generateAasJsonFile( final String turtleData ) {
+      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+
       final AspectModelAasGenerator generator = new AspectModelAasGenerator();
       final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      final AspectContext aspectContext = generateAspectContext( aspectModel );
-
-      generator.generate( AasFileFormat.JSON, aspectContext.aspect(), name -> outputStream );
+      generator.generate( AasFileFormat.JSON, aspectModel.aspect(), name -> outputStream );
 
       return outputStream.toString( StandardCharsets.UTF_8 );
    }
 
-   private AspectContext generateAspectContext( final String aspectModel ) {
-      final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( aspectModel );
-      final Try<VersionedModel> versionedModels = ResolverUtils.fetchVersionModel( fileSystemStrategy );
+   public String generateYamlOpenApiSpec( final String turtleData, final OpenApiSchemaGenerationConfig config ) {
+      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
 
-      final Try<AspectContext> context = versionedModels.flatMap(
-            model -> ResolverUtils.resolveSingleAspect( fileSystemStrategy, model ) );
-
-      return ModelUtils.getAspectContext( context );
-   }
-
-   public String generateYamlOpenApiSpec( final String aspectModel, final OpenApiSchemaGenerationConfig config ) {
-
-      final String ymlOutput = new AspectModelOpenApiGenerator().apply(
-            ResolverUtils.resolveAspectFromModel( aspectModel ), config ).getContentAsYaml();
+      final String ymlOutput = new AspectModelOpenApiGenerator( aspectModel.aspect(), config ).generateYaml();
 
       if ( ymlOutput.equals( "--- {}\n" ) ) {
          throw new GenerationException( WRONG_RESOURCE_PATH_ID );
@@ -164,10 +151,12 @@ public class GenerateService {
       return ymlOutput;
    }
 
-   public String generateJsonOpenApiSpec( final String aspectModel, final OpenApiSchemaGenerationConfig config ) {
+   public String generateJsonOpenApiSpec( final String turtleData, final OpenApiSchemaGenerationConfig config ) {
       try {
-         final JsonNode json = new AspectModelOpenApiGenerator()
-               .apply( ResolverUtils.resolveAspectFromModel( aspectModel ), config ).getContent();
+         final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+         final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+
+         final JsonNode json = new AspectModelOpenApiGenerator( aspectModel.aspect(), config ).getContent();
 
          final ByteArrayOutputStream out = new ByteArrayOutputStream();
          final ObjectMapper objectMapper = new ObjectMapper();
@@ -187,36 +176,36 @@ public class GenerateService {
       }
    }
 
-   public byte[] generateAsyncApiSpec( final String aspectModel, final String language, final String output,
+   public byte[] generateAsyncApiSpec( final String turtleData, final String language, final String output,
          final String applicationId, final String channelAddress, final boolean useSemanticVersion,
          final boolean writeSeparateFiles ) {
-      final AspectModelAsyncApiGenerator generator = new AspectModelAsyncApiGenerator();
+      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+
       final AsyncApiSchemaGenerationConfig config = buildAsyncApiSchemaGenerationConfig( applicationId, channelAddress,
             useSemanticVersion, language );
-
-      final Aspect aspect = ResolverUtils.resolveAspectFromModel( aspectModel );
-      final AsyncApiSchemaArtifact asyncApiSpec = generator.apply( aspect, config );
+      final AspectModelAsyncApiGenerator generator = new AspectModelAsyncApiGenerator( aspectModel.aspect(), config );
 
       if ( writeSeparateFiles ) {
-         return generateZipFile( asyncApiSpec, output );
+         return generateZipFile( generator.generate().toList(), output );
       }
 
-      return generateSingleFile( asyncApiSpec, output );
+      return generateSingleFile( generator, output );
    }
 
    private AsyncApiSchemaGenerationConfig buildAsyncApiSchemaGenerationConfig( final String applicationId,
          final String channelAddress, final boolean useSemanticVersion, final String language ) {
       return AsyncApiSchemaGenerationConfigBuilder.builder().useSemanticVersion( useSemanticVersion )
-                                                  .applicationId( applicationId ).channelAddress( channelAddress )
-                                                  .locale( LocaleUtils.toLocale( language ) ).build();
+            .applicationId( applicationId ).channelAddress( channelAddress )
+            .locale( Locale.forLanguageTag( language ) ).build();
    }
 
-   private byte[] generateZipFile( final AsyncApiSchemaArtifact asyncApiSpec, final String output ) {
+   private byte[] generateZipFile( final List<AsyncApiSchemaArtifact> asyncApiSchemaArtifacts, final String output ) {
       if ( output.equals( "json" ) ) {
-         return jsonZip( asyncApiSpec.getContentWithSeparateSchemasAsJson() );
+         return jsonZip( asyncApiSchemaArtifacts.get( 0 ).getContentWithSeparateSchemasAsJson() );
       }
 
-      return yamlZip( asyncApiSpec.getContentWithSeparateSchemasAsYaml() );
+      return yamlZip( asyncApiSchemaArtifacts.get( 0 ).getContentWithSeparateSchemasAsYaml() );
    }
 
    private byte[] jsonZip( final Map<Path, JsonNode> separateFilesContent ) {
@@ -233,7 +222,7 @@ public class GenerateService {
          }
       }
 
-      return ZipUtils.createAsyncApiPackage( content );
+      return ZipUtils.createPackage( content );
    }
 
    private byte[] yamlZip( final Map<Path, String> separateFilesContent ) {
@@ -244,25 +233,14 @@ public class GenerateService {
          content.put( entry.getKey(), bytes );
       }
 
-      return ZipUtils.createAsyncApiPackage( content );
+      return ZipUtils.createPackage( content );
    }
 
-   private byte[] generateSingleFile( final AsyncApiSchemaArtifact asyncApiSpec, final String output ) {
-      final JsonNode json = asyncApiSpec.getContent();
-
+   private byte[] generateSingleFile( final AspectModelAsyncApiGenerator asyncApiSpec, final String output ) {
       if ( output.equals( "yaml" ) ) {
-         return jsonToYaml( json ).getBytes( StandardCharsets.UTF_8 );
+         return asyncApiSpec.generateYaml().getBytes( StandardCharsets.UTF_8 );
       }
 
-      return json.toString().getBytes( StandardCharsets.UTF_8 );
-   }
-
-   private String jsonToYaml( final JsonNode json ) {
-      try {
-         return YAML_MAPPER.writeValueAsString( json );
-      } catch ( final JsonProcessingException e ) {
-         LOG.error( "JSON could not be converted to YAML", e );
-         throw new FileHandlingException( "Failed to get YAML async api.", e );
-      }
+      return asyncApiSpec.generateJson().getBytes( StandardCharsets.UTF_8 );
    }
 }

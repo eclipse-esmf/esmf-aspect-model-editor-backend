@@ -3,39 +3,39 @@
   ~ Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH, Germany. All rights reserved.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+   <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.eclipse.esmf</groupId>
-        <artifactId>aspect-model-editor-parent</artifactId>
-        <version>DEV-SNAPSHOT</version>
-    </parent>
+   <parent>
+      <groupId>org.eclipse.esmf</groupId>
+      <artifactId>aspect-model-editor-parent</artifactId>
+      <version>DEV-SNAPSHOT</version>
+   </parent>
 
-    <artifactId>aspect-model-editor-validation</artifactId>
-    <name>ESMF Aspect Model Editor Validation</name>
+   <artifactId>aspect-model-editor-validation</artifactId>
+   <name>ESMF Aspect Model Editor Validation</name>
 
-    <dependencies>
-        <!-- Multi module dependencies -->
-        <dependency>
-            <groupId>org.eclipse.esmf</groupId>
-            <artifactId>aspect-model-editor-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.esmf</groupId>
-            <artifactId>esmf-aspect-model-validator</artifactId>
-        </dependency>
+   <dependencies>
+      <!-- Multi module dependencies -->
+      <dependency>
+         <groupId>org.eclipse.esmf</groupId>
+         <artifactId>aspect-model-editor-core</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.esmf</groupId>
+         <artifactId>esmf-aspect-model-validator</artifactId>
+      </dependency>
 
-        <!-- Third party dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-    </dependencies>
+      <!-- Third party dependencies -->
+      <dependency>
+         <groupId>org.springframework.boot</groupId>
+         <artifactId>spring-boot-starter-web</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.projectlombok</groupId>
+         <artifactId>lombok</artifactId>
+      </dependency>
+   </dependencies>
 </project>

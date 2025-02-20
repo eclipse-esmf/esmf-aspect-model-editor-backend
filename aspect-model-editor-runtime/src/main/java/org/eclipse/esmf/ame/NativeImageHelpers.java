@@ -31,7 +31,7 @@ public class NativeImageHelpers {
          final Path nativeImagePath = Paths.get( "." ).toAbsolutePath().normalize();  // current working directory
          System.setProperty( "java.home", nativeImagePath.toString() );
 
-         if ( new IsWindows().getAsBoolean()){
+         if ( new IsWindows().getAsBoolean() ) {
             // Set to headless mode, because instantiation of AWT graphics context in Windows is flaky
             System.setProperty( "java.awt.headless", "true" );
          }

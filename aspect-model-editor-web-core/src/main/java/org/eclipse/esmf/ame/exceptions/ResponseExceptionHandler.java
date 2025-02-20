@@ -18,8 +18,12 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import java.util.Objects;
 
 import org.eclipse.esmf.ame.model.ErrorResponse;
+import org.eclipse.esmf.aspectmodel.AspectLoadingException;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.InvalidNamespaceException;
-import org.eclipse.esmf.metamodel.loader.AspectLoadingException;
+import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -36,9 +40,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.util.WebUtils;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 /**
  * Provides custom exception handling for the REST API.
  */
@@ -47,6 +48,30 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
    private static final Logger LOG = LoggerFactory.getLogger( ResponseExceptionHandler.class );
 
    private MessageSource messageSource;
+
+   protected static void logRequest( final WebRequest request, final Throwable ex,
+         final HttpStatus httpStatus ) {
+      if ( httpStatus.is5xxServerError() ) {
+         LOG.error( getLogRequestMessage( request, ex, httpStatus ), ex );
+      } else {
+         LOG.info( getLogRequestMessage( request, ex, httpStatus ) );
+      }
+   }
+
+   private static String getLogRequestMessage( final WebRequest request, final Throwable ex,
+         final HttpStatus httpStatus ) {
+      final HttpServletRequest servletRequest = ( (ServletWebRequest) request ).getRequest();
+      return servletRequest.getQueryString() == null ?
+            getLogRequestMessage( servletRequest.getRequestURI(), ex, httpStatus ) :
+            String.format( "Handling exception %s with response code %s of request %s?%s", ex.getClass().getName(),
+                  httpStatus.value(), servletRequest.getRequestURI(), servletRequest.getQueryString() );
+   }
+
+   private static String getLogRequestMessage( final String requestURL, final Throwable ex,
+         final HttpStatus httpStatus ) {
+      return String.format( "Handling exception %s with response code %s of request %s", ex.getClass().getName(),
+            httpStatus.value(), requestURL );
+   }
 
    /**
     * Method for handling exception to type {@link FileNotFoundException}
@@ -191,41 +216,30 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
       return error( HttpStatus.CONFLICT, request, e, e.getMessage() );
    }
 
+   /**
+    * Method for handling exception to type {@link ModelResolutionException}
+    *
+    * @param request the Http request
+    * @param e the exception which occurred
+    * @return the custom {@link ErrorResponse} as {@link ResponseEntity} for the exception
+    */
+   @ExceptionHandler( ModelResolutionException.class )
+   public ResponseEntity<ErrorResponse> handleInvalidAspectModelException( final WebRequest request,
+         final ModelResolutionException e ) {
+      return error( HttpStatus.CONFLICT, request, e, e.getMessage() );
+   }
+
    private ResponseEntity<ErrorResponse> error( final HttpStatus responseCode, final WebRequest request,
          final RuntimeException e, final String message ) {
       logRequest( request, e, responseCode );
 
       final ErrorResponse errorResponse = new ErrorResponse( message,
-            ((ServletWebRequest) request).getRequest().getRequestURI(), responseCode.value() );
+            ( (ServletWebRequest) request ).getRequest().getRequestURI(), responseCode.value() );
 
       final HttpHeaders headers = new HttpHeaders();
       headers.add( CONTENT_TYPE, MediaType.APPLICATION_JSON.toString() );
 
       return handleExceptionInternal( e, errorResponse, headers, responseCode, request );
-   }
-
-   protected static void logRequest( final WebRequest request, final Throwable ex,
-         final HttpStatus httpStatus ) {
-      if ( httpStatus.is5xxServerError() ) {
-         LOG.error( getLogRequestMessage( request, ex, httpStatus ), ex );
-      } else {
-         LOG.info( getLogRequestMessage( request, ex, httpStatus ) );
-      }
-   }
-
-   private static String getLogRequestMessage( final WebRequest request, final Throwable ex,
-         final HttpStatus httpStatus ) {
-      final HttpServletRequest servletRequest = ((ServletWebRequest) request).getRequest();
-      return servletRequest.getQueryString() == null ?
-            getLogRequestMessage( servletRequest.getRequestURI(), ex, httpStatus ) :
-            String.format( "Handling exception %s with response code %s of request %s?%s", ex.getClass().getName(),
-                  httpStatus.value(), servletRequest.getRequestURI(), servletRequest.getQueryString() );
-   }
-
-   private static String getLogRequestMessage( final String requestURL, final Throwable ex,
-         final HttpStatus httpStatus ) {
-      return String.format( "Handling exception %s with response code %s of request %s", ex.getClass().getName(),
-            httpStatus.value(), requestURL );
    }
 
    private ResponseEntity<ErrorResponse> handleExceptionInternal( final Exception ex,
@@ -250,7 +264,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
 
    private boolean isResponseCommitted( final WebRequest request ) {
       if ( request instanceof ServletWebRequest ) {
-         final HttpServletResponse response = ((ServletWebRequest) request).getResponse();
+         final HttpServletResponse response = ( (ServletWebRequest) request ).getResponse();
          return response != null && response.isCommitted();
       }
       return false;
@@ -260,7 +274,7 @@ public class ResponseExceptionHandler extends ResponseEntityExceptionHandler {
          final HttpStatusCode statusCode, final WebRequest request ) {
       final ResponseEntity<Object> entity = super.handleExceptionInternal( ex, null, headers, statusCode, request );
       final Object responseBody = Objects.requireNonNull( entity ).getBody();
-      final ErrorResponse errorResponse = (responseBody instanceof ErrorResponse) ? (ErrorResponse) responseBody : null;
+      final ErrorResponse errorResponse = ( responseBody instanceof ErrorResponse ) ? (ErrorResponse) responseBody : null;
 
       return new ResponseEntity<>( errorResponse, entity.getHeaders(), entity.getStatusCode() );
    }
