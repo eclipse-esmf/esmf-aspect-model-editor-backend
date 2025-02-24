@@ -41,16 +41,13 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <filters>
-                <filter>
-                  <artifact>*:*</artifact>
-                  <excludes>
-                    <exclude>META-INF/*.SF</exclude>
-                    <exclude>META-INF/*.DSA</exclude>
-                    <exclude>META-INF/*.RSA</exclude>
-                  </excludes>
-                </filter>
-              </filters>
+              <transformers>
+                <transformer />
+                <transformer />
+                <transformer>
+                  <mainClass>org.eclipse.esmf.ame.Application</mainClass>
+                </transformer>
+              </transformers>
             </configuration>
           </execution>
         </executions>
@@ -167,7 +164,7 @@
                 <id>build-native</id>
                 <phase>package</phase>
                 <goals>
-                  <goal>compile-no-fork</goal>
+                  <goal>compile</goal>
                 </goals>
               </execution>
             </executions>
@@ -472,11 +469,9 @@
   </dependencies>
   <properties>
     <micronaut.aot.enabled>true</micronaut.aot.enabled>
-    <main.class>org.eclipse.esmf.ame.Application</main.class>
-    <native-config-path>${project.basedir}/../${relative-native-config-path}</native-config-path>
-    <micronaut.io.watch>false</micronaut.io.watch>
     <integration-test-port>5001</integration-test-port>
-    <relative-native-config-path>aspect-model-editor-runtime/target/classes/META-INF/native-image</relative-native-config-path>
+    <main.class>org.eclipse.esmf.ame.Application</main.class>
     <native-image-jar>${project.artifactId}-${project.version}</native-image-jar>
+    <micronaut.io.watch>false</micronaut.io.watch>
   </properties>
 </project>

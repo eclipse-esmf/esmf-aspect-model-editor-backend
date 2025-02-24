@@ -44,8 +44,8 @@ public final class Target_sun_awt_FontConfiguration {
    private void readFontConfigFile( final File f ) {
       try ( final InputStream inputStream = Application.class.getResourceAsStream( "/fontconfig.bfc" ) ) {
          loadBinary( inputStream );
-      } catch ( final IOException e ) {
-         throw new RuntimeException( e );
+      } catch ( final IOException exception ) {
+         throw new RuntimeException( exception );
       }
    }
 
