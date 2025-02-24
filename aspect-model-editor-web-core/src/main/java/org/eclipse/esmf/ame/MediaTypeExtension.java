@@ -13,14 +13,14 @@
 
 package org.eclipse.esmf.ame;
 
-import org.springframework.http.MediaType;
+import io.micronaut.http.MediaType;
 
 public final class MediaTypeExtension {
 
    private static final String APPLICATION = "application";
 
    /**
-    * Public constant mediat typ for {@code application/schema+json}.
+    * Public constant media type for {@code application/schema+json}.
     */
    public static final MediaType APPLICATION_SCHEMA_JSON;
 
@@ -42,15 +42,15 @@ public final class MediaTypeExtension {
    public static final String APPLICATION_ZIP_VALUE = "application/zip";
 
    /**
-    * Public constant media type for {@code "application/zip"}.
+    * Public constant media type for {@code application/zip}.
     */
    public static final MediaType APPLICATION_ZIP;
 
    static {
-      TEXT_TURTLE = new MediaType( "text", "turtle" );
-      IMAGE_SVG = new MediaType( "image", "svg+xml" );
-      APPLICATION_SCHEMA_JSON = new MediaType( APPLICATION, "schema+json" );
-      APPLICATION_ZIP = new MediaType( APPLICATION, "zip" );
+      TEXT_TURTLE = new MediaType( "text/turtle" );
+      IMAGE_SVG = new MediaType( "image/svg+xml" );
+      APPLICATION_SCHEMA_JSON = new MediaType( "application/schema+json" );
+      APPLICATION_ZIP = new MediaType( "application/zip" );
    }
 
    private MediaTypeExtension() {

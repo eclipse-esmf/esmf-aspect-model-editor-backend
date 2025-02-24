@@ -15,50 +15,22 @@ package org.eclipse.esmf.ame.validation.utils;
 
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-import org.apache.jena.riot.RiotException;
-import org.eclipse.esmf.ame.validation.model.ViolationReport;
+import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.services.ViolationFormatter;
-import org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel;
 import org.eclipse.esmf.aspectmodel.shacl.violation.InvalidSyntaxViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.ProcessingViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
-import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
-
-import io.vavr.control.Try;
+import org.eclipse.esmf.metamodel.AspectModel;
 
 public class ValidationUtils {
-   /**
-    * Validates a versioned model in memory using a specified aspect model validator.
-    * This method checks the model for any violations according to the rules defined in the provided validator.
-    * If violations are found, they are formatted and added to a ViolationReport object.
-    * In case of a syntax error or other processing issues, an invalid syntax violation is added to the report.
-    *
-    * @param versionedModel The versioned model to be validated, wrapped in a Try for safe exception handling.
-    * @param aspectModelValidator The validator used to check the model for compliance with specific rules.
-    * @return A ViolationReport object containing all the violations found during validation.
-    *       If no violations are found, this report will be empty.
-    *
-    * @throws RiotException If a syntax error is encountered during the validation
-    *       process, a RiotException is thrown and caught within the
-    *       method. The exception's message is then added to the ViolationReport.
-    */
-   public static ViolationReport validateModel( Try<VersionedModel> versionedModel,
-         final AspectModelValidator aspectModelValidator ) {
-      final ViolationReport violationReport = new ViolationReport();
-
-      try {
-         final List<Violation> violations = aspectModelValidator.validateModel( versionedModel );
-
-         violationReport.setViolationErrors( new ViolationFormatter().apply( violations ) );
-
-         return violationReport;
-      } catch ( final RiotException riotException ) {
-         violationReport.addViolation(
-               new ViolationFormatter().visitInvalidSyntaxViolation( riotException.getMessage() ) );
-
-         return violationReport;
-      }
+   public static List<ViolationError> violationErrors( final Supplier<AspectModel> aspectModel, final List<Violation> violations ) {
+      // final String detailedReport = new DetailedViolationFormatter().apply(violations);
+      //
+      // final String message = new ViolationRustLikeFormatter(aspectModel.get().mergedModel(), null)
+      //      .apply(violations);
+      return new ViolationFormatter().apply( violations );
    }
 
    /**
@@ -68,7 +40,7 @@ public class ValidationUtils {
     */
    public static Predicate<Violation> isInvalidSyntaxViolation() {
       return violation -> violation.errorCode() != null && violation.errorCode()
-                                                                    .equals( InvalidSyntaxViolation.ERROR_CODE );
+            .equals( InvalidSyntaxViolation.ERROR_CODE );
    }
 
    /**
@@ -78,6 +50,6 @@ public class ValidationUtils {
     */
    public static Predicate<Violation> isProcessingViolation() {
       return violation -> violation.errorCode() != null && violation.errorCode()
-                                                                    .equals( ProcessingViolation.ERROR_CODE );
+            .equals( ProcessingViolation.ERROR_CODE );
    }
 }

@@ -13,12 +13,10 @@
 
 package org.eclipse.esmf.ame;
 
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
-@ActiveProfiles( "test" )
+@MicronautTest
 public class ApplicationTest {
 
    @Test

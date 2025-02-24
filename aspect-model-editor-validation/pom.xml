@@ -27,12 +27,21 @@
          <groupId>org.eclipse.esmf</groupId>
          <artifactId>esmf-aspect-model-validator</artifactId>
       </dependency>
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-http-server-netty</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.micronaut.serde</groupId>
+         <artifactId>micronaut-serde-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.graalvm.truffle</groupId>
+         <artifactId>truffle-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
 
       <!-- Third party dependencies -->
-      <dependency>
-         <groupId>org.springframework.boot</groupId>
-         <artifactId>spring-boot-starter-web</artifactId>
-      </dependency>
       <dependency>
          <groupId>org.projectlombok</groupId>
          <artifactId>lombok</artifactId>

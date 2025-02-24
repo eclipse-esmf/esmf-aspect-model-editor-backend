@@ -51,15 +51,15 @@ import org.eclipse.esmf.aspectmodel.serializer.AspectSerializer;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.metamodel.AspectModel;
 
+import io.micronaut.http.multipart.StreamingFileUpload;
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Service class for handling package import and export operations for Aspect Models.
  */
-@Service
+@Singleton
 public class PackageService {
    private static final Logger LOG = LoggerFactory.getLogger( PackageService.class );
 
@@ -79,9 +79,9 @@ public class PackageService {
             .orElseThrow( () -> new FileNotFoundException( String.format( "No file found for %s", aspectModelUrn ) ) ).getContent();
    }
 
-   public Map<String, List<Version>> checkImportPackage( final MultipartFile zipFile, final Path storagePath ) {
-      try {
-         final AspectModel aspectModel = loadNamespacePackage( zipFile.getInputStream() );
+   public Map<String, List<Version>> checkImportPackage( final StreamingFileUpload zipFile, final Path storagePath ) {
+      try ( final InputStream inputStream = zipFile.asInputStream() ) {
+         final AspectModel aspectModel = loadNamespacePackage( inputStream );
          final List<AspectModelFile> filesToProcess = new ArrayList<>( aspectModel.files() );
 
          final Stream<URI> uriStream = filesToProcess.stream()
@@ -93,10 +93,10 @@ public class PackageService {
       }
    }
 
-   public Map<String, List<Version>> importPackage( final MultipartFile zipFile, final List<String> filesToImport,
+   public Map<String, List<Version>> importPackage( final StreamingFileUpload zipFile, final List<String> filesToImport,
          final Path storagePath ) {
-      try {
-         final AspectModel aspectModel = loadNamespacePackage( zipFile.getInputStream() );
+      try ( final InputStream inputStream = zipFile.asInputStream() ) {
+         final AspectModel aspectModel = loadNamespacePackage( inputStream );
          final AspectChangeManager changeManager = createAspectChangeManager( aspectModel );
          final List<AspectModelFile> filesToModify = new ArrayList<>( aspectModel.files() );
 

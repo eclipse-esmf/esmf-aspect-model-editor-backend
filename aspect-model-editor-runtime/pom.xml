@@ -19,6 +19,13 @@
 
    <properties>
       <main.class>org.eclipse.esmf.ame.Application</main.class>
+      <native-image-jar>${project.artifactId}-${project.version}</native-image-jar>
+      <micronaut.aot.enabled>true</micronaut.aot.enabled>
+      <micronaut.io.watch>false</micronaut.io.watch>
+      <integration-test-port>5001</integration-test-port>
+      <relative-native-config-path>aspect-model-editor-runtime/target/classes/META-INF/native-image</relative-native-config-path>
+      <!-- The path to the native configs as it is reachable from the submodules -->
+      <native-config-path>${project.basedir}/../${relative-native-config-path}</native-config-path>
    </properties>
 
    <dependencies>
@@ -37,28 +44,70 @@
       </dependency>
       <dependency>
          <groupId>org.eclipse.esmf</groupId>
-         <artifactId>aspect-model-editor-migrator</artifactId>
+         <artifactId>esmf-aspect-model-validator</artifactId>
       </dependency>
+      <!--      <dependency>-->
+      <!--         <groupId>org.eclipse.digitaltwin.aas4j</groupId>-->
+      <!--         <artifactId>aas4j-dataformat-core</artifactId>-->
+      <!--         <version>1.0.2</version>-->
+      <!--      </dependency>-->
 
       <!-- Third party dependencies -->
       <dependency>
-         <groupId>org.springframework.boot</groupId>
-         <artifactId>spring-boot-starter-web</artifactId>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-core</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-runtime</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-http-server-netty</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-inject</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-context</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.micronaut.serde</groupId>
+         <artifactId>micronaut-serde-jackson</artifactId>
+         <version>${micronaut.serialization.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.graalvm.sdk</groupId>
+         <artifactId>graal-sdk</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.graalvm.truffle</groupId>
+         <artifactId>truffle-api</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.validation</groupId>
          <artifactId>jakarta.validation-api</artifactId>
       </dependency>
-      <dependency>
-         <groupId>org.eclipse.esmf</groupId>
-         <artifactId>esmf-aspect-model-validator</artifactId>
-      </dependency>
+      <!--      <dependency>-->
+      <!--         <groupId>org.bouncycastle</groupId>-->
+      <!--         <artifactId>bcpkix-jdk15on</artifactId>-->
+      <!--         <version>1.70</version>-->
+      <!--      </dependency>-->
+      <!--      <dependency>-->
+      <!--         <groupId>com.fasterxml.jackson.core</groupId>-->
+      <!--         <artifactId>jackson-databind</artifactId>-->
+      <!--         <version>2.17.2</version>-->
+      <!--      </dependency>-->
 
       <!-- Third party testing dependencies -->
       <dependency>
-         <groupId>org.springframework.boot</groupId>
-         <artifactId>spring-boot-starter-test</artifactId>
-         <scope>test</scope>
+         <groupId>io.micronaut.test</groupId>
+         <artifactId>micronaut-test-junit5</artifactId>
+         <scope>runtime</scope>
       </dependency>
    </dependencies>
 
@@ -74,6 +123,73 @@
             <artifactId>exec-maven-plugin</artifactId>
             <configuration>
                <mainClass>${main.class}</mainClass>
+            </configuration>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <configuration>
+               <archive>
+                  <manifest>
+                     <mainClass>org.eclipse.esmf.ame.Application</mainClass>
+                  </manifest>
+               </archive>
+            </configuration>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <executions>
+               <execution>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>shade</goal>
+                  </goals>
+                  <configuration>
+                     <filters>
+                        <filter>
+                           <artifact>*:*</artifact>
+                           <excludes>
+                              <exclude>META-INF/*.SF</exclude>
+                              <exclude>META-INF/*.DSA</exclude>
+                              <exclude>META-INF/*.RSA</exclude>
+                           </excludes>
+                        </filter>
+                     </filters>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+               <annotationProcessorPaths combine.children="append">
+                  <path>
+                     <groupId>io.micronaut</groupId>
+                     <artifactId>micronaut-http-validation</artifactId>
+                     <version>${micronaut.core.version}</version>
+                  </path>
+                  <path>
+                     <groupId>io.micronaut.serde</groupId>
+                     <artifactId>micronaut-serde-processor</artifactId>
+                     <version>${micronaut.serialization.version}</version>
+                  </path>
+                  <path>
+                     <groupId>io.micronaut</groupId>
+                     <artifactId>micronaut-inject-java</artifactId>
+                     <version>${micronaut.version}</version>
+                  </path>
+                  <path>
+                     <groupId>io.micronaut.validation</groupId>
+                     <artifactId>micronaut-validation-processor</artifactId>
+                     <version>${micronaut.validation.version}</version>
+                  </path>
+               </annotationProcessorPaths>
+               <compilerArgs>
+                  <arg>-Amicronaut.processing.group=org.eclipse.esmf.ame</arg>
+                  <arg>-Amicronaut.processing.module=aspect-model-editor</arg>
+               </compilerArgs>
             </configuration>
          </plugin>
       </plugins>
@@ -127,11 +243,26 @@
                            <goal>java</goal>
                         </goals>
                         <configuration>
-                           <!-- The main class of your build-time scanning code -->
                            <mainClass>org.eclipse.esmf.ame.buildtime.Aas4jClassSetup</mainClass>
-                           <!-- Pass the properties file as a commandline param -->
-                           <commandlineArgs>${project.build.outputDirectory}/adminshell.properties
-                           </commandlineArgs>
+                           <arguments combine.self="override">
+                              <argument>${project.build.outputDirectory}/adminshell.properties</argument>
+                           </arguments>
+                           <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                        </configuration>
+                     </execution>
+                     <execution>
+                        <id>customize-resource-config</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                           <goal>java</goal>
+                        </goals>
+                        <configuration>
+                           <!-- The main class of your build-time scanning code -->
+                           <mainClass>org.eclipse.esmf.ame.buildtime.CustomizeGraalVmConfigs</mainClass>
+                           <!-- Pass the native image configs directory as a commandline param -->
+                           <arguments combine.self="override">
+                              <argument>${native-config-path}</argument>
+                           </arguments>
                            <cleanupDaemonThreads>false</cleanupDaemonThreads>
                         </configuration>
                      </execution>
@@ -161,58 +292,29 @@
                      <imageName>ame-backend-${project.version}-${os.platform}</imageName>
                      <verbose>true</verbose>
                      <buildArgs>
-                        <buildArg>-Dspring.graal.remove-unused-autoconfig=true</buildArg>
-                        <buildArg>-Dspring.graal.remove-yaml-support=true</buildArg>
-                        <buildArg>--no-fallback</buildArg>
-                        <buildArg>--report-unsupported-elements-at-runtime</buildArg>
-                        <buildArg>
-                           --initialize-at-build-time=org.slf4j.LoggerFactory,ch.qos.logback,guru.nidi.graphviz.attribute.,org.apache.velocity.,org.apache.poi.util.LocaleUtil
-                        </buildArg>
-                        <buildArg>-J-Xmx8G</buildArg>
-                        <buildArg>-H:+ReportExceptionStackTraces</buildArg>
-                        <buildArg>-H:JNIConfigurationFiles=${project.basedir}/.graalvm/jni-config.json
-                        </buildArg>
-                        <buildArg>
-                           -H:ReflectionConfigurationFiles=${project.basedir}/.graalvm/reflect-config.json
-                        </buildArg>
-                        <buildArg>
-                           -H:DynamicProxyConfigurationFiles=${project.basedir}/.graalvm/proxy-config.json
-                        </buildArg>
-                        <buildArg>
-                           -H:ResourceConfigurationFiles=${project.basedir}/.graalvm/resource-config.json
-                        </buildArg>
-                        <buildArg>
-                           -H:SerializationConfigurationFiles=${project.basedir}/.graalvm/serialization-config.json
-                        </buildArg>
-
+                        <arg>--verbose</arg>
+                        <arg>-H:EnableURLProtocols=http,https</arg>
+                        <arg>--enable-https</arg>
+                        <arg>--no-fallback</arg>
+                        <!--<arg>- -language:js</arg>-->
+                        <arg>-H:-DeadlockWatchdogExitOnTimeout</arg>
+                        <arg>-H:DeadlockWatchdogInterval=0</arg>
+                        <arg>-H:+AddAllCharsets</arg>
+                        <arg>-H:+ReportExceptionStackTraces</arg>
+                        <arg>-J-XX:MaxRAMPercentage=90.0</arg>
+                        <arg>-J-XX:GCTimeRatio=19</arg>
+                        <arg>-J--add-exports=java.desktop/sun.awt=ALL-UNNAMED</arg>
+                        <arg>-J--add-exports=java.desktop/sun.font=ALL-UNNAMED</arg>
+                        <arg>-J--add-exports=org.graalvm.sdk/org.graalvm.nativeimage.impl=ALL-UNNAMED</arg>
+                        <arg>-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.configure=ALL-UNNAMED</arg>
+                        <arg>-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jni=ALL-UNNAMED</arg>
+                        <arg>--initialize-at-run-time=io.netty</arg>
+                        <arg>--report-unsupported-elements-at-runtime</arg>
                      </buildArgs>
-                  </configuration>
-               </plugin>
-               <plugin>
-                  <groupId>org.springframework.boot</groupId>
-                  <artifactId>spring-boot-maven-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>process-test-aot</id>
-                        <goals>
-                           <goal>process-test-aot</goal>
-                        </goals>
-                     </execution>
-                     <execution>
-                        <id>process-aot</id>
-                        <goals>
-                           <goal>process-aot</goal>
-                        </goals>
-                     </execution>
-                     <execution>
-                        <goals>
-                           <goal>repackage</goal>
-                           <goal>build-info</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-                  <configuration>
-                     <mainClass>${main.class}</mainClass>
+                     <quickBuild>true</quickBuild>
+                     <classpath>
+                        <param>${project.build.directory}/${native-image-jar}.jar</param>
+                     </classpath>
                   </configuration>
                </plugin>
             </plugins>
@@ -403,6 +505,21 @@
                         </configuration>
                      </execution>
                   </executions>
+               </plugin>
+               <plugin>
+                  <groupId>io.micronaut.maven</groupId>
+                  <artifactId>micronaut-maven-plugin</artifactId>
+                  <executions>
+                     <execution>
+                        <id>run</id>
+                        <goals>
+                           <goal>run</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+                  <configuration>
+                     <mainClass>${main.class}</mainClass>
+                  </configuration>
                </plugin>
                <plugin>
                   <groupId>com.bazaarvoice.maven.plugins</groupId>

@@ -16,9 +16,11 @@ package org.eclipse.esmf.ame.config;
 import java.io.File;
 import java.nio.file.Path;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import io.micronaut.context.annotation.ConfigurationProperties;
+import jakarta.inject.Singleton;
 
-@ConfigurationProperties( prefix = "setting" )
+@Singleton
+@ConfigurationProperties( "setting" )
 public class ApplicationSettings {
    private static final String USER_HOME = System.getProperty( "user.home" );
 

@@ -1,20 +1,38 @@
 package org.eclipse.esmf.ame.services.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import io.micronaut.core.annotation.Introspected;
+import io.micronaut.serde.annotation.Serdeable;
 
 /**
  * Represents a single model with its name or properties.
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Serdeable
+@Introspected
 public class Model {
-   @JsonProperty( "model" )
    private String model;
-
-   @JsonProperty( "existing" )
    private boolean existing;
+
+   public Model() {
+   }
+
+   public Model( final String model, final boolean existing ) {
+      this.model = model;
+      this.existing = existing;
+   }
+
+   public String getModel() {
+      return model;
+   }
+
+   public void setModel( final String model ) {
+      this.model = model;
+   }
+
+   public boolean isExisting() {
+      return existing;
+   }
+
+   public void setExisting( final boolean existing ) {
+      this.existing = existing;
+   }
 }

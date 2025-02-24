@@ -13,40 +13,7 @@
 
 package org.eclipse.esmf.ame.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.NotEmpty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import io.micronaut.serde.annotation.SerdeImport;
 
-@Data
-@JsonIgnoreProperties( ignoreUnknown = true )
-@JsonInclude( JsonInclude.Include.NON_EMPTY )
-public class ErrorResponse {
-   private final Error error;
-
-   public ErrorResponse( final ErrorResponse.Error error ) {
-      this.error = error;
-   }
-
-   @JsonCreator
-   public ErrorResponse( @JsonProperty( "message" ) final String message, @JsonProperty( "path" ) final String path,
-         @JsonProperty( "code " ) final int code ) {
-      this( new ErrorResponse.Error( message, path, code ) );
-   }
-
-   @Data
-   @AllArgsConstructor
-   @JsonIgnoreProperties( ignoreUnknown = true )
-   @JsonInclude( JsonInclude.Include.NON_EMPTY )
-   public static class Error {
-      @NotEmpty
-      private final String message;
-      @NotEmpty
-      private final String path;
-      @NotEmpty
-      private final int code;
-   }
-}
+@SerdeImport( ErrorResponse.class )
+public record ErrorResponse( Error error ) {}

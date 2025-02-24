@@ -42,15 +42,15 @@ import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
 
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 /**
  * Service class for managing aspect models.
  * Provides methods to get, create, save, delete, validate, migrate, and format aspect models.
  */
-@Service
+@Singleton
 public class ModelService {
    private static final Logger LOG = LoggerFactory.getLogger( ModelService.class );
 
@@ -101,7 +101,7 @@ public class ModelService {
       try {
          final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn( urn );
 
-         //TODO Maybe this can be changed or should be ... lok on PackageService line 111
+         //TODO Maybe this can be changed or should be ... look on PackageService line 111
          final File newFile = ModelUtils.createFile( aspectModelUrn, fileName, storagePath );
 
          final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplier( turtleData, newFile, aspectModelLoader );

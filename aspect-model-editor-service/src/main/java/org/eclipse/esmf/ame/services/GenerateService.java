@@ -49,14 +49,14 @@ import org.eclipse.esmf.metamodel.AspectModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 /**
  * Service class for generating various specifications and files from Aspect Models.
  */
-@Service
+@Singleton
 public class GenerateService {
    public static final String WRONG_RESOURCE_PATH_ID = "The resource path ID and properties ID do not match. Please verify and correct "
          + "them.";

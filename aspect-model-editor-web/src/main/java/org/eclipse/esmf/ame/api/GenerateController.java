@@ -24,19 +24,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import io.micronaut.http.HttpHeaders;
+import io.micronaut.http.HttpResponse;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.QueryValue;
 
 /**
  * Controller class that supports the generation of the aspect model into other formats.
  */
-@RestController
-@RequestMapping( "generate" )
+@Controller( "generate" )
 public class GenerateController {
 
    private final GenerateService generateService;
@@ -48,77 +47,75 @@ public class GenerateController {
    /**
     * This Method is used to generate a documentation of the aspect model
     *
-    * @param turtleData the Aspect Model Data
+    * @param aspectModel the Aspect Model Data
     * @param language the language for the generated documentation
     * @return the aspect model definition as documentation html file.
     */
-   @PostMapping( "documentation" )
-   public ResponseEntity<byte[]> generateHtml( @RequestBody final String turtleData,
-         @RequestParam( name = "language" ) final String language ) {
-      return ResponseEntity.ok( generateService.generateHtmlDocument( turtleData, language ) );
+   @Post( uri = "/documentation", consumes = { MediaType.TEXT_PLAIN, "text/turtle", "application/json" } )
+   public HttpResponse<byte[]> generateHtml( @Body final String aspectModel, @QueryValue final String language ) {
+      return HttpResponse.ok( generateService.generateHtmlDocument( aspectModel, language ) );
    }
 
    /**
     * This Method is used to generate a JSON Schema of the aspect model
     *
-    * @param turtleData The Aspect Model Data
+    * @param aspectModel The Aspect Model Data
     * @param language the language of the generated JSON schema
     * @return The JSON Schema
     */
-   @PostMapping( "json-schema" )
-   public ResponseEntity<String> jsonSchema( @RequestBody final String turtleData,
-         @RequestParam( name = "language", defaultValue = "en" ) final String language ) {
-      return ResponseEntity.ok( generateService.jsonSchema( turtleData, language ) );
+   @Post( uri = "/json-schema", consumes = { MediaType.TEXT_PLAIN, "text/turtle", "application/json" } )
+   public HttpResponse<String> jsonSchema( @Body final String aspectModel, @QueryValue( defaultValue = "en" ) final String language ) {
+      return HttpResponse.ok( generateService.jsonSchema( aspectModel, language ) );
    }
 
    /**
     * This Method is used to generate a sample JSON Payload of the aspect model
     *
-    * @param turtleData the Aspect Model Data
+    * @param aspectModel the Aspect Model Data
     * @return The JSON Sample Payload
     */
-   @PostMapping( "json-sample" )
-   public ResponseEntity<Object> jsonSample( @RequestBody final String turtleData ) {
-      return ResponseEntity.ok( generateService.sampleJSONPayload( turtleData ) );
+   @Post( uri = "/json-sample", consumes = { MediaType.TEXT_PLAIN, "text/turtle", "application/json" } )
+   public HttpResponse<Object> jsonSample( @Body final String aspectModel ) {
+      return HttpResponse.ok( generateService.sampleJSONPayload( aspectModel ) );
    }
 
    /**
     * Handles the request to generate an AASX file based on the given aspect model.
     *
-    * @param turtleData The model provided in the request body used to generate the AASX file.
-    * @return A {@link ResponseEntity} containing the result of the AASX file generation.
+    * @param aspectModel The model provided in the request body used to generate the AASX file.
+    * @return A {@link HttpResponse} containing the result of the AASX file generation.
     */
-   @PostMapping( "aasx" )
-   public ResponseEntity<String> assx( @RequestBody final String turtleData ) {
-      return ResponseEntity.ok( generateService.generateAASXFile( turtleData ) );
+   @Post( uri = "/aasx", consumes = "text/plain" )
+   public HttpResponse<String> generateAasx( @Body final String aspectModel ) {
+      return HttpResponse.ok( generateService.generateAASXFile( aspectModel ) );
    }
 
    /**
     * Handles the request to generate an AAS XML file based on the provided aspect model.
     *
-    * @param turtleData The model provided in the request body used to generate the AAS XML file.
-    * @return A {@link ResponseEntity} containing the result of the AAS XML file generation.
+    * @param aspectModel The model provided in the request body used to generate the AAS XML file.
+    * @return A {@link HttpResponse} containing the result of the AAS XML file generation.
     */
-   @PostMapping( "aas-xml" )
-   public ResponseEntity<String> assXml( @RequestBody final String turtleData ) {
-      return ResponseEntity.ok( generateService.generateAasXmlFile( turtleData ) );
+   @Post( uri = "/aas-xml", consumes = "text/plain" )
+   public HttpResponse<String> generateAasXml( @Body final String aspectModel ) {
+      return HttpResponse.ok( generateService.generateAasXmlFile( aspectModel ) );
    }
 
    /**
     * Handles the request to generate an AAS JSON file based on the provided aspect model.
     *
-    * @param turtleData The model provided in the request body used to generate the AAS JSON file.
+    * @param aspectModel The model provided in the request body used to generate the AAS JSON file.
     * @return A {@link ResponseEntity} containing the result of the AAS JSON file generation.
     */
-   @PostMapping( "aas-json" )
-   public ResponseEntity<String> assJson( @RequestBody final String turtleData ) {
-      return ResponseEntity.ok( generateService.generateAasJsonFile( turtleData ) );
+   @Post( uri = "/aas-json", consumes = "text/plain" )
+   public HttpResponse<String> generateAasJson( @Body final String aspectModel ) {
+      return HttpResponse.ok( generateService.generateAasJsonFile( aspectModel ) );
    }
 
    /**
     * This method is used to generate an OpenAPI specification of the Aspect Model
     *
-    * @param turtleData the Aspect Model Data
+    * @param aspectModel the Aspect Model Data
     * @param language the language of the generated OpenAPI specification
     * @param output the format of the OpenAPI specification (json or yaml)
     * @param baseUrl the base URL for the Aspect API
@@ -138,21 +135,21 @@ public class GenerateController {
     * @return The OpenAPI specification
     * @throws JsonProcessingException if there is an error processing JSON
     */
-   @PostMapping( "open-api-spec" )
-   public ResponseEntity<String> openApiSpec( @RequestBody final String turtleData,
-         @RequestParam( name = "language", defaultValue = "en" ) final String language,
-         @RequestParam( name = "output", defaultValue = "yaml" ) final String output,
-         @RequestParam( name = "baseUrl", defaultValue = "https://www.eclipse.org" ) final String baseUrl,
-         @RequestParam( name = "includeQueryApi", defaultValue = "false" ) final boolean includeQueryApi,
-         @RequestParam( name = "useSemanticVersion", defaultValue = "false" ) final boolean useSemanticVersion,
-         @RequestParam( name = "pagingOption", defaultValue = "TIME_BASED_PAGING" ) final PagingOption pagingOption,
-         @RequestParam( name = "includeCrud", defaultValue = "false" ) final boolean includeCrud,
-         @RequestParam( name = "includePost", defaultValue = "false" ) final boolean includePost,
-         @RequestParam( name = "includePut", defaultValue = "false" ) final boolean includePut,
-         @RequestParam( name = "includePatch", defaultValue = "false" ) final boolean includePatch,
-         @RequestParam( name = "resourcePath", defaultValue = "" ) final String resourcePath,
-         @RequestParam( name = "ymlProperties", defaultValue = "" ) final String ymlProperties,
-         @RequestParam( name = "jsonProperties", defaultValue = "" ) final String jsonProperties )
+   @Post( uri = "/open-api-spec", consumes = "text/plain" )
+   public HttpResponse<String> openApiSpec( @Body final String aspectModel,
+         @QueryValue( defaultValue = "en" ) final String language,
+         @QueryValue( defaultValue = "yaml" ) final String output,
+         @QueryValue( defaultValue = "https://www.eclipse.org" ) final String baseUrl,
+         @QueryValue( defaultValue = "false" ) final boolean includeQueryApi,
+         @QueryValue( defaultValue = "false" ) final boolean useSemanticVersion,
+         @QueryValue( defaultValue = "TIME_BASED_PAGING" ) final PagingOption pagingOption,
+         @QueryValue( defaultValue = "false" ) final boolean includeCrud,
+         @QueryValue( defaultValue = "false" ) final boolean includePost,
+         @QueryValue( defaultValue = "false" ) final boolean includePut,
+         @QueryValue( defaultValue = "false" ) final boolean includePatch,
+         @QueryValue( defaultValue = "" ) final String resourcePath,
+         @QueryValue( defaultValue = "" ) final String ymlProperties,
+         @QueryValue( defaultValue = "" ) final String jsonProperties )
          throws JsonProcessingException {
 
       final Optional<String> properties =
@@ -160,14 +157,14 @@ public class GenerateController {
                   Optional.of( !ymlProperties.isEmpty() ? ymlProperties : jsonProperties ) :
                   Optional.empty();
 
-      final String openApiOutput = generateOpenApiSpec( language, turtleData, baseUrl, includeQueryApi,
+      final String openApiOutput = generateOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
             useSemanticVersion, pagingOption, resourcePath, includeCrud, includePost, includePut, includePatch,
             properties, output );
 
-      return ResponseEntity.ok( openApiOutput );
+      return HttpResponse.ok( openApiOutput );
    }
 
-   private String generateOpenApiSpec( final String language, final String turtleData, final String baseUrl,
+   private String generateOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
          final boolean includeQueryApi, final boolean useSemanticVersion, final PagingOption pagingOption,
          final String resourcePath, final boolean includeCrud, final boolean includePost, final boolean includePut,
          final boolean includePatch, final Optional<String> properties, final String output )
@@ -182,8 +179,8 @@ public class GenerateController {
             includePatch, properties, objectMapper );
 
       return output.equals( "json" ) ?
-            generateService.generateJsonOpenApiSpec( turtleData, config ) :
-            generateService.generateYamlOpenApiSpec( turtleData, config );
+            generateService.generateJsonOpenApiSpec( aspectModel, config ) :
+            generateService.generateYamlOpenApiSpec( aspectModel, config );
    }
 
    private OpenApiSchemaGenerationConfig createOpenApiSchemaGenerationConfig( final String language,
@@ -201,7 +198,7 @@ public class GenerateController {
    /**
     * This method is used to generate an AsyncApi specification of the Aspect Model
     *
-    * @param turtleData the Aspect Model Data
+    * @param aspectModel the Aspect Model Data
     * @param language the language of the generated AsyncApi specification
     * @param output the format of the AsyncApi specification (json or yaml)
     * @param applicationId Sets the application id, e.g. an identifying URL
@@ -212,27 +209,26 @@ public class GenerateController {
     * @param writeSeparateFiles Create separate files for each schema
     * @return The AsyncApi specification
     */
-   @PostMapping( "async-api-spec" )
-   public ResponseEntity<byte[]> asyncApiSpec( @RequestBody final String turtleData,
-         @RequestParam( name = "language", defaultValue = "en" ) final String language,
-         @RequestParam( name = "output", defaultValue = "yaml" ) final String output,
-         @RequestParam( name = "applicationId", defaultValue = "" ) final String applicationId,
-         @RequestParam( name = "channelAddress", defaultValue = "" ) final String channelAddress,
-         @RequestParam( name = "useSemanticVersion", defaultValue = "false" ) final boolean useSemanticVersion,
-         @RequestParam( name = "writeSeparateFiles", defaultValue = "false" ) final boolean writeSeparateFiles ) {
-      final byte[] asyncApiSpec = generateService.generateAsyncApiSpec( turtleData, language, output, applicationId,
+   @Post( uri = "/async-api-spec", consumes = "text/plain" )
+   public HttpResponse<byte[]> asyncApiSpec( @Body final String aspectModel,
+         @QueryValue( defaultValue = "en" ) final String language,
+         @QueryValue( defaultValue = "yaml" ) final String output,
+         @QueryValue( defaultValue = "" ) final String applicationId,
+         @QueryValue( defaultValue = "" ) final String channelAddress,
+         @QueryValue( defaultValue = "false" ) final boolean useSemanticVersion,
+         @QueryValue( defaultValue = "false" ) final boolean writeSeparateFiles ) {
+      final byte[] asyncApiSpec = generateService.generateAsyncApiSpec( aspectModel, language, output, applicationId,
             channelAddress, useSemanticVersion, writeSeparateFiles );
 
       return buildResponse( asyncApiSpec, writeSeparateFiles );
    }
 
-   private ResponseEntity<byte[]> buildResponse( final byte[] asyncApiSpec, final boolean writeSeparateFiles ) {
-      final ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.ok();
-
+   private HttpResponse<byte[]> buildResponse( final byte[] asyncApiSpec, final boolean writeSeparateFiles ) {
       if ( writeSeparateFiles ) {
-         responseBuilder.header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"async-api-package.zip\"" );
+         return HttpResponse.ok()
+               .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"async-api-package.zip\"" )
+               .body( asyncApiSpec );
       }
-
-      return responseBuilder.body( asyncApiSpec );
+      return HttpResponse.ok( asyncApiSpec );
    }
 }

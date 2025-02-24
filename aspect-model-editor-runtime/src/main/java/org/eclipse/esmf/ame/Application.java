@@ -13,13 +13,11 @@
 
 package org.eclipse.esmf.ame;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import io.micronaut.runtime.Micronaut;
 
-@SpringBootApplication
 public class Application {
    public static void main( final String[] args ) {
-      NativeImageHelpers.ensureRequiredEnvironment();
-      SpringApplication.run( Application.class, args );
+      Micronaut.run( Application.class, args );
    }
 }
+

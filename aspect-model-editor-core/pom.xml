@@ -38,12 +38,31 @@
 
       <!-- Third party dependencies for developing-->
       <dependency>
-         <groupId>org.springframework.boot</groupId>
-         <artifactId>spring-boot-starter-security</artifactId>
-      </dependency>
-      <dependency>
          <groupId>org.projectlombok</groupId>
          <artifactId>lombok</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.graalvm.sdk</groupId>
+         <artifactId>graal-sdk</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.graalvm.truffle</groupId>
+         <artifactId>truffle-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <!--      <dependency>-->
+      <!--         <groupId>jakarta.inject</groupId>-->
+      <!--         <artifactId>jakarta.inject-api</artifactId>-->
+      <!--         <scope>compile</scope>-->
+      <!--      </dependency>-->
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-inject-java</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-http-server-netty</artifactId>
       </dependency>
    </dependencies>
 </project>
