@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: http://localhost:{{port}}/ame/api/generate/async-api-spec
+  url: http://localhost:{{port}}/ame/api/generate/async-api-spec?language=en&output=json&applicationId=application:id&channelAddress=foo/bar&useSemanticVersion=false&writeSeparateFiles=true
   body: text
   auth: none
 }

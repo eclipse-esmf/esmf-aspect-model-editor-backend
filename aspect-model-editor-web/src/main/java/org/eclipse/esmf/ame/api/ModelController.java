@@ -83,7 +83,7 @@ public class ModelController {
       final String aspectModelUrn = optionalUrn.orElseThrow(
             () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
 
-      final String name = optionalFileName.orElse( null );
+      final String name = optionalFileName.orElse( "" );
 
       modelService.createOrSaveModel( turtleData, aspectModelUrn, name, ApplicationSettings.getMetaModelStoragePath() );
 

@@ -89,6 +89,7 @@
       <jackson-dataformat-xml-version>2.17.2</jackson-dataformat-xml-version>
       <jackson-core-version>2.17.2</jackson-core-version>
       <commons-compress-version>1.26.0</commons-compress-version>
+      <velocity-version>2.4.1</velocity-version>
 
       <!-- Versions of plugins -->
       <junit-version>5.11.3</junit-version>
@@ -347,6 +348,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
             <version>${commons-compress-version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+            <version>${velocity-version}</version>
          </dependency>
 
          <!-- Third party testing dependencies -->

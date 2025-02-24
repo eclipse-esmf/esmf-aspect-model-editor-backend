@@ -23,11 +23,6 @@
          <artifactId>aspect-model-editor-core</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.apache.velocity</groupId>
-         <artifactId>velocity-engine-core</artifactId>
-         <version>2.3</version>
-      </dependency>
-      <dependency>
          <groupId>org.eclipse.esmf</groupId>
          <artifactId>aspect-model-editor-validation</artifactId>
       </dependency>

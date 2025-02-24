@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: http://localhost:{{port}}/ame/api/generate/open-api-spec
+  url: http://localhost:{{port}}/ame/api/generate/open-api-spec?output=yaml&baseUrl=http://www.test.com&includeQueryApi=false&useSemanticVersion=false&pagingOption=OFFSET_BASED_PAGING&resourcePath=/resource/%7BresourceId%7D&ymlProperties=resourceId%3A%0A%20%20name%3A%20resourceId%0A%20%20in%3A%20path%0A%20%20description%3A%20An%20example%20resource%20Id.%0A%20%20required%3A%20true%0A%20%20schema%3A%0A%20%20%20%20type%3A%20string
   body: text
   auth: none
 }
