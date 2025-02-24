@@ -52,7 +52,7 @@ public class GenerateController {
     * @return the aspect model definition as documentation html file.
     */
    @Post( uri = "/documentation", consumes = { MediaType.TEXT_PLAIN, "text/turtle", "application/json" } )
-   public HttpResponse<byte[]> generateHtml( @Body final String aspectModel, @QueryValue final String language ) {
+   public HttpResponse<byte[]> generateHtml( @Body final String aspectModel, @QueryValue( defaultValue = "en" ) final String language ) {
       return HttpResponse.ok( generateService.generateHtmlDocument( aspectModel, language ) );
    }
 

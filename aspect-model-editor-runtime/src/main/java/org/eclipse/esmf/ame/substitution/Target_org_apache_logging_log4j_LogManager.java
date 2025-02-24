@@ -35,5 +35,5 @@ import org.apache.logging.log4j.spi.LoggerContextFactory;
 public final class Target_org_apache_logging_log4j_LogManager {
    @Alias
    @RecomputeFieldValue( kind = RecomputeFieldValue.Kind.FromAlias )
-   private static LoggerContextFactory factory = new DummyLoggerContextFactory();
+   private static final LoggerContextFactory factory = new DummyLoggerContextFactory();
 }

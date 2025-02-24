@@ -167,6 +167,8 @@ public class ModelService {
    public MigrationResult migrateWorkspace() {
       final List<String> errors = new ArrayList<>();
 
+      // TODO something like this ... final Stream<URI> uriStream = aspectModelLoader.listContentsForNamespace(null);
+
       try {
          getAllNamespaces().forEach(
                ( namespace, versions ) -> versions.forEach( version -> processVersion( namespace, version, errors ) ) );

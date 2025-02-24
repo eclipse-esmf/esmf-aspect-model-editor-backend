@@ -15,9 +15,6 @@ package org.eclipse.esmf.ame.exceptions;
 
 import java.io.Serial;
 
-import lombok.Getter;
-
-@Getter
 public class FileHandlingException extends RuntimeException {
    @Serial
    private static final long serialVersionUID = 1L;

@@ -112,10 +112,11 @@ public class ViolationFormatter
    public ViolationError visitProcessingViolation( final ProcessingViolation violation ) {
       final ViolationError violationError = visit( violation );
 
-      if ( violation.cause() instanceof UrnNotFoundException urnNotFoundException ) {
+      if ( violation.cause() instanceof final UrnNotFoundException urnNotFoundException ) {
          violationError.setFocusNode( urnNotFoundException.getUrn() );
          violationError.setFix( List.of(
-               "Ensure the referred element is available. If it's in a different model of the same namespace, include it in your workspace or the imported package." ) );
+               "Ensure the referred element is available. If it's in a different model of the same namespace, include it in your "
+                     + "workspace or the imported package." ) );
       }
 
       return violationError;

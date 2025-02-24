@@ -38,10 +38,6 @@
 
       <!-- Third party dependencies for developing-->
       <dependency>
-         <groupId>org.projectlombok</groupId>
-         <artifactId>lombok</artifactId>
-      </dependency>
-      <dependency>
          <groupId>org.graalvm.sdk</groupId>
          <artifactId>graal-sdk</artifactId>
          <scope>provided</scope>

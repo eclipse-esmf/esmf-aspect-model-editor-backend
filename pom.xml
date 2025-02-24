@@ -73,7 +73,6 @@
       <micronaut.aot.packageName>org.eclipse.esmf.ame.aot.generated</micronaut.aot.packageName>
       <micronaut.aot.runtime>native</micronaut.aot.runtime>
       <logback-classic-version>1.5.16</logback-classic-version>
-      <lombok-version>1.18.26</lombok-version>
       <commons-io-version>2.14.0</commons-io-version>
       <commons-validator-version>1.7</commons-validator-version>
       <commons-code-version>1.15</commons-code-version>
@@ -296,12 +295,6 @@
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback-classic-version}</version>
-         </dependency>
-         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok-version}</version>
-            <scope>provided</scope>
          </dependency>
          <dependency>
             <groupId>commons-io</groupId>
@@ -547,11 +540,6 @@
                      <groupId>io.micronaut.validation</groupId>
                      <artifactId>micronaut-validation-processor</artifactId>
                      <version>${micronaut.validation.version}</version>
-                  </path>
-                  <path>
-                     <groupId>org.projectlombok</groupId>
-                     <artifactId>lombok</artifactId>
-                     <version>${lombok-version}</version>
                   </path>
                </annotationProcessorPaths>
                <compilerArgs>

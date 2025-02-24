@@ -40,11 +40,5 @@
          <artifactId>truffle-api</artifactId>
          <scope>provided</scope>
       </dependency>
-
-      <!-- Third party dependencies -->
-      <dependency>
-         <groupId>org.projectlombok</groupId>
-         <artifactId>lombok</artifactId>
-      </dependency>
    </dependencies>
 </project>

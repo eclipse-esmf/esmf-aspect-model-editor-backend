@@ -53,14 +53,6 @@ if (someOptional != null && someOptional.isPresent()) ...
 * You should be using Objects.requireNonNull() for those sort of checks (or Guava's Preconditions if you're having more
   types of assertions than non-null and aim for a maximum of consistency).
 
-### Lombok
-
-We use Lombok in the ESMF Aspect Model Editor backend. Project Lombok is a Java library that automatically plugs into
-your
-editor and build tools. It removes the burden to write getter or equals methods, adds fully featured
-builders to a class with one annotation, automates logging variables, and much more. Consider using
-its features if you are in the need to do something like that.
-
 ## Documentation
 
 ### Source Code Documentation

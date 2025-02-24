@@ -83,7 +83,7 @@ public class ModelController {
       final String aspectModelUrn = optionalUrn.orElseThrow(
             () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
 
-      final String name = optionalFileName.orElse( "" );
+      final String name = optionalFileName.orElse( null );
 
       modelService.createOrSaveModel( turtleData, aspectModelUrn, name, ApplicationSettings.getMetaModelStoragePath() );
 
@@ -157,6 +157,7 @@ public class ModelController {
     */
    @Get( "migrate-workspace" )
    public HttpResponse<MigrationResult> migrateWorkspace() {
+      //TODO maybe this would change to add the namespace to migrate ...
       return HttpResponse.ok( modelService.migrateWorkspace() );
    }
 }
