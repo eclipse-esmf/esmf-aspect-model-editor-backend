@@ -118,3 +118,19 @@ body:text {
      samm-c:unit unit:metre .
   
 }
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response body is valid", function() {
+    const body = res.getBody();
+    expect(body).to.contains("asyncapi: 3.0.0");
+    expect(body).to.contains("id: application:id");
+    expect(body).to.contains("title: movement MQTT API");
+    expect(body).to.contains("version: v1");
+    expect(body).to.contains("defaultContentType: application/json");
+    expect(body).to.contains("address: foo/bar");
+  });
+}

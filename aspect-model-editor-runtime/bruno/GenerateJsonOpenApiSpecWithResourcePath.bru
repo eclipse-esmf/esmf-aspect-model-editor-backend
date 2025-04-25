@@ -16,8 +16,8 @@ params:query {
   includeQueryApi: true
   useSemanticVersion: true
   pagingOption: NO_PAGING
-  resourcePath: /resource/%7BresourceId%7D
-  jsonProperties: %7B"resourceId":%7B"name":"resourceId","in":"path","description":"An example resource Id.","required":true,"schema":%7B"type":"string"%7D%7D%7D
+  resourcePath: /resource/{resourceId}
+  jsonProperties: {"resourceId":{"name":"resourceId","in":"path","description":"An example resource Id.","required":true,"schema":{"type":"string"}}}
 }
 
 headers {
@@ -118,4 +118,18 @@ body:text {
      samm:dataType xsd:float ;
      samm-c:unit unit:metre .
   
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response body is valid", function() {
+    const data = res.getBody();
+    expect(data.openapi).to.equal("3.0.3");
+    expect(data.info.title).to.equal("movement");
+    expect(data.info.version).to.equal("v1.0.0");
+    expect(data.servers[0].url).to.equal("http://www.test.com/api/v1.0.0");
+  });
 }

@@ -1,11 +1,22 @@
 meta {
   name: GetAllNamespaces
   type: http
-  seq: 3
+  seq: 9
 }
 
 get {
   url: http://localhost:{{port}}/ame/api/models/namespaces
   body: none
   auth: none
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);})
+  
+  test("Contains content", function(){
+    const data = res.getBody();
+    expect(data["org.eclipse.examples"][0].models[0].model).to.contains("Movement.ttl");
+    expect(data["org.eclipse.examples"][0].models[0].existing).to.equals(true);})
+  
 }

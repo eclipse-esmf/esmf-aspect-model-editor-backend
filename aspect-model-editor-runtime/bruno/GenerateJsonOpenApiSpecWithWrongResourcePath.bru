@@ -16,8 +16,8 @@ params:query {
   includeQueryApi: true
   useSemanticVersion: true
   pagingOption: NO_PAGING
-  resourcePath: /resource/%7BresourceId%7D
-  jsonProperties: %7B"wrongId":%7B"name":"wrongId","in":"path","description":"An example resource Id.","required":true,"schema":%7B"type":"string"%7D%7D%7D
+  resourcePath: /resource/{resourceId}
+  jsonProperties: {"wrongId":{"name":"wrongId","in":"path","description":"An example resource Id.","required":true,"schema":{"type":"string"}}}
 }
 
 headers {
@@ -118,4 +118,10 @@ body:text {
      samm:dataType xsd:float ;
      samm-c:unit unit:metre .
   
+}
+
+tests {
+  test("Status code is 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
 }

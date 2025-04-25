@@ -109,3 +109,24 @@ body:text {
      samm-c:unit unit:metre .
   
 }
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response body is valid", function() {
+    const data = res.getBody();
+    
+    expect(data.components.schemas.Boolean.type).to.equal("boolean");
+    expect(data.components.schemas.Coordinate.type).to.equal("number");
+    expect(data.components.schemas.MetresAboveMeanSeaLevel.type).to.equal("number");
+    expect(data.components.schemas.SpatialPosition.type).to.equal("object");
+  
+    expect(data.properties.isMoving.$ref).to.equal("#/components/schemas/Boolean");
+    expect(data.properties.position.$ref).to.equal("#/components/schemas/SpatialPositionCharacteristic");
+    expect(data.properties.speed.$ref).to.equal("#/components/schemas/Speed");
+    expect(data.properties.speedLimitWarning.$ref).to.equal("#/components/schemas/TrafficLight");
+  });
+  
+}

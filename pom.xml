@@ -129,8 +129,8 @@
       <node.path>${project.build.directory}/node/node</node.path>
 
       <relative-native-config-path>aspect-model-editor-runtime/target/classes/META-INF/native-image</relative-native-config-path>
-      <!-- The path to the native configs as it is reachable from the submodules -->
-      <native-config-path>${project.basedir}/../${relative-native-config-path}</native-config-path>
+      <native-config-dir-service>${maven.multiModuleProjectDirectory}/aspect-model-editor-service/target/native-config</native-config-dir-service>
+      <native-config-path>${maven.multiModuleProjectDirectory}/${relative-native-config-path}</native-config-path>
 
       <postman.test.environment>ame.postman_environment.json</postman.test.environment>
       <postman.test.collection>ame.postman_collection.json</postman.test.collection>
@@ -497,19 +497,6 @@
                <artifactId>${maven-shade-plugin-version}</artifactId>
                <version>3.6.0</version>
             </plugin>
-            <!--             TODO brauch ich das? -->
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-jar-plugin</artifactId>
-               <version>3.2.0</version>
-               <configuration>
-                  <archive>
-                     <manifest>
-                        <mainClass>${exec.mainClass}</mainClass>
-                     </manifest>
-                  </archive>
-               </configuration>
-            </plugin>
          </plugins>
       </pluginManagement>
 
@@ -695,38 +682,6 @@
          </plugin>
       </plugins>
    </build>
-
-   <profiles>
-      <profile>
-         <id>native-agent</id>
-         <build>
-            <plugins>
-               <!-- TODO during tests generate the corresponding files ... -->
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <configuration>
-                     <skip>false</skip>
-                     <argLine>-agentlib:native-image-agent=config-merge-dir=${native-config-path}</argLine>
-                  </configuration>
-               </plugin>
-
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-clean-plugin</artifactId>
-                  <inherited>false</inherited>
-                  <configuration>
-                     <filesets>
-                        <fileset>
-                           <directory>${relative-native-config-path}</directory>
-                        </fileset>
-                     </filesets>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-   </profiles>
 
    <repositories>
       <repository>

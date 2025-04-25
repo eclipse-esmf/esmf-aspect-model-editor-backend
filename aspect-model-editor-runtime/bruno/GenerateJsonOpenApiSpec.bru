@@ -20,6 +20,7 @@ params:query {
 
 headers {
   Content-Type: text/plain
+  accept: application/json
 }
 
 body:text {
@@ -115,5 +116,20 @@ body:text {
      samm:see <https://en.wikipedia.org/wiki/Height_above_sea_level> ;
      samm:dataType xsd:float ;
      samm-c:unit unit:metre .
+  
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response body is valid", function() {
+    const data = res.getBody();
+    expect(data.openapi).to.equal("3.0.3");
+    expect(data.info.title).to.equal("movement");
+    expect(data.info.version).to.equal("v1.0.0");
+    expect(data.servers[0].url).to.equal("http://www.test.com/api/v1.0.0");
+  });
   
 }

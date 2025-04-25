@@ -43,3 +43,12 @@ body:text {
      samm-c:minValue "5"^^xsd:nonNegativeInteger ;
      samm-c:maxValue "10"^^xsd:nonNegativeInteger .
 }
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);})
+  
+  test("Contains content", function(){
+    const data = res.getBody();
+    expect(data.violationErrors).to.be.an('array').that.is.empty;});
+}

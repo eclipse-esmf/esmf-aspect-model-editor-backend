@@ -24,7 +24,15 @@ public class Model {
       return model;
    }
 
+   public void setModel( final String model ) {
+      this.model = model;
+   }
+
    public boolean isExisting() {
       return existing;
+   }
+
+   public void setExisting( final boolean existing ) {
+      this.existing = existing;
    }
 }

@@ -81,10 +81,6 @@ public class ApplicationConfig {
    @Bean
    @Singleton
    public Path modelPath() {
-      if ( environment.getActiveNames().contains( "test" ) ) {
-         return Path.of( "src", "test", "resources", "services" ).toAbsolutePath();
-      }
-
       return ApplicationSettings.getMetaModelStoragePath();
    }
 

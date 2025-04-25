@@ -16,8 +16,14 @@ params:query {
   includeQueryApi: false
   useSemanticVersion: false
   pagingOption: OFFSET_BASED_PAGING
-  resourcePath: /resource/%7BresourceId%7D
-  ymlProperties: wrongId%3A%0A%20%20name%3A%20wrongId%0A%20%20in%3A%20path%0A%20%20description%3A%20An%20example%20resource%20Id.%0A%20%20required%3A%20true%0A%20%20schema%3A%0A%20%20%20%20type%3A%20string
+  resourcePath: /resource/{resourceId}
+  ymlProperties: wrongId:
+  name: wrongId
+  in: path
+  description: An example resource Id.
+  required: true
+  schema: 
+  type: string
 }
 
 headers {
@@ -118,4 +124,10 @@ body:text {
      samm:dataType xsd:float ;
      samm-c:unit unit:metre .
   
+}
+
+tests {
+  test("Status code is 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
 }

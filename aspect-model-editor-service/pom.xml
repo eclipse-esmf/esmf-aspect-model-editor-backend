@@ -84,6 +84,11 @@
          <scope>test</scope>
       </dependency>
       <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-http-client</artifactId>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
          <groupId>org.junit.jupiter</groupId>
          <artifactId>junit-jupiter-engine</artifactId>
          <scope>test</scope>
@@ -94,4 +99,50 @@
          <scope>test</scope>
       </dependency>
    </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+               <filesets>
+                  <fileset>
+                     <directory>${native-config-path}</directory>
+                  </fileset>
+               </filesets>
+            </configuration>
+         </plugin>
+
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>create-native-config-folder</id>
+                  <phase>generate-resources</phase>
+                  <configuration>
+                     <target>
+                        <mkdir dir="${project.build.directory}/native-config"/>
+                        <echo message="Created folder ${project.build.directory}/native-config"/>
+                     </target>
+                  </configuration>
+                  <goals>
+                     <goal>run</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <skip>false</skip>
+               <argLine>-agentlib:native-image-agent=config-output-dir=${project.build.directory}/native-config</argLine>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
 </project>

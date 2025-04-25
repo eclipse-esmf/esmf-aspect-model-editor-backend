@@ -1,7 +1,7 @@
 meta {
   name: MigrateAspectModel
   type: http
-  seq: 4
+  seq: 3
 }
 
 post {
@@ -108,4 +108,15 @@ body:text {
      samm:dataType xsd:float ;
      samm-c:unit unit:metre .
   
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);})
+    
+  test("Body contains content", function(){
+    let currentSammVersion = bru.getEnvVar("currentSammVersion");
+    const body = res.getBody();
+    expect(body).to.contains(`@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:${currentSammVersion}#> .`)
+  });
 }

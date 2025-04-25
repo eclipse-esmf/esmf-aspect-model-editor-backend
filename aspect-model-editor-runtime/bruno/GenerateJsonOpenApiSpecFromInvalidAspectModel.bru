@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: http://localhost:{{port}}/ame/api/generate/open-api-spec?output=json&baseUrl=http://www.test.com&includeQueryApi=true&useSemanticVersion=true&pagingOption=NO_PAGING
+  url: http://localhost:{{port}}/ame/api/generate/open-api-spec
   body: text
   auth: none
 }
@@ -41,4 +41,10 @@ body:text {
   
   :Characteristic1 a samm:Characteristic .
   
+}
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
 }

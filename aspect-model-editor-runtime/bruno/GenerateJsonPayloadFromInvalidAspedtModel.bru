@@ -33,3 +33,9 @@ body:text {
   
   :Characteristic1 a samm:Characteristic .
 }
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+}

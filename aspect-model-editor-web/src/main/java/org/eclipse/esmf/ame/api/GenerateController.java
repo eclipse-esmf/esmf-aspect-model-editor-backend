@@ -16,6 +16,7 @@ package org.eclipse.esmf.ame.api;
 import java.util.Locale;
 import java.util.Optional;
 
+import org.eclipse.esmf.ame.MediaTypeExtension;
 import org.eclipse.esmf.ame.services.GenerateService;
 import org.eclipse.esmf.aspectmodel.generator.openapi.OpenApiSchemaGenerationConfig;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
@@ -30,6 +31,7 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
 
 /**
@@ -52,6 +54,7 @@ public class GenerateController {
     * @return the aspect model definition as documentation html file.
     */
    @Post( uri = "/documentation", consumes = { MediaType.TEXT_PLAIN, "text/turtle", "application/json" } )
+   @Produces( MediaType.TEXT_HTML )
    public HttpResponse<byte[]> generateHtml( @Body final String aspectModel, @QueryValue( defaultValue = "en" ) final String language ) {
       return HttpResponse.ok( generateService.generateHtmlDocument( aspectModel, language ) );
    }
@@ -86,6 +89,7 @@ public class GenerateController {
     * @return A {@link HttpResponse} containing the result of the AASX file generation.
     */
    @Post( uri = "/aasx", consumes = "text/plain" )
+   @Produces( MediaTypeExtension.APPLICATION_AASX )
    public HttpResponse<String> generateAasx( @Body final String aspectModel ) {
       return HttpResponse.ok( generateService.generateAASXFile( aspectModel ) );
    }
@@ -97,6 +101,7 @@ public class GenerateController {
     * @return A {@link HttpResponse} containing the result of the AAS XML file generation.
     */
    @Post( uri = "/aas-xml", consumes = "text/plain" )
+   @Produces( MediaType.APPLICATION_XML )
    public HttpResponse<String> generateAasXml( @Body final String aspectModel ) {
       return HttpResponse.ok( generateService.generateAasXmlFile( aspectModel ) );
    }
@@ -135,7 +140,8 @@ public class GenerateController {
     * @return The OpenAPI specification
     * @throws JsonProcessingException if there is an error processing JSON
     */
-   @Post( uri = "/open-api-spec", consumes = "text/plain" )
+   @Post( uri = "/open-api-spec", consumes = "text/plain", produces = MediaType.APPLICATION_JSON )
+   @Produces( { MediaType.APPLICATION_YAML, MediaType.APPLICATION_JSON } )
    public HttpResponse<String> openApiSpec( @Body final String aspectModel,
          @QueryValue( defaultValue = "en" ) final String language,
          @QueryValue( defaultValue = "yaml" ) final String output,
@@ -161,7 +167,9 @@ public class GenerateController {
             useSemanticVersion, pagingOption, resourcePath, includeCrud, includePost, includePut, includePatch,
             properties, output );
 
-      return HttpResponse.ok( openApiOutput );
+      final String contentType = output.equalsIgnoreCase( "json" ) ? MediaType.APPLICATION_JSON : MediaType.APPLICATION_YAML;
+
+      return HttpResponse.ok( openApiOutput ).contentType( contentType );
    }
 
    private String generateOpenApiSpec( final String language, final String aspectModel, final String baseUrl,
@@ -210,6 +218,7 @@ public class GenerateController {
     * @return The AsyncApi specification
     */
    @Post( uri = "/async-api-spec", consumes = "text/plain" )
+   @Produces( { MediaType.APPLICATION_YAML, MediaType.APPLICATION_JSON, MediaType.APPLICATION_ZIP } )
    public HttpResponse<byte[]> asyncApiSpec( @Body final String aspectModel,
          @QueryValue( defaultValue = "en" ) final String language,
          @QueryValue( defaultValue = "yaml" ) final String output,
@@ -220,15 +229,19 @@ public class GenerateController {
       final byte[] asyncApiSpec = generateService.generateAsyncApiSpec( aspectModel, language, output, applicationId,
             channelAddress, useSemanticVersion, writeSeparateFiles );
 
-      return buildResponse( asyncApiSpec, writeSeparateFiles );
+      return buildResponse( asyncApiSpec, writeSeparateFiles, output );
    }
 
-   private HttpResponse<byte[]> buildResponse( final byte[] asyncApiSpec, final boolean writeSeparateFiles ) {
+   private HttpResponse<byte[]> buildResponse( final byte[] asyncApiSpec, final boolean writeSeparateFiles, final String output ) {
       if ( writeSeparateFiles ) {
          return HttpResponse.ok()
                .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"async-api-package.zip\"" )
-               .body( asyncApiSpec );
+               .body( asyncApiSpec )
+               .contentType( MediaType.APPLICATION_ZIP );
       }
-      return HttpResponse.ok( asyncApiSpec );
+
+      final String contentType = output.equalsIgnoreCase( "json" ) ? MediaType.APPLICATION_JSON : MediaType.APPLICATION_YAML;
+
+      return HttpResponse.ok( asyncApiSpec ).contentType( contentType );
    }
 }

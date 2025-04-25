@@ -1,6 +1,6 @@
 {
   "version": "1",
-  "name": "AME.POSTMAN.RESOURCES",
+  "name": "ame.bruno.resources",
   "type": "collection",
   "ignore": [
     "node_modules",

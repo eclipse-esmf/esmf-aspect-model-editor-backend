@@ -188,4 +188,36 @@ public class ModelUtils {
          }
       };
    }
+
+   /**
+    * Resolves a file path from a given URN and base model path.
+    * <p>
+    * The URN is expected to follow the format:
+    * <pre>urn:namespace:version#fileName</pre>
+    * This method extracts the namespace, version, and file name from the URN
+    * and constructs a path relative to the provided model path.
+    *
+    * @param urn the URN to be resolved, in the format `urn:namespace:version#fileName`
+    * @param modelPath the base path where the resolved file path will be constructed
+    * @return the resolved file path as a {@link Path}
+    * @throws IllegalArgumentException if the URN format is invalid
+    */
+   public static Path resolvePathFromUrn( final String urn, final Path modelPath ) {
+      if ( urn == null || !urn.contains( "#" ) || !urn.contains( ":" ) ) {
+         throw new IllegalArgumentException( "Invalid URN format. Expected format: urn:namespace:version#fileName" );
+      }
+
+      final String[] parts = urn.split( "#", 2 );
+      final String fileName = parts[1];
+      final String[] nsAndVer = parts[0].split( ":" );
+
+      if ( nsAndVer.length < 3 ) {
+         throw new IllegalArgumentException( "Invalid URN format. Namespace and version are missing." );
+      }
+
+      final String version = nsAndVer[nsAndVer.length - 1];
+      final String namespace = nsAndVer[nsAndVer.length - 2];
+
+      return modelPath.resolve( namespace ).resolve( version ).resolve( fileName + ".ttl" );
+   }
 }

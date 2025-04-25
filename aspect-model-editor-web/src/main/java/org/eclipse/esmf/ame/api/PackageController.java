@@ -28,11 +28,13 @@ import org.eclipse.esmf.ame.utils.ModelUtils;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Part;
+import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.multipart.StreamingFileUpload;
 import org.apache.commons.io.FilenameUtils;
 
@@ -57,16 +59,14 @@ public class PackageController {
     * @return A HttpResponse containing the exported package as a byte array.
     */
    @Get( "/export" )
+   @Produces( MediaType.APPLICATION_ZIP )
    public HttpResponse<byte[]> exportPackage( @Header( URN ) final Optional<String> urn ) {
       final Optional<String> optionalUrn = urn.map( ModelUtils::sanitizeFileInformation );
 
-      final String aspectModelUrn = optionalUrn.orElseThrow(
-            () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
+      final String aspectModelUrn = optionalUrn.orElseThrow( () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
 
-      return HttpResponse.ok()
-            .header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=package.zip" )
-            .header( HttpHeaders.CONTENT_TYPE, "application/zip" )
-            .body( packageService.exportPackage( aspectModelUrn ) );
+      return HttpResponse.ok().header( HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=package.zip" )
+            .body( packageService.exportPackage( aspectModelUrn ) ).contentType( MediaType.APPLICATION_ZIP );
    }
 
    @Get( "/check-import" )

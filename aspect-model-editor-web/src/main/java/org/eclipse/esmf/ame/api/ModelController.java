@@ -24,7 +24,6 @@ import org.eclipse.esmf.ame.services.ModelService;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.utils.ModelUtils;
-import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 
 import io.micronaut.http.HttpResponse;
@@ -57,12 +56,12 @@ public class ModelController {
     * urn:samm:namespace:version#AspectModelElement
     */
    @Get()
+   @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
    public HttpResponse<String> getModel( @Header( URN ) final Optional<String> urn,
          @Header( "file-path" ) final Optional<String> filePath ) {
       final Optional<String> optionalUrn = urn.map( ModelUtils::sanitizeFileInformation );
 
-      final String aspectModelUrn = optionalUrn.orElseThrow(
-            () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
+      final String aspectModelUrn = optionalUrn.orElseThrow( () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
 
       final String path = filePath.orElse( null );
 
@@ -75,13 +74,12 @@ public class ModelController {
     * @param turtleData To store in file.
     */
    @Post( consumes = { MediaType.TEXT_PLAIN, MediaTypeExtension.TEXT_TURTLE_VALUE } )
-   public HttpResponse<String> createOrSaveModel( @Body final String turtleData,
-         @Header( URN ) final Optional<String> urn, @Header( "file-name" ) final Optional<String> fileName ) {
+   public HttpResponse<String> createOrSaveModel( @Body final String turtleData, @Header( URN ) final Optional<String> urn,
+         @Header( "file-name" ) final Optional<String> fileName ) {
       final Optional<String> optionalUrn = urn.map( ModelUtils::sanitizeFileInformation );
       final Optional<String> optionalFileName = fileName.map( ModelUtils::sanitizeFileInformation );
 
-      final String aspectModelUrn = optionalUrn.orElseThrow(
-            () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
+      final String aspectModelUrn = optionalUrn.orElseThrow( () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
 
       final String name = optionalFileName.orElse( "" );
 
@@ -98,8 +96,7 @@ public class ModelController {
    public void deleteModel( @Header( URN ) final Optional<String> urn ) {
       final Optional<String> optionalUrn = urn.map( ModelUtils::sanitizeFileInformation );
 
-      final String aspectModelUrn = optionalUrn.orElseThrow(
-            () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
+      final String aspectModelUrn = optionalUrn.orElseThrow( () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
 
       modelService.deleteModel( aspectModelUrn );
    }
@@ -111,10 +108,10 @@ public class ModelController {
     * @return Either an empty array if the model is syntactically correct and conforms to the Aspect Meta Model
     * semantics or provides a number of * {@link ViolationReport}s that describe all validation violations.
     */
-   @Produces( MediaType.APPLICATION_JSON )
    @Post( uri = "validate", consumes = { MediaType.TEXT_PLAIN, MediaTypeExtension.TEXT_TURTLE_VALUE } )
-   public HttpResponse<List<ViolationError>> validateModel( @Body final String aspectModel ) {
-      return HttpResponse.ok( modelService.validateModel( aspectModel ) );
+   @Produces( MediaType.APPLICATION_JSON )
+   public HttpResponse<ViolationReport> validateModel( @Body final String aspectModel ) {
+      return HttpResponse.ok( modelService.validateModel( aspectModel ) ).contentType( MediaType.APPLICATION_JSON );
    }
 
    /**
@@ -124,6 +121,7 @@ public class ModelController {
     * @return A migrated version of the Aspect Model
     */
    @Post( uri = "migrate", consumes = { MediaType.TEXT_PLAIN, MediaTypeExtension.TEXT_TURTLE_VALUE } )
+   @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
    public HttpResponse<String> migrateModel( @Body final String aspectModel ) {
       return HttpResponse.ok( modelService.migrateModel( aspectModel ) );
    }
@@ -135,6 +133,7 @@ public class ModelController {
     * @return A formatted version of the Aspect Model
     */
    @Post( uri = "format", consumes = { MediaType.TEXT_PLAIN, MediaTypeExtension.TEXT_TURTLE_VALUE } )
+   @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
    public HttpResponse<String> getFormattedModel( @Body final String aspectModel ) {
       return HttpResponse.ok( modelService.getFormattedModel( aspectModel ) );
    }
@@ -155,7 +154,7 @@ public class ModelController {
     *
     * @return A list of Aspect Models that are migrated or not.
     */
-   @Get( "migrate-workspace" )
+   @Get( uri = "migrate-workspace" )
    public HttpResponse<MigrationResult> migrateWorkspace() {
       //TODO maybe this would change to add the namespace to migrate ...
       return HttpResponse.ok( modelService.migrateWorkspace() );

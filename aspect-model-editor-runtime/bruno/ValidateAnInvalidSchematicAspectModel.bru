@@ -1,7 +1,7 @@
 meta {
   name: ValidateAnInvalidSchematicAspectModel
   type: http
-  seq: 6
+  seq: 5
 }
 
 post {
@@ -33,9 +33,17 @@ body:text {
   :property1 a samm:Property ;
      samm:preferredName "Property 1 "@en ;
      samm:description "Property Description 1 "@en ;
-     samm:characteristic :Characteristic1 .
+     samm:characteristic :Characteristic1 ;
+     samm:exampleValue "1" .
   
   :Characteristic1 a samm:Characteristic ;
      samm:preferredName "Characteristic 1 "@en ;
-     samm:description "Characteristic Description 1 "@en .
+     samm:description "Characteristic Description 1 "@en ;
+     samm:dataType xsd:float .
+  
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);})
 }

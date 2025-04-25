@@ -118,3 +118,27 @@ body:text {
      samm-c:unit unit:metre .
   
 }
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response body is valid", function() {
+    let body = res.getBody();
+    if (typeof body !== "string") {
+      body = JSON.stringify(body);
+    }
+    
+    expect(body).to.contains("\"openapi\":\"3.0.3\"");
+    expect(body).to.contains("\"title\":\"movement\"");
+    expect(body).to.contains("\"version\":\"v1.0.0\"");
+    expect(body).to.contains("\"url\":\"http://www.test.com/api/v1.0.0\"");
+  
+    expect(body).to.contains("\"get\":");
+    expect(body).to.contains("\"post\":");
+    expect(body).to.contains("\"put\":");
+    expect(body).to.contains("\"patch\":");
+  });
+  
+}

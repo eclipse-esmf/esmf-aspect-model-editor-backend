@@ -1,7 +1,7 @@
 meta {
   name: ExportPackage
   type: http
-  seq: 8
+  seq: 7
 }
 
 get {
@@ -12,4 +12,9 @@ get {
 
 headers {
   aspect-model-urn: urn:samm:org.eclipse.examples:1.0.0#Movement
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);})
 }

@@ -109,3 +109,13 @@ body:text {
      samm-c:unit unit:metre .
   
 }
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  test("Response body is valid", function () {
+    const data = res.getBody();
+    expect(data).to.contains("aasx");
+  })
+}

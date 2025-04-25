@@ -30,6 +30,7 @@ import org.eclipse.esmf.ame.exceptions.GenerationException;
 import org.eclipse.esmf.aspectmodel.generator.openapi.OpenApiSchemaGenerationConfig;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
@@ -45,7 +46,9 @@ class GenerateServiceTest {
    private static final Path resourcesPath = Path.of( "src", "test", "resources", "services" );
    private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example", "1.0.0" );
 
-   private static final String model = "ModelService.ttl";
+   private final String model = "ModelService.ttl";
+
+   //TODO Maybe create a Test for HTML creation if still needed to increase coverage
 
    @Test
    void testAspectModelJsonSample() throws IOException {
@@ -54,7 +57,11 @@ class GenerateServiceTest {
 
       final String payload = generateService.sampleJSONPayload( testModel );
 
-      assertEquals( "{\"property\":\"eOMtThyhVNLWUZNRcBaQKxI\"}", payload );
+      final ObjectMapper mapper = new ObjectMapper();
+      final JsonNode expected = mapper.readTree( "{\"property\":\"eOMtThyhVNLWUZNRcBaQKxI\"}" );
+      final JsonNode actual = mapper.readTree( payload );
+
+      assertEquals( expected, actual );
    }
 
    @Test
@@ -447,12 +454,12 @@ class GenerateServiceTest {
             generateService.generateAsyncApiSpec( testModel, "en", "json", "application:id", "foo/bar", false, false ),
             StandardCharsets.UTF_8 );
 
-      assertTrue( payload.contains( "\"asyncapi\":\"3.0.0\"" ) );
-      assertTrue( payload.contains( "\"id\":\"application:id\"" ) );
-      assertTrue( payload.contains( "\"title\":\"ModelService MQTT API\"" ) );
-      assertTrue( payload.contains( "\"version\":\"v1\"" ) );
-      assertTrue( payload.contains( "\"defaultContentType\":\"application/json\"" ) );
-      assertTrue( payload.contains( "\"address\":\"foo/bar\"" ) );
+      assertTrue( payload.contains( "\"asyncapi\" : \"3.0.0\"" ) );
+      assertTrue( payload.contains( "\"id\" : \"application:id\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"ModelService MQTT API\"" ) );
+      assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
+      assertTrue( payload.contains( "\"defaultContentType\" : \"application/json\"" ) );
+      assertTrue( payload.contains( "\"address\" : \"foo/bar\"" ) );
    }
 
    @Test

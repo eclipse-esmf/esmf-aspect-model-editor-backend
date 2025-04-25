@@ -13,8 +13,12 @@
 
 package org.eclipse.esmf.ame;
 
-import io.micronaut.runtime.Micronaut;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
+import io.micronaut.runtime.Micronaut;
+import io.micronaut.serde.annotation.SerdeImport;
+
+@SerdeImport( AspectModelUrn.class )
 public class Application {
    public static void main( final String[] args ) {
       Micronaut.run( Application.class, args );

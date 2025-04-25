@@ -1,45 +1,22 @@
-/*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
- *
- * See the AUTHORS file(s) distributed with this work for
- * additional information regarding authorship.
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * SPDX-License-Identifier: MPL-2.0
- */
-
 package org.eclipse.esmf.ame.validation.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.micronaut.core.annotation.Introspected;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotNull;
 
 @Serdeable
-@Introspected
-public class ViolationReport {
-
-   @NotNull
-   private List<ViolationError> violationErrors;
-
+@JsonInclude( JsonInclude.Include.ALWAYS )
+public record ViolationReport
+      ( @JsonProperty( "violationErrors" ) List<ViolationError> violationErrors ) {
    public ViolationReport() {
-      this.violationErrors = new ArrayList<>();
-   }
-
-   public void addViolation( final ViolationError violationError ) {
-      this.violationErrors.add( violationError );
+      this( new ArrayList<>() );
    }
 
    public @NotNull List<ViolationError> getViolationErrors() {
       return violationErrors;
-   }
-
-   public void setViolationErrors( @NotNull final List<ViolationError> violationErrors ) {
-      this.violationErrors = violationErrors;
    }
 }

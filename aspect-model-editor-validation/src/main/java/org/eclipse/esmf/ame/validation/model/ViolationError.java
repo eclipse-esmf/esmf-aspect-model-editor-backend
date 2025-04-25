@@ -18,6 +18,8 @@ import java.util.List;
 
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotNull;
@@ -27,9 +29,16 @@ import jakarta.validation.constraints.NotNull;
 public class ViolationError {
 
    @NotNull
+   @JsonProperty( "message" )
    private String message;
+   @JsonInclude( JsonInclude.Include.NON_NULL )
+   @JsonProperty( "focusNode" )
    private AspectModelUrn focusNode;
+   @JsonInclude( JsonInclude.Include.NON_NULL )
+   @JsonProperty( "fix" )
    private List<String> fix = new ArrayList<>();
+   @JsonInclude( JsonInclude.Include.NON_NULL )
+   @JsonProperty( "errorCode" )
    private String errorCode;
 
    public ViolationError() {

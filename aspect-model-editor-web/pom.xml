@@ -47,5 +47,14 @@
          <groupId>org.apache.velocity</groupId>
          <artifactId>velocity-engine-core</artifactId>
       </dependency>
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-http-client</artifactId>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-inject</artifactId>
+      </dependency>
    </dependencies>
 </project>

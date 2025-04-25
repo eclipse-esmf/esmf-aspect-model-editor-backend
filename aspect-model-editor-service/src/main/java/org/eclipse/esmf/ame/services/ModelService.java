@@ -18,11 +18,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
@@ -33,6 +35,7 @@ import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.ame.validation.model.ViolationError;
+import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.ame.validation.utils.ValidationUtils;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
@@ -79,7 +82,8 @@ public class ModelService {
    }
 
    private AspectModel loadModelFromFile( final String filePath ) throws ModelResolutionException {
-      final String[] pathParts = filePath.split( "/" );
+      final Path path = Paths.get( filePath ).normalize();
+      final String[] pathParts = StreamSupport.stream( path.spliterator(), false ).map( Path::toString ).toArray( String[]::new );
       final Path aspectModelPath = constructModelPath( pathParts[0], pathParts[1], pathParts[2] );
       return aspectModelLoader.load( aspectModelPath.toFile() );
    }
@@ -120,25 +124,16 @@ public class ModelService {
    }
 
    public void deleteModel( final String aspectModelUrn ) {
-      try {
-         final AspectModel aspectModel = aspectModelLoader.load( AspectModelUrn.fromUrn( aspectModelUrn ) );
-         aspectModel.files().iterator().next().sourceLocation().ifPresent( uri -> {
-            try {
-               ModelUtils.deleteEmptyFiles( new File( uri ) );
-            } catch ( final Exception e ) {
-               LOG.error( "Failed to delete empty files: {}", e.getMessage() );
-            }
-         } );
-      } catch ( final Exception e ) {
-         LOG.error( "Failed to load AspectModel: {}", e.getMessage() );
-      }
+      final Path filePath = ModelUtils.resolvePathFromUrn( aspectModelUrn, modelPath );
+      ModelUtils.deleteEmptyFiles( filePath.toFile() );
    }
 
-   public List<ViolationError> validateModel( final String turtleData ) {
+   public ViolationReport validateModel( final String turtleData ) {
       final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
       final Supplier<AspectModel> aspectModelSupplier = () -> aspectModelLoader.load( inputStream );
       final List<Violation> violations = aspectModelValidator.validateModel( aspectModelSupplier );
-      return ValidationUtils.violationErrors( aspectModelSupplier, violations );
+      final List<ViolationError> violationErrors = ValidationUtils.violationErrors( aspectModelSupplier, violations );
+      return new ViolationReport( violationErrors );
    }
 
    public String migrateModel( final String turtleData ) {

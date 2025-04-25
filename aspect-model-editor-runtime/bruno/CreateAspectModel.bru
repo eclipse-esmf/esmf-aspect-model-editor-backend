@@ -110,3 +110,8 @@ body:text {
      samm-c:unit unit:metre .
   
 }
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);})
+}
