@@ -43,11 +43,6 @@
          <groupId>org.eclipse.esmf</groupId>
          <artifactId>esmf-aspect-model-validator</artifactId>
       </dependency>
-      <!--      <dependency>-->
-      <!--         <groupId>org.eclipse.digitaltwin.aas4j</groupId>-->
-      <!--         <artifactId>aas4j-dataformat-core</artifactId>-->
-      <!--         <version>1.0.2</version>-->
-      <!--      </dependency>-->
 
       <!-- Third party dependencies -->
       <dependency>
@@ -61,6 +56,11 @@
       <dependency>
          <groupId>io.micronaut</groupId>
          <artifactId>micronaut-http-server-netty</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-http-client</artifactId>
+         <scope>compile</scope>
       </dependency>
       <dependency>
          <groupId>io.micronaut</groupId>
@@ -89,16 +89,19 @@
          <groupId>jakarta.validation</groupId>
          <artifactId>jakarta.validation-api</artifactId>
       </dependency>
-      <!--      <dependency>-->
-      <!--         <groupId>org.bouncycastle</groupId>-->
-      <!--         <artifactId>bcpkix-jdk15on</artifactId>-->
-      <!--         <version>1.70</version>-->
-      <!--      </dependency>-->
-      <!--      <dependency>-->
-      <!--         <groupId>com.fasterxml.jackson.core</groupId>-->
-      <!--         <artifactId>jackson-databind</artifactId>-->
-      <!--         <version>2.17.2</version>-->
-      <!--      </dependency>-->
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
+         <version>5.11.3</version>
+         <scope>test</scope>
+      </dependency>
+
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-params</artifactId>
+         <version>5.11.3</version>
+         <scope>test</scope>
+      </dependency>
 
       <!-- Third party testing dependencies -->
       <dependency>
@@ -226,6 +229,52 @@
          <build>
             <plugins>
                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-clean-plugin</artifactId>
+                  <inherited>false</inherited>
+                  <configuration>
+                     <filesets>
+                        <fileset>
+                           <directory>${relative-native-config-path}</directory>
+                        </fileset>
+                     </filesets>
+                  </configuration>
+               </plugin>
+
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <configuration>
+                     <skip>false</skip>
+                     <argLine>-agentlib:native-image-agent=config-merge-dir=${native-config-path}</argLine>
+                  </configuration>
+               </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-antrun-plugin</artifactId>
+                  <version>3.1.0</version>
+                  <executions>
+                     <execution>
+                        <id>copy-native-configs</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                           <goal>run</goal>
+                        </goals>
+                        <configuration>
+                           <target>
+                              <copy todir="${native-config-path}">
+                                 <fileset dir="${native-config-dir-service}">
+                                    <include name="**/*"/>
+                                 </fileset>
+                              </copy>
+                              <echo message="Native configuration files have been copied to ${native-config-path}."/>
+                           </target>
+                        </configuration>
+                     </execution>
+                  </executions>
+               </plugin>
+
+               <plugin>
                   <groupId>org.codehaus.mojo</groupId>
                   <artifactId>exec-maven-plugin</artifactId>
                   <executions>
@@ -251,11 +300,9 @@
                            <goal>java</goal>
                         </goals>
                         <configuration>
-                           <!-- The main class of your build-time scanning code -->
                            <mainClass>org.eclipse.esmf.ame.buildtime.CustomizeGraalVmConfigs</mainClass>
-                           <!-- Pass the native image configs directory as a commandline param -->
                            <arguments combine.self="override">
-                              <argument>${native-config-path}</argument>
+                              <argument>${relative-native-config-path}</argument>
                            </arguments>
                            <cleanupDaemonThreads>false</cleanupDaemonThreads>
                         </configuration>
@@ -297,6 +344,7 @@
                         <arg>-H:+ReportExceptionStackTraces</arg>
                         <arg>-J-XX:MaxRAMPercentage=90.0</arg>
                         <arg>-J-XX:GCTimeRatio=19</arg>
+                        <arg>-H:IncludeResourceBundles=org.apache.jena.ext.xerces.impl.msg.XMLSchemaMessages</arg>
                         <arg>-J--add-exports=java.desktop/sun.awt=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=java.desktop/sun.font=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=org.graalvm.sdk/org.graalvm.nativeimage.impl=ALL-UNNAMED</arg>
@@ -422,7 +470,7 @@
                            <target>
                               <replaceregexp
                                     file="${project.build.outputDirectory}/${postman.directory}/${postman.test.environment}"
-                                    match="9091" replace="${integration-test-port}" byline="true"/>
+                                    match="9090" replace="${integration-test-port}" byline="true"/>
                            </target>
                         </configuration>
                         <goals>
@@ -434,7 +482,6 @@
             </plugins>
          </build>
       </profile>
-
       <profile>
          <id>start-windows-native-image-for-integration-tests</id>
          <build>
@@ -473,7 +520,6 @@
             </plugins>
          </build>
       </profile>
-
       <profile>
          <id>start-unix-native-image-for-integration-tests</id>
          <build>
@@ -547,7 +593,6 @@
             </plugins>
          </build>
       </profile>
-
       <profile>
          <id>run-postman-integration-tests</id>
          <build>

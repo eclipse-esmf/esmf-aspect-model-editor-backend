@@ -51,6 +51,7 @@ import org.eclipse.esmf.aspectmodel.serializer.AspectSerializer;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.metamodel.AspectModel;
 
+import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.http.multipart.StreamingFileUpload;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
@@ -93,10 +94,10 @@ public class PackageService {
       }
    }
 
-   public Map<String, List<Version>> importPackage( final StreamingFileUpload zipFile, final List<String> filesToImport,
+   public Map<String, List<Version>> importPackage( final CompletedFileUpload zipFile, final List<String> filesToImport,
          final Path storagePath ) {
-      try ( final InputStream inputStream = zipFile.asInputStream() ) {
-         final AspectModel aspectModel = loadNamespacePackage( inputStream );
+      try {
+         final AspectModel aspectModel = loadNamespacePackage( zipFile.getInputStream() );
          final AspectChangeManager changeManager = createAspectChangeManager( aspectModel );
          final List<AspectModelFile> filesToModify = new ArrayList<>( aspectModel.files() );
 
@@ -108,7 +109,7 @@ public class PackageService {
                      .anyMatch( filePath -> aspectModelFile.sourceLocation().toString().contains( filePath ) ) );
 
          final Stream<URI> uriStream = aspectModelFileStream.map( aspectModelFile -> {
-                  //TODO adjust this but this is the way
+                  //TODO adjust this but this is the way or refactor ...
                   Paths.get( aspectModelFile.sourceLocation().get() ).toFile().getParentFile().mkdirs();
 
                   AspectSerializer.INSTANCE.write( aspectModelFile );
@@ -132,17 +133,22 @@ public class PackageService {
 
          while ( ( entry = zis.getNextEntry() ) != null ) {
             final Path tempFilePath = tempDir.resolve( entry.getName() );
-            Files.createDirectories( tempFilePath.getParent() );
 
-            try ( final FileOutputStream fos = new FileOutputStream( tempFilePath.toFile() ) ) {
-               final byte[] buffer = new byte[1024];
-               int len;
-               while ( ( len = zis.read( buffer ) ) > 0 ) {
-                  fos.write( buffer, 0, len );
-               }
+            if ( Files.notExists( tempFilePath.getParent() ) ) {
+               Files.createDirectories( tempFilePath.getParent() );
             }
 
-            aspectModelFiles.add( tempFilePath.toFile() );
+            if ( tempFilePath.toFile().getName().endsWith( ".ttl" ) ) {
+               try ( final FileOutputStream fos = new FileOutputStream( tempFilePath.toFile() ) ) {
+                  final byte[] buffer = new byte[1024];
+                  int len;
+                  while ( ( len = zis.read( buffer ) ) > 0 ) {
+                     fos.write( buffer, 0, len );
+                  }
+               }
+
+               aspectModelFiles.add( tempFilePath.toFile() );
+            }
          }
 
          zis.closeEntry();

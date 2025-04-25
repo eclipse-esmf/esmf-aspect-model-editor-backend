@@ -74,7 +74,8 @@ public class GenerateService {
 
       final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-      final DocumentationGenerationConfig config = DocumentationGenerationConfigBuilder.builder().build();
+      final DocumentationGenerationConfig config = DocumentationGenerationConfigBuilder.builder()
+            .locale( Locale.forLanguageTag( language ) ).build();
       final AspectModelDocumentationGenerator generator = new AspectModelDocumentationGenerator( aspectModel.aspect(), config );
 
       generator.generate( artifactName -> byteArrayOutputStream );

@@ -48,7 +48,15 @@ class GenerateServiceTest {
 
    private final String model = "ModelService.ttl";
 
-   //TODO Maybe create a Test for HTML creation if still needed to increase coverage
+   @Test
+   void testAspectModelHtmlDocumentation() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final byte[] payload = generateService.generateHtmlDocument( testModel, "en" );
+
+      assertTrue( new String( payload, StandardCharsets.UTF_8 ).contains( "<!doctype html>" ) );
+   }
 
    @Test
    void testAspectModelJsonSample() throws IOException {

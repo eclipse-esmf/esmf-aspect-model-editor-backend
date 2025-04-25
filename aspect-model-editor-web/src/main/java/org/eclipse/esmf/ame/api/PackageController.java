@@ -35,6 +35,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Part;
 import io.micronaut.http.annotation.Produces;
+import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.http.multipart.StreamingFileUpload;
 import org.apache.commons.io.FilenameUtils;
 
@@ -88,7 +89,7 @@ public class PackageController {
     * @return A HttpResponse indicating the result of the import operation.
     */
    @Get( "/import" )
-   public HttpResponse<Map<String, List<Version>>> importPackage( @Part( "zipFile" ) final StreamingFileUpload zipFile,
+   public HttpResponse<Map<String, List<Version>>> importPackage( @Part( "zipFile" ) final CompletedFileUpload zipFile,
          @Body( "filesToImport" ) final List<String> filesToImport ) {
       final String extension = FilenameUtils.getExtension( zipFile.getFilename() );
 
