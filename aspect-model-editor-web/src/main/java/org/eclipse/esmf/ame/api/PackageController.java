@@ -36,7 +36,6 @@ import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Part;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.multipart.CompletedFileUpload;
-import io.micronaut.http.multipart.StreamingFileUpload;
 import org.apache.commons.io.FilenameUtils;
 
 /**
@@ -71,7 +70,7 @@ public class PackageController {
    }
 
    @Get( "/check-import" )
-   public HttpResponse<Map<String, List<Version>>> checkImportPackage( @Part( "zipFile" ) final StreamingFileUpload zipFile ) {
+   public HttpResponse<Map<String, List<Version>>> checkImportPackage( @Part( "zipFile" ) final CompletedFileUpload zipFile ) {
       final String extension = FilenameUtils.getExtension( zipFile.getFilename() );
 
       if ( !Objects.requireNonNull( extension ).equals( "zip" ) ) {

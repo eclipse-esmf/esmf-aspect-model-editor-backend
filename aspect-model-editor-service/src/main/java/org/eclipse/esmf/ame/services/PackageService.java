@@ -52,7 +52,6 @@ import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.metamodel.AspectModel;
 
 import io.micronaut.http.multipart.CompletedFileUpload;
-import io.micronaut.http.multipart.StreamingFileUpload;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,9 +79,9 @@ public class PackageService {
             .orElseThrow( () -> new FileNotFoundException( String.format( "No file found for %s", aspectModelUrn ) ) ).getContent();
    }
 
-   public Map<String, List<Version>> checkImportPackage( final StreamingFileUpload zipFile, final Path storagePath ) {
-      try ( final InputStream inputStream = zipFile.asInputStream() ) {
-         final AspectModel aspectModel = loadNamespacePackage( inputStream );
+   public Map<String, List<Version>> checkImportPackage( final CompletedFileUpload zipFile, final Path storagePath ) {
+      try {
+         final AspectModel aspectModel = loadNamespacePackage( zipFile.getInputStream() );
          final List<AspectModelFile> filesToProcess = new ArrayList<>( aspectModel.files() );
 
          final Stream<URI> uriStream = filesToProcess.stream()
@@ -201,7 +200,7 @@ public class PackageService {
       try {
          final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy.MM.dd-HH.mm.ss" );
          final String timestamp = sdf.format( new Timestamp( System.currentTimeMillis() ) );
-         final String zipFileName = modelPath.resolve( "backup" + timestamp + ".zip" ).toString();
+         final String zipFileName = modelPath.resolve( "backup-" + timestamp + ".zip" ).toString();
 
          try ( final ZipOutputStream zos = new ZipOutputStream( new FileOutputStream( zipFileName ) );
                final Stream<Path> paths = Files.walk( modelPath ) ) {
