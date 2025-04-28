@@ -33,6 +33,9 @@ import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException
 
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
+import io.micronaut.context.annotation.Property;
+import io.micronaut.context.annotation.Replaces;
+import io.micronaut.context.annotation.Requires;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -135,20 +138,24 @@ class ModelServiceTest {
 }
 
 @MicronautTest
+@Property( name = "test.config", value = "special" )
 class ModelServiceSpecialTest {
    @Inject
    private ModelService modelService;
 
    @Factory
+   @Requires( property = "test.config", value = "special" )
    static class TestConfigOverride {
       @Bean
       @Singleton
+      @Replaces( bean = AspectModelLoader.class )
       public AspectModelLoader aspectModelLoader() {
          return new AspectModelLoader( new FileSystemStrategy( modelPath() ) );
       }
 
       @Bean
       @Singleton
+      @Replaces( bean = Path.class )
       public Path modelPath() {
          return Path.of( "src", "test", "resources", "services", "workspace-to-migrate" ).toAbsolutePath();
       }
