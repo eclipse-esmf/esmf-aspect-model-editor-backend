@@ -59,8 +59,6 @@ class PackageServiceTest {
    private static final String NAMESPACE_VERSION = SAMM_URN + ":" + EXPORT_NAMESPACE + ":" + VERSION;
 
    private static final String FILE_ONE = "TestFileOne";
-   private static final String FILE_TWO = "TestFileTwo";
-   private static final String FILE_THREE = "TestFileThree";
 
    @Test
    void testExportAspectModelPackage() {

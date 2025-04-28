@@ -20,7 +20,8 @@
    samm:operations ( ) .
 
 :property a samm:Property ;
-   samm:characteristic :Characteristic .
+   samm:characteristic :Characteristic ;
+   samm:dataType xsd:string .
 
 :Characteristic a samm:Characteristic ;
    samm:dataType xsd:string .
