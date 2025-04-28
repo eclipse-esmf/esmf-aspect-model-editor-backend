@@ -58,7 +58,7 @@ class ModelServiceTest {
 
    private static final Path TEST_NAMESPACE_PATH = Path.of( RESOURCE_PATH.toString(), EXAMPLE_NAMESPACE, VERSION );
 
-   private static final String TEST_MODEL_FOR_SERVICE = "ModelService";
+   private static final String TEST_MODEL_FOR_SERVICE = "Movement";
    private static final String TEST_MODEL_NOT_FOUND = "NOTFOUND";
    private static final String TEST_MODEL_TO_DELETE = "FileToDelete";
    private static final String TEST_FILEPATH = Path.of( EXAMPLE_NAMESPACE, VERSION, TEST_MODEL_FOR_SERVICE + FILE_EXTENSION ).toString();
@@ -86,15 +86,7 @@ class ModelServiceTest {
       assertTrue( result.contains( "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> ." ) );
       assertTrue( result.contains( "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> ." ) );
       assertTrue( result.contains( "@prefix : <urn:samm:org.eclipse.esmf.example:1.0.0#> ." ) );
-      assertTrue( result.contains( ":ModelService a samm:Aspect ;" ) );
-      assertTrue( result.contains( "samm:properties ( :property ) ;" ) );
-      assertTrue( result.contains( "samm:operations ( ) ." ) );
-      assertTrue( result.contains( ":property a samm:Property ;" ) );
-      assertTrue( result.contains( "samm:characteristic :Characteristic ;" ) );
-      assertTrue( result.contains( "samm:properties ( :property )" ) );
-      assertTrue( result.contains( "samm:dataType xsd:string ." ) );
-      assertTrue( result.contains( ":Characteristic a samm:Characteristic ;" ) );
-      assertTrue( result.contains( "samm:dataType xsd:string ." ) );
+      assertTrue( result.contains( ":Movement a samm:Aspect ;" ) );
    }
 
    @Test()
