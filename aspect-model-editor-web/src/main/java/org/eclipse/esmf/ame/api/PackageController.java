@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.services.PackageService;
@@ -69,17 +68,6 @@ public class PackageController {
             .body( packageService.exportPackage( aspectModelUrn ) ).contentType( MediaType.APPLICATION_ZIP );
    }
 
-   @Get( "/check-import" )
-   public HttpResponse<Map<String, List<Version>>> checkImportPackage( @Part( "zipFile" ) final CompletedFileUpload zipFile ) {
-      final String extension = FilenameUtils.getExtension( zipFile.getFilename() );
-
-      if ( !Objects.requireNonNull( extension ).equals( "zip" ) ) {
-         throw new FileReadException( "The file you selected is not in ZIP format." );
-      }
-
-      return HttpResponse.ok( packageService.checkImportPackage( zipFile, ApplicationSettings.getMetaModelStoragePath() ) );
-   }
-
    /**
     * Imports a zip file containing Aspect Models.
     *
@@ -100,7 +88,7 @@ public class PackageController {
          throw new NullPointerException( "Files to import should be set." );
       }
 
-      return HttpResponse.ok( packageService.importPackage( zipFile, filesToImport, ApplicationSettings.getMetaModelStoragePath() ) );
+      return HttpResponse.ok( packageService.importPackage( zipFile, filesToImport ) );
    }
 
    /**

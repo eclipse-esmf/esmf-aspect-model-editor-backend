@@ -64,7 +64,7 @@
       <os.platform/>
 
       <!-- Internal esmf dependencies -->
-      <esmf-sdk-version>2.9.10</esmf-sdk-version>
+      <esmf-sdk-version>2.10.2</esmf-sdk-version>
 
       <!-- Versions of third party dependencies -->
       <micronaut.version>4.7.6</micronaut.version>
@@ -81,7 +81,7 @@
       <mockito-inline-version>5.1.1</mockito-inline-version>
       <cglib-version>3.3.0</cglib-version>
       <classworlds-version>1.1</classworlds-version>
-      <graalvm.version>${graal.version}</graalvm.version>
+      <graalvm.version>24.1.2</graalvm.version>
       <jakarta-validation-api-version>3.0.2</jakarta-validation-api-version>
       <jakarta-version>6.0.0</jakarta-version>
       <commons-lang-version>3.12.0</commons-lang-version>
@@ -136,9 +136,9 @@
       <postman.test.environment>ame.postman_environment.json</postman.test.environment>
       <postman.test.collection>ame.postman_collection.json</postman.test.collection>
 
-      <java.version>17</java.version>
-      <maven.compiler.source>17</maven.compiler.source>
-      <maven.compiler.target>17</maven.compiler.target>
+      <java.version>21</java.version>
+      <maven.compiler.source>21</maven.compiler.source>
+      <maven.compiler.target>21</maven.compiler.target>
 
       <sonar.coverage.jacoco.xmlReportPaths>
          ${project.basedir}/target/site/jacoco-aggregate/jacoco.xml

@@ -14,7 +14,6 @@
 package org.eclipse.esmf.ame.services;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,13 +27,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
-
-import org.eclipse.esmf.ame.services.models.Version;
 
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.MediaType;
@@ -79,17 +75,6 @@ class PackageServiceTest {
    }
 
    @Test
-   void testcheckImportPackage() throws IOException {
-      final Path zipFilePath = Paths.get( RESOURCE_PATH.toString(), "TestArchive.zip" );
-      final byte[] testPackage = Files.readAllBytes( zipFilePath );
-
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.zip", testPackage, MediaType.APPLICATION_PDF_TYPE );
-      final Map<String, List<Version>> checkImportPackage = packageService.checkImportPackage( mockedZipFile,
-            RESOURCE_PATH.toAbsolutePath() );
-      assertEquals( 2, checkImportPackage.size() );
-   }
-
-   @Test
    void testImportAspectModelPackage() throws IOException {
       final Path zipFilePath = Paths.get( RESOURCE_PATH.toString(), "TestArchive.zip" );
       final byte[] testPackage = Files.readAllBytes( zipFilePath );
@@ -97,14 +82,14 @@ class PackageServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.zip", testPackage, MediaType.APPLICATION_PDF_TYPE );
 
       packageService.importPackage( mockedZipFile,
-            List.of( "org.eclipse.esmf.example/1.0.0/Esmf.ttl", "org.eclipse.esmf.test/1.0.0/Movement.ttl" ),
-            RESOURCE_PATH.toAbsolutePath() );
+            List.of( "org.eclipse.esmf.example/1.0.0/Esmf.ttl", "org.eclipse.esmf.test/1.0.0/Movement.ttl" ) );
 
       try ( final ZipInputStream zis = new ZipInputStream( new ByteArrayInputStream( testPackage ) ) ) {
          ZipEntry entry;
          while ( ( entry = zis.getNextEntry() ) != null ) {
             if ( !entry.isDirectory() && entry.getName().endsWith( FILE_EXTENSION ) ) {
                final Path extractedFilePath = RESOURCE_PATH.resolve( entry.getName() );
+               System.out.println( extractedFilePath );
                assertTrue( Files.exists( extractedFilePath ), "File " + entry.getName() + " should exist" );
             }
          }

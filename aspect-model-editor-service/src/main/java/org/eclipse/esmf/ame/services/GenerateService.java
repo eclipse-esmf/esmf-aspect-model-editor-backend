@@ -29,6 +29,7 @@ import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.ame.services.utils.ZipUtils;
 import org.eclipse.esmf.aspectmodel.aas.AasFileFormat;
+import org.eclipse.esmf.aspectmodel.aas.AasGenerationConfigBuilder;
 import org.eclipse.esmf.aspectmodel.aas.AspectModelAasGenerator;
 import org.eclipse.esmf.aspectmodel.generator.asyncapi.AspectModelAsyncApiGenerator;
 import org.eclipse.esmf.aspectmodel.generator.asyncapi.AsyncApiSchemaArtifact;
@@ -107,36 +108,30 @@ public class GenerateService {
       final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
       final AspectModel aspectModel = aspectModelLoader.load( inputStream );
 
-      final AspectModelAasGenerator generator = new AspectModelAasGenerator();
-      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      final AspectModelAasGenerator generator = new AspectModelAasGenerator( aspectModel.aspect(),
+            AasGenerationConfigBuilder.builder().format( AasFileFormat.AASX ).build() );
 
-      generator.generate( AasFileFormat.AASX, aspectModel.aspect(), name -> outputStream );
-
-      return outputStream.toString( StandardCharsets.UTF_8 );
+      return new String( generator.getContent() );
    }
 
    public String generateAasXmlFile( final String turtleData ) {
       final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
       final AspectModel aspectModel = aspectModelLoader.load( inputStream );
 
-      final AspectModelAasGenerator generator = new AspectModelAasGenerator();
-      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      final AspectModelAasGenerator generator = new AspectModelAasGenerator( aspectModel.aspect(),
+            AasGenerationConfigBuilder.builder().format( AasFileFormat.XML ).build() );
 
-      generator.generate( AasFileFormat.XML, aspectModel.aspect(), name -> outputStream );
-
-      return outputStream.toString( StandardCharsets.UTF_8 );
+      return new String( generator.getContent() );
    }
 
    public String generateAasJsonFile( final String turtleData ) {
       final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
       final AspectModel aspectModel = aspectModelLoader.load( inputStream );
 
-      final AspectModelAasGenerator generator = new AspectModelAasGenerator();
-      final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      final AspectModelAasGenerator generator = new AspectModelAasGenerator( aspectModel.aspect(),
+            AasGenerationConfigBuilder.builder().format( AasFileFormat.JSON ).build() );
 
-      generator.generate( AasFileFormat.JSON, aspectModel.aspect(), name -> outputStream );
-
-      return outputStream.toString( StandardCharsets.UTF_8 );
+      return new String( generator.getContent() );
    }
 
    public String generateYamlOpenApiSpec( final String turtleData, final OpenApiSchemaGenerationConfig config ) {

@@ -344,6 +344,7 @@
                         <arg>-H:+ReportExceptionStackTraces</arg>
                         <arg>-J-XX:MaxRAMPercentage=90.0</arg>
                         <arg>-J-XX:GCTimeRatio=19</arg>
+                        <arg>--features=org.eclipse.esmf.ame.nativefeatures.AmeFeature</arg>
                         <arg>-H:IncludeResourceBundles=org.apache.jena.ext.xerces.impl.msg.XMLSchemaMessages</arg>
                         <arg>-J--add-exports=java.desktop/sun.awt=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=java.desktop/sun.font=ALL-UNNAMED</arg>

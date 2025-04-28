@@ -2,7 +2,6 @@ package org.eclipse.esmf.ame.exceptions;
 
 import org.eclipse.esmf.ame.model.ErrorResponse;
 import org.eclipse.esmf.aspectmodel.AspectLoadingException;
-import org.eclipse.esmf.aspectmodel.resolver.exceptions.InvalidNamespaceException;
 
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -39,7 +38,7 @@ public class GlobalExceptionHandler implements ExceptionHandler<RuntimeException
          return HttpStatus.NOT_FOUND;
       } else if ( e instanceof FileWriteException || e instanceof GenerationException ) {
          return HttpStatus.BAD_REQUEST;
-      } else if ( e instanceof AspectLoadingException || e instanceof InvalidNamespaceException || e instanceof InvalidAspectModelException
+      } else if ( e instanceof AspectLoadingException || e instanceof InvalidAspectModelException
             || e instanceof FileReadException ) {
          return HttpStatus.CONFLICT;
       } else {

@@ -81,7 +81,7 @@ class ModelServiceTest {
    @Test
    void testGetModel() throws ModelResolutionException {
       final String result = modelService.getModel( NAMESPACE_VERSION + "#" + TEST_MODEL_FOR_SERVICE, TEST_FILEPATH );
-      assertTrue( result.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#> ." ) );
+      assertTrue( result.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> ." ) );
       assertTrue( result.contains( "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ." ) );
       assertTrue( result.contains( "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> ." ) );
       assertTrue( result.contains( "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> ." ) );
@@ -125,7 +125,7 @@ class ModelServiceTest {
    }
 
    public void checkMigratedModel( final String migratedModel ) {
-      assertTrue( migratedModel.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#>" ) );
    }
 }
 
@@ -218,7 +218,7 @@ class ModelServiceSpecialTest {
    }
 
    public void checkMigratedModel( final String migratedModel ) {
-      assertTrue( migratedModel.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.1.0#>" ) );
+      assertTrue( migratedModel.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#>" ) );
    }
 }
 

@@ -42,6 +42,10 @@ public class AdminShellConfig {
    public Set<Class> interfaces;
    public List<Class<Enum>> enums;
    public Set<Class<?>> interfacesWithoutDefaultImplementation;
+   public Set<Class<?>> classesInModelPackage;
+   public Set<Class<?>> classesInDefaultImplementationPackage;
+   public Set<Class<?>> classesInJsonMixinsPackage;
+   public Set<Class<?>> classesInXmlMixinsPackage;
 
    private final String prefix;
    private final String typesWithModelTypeString;
@@ -52,6 +56,10 @@ public class AdminShellConfig {
    private final String interfacesString;
    private final String enumsString;
    private final String interfacesWithoutDefaultImplementationString;
+   private final String classesInModelPackageString;
+   private final String classesInDefaultImplementationPackageString;
+   private final String classesInJsonMixinsPackageString;
+   private final String classesInXmlMixinsPackageString;
 
    public AdminShellConfig() {
       prefix = AdminShellConfig.class.getPackageName() + ".adminshell.";
@@ -63,6 +71,10 @@ public class AdminShellConfig {
       interfacesString = prefix + "interfaces";
       enumsString = prefix + "enums";
       interfacesWithoutDefaultImplementationString = prefix + "interfacesWithoutDefaultImplementation";
+      classesInModelPackageString = prefix + "classesInModelPackage";
+      classesInDefaultImplementationPackageString = prefix + "classesInDefaultImplementationPackage";
+      classesInJsonMixinsPackageString = prefix + "classesInJsonMixinsPackage";
+      classesInXmlMixinsPackageString = prefix + "classesInXmlMixinsPackage";
    }
 
    private String serialize( final Class<?> clazz ) {
@@ -70,7 +82,7 @@ public class AdminShellConfig {
    }
 
    private <T, C extends Collection<T>> String serialize( final C collection, final Function<T, String> mapper ) {
-      return collection.stream().map( mapper::apply ).collect( Collectors.joining( "," ) );
+      return collection.stream().map( mapper ).collect( Collectors.joining( "," ) );
    }
 
    private <K, V> String serialize( final Map<K, V> map, final Function<K, String> keyMapper, final Function<V, String> valueMapper ) {
@@ -95,6 +107,11 @@ public class AdminShellConfig {
       properties.setProperty( enumsString, serialize( enums, this::serialize ) );
       properties.setProperty( interfacesWithoutDefaultImplementationString,
             serialize( interfacesWithoutDefaultImplementation, this::serialize ) );
+      properties.setProperty( classesInModelPackageString, serialize( classesInModelPackage, this::serialize ) );
+      properties.setProperty( classesInDefaultImplementationPackageString,
+            serialize( classesInDefaultImplementationPackage, this::serialize ) );
+      properties.setProperty( classesInJsonMixinsPackageString, serialize( classesInJsonMixinsPackage, this::serialize ) );
+      properties.setProperty( classesInXmlMixinsPackageString, serialize( classesInXmlMixinsPackage, this::serialize ) );
       return properties;
    }
 
@@ -154,6 +171,15 @@ public class AdminShellConfig {
       config.interfacesWithoutDefaultImplementation = deserializeCollection(
             properties.getProperty( config.interfacesWithoutDefaultImplementationString ),
             AdminShellConfig::deserializeClass, Collectors.toSet() );
+      config.classesInModelPackage = deserializeCollection( properties.getProperty( config.classesInModelPackageString ),
+            AdminShellConfig::deserializeClass, Collectors.toSet() );
+      config.classesInDefaultImplementationPackage = deserializeCollection(
+            properties.getProperty( config.classesInDefaultImplementationPackageString ), AdminShellConfig::deserializeClass,
+            Collectors.toSet() );
+      config.classesInJsonMixinsPackage = deserializeCollection(
+            properties.getProperty( config.classesInJsonMixinsPackageString ), AdminShellConfig::deserializeClass, Collectors.toSet() );
+      config.classesInXmlMixinsPackage = deserializeCollection(
+            properties.getProperty( config.classesInXmlMixinsPackageString ), AdminShellConfig::deserializeClass, Collectors.toSet() );
       return config;
    }
 
