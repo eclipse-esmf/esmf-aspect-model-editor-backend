@@ -27,7 +27,7 @@
 :speed a samm:Property ;
    samm:preferredName "speed"@en ;
    samm:description "speed of vehicle"@en ;
-   samm:exampleValue "-1.9556407E38"^^xsd:decimal ;
+   samm:exampleValue "-1.9556407E38"^^xsd:float ;
    samm:characteristic :Speed .
 
 :speedLimitWarning a samm:Property ;
