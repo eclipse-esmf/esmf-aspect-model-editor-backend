@@ -37,6 +37,9 @@ import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.ame.validation.utils.ValidationUtils;
+import org.eclipse.esmf.aspectmodel.edit.AspectChangeManager;
+import org.eclipse.esmf.aspectmodel.edit.change.CopyFileWithIncreasedNamespaceVersion;
+import org.eclipse.esmf.aspectmodel.edit.change.IncreaseVersion;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
 import org.eclipse.esmf.aspectmodel.serializer.AspectSerializer;
@@ -159,14 +162,12 @@ public class ModelService {
       return new ModelGroupingUtils( this.modelPath ).groupModelsByNamespaceAndVersion( uriStream );
    }
 
-   public MigrationResult migrateWorkspace() {
+   public MigrationResult migrateWorkspace( final boolean setNewVersion ) {
       final List<String> errors = new ArrayList<>();
-
-      // TODO something like this ... final Stream<URI> uriStream = aspectModelLoader.listContentsForNamespace(null);
 
       try {
          getAllNamespaces().forEach(
-               ( namespace, versions ) -> versions.forEach( version -> processVersion( namespace, version, errors ) ) );
+               ( namespace, versions ) -> versions.forEach( version -> processVersion( namespace, version, setNewVersion, errors ) ) );
          return new MigrationResult( true, errors );
       } catch ( final Exception e ) {
          errors.add( e.getMessage() );
@@ -174,15 +175,55 @@ public class ModelService {
       }
    }
 
-   private void processVersion( final String namespace, final Version version, final List<String> errors ) {
+   private void processVersion( final String namespace, final Version version, final boolean setNewVersion, final List<String> errors ) {
       version.getModels().forEach( model -> {
          try {
             final Path aspectModelPath = constructModelPath( namespace, version.getVersion(), model.getModel() );
             final AspectModel aspectModel = aspectModelLoader.load( aspectModelPath.toFile() );
-            aspectModel.files().forEach( AspectSerializer.INSTANCE::write );
+
+            if ( setNewVersion ) {
+               applyNamespaceVersionChange( aspectModel );
+            }
+
+            saveAspectModelFiles( aspectModel, setNewVersion );
          } catch ( final Exception e ) {
             errors.add( String.format( "Error processing model: %s", model.getModel() ) );
          }
+      } );
+   }
+
+   private void applyNamespaceVersionChange( final AspectModel aspectModel ) {
+      final AspectChangeManager aspectChangeManager = new AspectChangeManager( aspectModel );
+      final CopyFileWithIncreasedNamespaceVersion changes = new CopyFileWithIncreasedNamespaceVersion(
+            aspectModel.files().get( 0 ), IncreaseVersion.MAJOR
+      );
+      aspectChangeManager.applyChange( changes );
+   }
+
+   private void saveAspectModelFiles( final AspectModel aspectModel, final boolean setNewVersion ) throws IOException {
+      aspectModel.files().forEach( aspectModelFile -> {
+         aspectModelFile.sourceLocation().ifPresent( sourceLocation -> {
+            final File file = new File( sourceLocation );
+            try {
+               if ( !setNewVersion ) {
+                  AspectSerializer.INSTANCE.write( aspectModelFile );
+                  return;
+               }
+
+               if ( file.exists() ) {
+                  return;
+               }
+
+               final File parent = file.getParentFile();
+               if ( !parent.exists() && !parent.mkdirs() ) {
+                  throw new IOException( "Failed to create directories for: " + parent );
+               }
+
+               AspectSerializer.INSTANCE.write( aspectModelFile );
+            } catch ( final IOException e ) {
+               throw new RuntimeException( "Error saving aspect model file: " + sourceLocation, e );
+            }
+         } );
       } );
    }
 

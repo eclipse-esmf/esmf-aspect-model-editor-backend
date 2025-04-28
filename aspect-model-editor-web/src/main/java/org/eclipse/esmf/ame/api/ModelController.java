@@ -36,6 +36,7 @@ import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
+import io.micronaut.http.annotation.QueryValue;
 
 /**
  * Controller class where all the requests are mapped. The RequestMapping for the class is "models".
@@ -152,11 +153,11 @@ public class ModelController {
    /**
     * This method migrates all Aspect models in the workspace.
     *
+    * @param setNewVersion set new Version for Aspect Models
     * @return A list of Aspect Models that are migrated or not.
     */
    @Get( uri = "migrate-workspace" )
-   public HttpResponse<MigrationResult> migrateWorkspace() {
-      //TODO maybe this would change to add the namespace to migrate ...
-      return HttpResponse.ok( modelService.migrateWorkspace() );
+   public HttpResponse<MigrationResult> migrateWorkspace( @QueryValue( defaultValue = "false" ) final boolean setNewVersion ) {
+      return HttpResponse.ok( modelService.migrateWorkspace( setNewVersion ) );
    }
 }
