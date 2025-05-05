@@ -40,8 +40,8 @@ jobs:
       - name: Setup graalvm ce
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.1'
-          java-version: '17'
+          version: '24.1.2'
+          java-version: '21'
           components: 'native-image,js'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -82,13 +82,13 @@ jobs:
 
       - name: Creating native image (Mac)
         if: matrix.os == 'macos-12'
-        run: mvn install -P native-image -DskipTests -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+        run: mvn install -P native-image,native-test-config -DskipTests -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Linux)
         if: matrix.os == 'ubuntu-20.04'
-        run: mvn install -P native-image -DskipTests -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+        run: mvn install -P native-image,native-test-config -DskipTests -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
 
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -99,7 +99,7 @@ jobs:
 
       - name: Creating native image (Win)
         if: matrix.os == 'windows-latest'
-        run: mvn install -P native-image -DskipTests -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
+        run: mvn install -P native-image,native-test-config -DskipTests -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
