@@ -20,3 +20,4 @@ backup*
 test-packages/
 .DS_Store
 src-gen/
+dependency-reduced-pom.xml
