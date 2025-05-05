@@ -541,7 +541,7 @@
                               <argument>cmd</argument>
                               <argument>/C</argument>
                               <argument>ame-backend-${project.version}-${os.platform}</argument>
-                              <argument>-Dserver.port=${integration-test-port}</argument>
+                              <argument>-Dmicronaut.server.port=${integration-test-port}</argument>
                            </arguments>
                         </configuration>
                      </execution>
