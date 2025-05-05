@@ -95,9 +95,8 @@
 
       <!-- Versions of plugins -->
       <junit-version>5.11.3</junit-version>
-      <npm-version>8.5.0</npm-version>
-      <newman-version>6.0.0</newman-version>
-      <node-version>16.14.2</node-version>
+      <npm-version>11.2.0</npm-version>
+      <node-version>22.14.0</node-version>
       <maven-clean-plugin-version>3.4.1</maven-clean-plugin-version>
       <exec-maven-plugin-version>3.0.0</exec-maven-plugin-version>
       <wagon-maven-plugin-version>1.0</wagon-maven-plugin-version>
@@ -117,7 +116,7 @@
 
       <!-- General settings -->
       <sourceDirectory>src/main/java</sourceDirectory>
-      <postman.directory>postman</postman.directory>
+      <bruno.directory>bruno</bruno.directory>
       <testreports.directory>test-reports</testreports.directory>
       <testreports.failsafe>failsafe-report</testreports.failsafe>
       <testreports.surefire>surefire-report</testreports.surefire>
@@ -136,8 +135,7 @@
       <native-config-dir-service>${maven.multiModuleProjectDirectory}/aspect-model-editor-service/target/native-config</native-config-dir-service>
       <native-config-path>${maven.multiModuleProjectDirectory}/${relative-native-config-path}</native-config-path>
 
-      <postman.test.environment>ame.postman_environment.json</postman.test.environment>
-      <postman.test.collection>ame.postman_collection.json</postman.test.collection>
+      <bruno.test.environment>AmeEnv.bru</bruno.test.environment>
 
       <jdk.version>21</jdk.version>
       <release.version>21</release.version>

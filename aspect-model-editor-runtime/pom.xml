@@ -433,32 +433,21 @@
                         </configuration>
                      </execution>
                      <execution>
-                        <id>install-newman</id>
+                        <id>install-bruno-cli</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                            <goal>npm</goal>
                         </goals>
                         <configuration>
                            <workingDirectory>${project.build.directory}</workingDirectory>
-                           <arguments>install . newman@${newman-version}</arguments>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>install-newman-reports</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                           <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                           <workingDirectory>${project.build.directory}</workingDirectory>
-                           <arguments>install newman-reporter-htmlextra</arguments>
+                           <arguments>install . @usebruno/cli</arguments>
                         </configuration>
                      </execution>
                   </executions>
                </plugin>
-               <!-- Copy Postman files into build directory.
+               <!-- Copy Bruno files into build directory.
                                   This is required so that the target URL may be dynamically
-                                  replaced within the Postman environment. -->
+                                  replaced within the Bruno environment. -->
                <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-resources-plugin</artifactId>
@@ -470,11 +459,11 @@
                            <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                           <outputDirectory>${project.build.outputDirectory}/${postman.directory}
+                           <outputDirectory>${project.build.outputDirectory}/${bruno.directory}
                            </outputDirectory>
                            <resources>
                               <resource>
-                                 <directory>${postman.directory}</directory>
+                                 <directory>${bruno.directory}</directory>
                               </resource>
                            </resources>
                         </configuration>
@@ -511,14 +500,14 @@
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-antrun-plugin</artifactId>
                   <executions>
-                     <!-- Adjust Postman environment target URL -->
+                     <!-- Adjust Bruno environment target URL -->
                      <execution>
-                        <id>adjust-postman-target-url</id>
+                        <id>adjust-bruno-target-url</id>
                         <phase>pre-integration-test</phase>
                         <configuration>
                            <target>
                               <replaceregexp
-                                    file="${project.build.outputDirectory}/${postman.directory}/${postman.test.environment}"
+                                    file="${project.build.outputDirectory}/${bruno.directory}/environments/${bruno.test.environment}"
                                     match="9090" replace="${integration-test-port}" byline="true"/>
                            </target>
                         </configuration>
@@ -573,43 +562,28 @@
          <id>start-unix-native-image-for-integration-tests</id>
          <build>
             <plugins>
-               <plugin>
-                  <groupId>org.codehaus.mojo</groupId>
-                  <artifactId>exec-maven-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>Add execution right´s on native-image</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                           <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                           <executable>chmod</executable>
-                           <arguments>
-                              <argument>755</argument>
-                              <argument>
-                                 ${project.build.directory}/ame-backend-${project.version}-${os.platform}
-                              </argument>
-                           </arguments>
-                        </configuration>
-                     </execution>
-                  </executions>
-               </plugin>
-               <plugin>
-                  <groupId>io.micronaut.maven</groupId>
-                  <artifactId>micronaut-maven-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>run</id>
-                        <goals>
-                           <goal>run</goal>
-                        </goals>
-                     </execution>
-                  </executions>
-                  <configuration>
-                     <mainClass>${main.class}</mainClass>
-                  </configuration>
-               </plugin>
+               <!--               <plugin>-->
+               <!--                  <groupId>org.codehaus.mojo</groupId>-->
+               <!--                  <artifactId>exec-maven-plugin</artifactId>-->
+               <!--                  <executions>-->
+               <!--                     <execution>-->
+               <!--                        <id>Add execution right´s on native-image</id>-->
+               <!--                        <phase>pre-integration-test</phase>-->
+               <!--                        <goals>-->
+               <!--                           <goal>exec</goal>-->
+               <!--                        </goals>-->
+               <!--                        <configuration>-->
+               <!--                           <executable>chmod</executable>-->
+               <!--                           <arguments>-->
+               <!--                              <argument>755</argument>-->
+               <!--                              <argument>-->
+               <!--                                 ${project.build.directory}/ame-backend-${project.version}-${os.platform}-->
+               <!--                              </argument>-->
+               <!--                           </arguments>-->
+               <!--                        </configuration>-->
+               <!--                     </execution>-->
+               <!--                  </executions>-->
+               <!--               </plugin>-->
                <plugin>
                   <groupId>com.bazaarvoice.maven.plugins</groupId>
                   <artifactId>process-exec-maven-plugin</artifactId>
@@ -625,7 +599,7 @@
                            <workingDir>${project.build.directory}</workingDir>
                            <arguments>
                               <argument>./ame-backend-${project.version}-${os.platform}</argument>
-                              <argument>-Dserver.port=${integration-test-port}</argument>
+                              <argument>-Dmicronaut.server.port=${integration-test-port}</argument>
                            </arguments>
                         </configuration>
                      </execution>
@@ -643,37 +617,27 @@
          </build>
       </profile>
       <profile>
-         <id>run-postman-integration-tests</id>
+         <id>run-bruno-integration-tests</id>
          <build>
             <plugins>
-               <!-- Run Postman collections against deployed integration instance -->
+               <!-- Run Bruno collections against deployed integration instance -->
                <plugin>
                   <groupId>org.codehaus.mojo</groupId>
                   <artifactId>exec-maven-plugin</artifactId>
                   <inherited>false</inherited>
                   <executions>
                      <execution>
-                        <id>run-postman-integration-tests</id>
+                        <id>run-bruno-integration-tests</id>
                         <phase>integration-test</phase>
                         <goals>
                            <goal>exec</goal>
                         </goals>
                         <configuration>
                            <executable>${node.path}</executable>
+                           <workingDirectory>${project.build.outputDirectory}/${bruno.directory}</workingDirectory>
                            <commandlineArgs>
-                              ${project.build.directory}/node_modules/newman/bin/newman.js
-                              run
-                              ${project.build.outputDirectory}/${postman.directory}/${postman.test.collection}
-                              -e
-                              ${project.build.outputDirectory}/${postman.directory}/${postman.test.environment}
-                              -n 1
-                              --timeout-request 60000
-                              --delay-request 1000
-                              --insecure
-                              -r cli,htmlextra
-                              --reporter-htmlextra-title "${project.name} ${project.version}"
-                              --reporter-htmlextra-export
-                              ${project.build.directory}/${testreports.directory}/${testreports.newman}
+                              ${project.build.directory}/node_modules/@usebruno/cli/bin/bru.js
+                              run . --env AmeEnv
                            </commandlineArgs>
                         </configuration>
                      </execution>
