@@ -16,7 +16,7 @@ package org.eclipse.esmf.ame;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.eclipse.esmf.ame.substitution.IsWindows;
+import org.eclipse.esmf.substitution.IsWindows;
 
 /**
  * Utility class providing helpers and workarounds needed to get the native image working properly on different platforms.
