@@ -49,8 +49,6 @@ import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
 
 import jakarta.inject.Singleton;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Service class for managing aspect models.
@@ -58,8 +56,6 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class ModelService {
-   private static final Logger LOG = LoggerFactory.getLogger( ModelService.class );
-
    private final AspectModelValidator aspectModelValidator;
    private final AspectModelLoader aspectModelLoader;
    private final Path modelPath;

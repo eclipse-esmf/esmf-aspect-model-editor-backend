@@ -25,5 +25,6 @@ tests {
   test("Body contains content", function(){
     let currentSammVersion = bru.getEnvVar("currentSammVersion");
     const body = res.getBody();
-    expect(body).to.contains("@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:" + currentSammVersion + "#> .")});
+    expect(body).to.contains(`@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:${currentSammVersion}#> .`)
+  });
 }
