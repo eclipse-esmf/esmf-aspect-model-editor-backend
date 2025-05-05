@@ -19,3 +19,4 @@ lsp
 backup*
 test-packages/
 .DS_Store
+src-gen/

@@ -81,26 +81,21 @@
          <scope>provided</scope>
       </dependency>
       <dependency>
+         <groupId>org.graalvm.nativeimage</groupId>
+         <artifactId>svm</artifactId>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
          <groupId>org.graalvm.truffle</groupId>
          <artifactId>truffle-api</artifactId>
-         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>jakarta.validation</groupId>
          <artifactId>jakarta.validation-api</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.junit.jupiter</groupId>
-         <artifactId>junit-jupiter-engine</artifactId>
-         <version>5.11.3</version>
-         <scope>test</scope>
-      </dependency>
-
-      <dependency>
-         <groupId>org.junit.jupiter</groupId>
-         <artifactId>junit-jupiter-params</artifactId>
-         <version>5.11.3</version>
-         <scope>test</scope>
+         <groupId>org.graphper</groupId>
+         <artifactId>graph-support-core</artifactId>
       </dependency>
 
       <!-- Third party testing dependencies -->
@@ -108,6 +103,16 @@
          <groupId>io.micronaut.test</groupId>
          <artifactId>micronaut-test-junit5</artifactId>
          <scope>runtime</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-params</artifactId>
+         <scope>test</scope>
       </dependency>
    </dependencies>
 
@@ -134,6 +139,9 @@
                      <mainClass>org.eclipse.esmf.ame.Application</mainClass>
                   </manifest>
                </archive>
+               <excludes>
+                  <exclude>org/eclipse/esmf/ame/buildtime/**</exclude>
+               </excludes>
             </configuration>
          </plugin>
          <plugin>
@@ -146,13 +154,86 @@
                      <goal>shade</goal>
                   </goals>
                   <configuration>
+                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                     <createSourcesJar>false</createSourcesJar>
                      <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer"/>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                           <mainClass>org.eclipse.esmf.ame.Application</mainClass>
+                           <manifestEntries>
+                              <Main-Class>org.eclipse.esmf.ame.Application</Main-Class>
+                           </manifestEntries>
                         </transformer>
                      </transformers>
+                     <artifactSet>
+                        <excludes>
+                           <!-- Duplicate annotations that are already contained in javax.annotation-api -->
+                           <exclude>javax.annotation:jsr250-api</exclude>
+                        </excludes>
+                     </artifactSet>
+                     <filters>
+                        <filter>
+                           <artifact>*:*</artifact>
+                           <excludes>
+                              <exclude>module-info.class</exclude>
+                              <exclude>META-INF/*</exclude>
+                              <exclude>META-INF/sisu/javax.inject.Named</exclude>
+                              <exclude>META-INF/plexus/components.xml</exclude>
+                              <exclude>META-INF.versions*/**</exclude>
+                              <exclude>META-INF/versions*/**</exclude>
+                              <exclude>META-INF/maven/**</exclude>
+                              <exclude>plugin.xml</exclude>
+                              <exclude>about.html</exclude>
+                           </excludes>
+                        </filter>
+                        <filter>
+                           <artifact>${project.groupId}:${project.artifactId}</artifact>
+                           <excludeDefaults>false</excludeDefaults>
+                           <includes>
+                              <include>**</include>
+                              <include>META-INF/**</include>
+                              <include>git.properties</include>
+                           </includes>
+                           <excludes>
+                              <!-- Explicitly exclude build-time-only code from jar -->
+                              <exclude>org/eclipse/esmf/buildtime/**</exclude>
+                           </excludes>
+                        </filter>
+                        <!-- Clashes with the files from xml-apis-ext -->
+                        <filter>
+                           <artifact>xml-apis:xml-apis</artifact>
+                           <excludes>
+                              <exclude>license/**</exclude>
+                           </excludes>
+                        </filter>
+                        <!-- Clashes with the same file from batik-rasterizer -->
+                        <filter>
+                           <artifact>org.apache.xmlgraphics:batik-svgrasterizer</artifact>
+                           <excludes>
+                              <exclude>org/apache/batik/apps/rasterizer/resources/rasterizer.policy</exclude>
+                           </excludes>
+                        </filter>
+                        <!-- These configs add lots of spurious GraalVM configuration -->
+                        <filter>
+                           <artifact>org.jboss.forge.roaster:roaster-jdt</artifact>
+                           <excludes>
+                              <exclude>META-INF/native-image/**</exclude>
+                           </excludes>
+                        </filter>
+                        <!-- Required to have Model Instantiators available -->
+                        <filter>
+                           <artifact>org.eclipse.esmf:esmf-aspect-meta-model-java</artifact>
+                           <includes>
+                              <include>**</include>
+                           </includes>
+                        </filter>
+                        <!-- Prevent overlapping classes from javax modules -->
+                        <filter>
+                           <artifact>jakarta.activation:jakarta.activation-api</artifact>
+                           <excludes>
+                              <exclude>**</exclude>
+                           </excludes>
+                        </filter>
+                     </filters>
                   </configuration>
                </execution>
             </executions>
@@ -187,6 +268,8 @@
                   <arg>-Amicronaut.processing.group=org.eclipse.esmf.ame</arg>
                   <arg>-Amicronaut.processing.module=aspect-model-editor</arg>
                </compilerArgs>
+               <showWarnings>false</showWarnings>
+               <showDeprecation>false</showDeprecation>
             </configuration>
          </plugin>
       </plugins>
@@ -246,13 +329,15 @@
                   <artifactId>maven-surefire-plugin</artifactId>
                   <configuration>
                      <skip>false</skip>
+                     <forkCount>1</forkCount>
+                     <reuseForks>false</reuseForks>
+                     <argLine>--add-exports org.graalvm.nativeimage/org.graalvm.nativeimage.impl=ALL-UNNAMED</argLine>
                      <argLine>-agentlib:native-image-agent=config-merge-dir=${native-config-path}</argLine>
                   </configuration>
                </plugin>
                <plugin>
                   <groupId>org.apache.maven.plugins</groupId>
                   <artifactId>maven-antrun-plugin</artifactId>
-                  <version>3.1.0</version>
                   <executions>
                      <execution>
                         <id>copy-native-configs</id>
@@ -273,42 +358,6 @@
                      </execution>
                   </executions>
                </plugin>
-
-               <plugin>
-                  <groupId>org.codehaus.mojo</groupId>
-                  <artifactId>exec-maven-plugin</artifactId>
-                  <executions>
-                     <!-- Generate admin-shell reflection config -->
-                     <execution>
-                        <id>generate-admin-shell-reflection-config</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                           <goal>java</goal>
-                        </goals>
-                        <configuration>
-                           <mainClass>org.eclipse.esmf.ame.buildtime.Aas4jClassSetup</mainClass>
-                           <arguments combine.self="override">
-                              <argument>${project.build.outputDirectory}/adminshell.properties</argument>
-                           </arguments>
-                           <cleanupDaemonThreads>false</cleanupDaemonThreads>
-                        </configuration>
-                     </execution>
-                     <execution>
-                        <id>customize-resource-config</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                           <goal>java</goal>
-                        </goals>
-                        <configuration>
-                           <mainClass>org.eclipse.esmf.ame.buildtime.CustomizeGraalVmConfigs</mainClass>
-                           <arguments combine.self="override">
-                              <argument>${relative-native-config-path}</argument>
-                           </arguments>
-                           <cleanupDaemonThreads>false</cleanupDaemonThreads>
-                        </configuration>
-                     </execution>
-                  </executions>
-               </plugin>
                <plugin>
                   <groupId>org.graalvm.buildtools</groupId>
                   <artifactId>native-maven-plugin</artifactId>
@@ -325,7 +374,7 @@
                         <goals>
                            <goal>compile</goal>
                         </goals>
-                        <phase>package</phase>
+                        <phase>prepare-package</phase>
                      </execution>
                   </executions>
                   <configuration>
@@ -342,22 +391,21 @@
                         <arg>-H:DeadlockWatchdogInterval=0</arg>
                         <arg>-H:+AddAllCharsets</arg>
                         <arg>-H:+ReportExceptionStackTraces</arg>
+                        <arg>-H:+PrintClassInitialization</arg>
                         <arg>-J-XX:MaxRAMPercentage=90.0</arg>
                         <arg>-J-XX:GCTimeRatio=19</arg>
+                        <arg>--report-unsupported-elements-at-runtime</arg>
                         <arg>--features=org.eclipse.esmf.ame.nativefeatures.AmeFeature</arg>
+                        <arg>-H:ConfigurationFileDirectories=${relative-native-config-path}</arg>
                         <arg>-H:IncludeResourceBundles=org.apache.jena.ext.xerces.impl.msg.XMLSchemaMessages</arg>
                         <arg>-J--add-exports=java.desktop/sun.awt=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=java.desktop/sun.font=ALL-UNNAMED</arg>
-                        <arg>-J--add-exports=org.graalvm.sdk/org.graalvm.nativeimage.impl=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.configure=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jni=ALL-UNNAMED</arg>
-                        <arg>--initialize-at-run-time=io.netty</arg>
-                        <arg>--report-unsupported-elements-at-runtime</arg>
+                        <arg>--initialize-at-build-time=org.eclipse.esmf.nativefeatures.Native</arg>
+                        <arg>--initialize-at-run-time=org.graphper.api.attributes.Layout</arg>
                      </buildArgs>
                      <quickBuild>true</quickBuild>
-                     <classpath>
-                        <param>${project.build.directory}/${native-image-jar}.jar</param>
-                     </classpath>
                   </configuration>
                </plugin>
             </plugins>

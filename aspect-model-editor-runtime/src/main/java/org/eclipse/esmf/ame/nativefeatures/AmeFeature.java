@@ -13,11 +13,13 @@
 
 package org.eclipse.esmf.ame.nativefeatures;
 
-import static org.eclipse.esmf.ame.nativefeatures.AssetAdministrationShellFeature.ADMINSHELL_PROPERTIES;
+import static org.eclipse.esmf.nativefeatures.AssetAdministrationShellFeature.ADMINSHELL_PROPERTIES;
 
 import java.util.List;
 
-import org.eclipse.esmf.ame.substitution.AdminShellConfig;
+import org.eclipse.esmf.nativefeatures.EsmfFeature;
+import org.eclipse.esmf.nativefeatures.Native;
+import org.eclipse.esmf.substitution.AdminShellConfig;
 
 import org.graalvm.nativeimage.hosted.Feature;
 
@@ -25,6 +27,7 @@ public class AmeFeature implements Feature {
    @Override
    public void beforeAnalysis( final BeforeAnalysisAccess access ) {
       Native.forClass( AdminShellConfig.class ).initializeAtBuildTime();
+      // Native.forClass( AWTMeasureText.class ).initializeAtBuildTime(); TODO do this in pom.xml as at run time ...
 
       Native.addResource( "application.properties" );
       Native.addResource( "git.properties" );

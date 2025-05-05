@@ -91,12 +91,14 @@
       <jackson-core-version>2.17.2</jackson-core-version>
       <commons-compress-version>1.26.0</commons-compress-version>
       <velocity-version>2.4</velocity-version>
+      <graph-support-version>1.5.0</graph-support-version>
 
       <!-- Versions of plugins -->
       <junit-version>5.11.3</junit-version>
       <npm-version>8.5.0</npm-version>
       <newman-version>6.0.0</newman-version>
       <node-version>16.14.2</node-version>
+      <maven-clean-plugin-version>3.4.1</maven-clean-plugin-version>
       <exec-maven-plugin-version>3.0.0</exec-maven-plugin-version>
       <wagon-maven-plugin-version>1.0</wagon-maven-plugin-version>
       <maven-antrun-plugin-version>3.0.0</maven-antrun-plugin-version>
@@ -129,16 +131,16 @@
       <!-- Your node path must be entered here -->
       <node.path>${project.build.directory}/node/node</node.path>
 
-      <relative-native-config-path>aspect-model-editor-runtime/target/classes/META-INF/native-image</relative-native-config-path>
+      <relative-native-config-path>aspect-model-editor-runtime/src-gen/main/resources/META-INF/native-image/${project.groupId}/aspect-model-editor-backend
+      </relative-native-config-path>
       <native-config-dir-service>${maven.multiModuleProjectDirectory}/aspect-model-editor-service/target/native-config</native-config-dir-service>
       <native-config-path>${maven.multiModuleProjectDirectory}/${relative-native-config-path}</native-config-path>
 
       <postman.test.environment>ame.postman_environment.json</postman.test.environment>
       <postman.test.collection>ame.postman_collection.json</postman.test.collection>
 
-      <java.version>21</java.version>
-      <maven.compiler.source>21</maven.compiler.source>
-      <maven.compiler.target>21</maven.compiler.target>
+      <jdk.version>21</jdk.version>
+      <release.version>21</release.version>
 
       <sonar.coverage.jacoco.xmlReportPaths>
          ${project.basedir}/target/site/jacoco-aggregate/jacoco.xml
@@ -263,6 +265,11 @@
          </dependency>
          <dependency>
             <groupId>org.eclipse.esmf</groupId>
+            <artifactId>esmf-native-support</artifactId>
+            <version>${esmf-sdk-version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.eclipse.esmf</groupId>
             <artifactId>esmf-test-aspect-models</artifactId>
             <version>${esmf-sdk-version}</version>
          </dependency>
@@ -289,7 +296,6 @@
             <groupId>org.graalvm.truffle</groupId>
             <artifactId>truffle-api</artifactId>
             <version>${graalvm.version}</version>
-            <scope>provided</scope>
          </dependency>
          <dependency>
             <groupId>org.graalvm.sdk</groupId>
@@ -317,11 +323,6 @@
             <artifactId>jakarta.servlet-api</artifactId>
             <version>${jakarta-version}</version>
             <scope>provided</scope>
-         </dependency>
-         <dependency>
-            <groupId>org.graalvm.buildtools</groupId>
-            <artifactId>native-maven-plugin</artifactId>
-            <version>${native-maven-plugin-version}</version>
          </dependency>
          <dependency>
             <groupId>org.apache.commons</groupId>
@@ -358,6 +359,11 @@
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity-engine-core</artifactId>
             <version>${velocity-version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.graphper</groupId>
+            <artifactId>graph-support-core</artifactId>
+            <version>${graph-support-version}</version>
          </dependency>
 
          <!-- Third party testing dependencies -->
@@ -421,6 +427,11 @@
       <pluginManagement>
          <plugins>
             <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-clean-plugin</artifactId>
+               <version>${maven-clean-plugin-version}</version>
+            </plugin>
+            <plugin>
                <groupId>org.codehaus.mojo</groupId>
                <artifactId>exec-maven-plugin</artifactId>
                <version>${exec-maven-plugin-version}</version>
@@ -429,11 +440,6 @@
                <groupId>org.codehaus.mojo</groupId>
                <artifactId>wagon-maven-plugin</artifactId>
                <version>${wagon-maven-plugin-version}</version>
-            </plugin>
-            <plugin>
-               <groupId>org.graalvm.buildtools</groupId>
-               <artifactId>native-maven-plugin</artifactId>
-               <version>${native-maven-plugin-version}</version>
             </plugin>
             <plugin>
                <groupId>com.github.eirslett</groupId>

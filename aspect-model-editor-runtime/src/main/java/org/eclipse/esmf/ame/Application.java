@@ -21,6 +21,7 @@ import io.micronaut.serde.annotation.SerdeImport;
 @SerdeImport( AspectModelUrn.class )
 public class Application {
    public static void main( final String[] args ) {
+      NativeImageHelpers.ensureRequiredEnvironment();
       Micronaut.run( Application.class, args );
    }
 }
