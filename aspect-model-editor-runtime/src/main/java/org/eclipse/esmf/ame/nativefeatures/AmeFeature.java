@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2024 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
- * See the AUTHORS file(s) distributed with this work for additional
- * information regarding authorship.
+ * See the AUTHORS file(s) distributed with this work for
+ * additional information regarding authorship.
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -27,7 +27,6 @@ public class AmeFeature implements Feature {
    @Override
    public void beforeAnalysis( final BeforeAnalysisAccess access ) {
       Native.forClass( AdminShellConfig.class ).initializeAtBuildTime();
-      // Native.forClass( AWTMeasureText.class ).initializeAtBuildTime(); TODO do this in pom.xml as at run time ...
 
       Native.addResource( "application.properties" );
       Native.addResource( "git.properties" );

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -19,6 +19,14 @@ import java.nio.file.Path;
 import io.micronaut.context.annotation.ConfigurationProperties;
 import jakarta.inject.Singleton;
 
+/**
+ * Application settings configuration class.
+ * <p>
+ * This class provides static methods to retrieve paths used in the application,
+ * such as the models storage path and the end file path.
+ * It uses system properties and predefined constants to construct these paths.
+ * </p>
+ */
 @Singleton
 @ConfigurationProperties( "setting" )
 public class ApplicationSettings {

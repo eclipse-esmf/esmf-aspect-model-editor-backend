@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -51,6 +51,12 @@ import org.eclipse.esmf.aspectmodel.shacl.violation.ValueFromListViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
+/**
+ * The ViolationFormatter class is responsible for formatting a list of violations
+ * into a list of violation errors. It implements the {@link Function} interface
+ * to process violations and the {@link Violation.Visitor} interface to handle
+ * specific types of violations.
+ */
 public class ViolationFormatter
       implements Function<List<Violation>, List<ViolationError>>, Violation.Visitor<ViolationError> {
    @Override

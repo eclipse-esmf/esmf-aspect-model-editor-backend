@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -105,7 +105,7 @@ class ModelServiceTest {
    }
 
    @Test
-   void testSaveModel() throws IOException {
+   void testSaveModel() {
       assertDoesNotThrow( () -> {
          final Path fileToReplace = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL_FOR_SERVICE + FILE_EXTENSION );
          final String turtleData = Files.readString( fileToReplace, StandardCharsets.UTF_8 );

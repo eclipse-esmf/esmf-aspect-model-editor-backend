@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -26,15 +26,5 @@ public class FileReadException extends RuntimeException {
     */
    public FileReadException( final String message ) {
       super( message );
-   }
-
-   /**
-    * Constructs a FileReadException with message and cause.
-    *
-    * @param message the message of the exception
-    * @param cause of the exception
-    */
-   public FileReadException( final String message, final Throwable cause ) {
-      super( message, cause );
    }
 }

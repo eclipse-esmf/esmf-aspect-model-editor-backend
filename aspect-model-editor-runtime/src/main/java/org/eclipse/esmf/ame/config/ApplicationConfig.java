@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -17,12 +17,10 @@ import java.nio.file.Path;
 
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.FileSystemStrategy;
-import org.eclipse.esmf.aspectmodel.shacl.constraint.JsConstraint;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
-import io.micronaut.context.env.Environment;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.runtime.http.scope.RequestScope;
 import jakarta.inject.Singleton;
@@ -34,21 +32,14 @@ import jakarta.inject.Singleton;
 @Factory
 public class ApplicationConfig {
 
-   private final Environment environment;
-
    /**
     * Constructs an instance of ApplicationConfig with the provided settings and environment.
-    *
-    * @param environment The environment the application is running in.
     */
-   public ApplicationConfig( final Environment environment ) {
-      this.environment = environment;
+   public ApplicationConfig() {
    }
 
    /**
     * Configures CORS mappings for the application, allowing specific HTTP methods.
-    *
-    * @param registry the CORS registry.
     */
    @Controller
    @RequestScope
@@ -67,9 +58,6 @@ public class ApplicationConfig {
    @Bean
    @Singleton
    public AspectModelValidator getAspectModelValidator() {
-      // Micronaut and GraalVM cannot launch JavaScript engines at the moment, so this must be disabled for now.
-      JsConstraint.setEvaluateJavaScript( false );
-
       return new AspectModelValidator();
    }
 

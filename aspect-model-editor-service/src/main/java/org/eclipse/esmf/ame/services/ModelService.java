@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -37,6 +37,7 @@ import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.ame.validation.utils.ValidationUtils;
+import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
 import org.eclipse.esmf.aspectmodel.edit.AspectChangeManager;
 import org.eclipse.esmf.aspectmodel.edit.change.CopyFileWithIncreasedNamespaceVersion;
 import org.eclipse.esmf.aspectmodel.edit.change.IncreaseVersion;
@@ -49,6 +50,8 @@ import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
 
 import jakarta.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Service class for managing aspect models.
@@ -56,6 +59,11 @@ import jakarta.inject.Singleton;
  */
 @Singleton
 public class ModelService {
+   private static final Logger LOG = LoggerFactory.getLogger( ModelService.class );
+
+   private static final String sammStructureInfo = "Please check whether the SAMM structure has been followed in the workspace: "
+         + "Namespace/Version/Aspect model.";
+
    private final AspectModelValidator aspectModelValidator;
    private final AspectModelLoader aspectModelLoader;
    private final Path modelPath;
@@ -103,8 +111,6 @@ public class ModelService {
    public void createOrSaveModel( final String turtleData, final String urn, final String fileName, final Path storagePath ) {
       try {
          final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn( urn );
-
-         //TODO Maybe this can be changed or should be ... look on PackageService line 111
          final File newFile = ModelUtils.createFile( aspectModelUrn, fileName, storagePath );
 
          final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplier( turtleData, newFile, aspectModelLoader );
@@ -114,9 +120,7 @@ public class ModelService {
             throw new FileReadException( "Aspect Model syntax is not valid" );
          }
 
-         // TODO isProcessingViolation like no dataType should be avoided on frontend ... make every time default string datatype, when
-         //  creating characteristic!
-         AspectSerializer.INSTANCE.write( aspectModelSupplier.get().files().iterator().next() );
+         AspectSerializer.INSTANCE.write( aspectModelSupplier.get().files().getFirst() );
       } catch ( final IOException e ) {
          throw new CreateFileException( String.format( "Cannot create file %s on workspace", urn ), e );
       }
@@ -131,7 +135,8 @@ public class ModelService {
       final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
       final Supplier<AspectModel> aspectModelSupplier = () -> aspectModelLoader.load( inputStream );
       final List<Violation> violations = aspectModelValidator.validateModel( aspectModelSupplier );
-      final List<ViolationError> violationErrors = ValidationUtils.violationErrors( aspectModelSupplier, violations );
+      final List<ViolationError> violationErrors = ValidationUtils.violationErrors( violations );
+
       return new ViolationReport( violationErrors );
    }
 
@@ -154,8 +159,14 @@ public class ModelService {
    }
 
    public Map<String, List<Version>> getAllNamespaces() {
-      final Stream<URI> uriStream = aspectModelLoader.listContents();
-      return new ModelGroupingUtils( this.modelPath ).groupModelsByNamespaceAndVersion( uriStream );
+      try {
+         final Stream<URI> uriStream = aspectModelLoader.listContents();
+         return new ModelGroupingUtils( this.modelPath ).groupModelsByNamespaceAndVersion( uriStream );
+      } catch ( final UnsupportedVersionException e ) {
+         LOG.error( "{} There is a loose .ttl file somewhere — remove it along with any other non-standardized files.", sammStructureInfo,
+               e );
+         throw new FileReadException( sammStructureInfo + " Remove all non-standardized files." );
+      }
    }
 
    public MigrationResult migrateWorkspace( final boolean setNewVersion ) {
@@ -190,37 +201,34 @@ public class ModelService {
 
    private void applyNamespaceVersionChange( final AspectModel aspectModel ) {
       final AspectChangeManager aspectChangeManager = new AspectChangeManager( aspectModel );
-      final CopyFileWithIncreasedNamespaceVersion changes = new CopyFileWithIncreasedNamespaceVersion(
-            aspectModel.files().get( 0 ), IncreaseVersion.MAJOR
-      );
+      final CopyFileWithIncreasedNamespaceVersion changes = new CopyFileWithIncreasedNamespaceVersion( aspectModel.files().getFirst(),
+            IncreaseVersion.MAJOR );
       aspectChangeManager.applyChange( changes );
    }
 
-   private void saveAspectModelFiles( final AspectModel aspectModel, final boolean setNewVersion ) throws IOException {
-      aspectModel.files().forEach( aspectModelFile -> {
-         aspectModelFile.sourceLocation().ifPresent( sourceLocation -> {
-            final File file = new File( sourceLocation );
-            try {
-               if ( !setNewVersion ) {
-                  AspectSerializer.INSTANCE.write( aspectModelFile );
-                  return;
-               }
-
-               if ( file.exists() ) {
-                  return;
-               }
-
-               final File parent = file.getParentFile();
-               if ( !parent.exists() && !parent.mkdirs() ) {
-                  throw new IOException( "Failed to create directories for: " + parent );
-               }
-
+   private void saveAspectModelFiles( final AspectModel aspectModel, final boolean setNewVersion ) {
+      aspectModel.files().forEach( aspectModelFile -> aspectModelFile.sourceLocation().ifPresent( sourceLocation -> {
+         final File file = new File( sourceLocation );
+         try {
+            if ( !setNewVersion ) {
                AspectSerializer.INSTANCE.write( aspectModelFile );
-            } catch ( final IOException e ) {
-               throw new RuntimeException( "Error saving aspect model file: " + sourceLocation, e );
+               return;
             }
-         } );
-      } );
+
+            if ( file.exists() ) {
+               return;
+            }
+
+            final File parent = file.getParentFile();
+            if ( !parent.exists() && !parent.mkdirs() ) {
+               throw new IOException( "Failed to create directories for: " + parent );
+            }
+
+            AspectSerializer.INSTANCE.write( aspectModelFile );
+         } catch ( final IOException e ) {
+            throw new RuntimeException( "Error saving aspect model file: " + sourceLocation, e );
+         }
+      } ) );
    }
 
    private Path constructModelPath( final String namespace, final String version, final String modelName ) {

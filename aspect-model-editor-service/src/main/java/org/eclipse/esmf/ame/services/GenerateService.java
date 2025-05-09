@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -198,10 +198,10 @@ public class GenerateService {
 
    private byte[] generateZipFile( final List<AsyncApiSchemaArtifact> asyncApiSchemaArtifacts, final String output ) {
       if ( output.equals( "json" ) ) {
-         return jsonZip( asyncApiSchemaArtifacts.get( 0 ).getContentWithSeparateSchemasAsJson() );
+         return jsonZip( asyncApiSchemaArtifacts.getFirst().getContentWithSeparateSchemasAsJson() );
       }
 
-      return yamlZip( asyncApiSchemaArtifacts.get( 0 ).getContentWithSeparateSchemasAsYaml() );
+      return yamlZip( asyncApiSchemaArtifacts.getFirst().getContentWithSeparateSchemasAsYaml() );
    }
 
    private byte[] jsonZip( final Map<Path, JsonNode> separateFilesContent ) {

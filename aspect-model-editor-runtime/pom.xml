@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH, Germany. All rights reserved.
+  ~ Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+  ~
+  ~ See the AUTHORS file(s) distributed with this work for
+  ~ additional information regarding authorship.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  ~
+  ~ SPDX-License-Identifier: MPL-2.0
   -->
 
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -386,7 +395,6 @@
                         <arg>-H:EnableURLProtocols=http,https</arg>
                         <arg>--enable-https</arg>
                         <arg>--no-fallback</arg>
-                        <!--<arg>- -language:js</arg>-->
                         <arg>-H:-DeadlockWatchdogExitOnTimeout</arg>
                         <arg>-H:DeadlockWatchdogInterval=0</arg>
                         <arg>-H:+AddAllCharsets</arg>
@@ -415,7 +423,7 @@
          <id>dependencies-for-integration-tests</id>
          <build>
             <plugins>
-               <!-- Make sure newman is available -->
+               <!-- Make sure Bruno is available -->
                <plugin>
                   <groupId>com.github.eirslett</groupId>
                   <artifactId>frontend-maven-plugin</artifactId>
@@ -562,28 +570,6 @@
          <id>start-unix-native-image-for-integration-tests</id>
          <build>
             <plugins>
-               <!--               <plugin>-->
-               <!--                  <groupId>org.codehaus.mojo</groupId>-->
-               <!--                  <artifactId>exec-maven-plugin</artifactId>-->
-               <!--                  <executions>-->
-               <!--                     <execution>-->
-               <!--                        <id>Add execution right´s on native-image</id>-->
-               <!--                        <phase>pre-integration-test</phase>-->
-               <!--                        <goals>-->
-               <!--                           <goal>exec</goal>-->
-               <!--                        </goals>-->
-               <!--                        <configuration>-->
-               <!--                           <executable>chmod</executable>-->
-               <!--                           <arguments>-->
-               <!--                              <argument>755</argument>-->
-               <!--                              <argument>-->
-               <!--                                 ${project.build.directory}/ame-backend-${project.version}-${os.platform}-->
-               <!--                              </argument>-->
-               <!--                           </arguments>-->
-               <!--                        </configuration>-->
-               <!--                     </execution>-->
-               <!--                  </executions>-->
-               <!--               </plugin>-->
                <plugin>
                   <groupId>com.bazaarvoice.maven.plugins</groupId>
                   <artifactId>process-exec-maven-plugin</artifactId>
