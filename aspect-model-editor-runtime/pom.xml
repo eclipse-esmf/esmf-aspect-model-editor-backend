@@ -395,6 +395,7 @@
                         <arg>-H:EnableURLProtocols=http,https</arg>
                         <arg>--enable-https</arg>
                         <arg>--no-fallback</arg>
+                        <arg>-march=compatibility</arg>
                         <arg>-H:-DeadlockWatchdogExitOnTimeout</arg>
                         <arg>-H:DeadlockWatchdogInterval=0</arg>
                         <arg>-H:+AddAllCharsets</arg>
