@@ -16,13 +16,15 @@ package org.eclipse.esmf.ame.services.utils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.URI;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.OverlappingFileLockException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +34,8 @@ import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.esmf.ame.config.ApplicationSettings;
-import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
+import org.eclipse.esmf.ame.exceptions.FileHandlingException;
+import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.metamodel.AspectModel;
@@ -59,26 +62,6 @@ public class ModelUtils {
    }
 
    /**
-    * Force remove the given file.
-    *
-    * @param file - that will be removed.
-    * @throws FileNotFoundException will be thrown if file can not be found.
-    */
-   public static void deleteFile( @Nonnull final File file ) {
-      try {
-         if ( !file.isDirectory() ) {
-            file.createNewFile();
-            final FileChannel channel = FileChannel.open( file.toPath(), StandardOpenOption.WRITE );
-            channel.lock().release();
-            channel.close();
-         }
-         FileUtils.forceDelete( file );
-      } catch ( final IOException e ) {
-         throw new FileNotFoundException( String.format( "File %s was not deleted successfully.", file.toPath() ), e );
-      }
-   }
-
-   /**
     * Finds and deletes all the parent folders that are empty for the given file.
     *
     * @param file - that will be removed.
@@ -86,7 +69,7 @@ public class ModelUtils {
    public static void deleteEmptyFiles( @Nonnull final File file ) {
       if ( !ApplicationSettings.getEndFilePath().toFile().getName().equals( file.getName() ) ) {
          final File parentFile = file.getParentFile();
-         deleteFile( file );
+         deleteFileSafely( file );
 
          final List<File> fileList = Arrays.stream( Objects.requireNonNull( parentFile.listFiles() ) )
                .filter( f -> filterOutUnVisibleFiles().test( f ) ).toList();
@@ -95,6 +78,60 @@ public class ModelUtils {
             deleteEmptyFiles( parentFile );
          }
       }
+   }
+
+   /**
+    * Safely deletes a file or directory. If the file is locked, it waits for the lock to be released
+    * before attempting deletion. If the file is a directory, it deletes the directory and all its contents.
+    *
+    * @param file the file or directory to be deleted
+    * @throws FileHandlingException if an I/O error occurs during deletion
+    * @throws FileReadException if the thread is interrupted while waiting for the file lock to be released
+    */
+   public static void deleteFileSafely( @Nonnull final File file ) {
+      try {
+         if ( !file.exists() ) {
+            return;
+         }
+
+         waitForFileUnlock( file, 10, 200 );
+
+         if ( !file.isDirectory() ) {
+            Files.deleteIfExists( file.toPath() );
+         } else {
+            FileUtils.deleteDirectory( file );
+         }
+      } catch ( final IOException e ) {
+         throw new FileHandlingException( "File could not be deleted: " + file.getAbsolutePath(), e );
+      } catch ( final InterruptedException e ) {
+         Thread.currentThread().interrupt();
+         throw new FileReadException( "Interrupted while waiting to delete file: " + file.getAbsolutePath() );
+      }
+   }
+
+   private static void waitForFileUnlock( final File file, final int maxRetries, final long sleepMillis ) throws InterruptedException {
+      int retry = 0;
+      while ( isFileLocked( file ) ) {
+         if ( retry++ >= maxRetries ) {
+            throw new RuntimeException( "File is still locked after retries: " + file.getAbsolutePath() );
+         }
+         Thread.sleep( sleepMillis );
+      }
+   }
+
+   private static boolean isFileLocked( final File file ) {
+      try ( final RandomAccessFile raf = new RandomAccessFile( file, "rw" ); final FileChannel channel = raf.getChannel() ) {
+
+         final FileLock lock = channel.tryLock();
+         if ( lock != null ) {
+            lock.release();
+            return false;
+         }
+      } catch ( final IOException | OverlappingFileLockException e ) {
+         return true;
+      }
+
+      return true;
    }
 
    private static Predicate<File> filterOutUnVisibleFiles() {
@@ -168,8 +205,7 @@ public class ModelUtils {
    public static Supplier<AspectModel> getAspectModelSupplier( final String turtleData, final File newFile,
          final AspectModelLoader aspectModelLoader ) {
       final Optional<URI> sourceLocation = Optional.of( newFile.toURI() );
-      final ByteArrayInputStream inputStream = new ByteArrayInputStream(
-            turtleData.getBytes( StandardCharsets.UTF_8 ) );
+      final ByteArrayInputStream inputStream = new ByteArrayInputStream( turtleData.getBytes( StandardCharsets.UTF_8 ) );
 
       return createLazySupplier( () -> aspectModelLoader.load( inputStream, sourceLocation ) );
    }
