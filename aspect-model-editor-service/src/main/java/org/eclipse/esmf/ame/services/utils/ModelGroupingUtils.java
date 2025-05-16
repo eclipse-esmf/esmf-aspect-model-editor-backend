@@ -27,20 +27,28 @@ import java.util.stream.Stream;
 
 import org.eclipse.esmf.ame.services.models.Model;
 import org.eclipse.esmf.ame.services.models.Version;
+import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
+import org.eclipse.esmf.metamodel.AspectModel;
+import org.eclipse.esmf.metamodel.ModelElement;
+
+import io.vavr.Tuple;
 
 /**
  * A utility class for grouping model URIs by namespace and version.
  */
 public class ModelGroupingUtils {
 
+   private final AspectModelLoader aspectModelLoader;
    private final Path modelPath;
 
    /**
     * Constructs a ModelGrouper with the given base model path.
     *
+    * @param aspectModelLoader the loader for aspect models
     * @param modelPath the base path to relativize URIs against
     */
-   public ModelGroupingUtils( final Path modelPath ) {
+   public ModelGroupingUtils( final AspectModelLoader aspectModelLoader, final Path modelPath ) {
+      this.aspectModelLoader = aspectModelLoader;
       this.modelPath = modelPath;
    }
 
@@ -51,14 +59,43 @@ public class ModelGroupingUtils {
     * @return a map where the keys are namespaces and the values are lists of maps containing versions and their associated models
     */
    public Map<String, List<Version>> groupModelsByNamespaceAndVersion( final Stream<URI> uriStream ) {
-      return uriStream.map( this::relativizePath ).map( this::splitPath ).collect(
-            Collectors.groupingBy( this::extractNamespace, TreeMap::new, Collectors.collectingAndThen(
-                  Collectors.groupingBy( this::extractVersion,
-                        Collectors.mapping(
-                              parts -> createModel( parts,
-                                    modelPath.resolve( Paths.get( parts[0], parts[1], parts[2] ) ).toFile().exists() ),
-                              Collectors.toList() ) ),
-                  this::convertAndSortVersionMap ) ) );
+      final List<URI> sortedUris = uriStream
+            .sorted( Comparator.comparing( uri -> modelPath.relativize( Paths.get( uri ) ).toString() ) )
+            .toList();
+
+      return sortedUris.stream()
+            .map( this::relativizePath )
+            .map( relativePath -> {
+               final AspectModel aspectModel = ModelUtils.loadModelFromFile( modelPath, relativePath, this.aspectModelLoader );
+
+               final ModelElement modelElement = !aspectModel.aspects().isEmpty()
+                     ? aspectModel.aspect()
+                     : aspectModel.files().stream()
+                     .flatMap( file -> file.elements().stream() )
+                     .findFirst()
+                     .orElse( null );
+
+               return Tuple.of( modelElement, splitPath( relativePath ) );
+            } )
+            .collect( Collectors.groupingBy(
+                  tuple -> extractNamespace( tuple._2 ),
+                  TreeMap::new,
+                  Collectors.collectingAndThen(
+                        Collectors.groupingBy(
+                              tuple -> extractVersion( tuple._2 ),
+                              Collectors.mapping(
+                                    tuple -> {
+                                       final String[] parts = tuple._2;
+                                       final Path resolvedPath = Paths.get( parts[0], parts[1], parts[2] );
+                                       final boolean fileExists = modelPath.resolve( resolvedPath ).toFile().exists();
+                                       return createModel( parts, fileExists, tuple._1 );
+                                    },
+                                    Collectors.toList()
+                              )
+                        ),
+                        this::convertAndSortVersionMap
+                  )
+            ) );
    }
 
    /**
@@ -105,11 +142,12 @@ public class ModelGroupingUtils {
     * Creates a map representing a model from the given path parts, setting the existing field as specified.
     *
     * @param parts an array of path parts
+    * @param modelElement an element of the aspect model
     * @param existing whether to set the existing field to true
     * @return a map containing the model information
     */
-   private Model createModel( final String[] parts, final boolean existing ) {
-      return new Model( parts[2], existing );
+   private Model createModel( final String[] parts, final boolean existing, final ModelElement modelElement ) {
+      return new Model( parts[2], modelElement.urn(), existing );
    }
 
    /**

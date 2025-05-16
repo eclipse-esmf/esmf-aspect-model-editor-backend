@@ -29,6 +29,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
@@ -219,5 +220,16 @@ public class ModelUtils {
       final String namespace = nsAndVer[nsAndVer.length - 2];
 
       return modelPath.resolve( namespace ).resolve( version ).resolve( fileName + ".ttl" );
+   }
+
+   public static AspectModel loadModelFromFile( final Path modelPath, final String filePath, final AspectModelLoader aspectModelLoader ) {
+      final Path path = Paths.get( filePath ).normalize();
+      final String[] pathParts = StreamSupport.stream( path.spliterator(), false ).map( Path::toString ).toArray( String[]::new );
+      final Path aspectModelPath = constructModelPath( modelPath, pathParts[0], pathParts[1], pathParts[2] );
+      return aspectModelLoader.load( aspectModelPath.toFile() );
+   }
+
+   public static Path constructModelPath( final Path modelPath, final String namespace, final String version, final String modelName ) {
+      return Path.of( modelPath.toString(), namespace, version, modelName );
    }
 }

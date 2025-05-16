@@ -13,6 +13,8 @@
 
 package org.eclipse.esmf.ame.services.models;
 
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 
@@ -23,13 +25,15 @@ import io.micronaut.serde.annotation.Serdeable;
 @Introspected
 public class Model {
    private String model;
+   private AspectModelUrn aspectModelUrn;
    private boolean existing;
 
    public Model() {
    }
 
-   public Model( final String model, final boolean existing ) {
+   public Model( final String model, final AspectModelUrn aspectModelUrn, final boolean existing ) {
       this.model = model;
+      this.aspectModelUrn = aspectModelUrn;
       this.existing = existing;
    }
 
@@ -39,6 +43,14 @@ public class Model {
 
    public void setModel( final String model ) {
       this.model = model;
+   }
+
+   public AspectModelUrn getAspectModelUrn() {
+      return aspectModelUrn;
+   }
+
+   public void setAspectModelUrn( final AspectModelUrn aspectModelUrn ) {
+      this.aspectModelUrn = aspectModelUrn;
    }
 
    public boolean isExisting() {

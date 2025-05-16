@@ -18,13 +18,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
@@ -76,7 +74,9 @@ public class ModelService {
 
    public String getModel( final String aspectModelUrn, final String filePath ) {
       try {
-         final AspectModel aspectModel = ( filePath != null ) ? loadModelFromFile( filePath ) : loadModelFromUrn( aspectModelUrn );
+         final AspectModel aspectModel = ( filePath != null ) ?
+               ModelUtils.loadModelFromFile( modelPath, filePath, aspectModelLoader ) :
+               loadModelFromUrn( aspectModelUrn );
          validateModel( aspectModel );
 
          return aspectModel.files().stream()
@@ -86,13 +86,6 @@ public class ModelService {
       } catch ( final ModelResolutionException e ) {
          throw new FileNotFoundException( e.getMessage(), e );
       }
-   }
-
-   private AspectModel loadModelFromFile( final String filePath ) throws ModelResolutionException {
-      final Path path = Paths.get( filePath ).normalize();
-      final String[] pathParts = StreamSupport.stream( path.spliterator(), false ).map( Path::toString ).toArray( String[]::new );
-      final Path aspectModelPath = constructModelPath( pathParts[0], pathParts[1], pathParts[2] );
-      return aspectModelLoader.load( aspectModelPath.toFile() );
    }
 
    private AspectModel loadModelFromUrn( final String aspectModelUrn ) {
@@ -161,7 +154,7 @@ public class ModelService {
    public Map<String, List<Version>> getAllNamespaces() {
       try {
          final Stream<URI> uriStream = aspectModelLoader.listContents();
-         return new ModelGroupingUtils( this.modelPath ).groupModelsByNamespaceAndVersion( uriStream );
+         return new ModelGroupingUtils( this.aspectModelLoader, this.modelPath ).groupModelsByNamespaceAndVersion( uriStream );
       } catch ( final UnsupportedVersionException e ) {
          LOG.error( "{} There is a loose .ttl file somewhere — remove it along with any other non-standardized files.", sammStructureInfo,
                e );
@@ -185,7 +178,7 @@ public class ModelService {
    private void processVersion( final String namespace, final Version version, final boolean setNewVersion, final List<String> errors ) {
       version.getModels().forEach( model -> {
          try {
-            final Path aspectModelPath = constructModelPath( namespace, version.getVersion(), model.getModel() );
+            final Path aspectModelPath = ModelUtils.constructModelPath( modelPath, namespace, version.getVersion(), model.getModel() );
             final AspectModel aspectModel = aspectModelLoader.load( aspectModelPath.toFile() );
 
             if ( setNewVersion ) {
@@ -229,9 +222,5 @@ public class ModelService {
             throw new RuntimeException( "Error saving aspect model file: " + sourceLocation, e );
          }
       } ) );
-   }
-
-   private Path constructModelPath( final String namespace, final String version, final String modelName ) {
-      return Path.of( modelPath.toString(), namespace, version, modelName );
    }
 }

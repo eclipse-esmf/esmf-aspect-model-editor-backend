@@ -64,7 +64,7 @@
       <os.platform/>
 
       <!-- Internal esmf dependencies -->
-      <esmf-sdk-version>2.10.2</esmf-sdk-version>
+      <esmf-sdk-version>2.10.3</esmf-sdk-version>
 
       <!-- Versions of third party dependencies -->
       <micronaut.version>4.7.6</micronaut.version>
