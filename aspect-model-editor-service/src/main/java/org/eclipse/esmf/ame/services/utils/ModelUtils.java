@@ -16,11 +16,7 @@ package org.eclipse.esmf.ame.services.utils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.URI;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.OverlappingFileLockException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -94,31 +90,14 @@ public class ModelUtils {
             return;
          }
 
-         if ( isFileLocked( file ) ) {
+         if ( !file.isDirectory() ) {
             FileUtils.deleteQuietly( file );
-         } else if ( !file.isDirectory() ) {
-            Files.deleteIfExists( file.toPath() );
          } else {
             FileUtils.deleteDirectory( file );
          }
       } catch ( final IOException e ) {
          throw new FileHandlingException( "File could not be deleted: " + file.getAbsolutePath(), e );
       }
-   }
-
-   private static boolean isFileLocked( final File file ) {
-      try ( final RandomAccessFile raf = new RandomAccessFile( file, "rw" ); final FileChannel channel = raf.getChannel() ) {
-
-         final FileLock lock = channel.tryLock();
-         if ( lock != null ) {
-            lock.release();
-            return false;
-         }
-      } catch ( final IOException | OverlappingFileLockException e ) {
-         return true;
-      }
-
-      return true;
    }
 
    private static Predicate<File> filterOutUnVisibleFiles() {
