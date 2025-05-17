@@ -94,28 +94,15 @@ public class ModelUtils {
             return;
          }
 
-         waitForFileUnlock( file, 10, 200 );
-
-         if ( !file.isDirectory() ) {
+         if ( isFileLocked( file ) ) {
+            FileUtils.deleteQuietly( file );
+         } else if ( !file.isDirectory() ) {
             Files.deleteIfExists( file.toPath() );
          } else {
             FileUtils.deleteDirectory( file );
          }
       } catch ( final IOException e ) {
          throw new FileHandlingException( "File could not be deleted: " + file.getAbsolutePath(), e );
-      } catch ( final InterruptedException e ) {
-         Thread.currentThread().interrupt();
-         throw new FileReadException( "Interrupted while waiting to delete file: " + file.getAbsolutePath() );
-      }
-   }
-
-   private static void waitForFileUnlock( final File file, final int maxRetries, final long sleepMillis ) throws InterruptedException {
-      int retry = 0;
-      while ( isFileLocked( file ) ) {
-         if ( retry++ >= maxRetries ) {
-            throw new RuntimeException( "File is still locked after retries: " + file.getAbsolutePath() );
-         }
-         Thread.sleep( sleepMillis );
       }
    }
 
