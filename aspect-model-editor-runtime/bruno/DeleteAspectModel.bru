@@ -1,0 +1,20 @@
+meta {
+  name: DeleteAspectModel
+  type: http
+  seq: 10
+}
+
+delete {
+  url: http://localhost:{{port}}/ame/api/models
+  body: none
+  auth: none
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.examples:1.0.0#Movement
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);})
+}

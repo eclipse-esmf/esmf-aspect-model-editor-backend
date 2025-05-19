@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -13,86 +13,155 @@
 
 package org.eclipse.esmf.ame.services;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
-import org.eclipse.esmf.ame.config.TestConfig;
-import org.eclipse.esmf.ame.services.model.FileValidationReport;
-import org.eclipse.esmf.ame.services.model.NamespaceFileCollection;
+import io.micronaut.core.annotation.Nullable;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.multipart.CompletedFileUpload;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith( SpringExtension.class )
-@SpringBootTest( classes = PackageService.class )
-@Import( TestConfig.class )
-@ActiveProfiles( "test" )
+@MicronautTest
 class PackageServiceTest {
-   @Autowired
+   @Inject
    private PackageService packageService;
 
+   private static final String FILE_EXTENSION = ".ttl";
+
    private static final Path RESOURCE_PATH = Path.of( "src", "test", "resources", "services" );
+
+   private static final String SAMM_URN = "urn:samm";
    private static final String VERSION = "1.0.0";
-   private static final String NAMESPACE = "org.eclipse.esmf.export";
-   private static final String NAMESPACE_VERSION = NAMESPACE + ":" + VERSION;
-   private static final String FILE_ONE = "TestFileOne.ttl";
-   private static final String FILE_TWO = "TestFileTwo.ttl";
-   private static final String FILE_THREE = "TestFileThree.ttl";
+   private static final String EXPORT_NAMESPACE = "org.eclipse.esmf.export";
 
-   @Test
-   void testValidateImportAspectModelPackage() throws IOException {
-      final Path zipFilePath = Paths.get( RESOURCE_PATH.toString(), "TestArchive.zip" );
-      final byte[] testPackage = Files.readAllBytes( zipFilePath );
+   private static final String NAMESPACE_VERSION = SAMM_URN + ":" + EXPORT_NAMESPACE + ":" + VERSION;
 
-      final MockMultipartFile mockedZipFile = new MockMultipartFile( "TestArchive.zip", testPackage );
-
-      final FileValidationReport importPackage = packageService.validateImportAspectModelPackage( mockedZipFile );
-
-      assertEquals( importPackage.getNamespaceFileReports().size(), 2 );
-   }
-
-   @Test
-   void testExportValidateAspectModels() {
-      final List<NamespaceFileCollection> aspectModelFiles = List.of(
-            new NamespaceFileCollection( NAMESPACE_VERSION, List.of( FILE_ONE, FILE_TWO ) ) );
-
-      final FileValidationReport file = packageService.validateAspectModelsForExport( aspectModelFiles );
-
-      assertEquals( 2, file.getNamespaceFileReports().size() );
-      assertEquals( 1, file.getElementMissingReports().size() );
-
-      assertTrue( file.getElementMissingReports().get( 0 ).getAnalysedFileName().contains( FILE_ONE ) );
-
-      assertTrue( file.getElementMissingReports().get( 0 ).getMissingFileName().contains( FILE_THREE ) );
-   }
+   private static final String FILE_ONE = "TestFileOne";
 
    @Test
    void testExportAspectModelPackage() {
-      final List<NamespaceFileCollection> aspectModelFiles = List.of(
-            new NamespaceFileCollection( NAMESPACE_VERSION, List.of( FILE_ONE, FILE_TWO, FILE_THREE ) ) );
+      final byte[] exportPackage = packageService.exportPackage( NAMESPACE_VERSION + "#" + FILE_ONE );
 
-      packageService.validateAspectModelsForExport( aspectModelFiles );
+      assertDoesNotThrow( () -> {
+         try ( final ByteArrayInputStream bais = new ByteArrayInputStream( exportPackage );
+               final ZipInputStream zis = new ZipInputStream( bais ) ) {
+            ZipEntry entry;
+            while ( ( entry = zis.getNextEntry() ) != null ) {
+               assertNotNull( entry.getName() );
+               assertFalse( entry.getName().isEmpty() );
+               assertTrue( entry.getName().contains( "TestFileOne" + FILE_EXTENSION ) || entry.getName()
+                     .contains( "TestFileTwo" + FILE_EXTENSION ) || entry.getName().contains( "TestFileThree" + FILE_EXTENSION ) );
+            }
+         }
+      } );
+   }
 
-      assertTrue( packageService.exportAspectModelPackage( "TestExportArchive.zip" ).length > 0 );
+   @Test
+   void testImportAspectModelPackage() throws IOException {
+      final Path zipFilePath = Paths.get( RESOURCE_PATH.toString(), "TestArchive.zip" );
+      final byte[] testPackage = Files.readAllBytes( zipFilePath );
+
+      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.zip", testPackage, MediaType.APPLICATION_PDF_TYPE );
+
+      packageService.importPackage( mockedZipFile,
+            List.of( "org.eclipse.esmf.example/1.0.0/Esmf.ttl", "org.eclipse.esmf.test/1.0.0/Movement.ttl" ) );
+
+      try ( final ZipInputStream zis = new ZipInputStream( new ByteArrayInputStream( testPackage ) ) ) {
+         ZipEntry entry;
+         while ( ( entry = zis.getNextEntry() ) != null ) {
+            if ( !entry.isDirectory() && entry.getName().endsWith( FILE_EXTENSION ) ) {
+               final Path extractedFilePath = RESOURCE_PATH.resolve( entry.getName() );
+               System.out.println( extractedFilePath );
+               assertTrue( Files.exists( extractedFilePath ), "File " + entry.getName() + " should exist" );
+            }
+         }
+      }
    }
 
    @Test
    void testBackupWorkspace() {
-      packageService.backupWorkspace( RESOURCE_PATH.toString() );
+      packageService.backupWorkspace();
 
       assertTrue( Arrays.stream( Objects.requireNonNull( RESOURCE_PATH.toFile().list() ) )
-                        .anyMatch( file -> file.contains( "backup-" ) ) );
+            .anyMatch( file -> file.contains( "backup-" ) ) );
+   }
+
+   private class MockFileUpload implements CompletedFileUpload {
+      private final String filename;
+      private final MediaType mediaType;
+      private final byte[] content;
+
+      public MockFileUpload( final String filename, final byte[] content, final MediaType mediaType ) {
+         this( filename, mediaType, content );
+      }
+
+      public MockFileUpload( final String filename, final MediaType mediaType, @Nullable final byte[] content ) {
+         this.filename = filename;
+         this.mediaType = mediaType;
+         this.content = ( content != null ? content : new byte[0] );
+      }
+
+      @Override
+      public InputStream getInputStream() {
+         return new ByteArrayInputStream( content );
+      }
+
+      @Override
+      public byte[] getBytes() {
+         return content;
+      }
+
+      @Override
+      public ByteBuffer getByteBuffer() {
+         return ByteBuffer.wrap( content );
+      }
+
+      @Override
+      public Optional<MediaType> getContentType() {
+         return Optional.of( mediaType );
+      }
+
+      @Override
+      public String getName() {
+         return filename;
+      }
+
+      @Override
+      public String getFilename() {
+         return filename;
+      }
+
+      @Override
+      public long getSize() {
+         return content.length;
+      }
+
+      @Override
+      public long getDefinedSize() {
+         return content.length;
+      }
+
+      @Override
+      public boolean isComplete() {
+         return true;
+      }
    }
 }

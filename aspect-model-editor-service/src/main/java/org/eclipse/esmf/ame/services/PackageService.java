@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -14,234 +14,150 @@
 package org.eclipse.esmf.ame.services;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
-import org.eclipse.esmf.ame.exceptions.FileCannotDeleteException;
+import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
-import org.eclipse.esmf.ame.repository.ModelResolverRepository;
-import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
-import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
-import org.eclipse.esmf.ame.repository.strategy.utils.LocalFolderResolverUtils;
-import org.eclipse.esmf.ame.resolver.strategy.FileSystemStrategy;
-import org.eclipse.esmf.ame.resolver.strategy.InMemoryStrategy;
-import org.eclipse.esmf.ame.resolver.strategy.model.FolderStructure;
-import org.eclipse.esmf.ame.resolver.strategy.model.NamespaceFileContent;
-import org.eclipse.esmf.ame.resolver.strategy.utils.ResolverUtils;
-import org.eclipse.esmf.ame.services.model.ElementMissingReport;
-import org.eclipse.esmf.ame.services.model.FileValidationReport;
-import org.eclipse.esmf.ame.services.model.NamespaceFileCollection;
-import org.eclipse.esmf.ame.services.model.NamespaceFileReport;
-import org.eclipse.esmf.ame.services.utils.UnzipUtils;
-import org.eclipse.esmf.ame.services.utils.ZipUtils;
-import org.eclipse.esmf.ame.utils.ModelUtils;
-import org.eclipse.esmf.ame.validation.model.ViolationError;
-import org.eclipse.esmf.ame.validation.model.ViolationReport;
-import org.eclipse.esmf.ame.validation.utils.ValidationUtils;
-import org.eclipse.esmf.aspectmodel.resolver.services.DataType;
-import org.eclipse.esmf.aspectmodel.resolver.services.VersionedModel;
-import org.eclipse.esmf.aspectmodel.shacl.violation.ProcessingViolation;
+import org.eclipse.esmf.ame.services.models.Version;
+import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
+import org.eclipse.esmf.aspectmodel.AspectModelFile;
+import org.eclipse.esmf.aspectmodel.edit.AspectChangeManager;
+import org.eclipse.esmf.aspectmodel.edit.AspectChangeManagerConfig;
+import org.eclipse.esmf.aspectmodel.edit.AspectChangeManagerConfigBuilder;
+import org.eclipse.esmf.aspectmodel.edit.Change;
+import org.eclipse.esmf.aspectmodel.edit.ChangeGroup;
+import org.eclipse.esmf.aspectmodel.edit.change.AddAspectModelFile;
+import org.eclipse.esmf.aspectmodel.generator.zip.AspectModelNamespacePackageCreator;
+import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
+import org.eclipse.esmf.aspectmodel.resolver.NamespacePackage;
+import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
+import org.eclipse.esmf.aspectmodel.resolver.fs.ModelsRoot;
+import org.eclipse.esmf.aspectmodel.resolver.fs.StructuredModelsRoot;
+import org.eclipse.esmf.aspectmodel.resolver.modelfile.RawAspectModelFileBuilder;
+import org.eclipse.esmf.aspectmodel.serializer.AspectSerializer;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
-import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
+import org.eclipse.esmf.metamodel.AspectModel;
+
+import io.micronaut.http.multipart.CompletedFileUpload;
+import jakarta.inject.Singleton;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import io.vavr.control.Try;
-
-@Service
+/**
+ * Service class for handling package import and export operations for Aspect Models.
+ */
+@Singleton
 public class PackageService {
    private static final Logger LOG = LoggerFactory.getLogger( PackageService.class );
 
-   private final AspectModelValidator aspectModelValidator;
-   private final String modelPath;
-   private final ModelResolverRepository modelResolverRepository;
-   private final FileSystem importFileSystem;
-   private final Map<String, String> AspectModelToExportCache = new HashMap<>();
+   private final AspectModelLoader aspectModelLoader;
+   private final Path modelPath;
 
-   public PackageService( final AspectModelValidator aspectModelValidator, final String modelPath,
-         final ModelResolverRepository modelResolverRepository, final FileSystem importFileSystem ) {
-      this.aspectModelValidator = aspectModelValidator;
+   public PackageService( final AspectModelLoader aspectModelLoader, final Path modelPath ) {
+      this.aspectModelLoader = aspectModelLoader;
       this.modelPath = modelPath;
-      this.modelResolverRepository = modelResolverRepository;
-      this.importFileSystem = importFileSystem;
-
-      DataType.setupTypeMapping();
    }
 
-   public FileValidationReport validateAspectModelsForExport( final List<NamespaceFileCollection> aspectModelFiles ) {
-      final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-      final FileValidationReport fileValidationReport = new FileValidationReport();
+   public byte[] exportPackage( final String aspectModelUrn ) {
+      final AspectModel aspectModel = aspectModelLoader.load( AspectModelUrn.fromUrn( aspectModelUrn ) );
+      final AspectModelNamespacePackageCreator packageCreator = new AspectModelNamespacePackageCreator( aspectModel );
 
-      AspectModelToExportCache.clear();
-
-      Map<String, NamespaceFileReport> validFiles =
-            aspectModelFiles.stream()
-                            .flatMap( data -> sanitizeIncomingFiles( data.getFiles() ).stream().map( fileName -> {
-                               String aspectModel = strategy.getModelAsString( data.getNamespace(), fileName );
-                               AspectModelToExportCache.put( data.getNamespace() + ":" + fileName, aspectModel );
-                               final FileSystemStrategy fileSystemStrategy = new FileSystemStrategy( aspectModel );
-                               final Try<VersionedModel> versionedModel = ResolverUtils.fetchVersionModel(
-                                     fileSystemStrategy );
-                               ViolationReport report = ValidationUtils.validateModel( versionedModel,
-                                     aspectModelValidator );
-                               return new NamespaceFileReport( data.getNamespace(), fileName, report );
-                            } ) )
-                            .collect( Collectors.toMap( namespaceFileReport -> namespaceFileReport.getNamespace() + ":"
-                                  + namespaceFileReport.getFileName(), Function.identity() ) );
-
-      validFiles.values().forEach( fileValidationReport::addValidFile );
-
-      validFiles.values().stream().flatMap(
-            namespaceFileReport -> getMissingAspectModelFiles( namespaceFileReport.getViolationReport(),
-                  namespaceFileReport.getFileName(),
-                  modelPath ).stream() ).forEach( fileValidationReport::addMissingElement );
-
-      return fileValidationReport;
+      return packageCreator.generate().findFirst()
+            .orElseThrow( () -> new FileNotFoundException( String.format( "No file found for %s", aspectModelUrn ) ) ).getContent();
    }
 
-   public byte[] exportAspectModelPackage( final String zipFileName ) {
+   public Map<String, List<Version>> importPackage( final CompletedFileUpload zipFile, final List<String> filesToImport ) {
       try {
-         return ZipUtils.createPackageFromCache( AspectModelToExportCache );
+         final ModelsRoot modelsRoot = new StructuredModelsRoot( this.modelPath );
+         final byte[] zipContent = IOUtils.toByteArray( zipFile.getInputStream() );
+         final NamespacePackage namespacePackage = new NamespacePackage( zipContent, null );
+
+         final List<Change> fileChanges = namespacePackage.loadContents().<Change> map( file -> createAddChange( file, modelsRoot ) )
+               .toList();
+
+         final AspectChangeManager changeManager = initChangeManager();
+         changeManager.applyChange( new ChangeGroup( fileChanges ) );
+
+         final Stream<AspectModelFile> selectedFiles = filterImportedFiles( changeManager, filesToImport );
+
+         final Stream<URI> savedUris = saveAspectModelFiles( selectedFiles );
+
+         return new ModelGroupingUtils( this.aspectModelLoader, this.modelPath ).groupModelsByNamespaceAndVersion( savedUris );
       } catch ( final IOException e ) {
-         LOG.error( "Cannot create exported package file." );
-         throw new FileNotFoundException( String.format( "Error while creating the package file: %s", zipFileName ),
-               e );
+         throw new ModelResolutionException( "Could not read from input", e );
       }
    }
 
-   public FileValidationReport validateImportAspectModelPackage( final MultipartFile zipFile ) {
-      try ( final InputStream inputStream = zipFile.getInputStream() ) {
-         deleteInMemoryFileSystem();
+   private AddAspectModelFile createAddChange( final AspectModelFile file, final ModelsRoot modelsRoot ) {
+      final URI targetLocation = modelsRoot.directoryForNamespace( file.namespaceUrn() ).resolve( file.filename().orElseThrow() ).toUri();
 
-         UnzipUtils.extractFilesFromPackage( inputStream, importFileSystem );
-         return validateValidFiles( modelPath );
-      } catch ( final Exception e ) {
-         LOG.error( "Cannot unzip package file." );
-         throw new IllegalArgumentException(
-               String.format( "Package file %s was not unzipped successfully. %s.", zipFile.getOriginalFilename(),
-                     e.getMessage() ), e );
-      }
+      final RawAspectModelFileBuilder builder = RawAspectModelFileBuilder.builder().sourceModel( file.sourceModel() )
+            .sourceLocation( Optional.of( targetLocation ) ).headerComment( file.headerComment() );
+
+      return new AddAspectModelFile( builder.build() );
    }
 
-   public void deleteInMemoryFileSystem() throws IOException {
-      Path root = importFileSystem.getRootDirectories().iterator().next();
-
-      try ( Stream<Path> rootPath = Files.walk( importFileSystem.getPath( "/" ) ) ) {
-         rootPath.sorted( Comparator.reverseOrder() ).forEach( path -> {
-            try {
-               if ( !path.equals( root ) ) {
-                  Files.delete( path );
-               }
-            } catch ( IOException e ) {
-               throw new FileCannotDeleteException(
-                     "Failed to delete files and directories on the in-memory file system.", e );
-            }
-         } );
-      }
+   private AspectChangeManager initChangeManager() {
+      final AspectChangeManagerConfig config = AspectChangeManagerConfigBuilder.builder().build();
+      return new AspectChangeManager( config, new AspectModelLoader().emptyModel() );
    }
 
-   private FileValidationReport validateValidFiles( final String modelStoragePath ) {
-      final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-      final List<NamespaceFileContent> namespaceFileContent = strategy.getImportedNamespaceFileContent();
-
-      return namespaceFileContent.stream().map( content -> {
-         final Boolean modelExist = strategy.checkModelExist( content.getNamespace(), content.getFileName() );
-
-         final Path root = importFileSystem.getRootDirectories().iterator().next();
-
-         final InMemoryStrategy inMemoryStrategy = new InMemoryStrategy( content, root, importFileSystem );
-         final Try<VersionedModel> versionedModel = ResolverUtils.fetchVersionModel( inMemoryStrategy );
-
-         final ViolationReport violationReport = ValidationUtils.validateModel( versionedModel,
-               aspectModelValidator );
-
-         final NamespaceFileReport namespaceFileReport = new NamespaceFileReport( content.getNamespace(),
-               content.getFileName(), violationReport, modelExist );
-
-         final List<ElementMissingReport> missingFiles = getMissingAspectModelFiles( violationReport,
-               content.getFileName(), modelStoragePath );
-
-         return new FileValidationReport( namespaceFileReport, missingFiles );
-      } ).reduce( new FileValidationReport(), FileValidationReport::merge );
+   private Stream<AspectModelFile> filterImportedFiles( final AspectChangeManager changeManager, final List<String> filesToImport ) {
+      return changeManager.aspectModelFiles().filter(
+            file -> filesToImport.stream().anyMatch( path -> file.sourceLocation().map( URI::toString ).orElse( "" ).contains( path ) ) );
    }
 
-   public List<String> importAspectModelPackage( final List<NamespaceFileCollection> aspectModelFiles ) {
-      final ModelResolverStrategy strategy = modelResolverRepository.getStrategy( LocalFolderResolverStrategy.class );
-
-      return aspectModelFiles.stream().flatMap(
-            data -> sanitizeIncomingFiles( data.getFiles() ).stream().map( fileName -> {
-               try {
-                  final FolderStructure folderStructure = LocalFolderResolverUtils.extractFilePath(
-                        data.getNamespace() );
-                  folderStructure.setFileName( fileName );
-                  String aspectModel = ResolverUtils.readString(
-                        importFileSystem.getPath( folderStructure.toString() ), StandardCharsets.UTF_8 );
-                  Optional<String> namespaceVersion = Optional.of(
-                        folderStructure.getFileRootPath() + File.separator + folderStructure.getVersion() );
-
-                  strategy.saveModel( namespaceVersion, Optional.of( fileName ), aspectModel );
-
-                  return folderStructure.toString();
-               } catch ( final IOException e ) {
-                  throw new FileNotFoundException(
-                        String.format( "Cannot import Aspect Model with name %s to workspace", fileName ) );
-               }
-            } ) ).toList();
+   private Stream<URI> saveAspectModelFiles( final Stream<AspectModelFile> files ) {
+      return files.peek( this::ensureParentDirectoryExists ).peek( AspectSerializer.INSTANCE::write ).map( AspectModelFile::sourceLocation )
+            .filter( Optional::isPresent ).map( Optional::get );
    }
 
-   private List<String> sanitizeIncomingFiles( List<String> incomingFiles ) {
-      return incomingFiles.stream().map( ModelUtils::sanitizeFileInformation ).toList();
+   private void ensureParentDirectoryExists( final AspectModelFile file ) {
+      file.sourceLocation().map( Paths::get ).map( Path::toFile ).map( File::getParentFile ).ifPresent( parent -> {
+         if ( !parent.exists() ) {
+            parent.mkdirs();
+         }
+      } );
    }
 
-   private List<ElementMissingReport> getMissingAspectModelFiles( final ViolationReport violationReport,
-         final String fileName, final String modelStoragePath ) {
-      final List<ViolationError> violationErrors = violationReport.getViolationErrors().stream().filter(
-                                                                        violation -> violation.getErrorCode() != null && violation.getErrorCode()
-                                                                                                                                  .equals( ProcessingViolation.ERROR_CODE ) )
-                                                                  .toList();
-
-      if ( violationErrors.isEmpty() ) {
-         return List.of();
-      }
-
-      return violationErrors.stream().map( validation -> {
-         final AspectModelUrn focusNode = validation.getFocusNode() != null ? validation.getFocusNode() : null;
-
-         final String missingAspectModelFile = ModelUtils.getAspectModelFile( modelStoragePath, focusNode );
-
-         final String errorMessage = String.format(
-               "Referenced element: '%s' could not be found in Aspect Model file: '%s'.", focusNode, fileName );
-         return new ElementMissingReport( fileName, (focusNode != null ? focusNode.toString() : ""),
-               missingAspectModelFile,
-               errorMessage );
-      } ).toList();
-   }
-
-   public void backupWorkspace( final String aspectModelPath ) {
+   public void backupWorkspace() {
       try {
          final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy.MM.dd-HH.mm.ss" );
          final String timestamp = sdf.format( new Timestamp( System.currentTimeMillis() ) );
-         final String fileName = "backup-" + timestamp + ".zip";
-         ZipUtils.createPackageFromWorkspace( fileName, aspectModelPath, modelPath );
+         final String zipFileName = modelPath.resolve( "backup-" + timestamp + ".zip" ).toString();
+
+         try ( final ZipOutputStream zos = new ZipOutputStream( new FileOutputStream( zipFileName ) );
+               final Stream<Path> paths = Files.walk( modelPath ) ) {
+
+            paths.filter( Files::isRegularFile ).filter( path -> path.toString().endsWith( ".ttl" ) ).forEach( filePath -> {
+               try {
+                  final ZipEntry zipEntry = new ZipEntry( modelPath.relativize( filePath ).toString() );
+                  zos.putNextEntry( zipEntry );
+                  Files.copy( filePath, zos );
+                  zos.closeEntry();
+               } catch ( final IOException e ) {
+                  LOG.error( "Error while zipping file: {}", filePath, e );
+                  throw new CreateFileException( "Error while zipping file: " + filePath, e );
+               }
+            } );
+         }
       } catch ( final IOException e ) {
-         LOG.error( "Cannot create backup package." );
-         throw new FileNotFoundException( "Error while creating backup package.", e );
+         LOG.error( "Failed to create the zip file." );
+         throw new CreateFileException( "An error occurred while creating the zip file.", e );
       }
    }
 }

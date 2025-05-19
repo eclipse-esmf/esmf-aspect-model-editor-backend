@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -13,7 +13,10 @@
 
 package org.eclipse.esmf.ame.services;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,37 +26,37 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.zip.ZipInputStream;
 
-import org.eclipse.esmf.ame.config.TestConfig;
 import org.eclipse.esmf.ame.exceptions.GenerationException;
 import org.eclipse.esmf.aspectmodel.generator.openapi.OpenApiSchemaGenerationConfig;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import jakarta.inject.Inject;
+import org.junit.jupiter.api.Test;
 
-@ExtendWith( SpringExtension.class )
-@SpringBootTest( classes = GenerateService.class )
-@DirtiesContext( classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD )
-@Import( TestConfig.class )
-@ActiveProfiles( "test" )
+@MicronautTest
 class GenerateServiceTest {
-
-   @Autowired
+   @Inject
    private GenerateService generateService;
 
    private static final Path resourcesPath = Path.of( "src", "test", "resources", "services" );
    private static final Path eclipseTestPath = Path.of( resourcesPath.toString(), "org.eclipse.esmf.example", "1.0.0" );
 
-   private static final String model = "AspectModelForService.ttl";
+   private final String model = "Movement.ttl";
+
+   @Test
+   void testAspectModelHtmlDocumentation() throws IOException {
+      final Path storagePath = Path.of( eclipseTestPath.toString(), model );
+      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
+
+      final byte[] payload = generateService.generateHtmlDocument( testModel, "en" );
+
+      assertTrue( new String( payload, StandardCharsets.UTF_8 ).contains( "<!doctype html>" ) );
+   }
 
    @Test
    void testAspectModelJsonSample() throws IOException {
@@ -62,7 +65,13 @@ class GenerateServiceTest {
 
       final String payload = generateService.sampleJSONPayload( testModel );
 
-      assertEquals( "{\"property\":\"eOMtThyhVNLWUZNRcBaQKxI\"}", payload );
+      final ObjectMapper mapper = new ObjectMapper();
+      final JsonNode expected = mapper.readTree(
+            "{\"isMoving\":true,\"position\":{\"altitude\":153.0,\"latitude\":9.1781,\"longitude\":48.80835},\"speed\":-1.9556407E38,"
+                  + "\"speedLimitWarning\":\"green\"}" );
+      final JsonNode actual = mapper.readTree( payload );
+
+      assertEquals( expected, actual );
    }
 
    @Test
@@ -72,7 +81,7 @@ class GenerateServiceTest {
 
       final String payload = generateService.jsonSchema( testModel, "en-EN" );
 
-      assertTrue( payload.contains( "#/components/schemas/Characteristic" ) );
+      assertTrue( payload.contains( "#/components/schemas/Coordinate" ) );
    }
 
    @Test
@@ -89,7 +98,7 @@ class GenerateServiceTest {
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
-      assertTrue( payload.contains( "\"title\" : \"AspectModelForService\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"movement\"" ) );
       assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
    }
 
@@ -122,7 +131,7 @@ class GenerateServiceTest {
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
-      assertTrue( payload.contains( "\"title\" : \"AspectModelForService\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"movement\"" ) );
       assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
       assertTrue( payload.contains( "\"/resource/{resourceId}\"" ) );
       assertTrue( payload.contains( "\"name\" : \"resourceId\"" ) );
@@ -171,7 +180,7 @@ class GenerateServiceTest {
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
-      assertTrue( payload.contains( "\"title\" : \"AspectModelForService\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"movement\"" ) );
       assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
       assertTrue( payload.contains( "\"get\" : " ) );
       assertTrue( payload.contains( "\"post\" : " ) );
@@ -193,7 +202,7 @@ class GenerateServiceTest {
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
-      assertTrue( payload.contains( "\"title\" : \"AspectModelForService\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"movement\"" ) );
       assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
       assertTrue( payload.contains( "\"get\" : " ) );
       assertTrue( payload.contains( "\"post\" : " ) );
@@ -215,7 +224,7 @@ class GenerateServiceTest {
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
-      assertTrue( payload.contains( "\"title\" : \"AspectModelForService\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"movement\"" ) );
       assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
       assertTrue( payload.contains( "\"get\" : " ) );
       assertFalse( payload.contains( "\"post\" : " ) );
@@ -237,7 +246,7 @@ class GenerateServiceTest {
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
-      assertTrue( payload.contains( "\"title\" : \"AspectModelForService\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"movement\"" ) );
       assertTrue( payload.contains( "\"url\" : \"https://test.com/api/v1\"" ) );
       assertTrue( payload.contains( "\"get\" : " ) );
       assertFalse( payload.contains( "\"post\" : " ) );
@@ -259,7 +268,7 @@ class GenerateServiceTest {
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
-      assertTrue( payload.contains( "title: AspectModel" ) );
+      assertTrue( payload.contains( "title: movement" ) );
       assertTrue( payload.contains( "version: v1" ) );
       assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
    }
@@ -288,7 +297,7 @@ class GenerateServiceTest {
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
-      assertTrue( payload.contains( "title: AspectModel" ) );
+      assertTrue( payload.contains( "title: movement" ) );
       assertTrue( payload.contains( "version: v1" ) );
       assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
       assertTrue( payload.contains( "/resource/{resourceId}" ) );
@@ -334,7 +343,7 @@ class GenerateServiceTest {
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
-      assertTrue( payload.contains( "title: AspectModel" ) );
+      assertTrue( payload.contains( "title: movement" ) );
       assertTrue( payload.contains( "version: v1" ) );
       assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
       assertTrue( payload.contains( "get:" ) );
@@ -357,7 +366,7 @@ class GenerateServiceTest {
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
-      assertTrue( payload.contains( "title: AspectModel" ) );
+      assertTrue( payload.contains( "title: movement" ) );
       assertTrue( payload.contains( "version: v1" ) );
       assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
       assertTrue( payload.contains( "get:" ) );
@@ -380,7 +389,7 @@ class GenerateServiceTest {
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
-      assertTrue( payload.contains( "title: AspectModel" ) );
+      assertTrue( payload.contains( "title: movement" ) );
       assertTrue( payload.contains( "version: v1" ) );
       assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
       assertTrue( payload.contains( "get:" ) );
@@ -403,7 +412,7 @@ class GenerateServiceTest {
       final String payload = generateService.generateYamlOpenApiSpec( testModel, config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
-      assertTrue( payload.contains( "title: AspectModel" ) );
+      assertTrue( payload.contains( "title: movement" ) );
       assertTrue( payload.contains( "version: v1" ) );
       assertTrue( payload.contains( "url: https://test.com/api/v1" ) );
       assertTrue( payload.contains( "get:" ) );
@@ -455,12 +464,12 @@ class GenerateServiceTest {
             generateService.generateAsyncApiSpec( testModel, "en", "json", "application:id", "foo/bar", false, false ),
             StandardCharsets.UTF_8 );
 
-      assertTrue( payload.contains( "\"asyncapi\":\"3.0.0\"" ) );
-      assertTrue( payload.contains( "\"id\":\"application:id\"" ) );
-      assertTrue( payload.contains( "\"title\":\"AspectModelForService MQTT API\"" ) );
-      assertTrue( payload.contains( "\"version\":\"v1\"" ) );
-      assertTrue( payload.contains( "\"defaultContentType\":\"application/json\"" ) );
-      assertTrue( payload.contains( "\"address\":\"foo/bar\"" ) );
+      assertTrue( payload.contains( "\"asyncapi\" : \"3.0.0\"" ) );
+      assertTrue( payload.contains( "\"id\" : \"application:id\"" ) );
+      assertTrue( payload.contains( "\"title\" : \"movement MQTT API\"" ) );
+      assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
+      assertTrue( payload.contains( "\"defaultContentType\" : \"application/json\"" ) );
+      assertTrue( payload.contains( "\"address\" : \"foo/bar\"" ) );
    }
 
    @Test
@@ -485,7 +494,7 @@ class GenerateServiceTest {
 
       assertTrue( payload.contains( "asyncapi: 3.0.0" ) );
       assertTrue( payload.contains( "id: application:id" ) );
-      assertTrue( payload.contains( "title: AspectModelForService MQTT API" ) );
+      assertTrue( payload.contains( "title: movement MQTT API" ) );
       assertTrue( payload.contains( "version: v1" ) );
       assertTrue( payload.contains( "defaultContentType: application/json" ) );
       assertTrue( payload.contains( "address: foo/bar" ) );

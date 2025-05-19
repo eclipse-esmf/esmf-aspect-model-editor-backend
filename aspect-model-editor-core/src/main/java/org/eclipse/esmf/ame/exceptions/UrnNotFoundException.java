@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -18,9 +18,6 @@ import java.io.Serial;
 
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
-import lombok.Getter;
-
-@Getter
 public class UrnNotFoundException extends IOException {
    @Serial
    private static final long serialVersionUID = 1L;
@@ -35,5 +32,9 @@ public class UrnNotFoundException extends IOException {
    public UrnNotFoundException( final String message, final AspectModelUrn urn ) {
       super( message );
       this.urn = urn;
+   }
+
+   public AspectModelUrn getUrn() {
+      return urn;
    }
 }

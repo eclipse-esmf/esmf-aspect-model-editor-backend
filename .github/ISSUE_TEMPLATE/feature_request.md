@@ -1,6 +1,6 @@
 ---
 name: Task
-about: Suggest a task for this project. This can be any type of work item like for example a feature request. 
+about: Suggest a task for this project. This can be any type of work item like for example a feature request.
 title: '[Task]'
 labels: task
 assignees: ''
@@ -8,7 +8,8 @@ assignees: ''
 ---
 
 **Is your task related to a problem? Please describe.**
-A clear and concise description of what the problem is. Examples are "I am always frustrated when [...]", or "I think it is cumbersome to [...]", "There seems to be a better way to [...]"
+A clear and concise description of what the problem is. Examples are "I am always frustrated when [...]", or "I think it is cumbersome to [...]", "There seems
+to be a better way to [...]"
 
 **Describe the solution you'd like**
 A clear and concise description of what you want to happen.

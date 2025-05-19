@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -13,64 +13,41 @@
 
 package org.eclipse.esmf.ame.config;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
 
-import org.eclipse.esmf.ame.api.ModelController;
-import org.eclipse.esmf.ame.exceptions.CreateFileException;
-import org.eclipse.esmf.ame.exceptions.ResponseExceptionHandler;
-import org.eclipse.esmf.ame.model.StoragePath;
-import org.eclipse.esmf.ame.repository.strategy.LocalFolderResolverStrategy;
-import org.eclipse.esmf.ame.repository.strategy.ModelResolverStrategy;
-import org.eclipse.esmf.aspectmodel.shacl.constraint.JsConstraint;
+import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
+import org.eclipse.esmf.aspectmodel.resolver.FileSystemStrategy;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
+import io.micronaut.context.annotation.Bean;
+import io.micronaut.context.annotation.Factory;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.runtime.http.scope.RequestScope;
+import jakarta.inject.Singleton;
 
 /**
  * Configuration class for setting up various application-level beans and configurations.
  * This class primarily sets up properties, file systems, model paths, and CORS mappings.
  */
-@Configuration
-@ComponentScan( basePackageClasses = { ResponseExceptionHandler.class, ModelController.class } )
-@EnableConfigurationProperties( ApplicationSettings.class )
-public class ApplicationConfig implements WebMvcConfigurer {
-
-   private final ApplicationSettings applicationSettings;
-   private final Environment environment;
-   private FileSystem importFileSystem;
+@Factory
+public class ApplicationConfig {
 
    /**
     * Constructs an instance of ApplicationConfig with the provided settings and environment.
-    *
-    * @param applicationSettings The settings of the application.
-    * @param environment The environment the application is running in.
     */
-   public ApplicationConfig( final ApplicationSettings applicationSettings, final Environment environment ) {
-      this.applicationSettings = applicationSettings;
-      this.environment = environment;
+   public ApplicationConfig() {
    }
 
    /**
     * Configures CORS mappings for the application, allowing specific HTTP methods.
-    *
-    * @param registry the CORS registry.
     */
-   @Override
-   public void addCorsMappings( final CorsRegistry registry ) {
-      registry.addMapping( "/**" )
-              .allowedMethods( "GET", "POST", "PUT", "DELETE" );
+   @Controller
+   @RequestScope
+   public static class CorsController {
+      @io.micronaut.http.annotation.Options( "/**" )
+      public void configureCors() {
+         // Allow specific HTTP methods (Micronaut handles this via filters or controller annotations)
+      }
    }
 
    /**
@@ -79,28 +56,9 @@ public class ApplicationConfig implements WebMvcConfigurer {
     * @return a new instance of AspectModelValidator.
     */
    @Bean
+   @Singleton
    public AspectModelValidator getAspectModelValidator() {
-      // Spring and GraalVM cannot launch Javascript engines at the moment, so this must be disabled for now.
-      JsConstraint.setEvaluateJavaScript( false );
-
       return new AspectModelValidator();
-   }
-
-   /**
-    * Creates and returns an in-memory file system for imports.
-    *
-    * @return a new or existing in-memory file system.
-    */
-   @Bean
-   public FileSystem importFileSystem() {
-      if ( importFileSystem == null ) {
-         try {
-            importFileSystem = MemoryFileSystemBuilder.newEmpty().build();
-         } catch ( IOException e ) {
-            throw new CreateFileException( "Failed to create in-memory import file system.", e );
-         }
-      }
-      return importFileSystem;
    }
 
    /**
@@ -109,22 +67,18 @@ public class ApplicationConfig implements WebMvcConfigurer {
     * @return the absolute path to the models.
     */
    @Bean
-   public String modelPath() {
-      if ( environment.acceptsProfiles( Profiles.of( "test" ) ) ) {
-         return Path.of( "src", "test", "resources", "services" ).toAbsolutePath().toString();
-      }
-
-      return StoragePath.MetaModel.getPath().toString();
+   @Singleton
+   public Path modelPath() {
+      return ApplicationSettings.getMetaModelStoragePath();
    }
 
    /**
-    * Creates a list of model resolver strategies with settings and file systems configured.
+    * Creates a bean of {@link AspectModelLoader} using a {@link FileSystemStrategy} based on the model path.
     *
-    * @return a list containing an instance of LocalFolderResolverStrategy.
+    * @return a new instance of {@link AspectModelLoader}.
     */
    @Bean
-   public List<ModelResolverStrategy> modelStrategies() {
-      return Collections.singletonList(
-            new LocalFolderResolverStrategy( applicationSettings, importFileSystem(), modelPath() ) );
+   public AspectModelLoader aspectModelLoader() {
+      return new AspectModelLoader( new FileSystemStrategy( modelPath() ) );
    }
 }

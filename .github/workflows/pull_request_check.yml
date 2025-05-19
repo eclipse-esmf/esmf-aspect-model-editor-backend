@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-12, windows-latest, ubuntu-20.04 ]
+        os: [ macos-13, windows-latest, ubuntu-latest ]
 
     steps:
       - name: Checkout project
@@ -34,9 +34,8 @@ jobs:
       - name: Setup graalvm ce
         uses: graalvm/setup-graalvm@v1
         with:
-          version: '22.3.1'
-          java-version: '17'
-          components: 'native-image,js'
+          java-version: '21'
+          distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache maven packages
@@ -48,14 +47,14 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Creating native image (Mac)
-        if: matrix.os == 'macos-12'
-        run: mvn install -P native-image -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+        if: matrix.os == 'macos-13'
+        run: mvn install -P native-image,native-test-config -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Linux)
-        if: matrix.os == 'ubuntu-20.04'
-        run: mvn install -P native-image -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+        if: matrix.os == 'ubuntu-latest'
+        run: mvn install -P native-image,native-test-config -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -65,25 +64,25 @@ jobs:
 
       - name: Creating native image (Win)
         if: matrix.os == 'windows-latest'
-        run: mvn install -P native-image -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
+        run: mvn install -P native-image,native-test-config -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Mac
-        if: matrix.os == 'macos-12'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=mac
+        if: matrix.os == 'macos-13'
+        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=mac
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Linux
-        if: matrix.os == 'ubuntu-20.04'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-postman-integration-tests -Dos.platform=linux
+        if: matrix.os == 'ubuntu-latest'
+        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=linux
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Windows
         if: matrix.os == 'windows-latest'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-postman-integration-tests -D os.platform=win
+        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-bruno-integration-tests -D os.platform=win
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -99,7 +98,7 @@ jobs:
             aspect-model-editor-runtime/target/lib/
 
       - name: Upload binary (Linux)
-        if: matrix.os == 'ubuntu-20.04'
+        if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: ame-backend-linux
@@ -108,7 +107,7 @@ jobs:
             aspect-model-editor-runtime/target/*.so
 
       - name: Upload binary (Mac)
-        if: matrix.os == 'macos-12'
+        if: matrix.os == 'macos-13'
         uses: actions/upload-artifact@v4
         with:
           name: ame-backend-mac

@@ -1,59 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH, Germany. All rights reserved.
+  ~ Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+  ~
+  ~ See the AUTHORS file(s) distributed with this work for
+  ~ additional information regarding authorship.
+  ~
+  ~ This Source Code Form is subject to the terms of the Mozilla Public
+  ~ License, v. 2.0. If a copy of the MPL was not distributed with this
+  ~ file, You can obtain one at https://mozilla.org/MPL/2.0/.
+  ~
+  ~ SPDX-License-Identifier: MPL-2.0
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+   <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.eclipse.esmf</groupId>
-        <artifactId>aspect-model-editor-parent</artifactId>
-        <version>DEV-SNAPSHOT</version>
-    </parent>
+   <parent>
+      <groupId>org.eclipse.esmf</groupId>
+      <artifactId>aspect-model-editor-parent</artifactId>
+      <version>DEV-SNAPSHOT</version>
+   </parent>
 
-    <artifactId>aspect-model-editor-web</artifactId>
-    <name>ESMF Aspect Model Editor Web</name>
+   <artifactId>aspect-model-editor-web</artifactId>
+   <name>ESMF Aspect Model Editor Web</name>
 
-    <dependencies>
-        <!-- Multi module dependencies -->
-        <dependency>
-            <groupId>org.eclipse.esmf</groupId>
-            <artifactId>aspect-model-editor-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.esmf</groupId>
-            <artifactId>aspect-model-editor-service</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.esmf</groupId>
-            <artifactId>aspect-model-editor-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.esmf</groupId>
-            <artifactId>aspect-model-editor-web-core</artifactId>
-        </dependency>
+   <dependencies>
+      <!-- Multi module dependencies -->
+      <dependency>
+         <groupId>org.eclipse.esmf</groupId>
+         <artifactId>aspect-model-editor-core</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.esmf</groupId>
+         <artifactId>aspect-model-editor-service</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.esmf</groupId>
+         <artifactId>aspect-model-editor-validation</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.esmf</groupId>
+         <artifactId>aspect-model-editor-web-core</artifactId>
+      </dependency>
 
-        <!-- ESMF dependencies -->
-        <dependency>
-            <groupId>org.eclipse.esmf</groupId>
-            <artifactId>esmf-aspect-model-document-generators</artifactId>
-        </dependency>
+      <!-- ESMF dependencies -->
+      <dependency>
+         <groupId>org.eclipse.esmf</groupId>
+         <artifactId>esmf-aspect-model-document-generators</artifactId>
+      </dependency>
 
-        <!-- Third party dependencies -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-security</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-    </dependencies>
+      <!-- Third party dependencies -->
+      <dependency>
+         <groupId>org.apache.velocity</groupId>
+         <artifactId>velocity-engine-core</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-http-client</artifactId>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
+         <groupId>io.micronaut</groupId>
+         <artifactId>micronaut-inject</artifactId>
+      </dependency>
+   </dependencies>
 </project>

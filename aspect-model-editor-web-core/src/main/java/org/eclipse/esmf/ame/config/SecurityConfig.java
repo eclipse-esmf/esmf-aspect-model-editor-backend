@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -13,11 +13,14 @@
 
 package org.eclipse.esmf.ame.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.web.SecurityFilterChain;
+import io.micronaut.context.annotation.Requires;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.http.MutableHttpResponse;
+import io.micronaut.http.annotation.Filter;
+import io.micronaut.http.filter.HttpServerFilter;
+import io.micronaut.http.filter.ServerFilterChain;
+import jakarta.inject.Singleton;
+import org.reactivestreams.Publisher;
 
 /**
  * Represents the application's security configuration.
@@ -26,23 +29,13 @@ import org.springframework.security.web.SecurityFilterChain;
  *
  * <p>Typical usage includes disabling CSRF and permitting all requests to certain paths.</p>
  */
-@Configuration
-@PropertySource( { "classpath:/multipart-default.properties" } )
-public class SecurityConfig {
-   /**
-    * Configures the HTTP security filter chain. This configuration disables CSRF,
-    * permits all requests to paths matching "/**", and requires authentication for
-    * all other requests.
-    *
-    * @param http an {@link HttpSecurity} instance to configure.
-    * @return the configured {@link SecurityFilterChain}.
-    *
-    * @throws Exception if there's an error configuring the {@link HttpSecurity}.
-    */
-   @Bean
-   public SecurityFilterChain filterChain( final HttpSecurity http ) throws Exception {
-      return http.csrf().disable().authorizeHttpRequests(
-                       requests -> requests.requestMatchers( "/**" ).permitAll().anyRequest().authenticated() )
-                 .build();
+
+@Singleton
+@Requires( property = "micronaut.security.enabled", value = "true" )
+@Filter( "/**" )
+public class SecurityConfig implements HttpServerFilter {
+   @Override
+   public Publisher<MutableHttpResponse<?>> doFilter( final HttpRequest<?> request, final ServerFilterChain chain ) {
+      return chain.proceed( request );
    }
 }
