@@ -26,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
@@ -81,8 +80,7 @@ class PackageServiceTest {
 
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.zip", testPackage, MediaType.APPLICATION_PDF_TYPE );
 
-      packageService.importPackage( mockedZipFile,
-            List.of( "org.eclipse.esmf.example/1.0.0/Esmf.ttl", "org.eclipse.esmf.test/1.0.0/Movement.ttl" ) );
+      packageService.importPackage( mockedZipFile );
 
       try ( final ZipInputStream zis = new ZipInputStream( new ByteArrayInputStream( testPackage ) ) ) {
          ZipEntry entry;
