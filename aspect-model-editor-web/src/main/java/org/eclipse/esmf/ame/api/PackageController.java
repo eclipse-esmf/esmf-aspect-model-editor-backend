@@ -28,10 +28,12 @@ import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
+import io.micronaut.http.annotation.Consumes;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Part;
+import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import org.apache.commons.io.FilenameUtils;
@@ -74,7 +76,8 @@ public class PackageController {
     * @return An HttpResponse containing a list of maps, where each map represents a validated file with its details.
     * @throws FileReadException if the uploaded file is not in ZIP format.
     */
-   @Get( "/validate-package" )
+   @Post( "/validate-package" )
+   @Consumes( MediaType.MULTIPART_FORM_DATA )
    public HttpResponse<List<Map<String, String>>> validatePackage( @Part( "zipFile" ) final CompletedFileUpload zipFile ) {
       final String extension = FilenameUtils.getExtension( zipFile.getFilename() );
 
@@ -92,7 +95,8 @@ public class PackageController {
     * @return A HttpResponse indicating the result of the import operation.
     * @throws FileReadException if the uploaded file is not in ZIP format.
     */
-   @Get( "/import" )
+   @Post( "/import" )
+   @Consumes( MediaType.MULTIPART_FORM_DATA )
    public HttpResponse<Map<String, List<Version>>> importPackage( @Part( "zipFile" ) final CompletedFileUpload zipFile ) {
       final String extension = FilenameUtils.getExtension( zipFile.getFilename() );
 
