@@ -91,7 +91,7 @@ public class ModelController {
 
    /**
     * Method used to delete a turtle file based on the header parameter: Ame-Model-Urn which consists of
-    * namespace:version:turtleFileName.ttl.
+    * urn:samm:namespace:version#AspectModelElement.
     */
    @Delete()
    public void deleteModel( @Header( URN ) final Optional<String> urn ) {

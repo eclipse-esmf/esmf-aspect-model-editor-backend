@@ -28,7 +28,6 @@ import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.MediaType;
-import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Header;
@@ -69,26 +68,39 @@ public class PackageController {
    }
 
    /**
-    * Imports a zip file containing Aspect Models.
+    * Validates a ZIP file containing Aspect Model files.
     *
-    * @param zipFile - The zip file containing Aspect Model files.
-    * @param filesToImport a list of file names to import from the zip file
-    * @return A HttpResponse indicating the result of the import operation.
+    * @param zipFile The uploaded ZIP file containing Aspect Model files.
+    * @return An HttpResponse containing a list of maps, where each map represents a validated file with its details.
+    * @throws FileReadException if the uploaded file is not in ZIP format.
     */
-   @Get( "/import" )
-   public HttpResponse<Map<String, List<Version>>> importPackage( @Part( "zipFile" ) final CompletedFileUpload zipFile,
-         @Body( "filesToImport" ) final List<String> filesToImport ) {
+   @Get( "/validate-package" )
+   public HttpResponse<List<Map<String, String>>> validatePackage( @Part( "zipFile" ) final CompletedFileUpload zipFile ) {
       final String extension = FilenameUtils.getExtension( zipFile.getFilename() );
 
       if ( !Objects.requireNonNull( extension ).equals( "zip" ) ) {
          throw new FileReadException( "The file you selected is not in ZIP format." );
       }
 
-      if ( filesToImport == null ) {
-         throw new NullPointerException( "Files to import should be set." );
+      return HttpResponse.ok( packageService.validatePackage( zipFile ) );
+   }
+
+   /**
+    * Imports a zip file containing Aspect Models.
+    *
+    * @param zipFile - The zip file containing Aspect Model files.
+    * @return A HttpResponse indicating the result of the import operation.
+    * @throws FileReadException if the uploaded file is not in ZIP format.
+    */
+   @Get( "/import" )
+   public HttpResponse<Map<String, List<Version>>> importPackage( @Part( "zipFile" ) final CompletedFileUpload zipFile ) {
+      final String extension = FilenameUtils.getExtension( zipFile.getFilename() );
+
+      if ( !Objects.requireNonNull( extension ).equals( "zip" ) ) {
+         throw new FileReadException( "The file you selected is not in ZIP format." );
       }
 
-      return HttpResponse.ok( packageService.importPackage( zipFile, filesToImport ) );
+      return HttpResponse.ok( packageService.importPackage( zipFile ) );
    }
 
    /**
