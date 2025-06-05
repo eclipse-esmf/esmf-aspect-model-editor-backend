@@ -135,7 +135,7 @@
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>exec-maven-plugin</artifactId>
-            <configuration>
+            <configuration combine.self="override">
                <mainClass>${main.class}</mainClass>
             </configuration>
          </plugin>
@@ -145,7 +145,7 @@
             <configuration>
                <archive>
                   <manifest>
-                     <mainClass>org.eclipse.esmf.ame.Application</mainClass>
+                     <mainClass>${main.class}</mainClass>
                   </manifest>
                </archive>
                <excludes>
@@ -169,7 +169,7 @@
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                            <manifestEntries>
-                              <Main-Class>org.eclipse.esmf.ame.Application</Main-Class>
+                              <Main-Class>${main.class}</Main-Class>
                            </manifestEntries>
                         </transformer>
                      </transformers>

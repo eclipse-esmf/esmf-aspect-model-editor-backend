@@ -107,7 +107,7 @@
       <maven-compiler-plugin-version>3.10.0</maven-compiler-plugin-version>
       <maven-surefire-report-plugin-version>2.22.2</maven-surefire-report-plugin-version>
       <maven-scm-plugin-version>1.12.2</maven-scm-plugin-version>
-      <jacoco-maven-plugin-version>0.8.7</jacoco-maven-plugin-version>
+      <jacoco-maven-plugin-version>0.8.13</jacoco-maven-plugin-version>
       <maven-surefire-plugin-version>2.22.2</maven-surefire-plugin-version>
       <cyclonedx-maven-plugin-version>2.7.10</cyclonedx-maven-plugin-version>
       <frontend-maven-plugin-version>1.12.1</frontend-maven-plugin-version>
