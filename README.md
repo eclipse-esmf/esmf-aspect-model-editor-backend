@@ -40,7 +40,7 @@ Are you having trouble with Aspect Model Editor backend? We want to help!
 
 ```
 mvn clean package
-mvn exec:java -Dexec.mainClass="org.eclipse.esmf.ame.Application"
+mvn exec:java -pl aspect-model-editor-runtime
 ```
 
 We are always looking forward to your contributions. For more details on how to contribute just take a look at the
