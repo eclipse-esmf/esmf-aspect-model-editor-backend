@@ -16,13 +16,11 @@ package org.eclipse.esmf.ame.services;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
@@ -41,6 +39,7 @@ import org.eclipse.esmf.aspectmodel.edit.change.CopyFileWithIncreasedNamespaceVe
 import org.eclipse.esmf.aspectmodel.edit.change.IncreaseVersion;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
+import org.eclipse.esmf.aspectmodel.resolver.fs.StructuredModelsRoot;
 import org.eclipse.esmf.aspectmodel.serializer.AspectSerializer;
 import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
@@ -72,7 +71,7 @@ public class ModelService {
       this.modelPath = modelPath;
    }
 
-   public String getModel( final String aspectModelUrn, final String filePath ) {
+   public String getModel( final AspectModelUrn aspectModelUrn, final String filePath ) {
       try {
          final AspectModel aspectModel = ( filePath != null ) ?
                ModelUtils.loadModelFromFile( modelPath, filePath, aspectModelLoader ) :
@@ -80,7 +79,7 @@ public class ModelService {
          validateModel( aspectModel );
 
          return aspectModel.files().stream()
-               .filter( a -> a.elements().stream().anyMatch( e -> e.urn().equals( AspectModelUrn.fromUrn( aspectModelUrn ) ) ) ).findFirst()
+               .filter( a -> a.elements().stream().anyMatch( e -> e.urn().equals( aspectModelUrn ) ) ).findFirst()
                .map( AspectSerializer.INSTANCE::aspectModelFileToString )
                .orElseThrow( () -> new FileNotFoundException( "Aspect Model not found" ) );
       } catch ( final ModelResolutionException e ) {
@@ -88,9 +87,8 @@ public class ModelService {
       }
    }
 
-   private AspectModel loadModelFromUrn( final String aspectModelUrn ) {
-      final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplier( AspectModelUrn.fromUrn( aspectModelUrn ),
-            aspectModelLoader );
+   private AspectModel loadModelFromUrn( final AspectModelUrn aspectModelUrn ) {
+      final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplier( aspectModelUrn, aspectModelLoader );
       return aspectModelSupplier.get();
    }
 
@@ -101,9 +99,9 @@ public class ModelService {
       }
    }
 
-   public void createOrSaveModel( final String turtleData, final String urn, final String fileName, final Path storagePath ) {
+   public void createOrSaveModel( final String turtleData, final AspectModelUrn aspectModelUrn, final String fileName,
+         final Path storagePath ) {
       try {
-         final AspectModelUrn aspectModelUrn = AspectModelUrn.fromUrn( urn );
          final File newFile = ModelUtils.createFile( aspectModelUrn, fileName, storagePath );
 
          final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplier( turtleData, newFile, aspectModelLoader );
@@ -115,13 +113,12 @@ public class ModelService {
 
          AspectSerializer.INSTANCE.write( aspectModelSupplier.get().files().getFirst() );
       } catch ( final IOException e ) {
-         throw new CreateFileException( String.format( "Cannot create file %s on workspace", urn ), e );
+         throw new CreateFileException( String.format( "Cannot create file %s on workspace", aspectModelUrn ), e );
       }
    }
 
-   public void deleteModel( final String aspectModelUrn ) {
-      final Path filePath = ModelUtils.resolvePathFromUrn( aspectModelUrn, modelPath );
-      ModelUtils.deleteEmptyFiles( filePath.toFile() );
+   public void deleteModel( final AspectModelUrn aspectModelUrn ) {
+      ModelUtils.deleteEmptyFiles( new StructuredModelsRoot( modelPath ).determineAspectModelFile( aspectModelUrn ) );
    }
 
    public ViolationReport validateModel( final String turtleData ) {
@@ -153,11 +150,10 @@ public class ModelService {
 
    public Map<String, List<Version>> getAllNamespaces() {
       try {
-         final Stream<URI> uriStream = aspectModelLoader.listContents();
-         return new ModelGroupingUtils( this.aspectModelLoader, this.modelPath ).groupModelsByNamespaceAndVersion( uriStream );
+         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( aspectModelLoader.listContents() );
       } catch ( final UnsupportedVersionException e ) {
-         LOG.error( "{} There is a loose .ttl file somewhere — remove it along with any other non-standardized files.", sammStructureInfo,
-               e );
+         LOG.error( "{} There is a loose .ttl file somewhere — remove it along with any other non-standardized files.",
+               sammStructureInfo, e );
          throw new FileReadException( sammStructureInfo + " Remove all non-standardized files." );
       }
    }

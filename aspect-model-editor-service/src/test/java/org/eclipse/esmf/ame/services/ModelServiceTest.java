@@ -30,6 +30,7 @@ import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.FileSystemStrategy;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 import io.micronaut.context.annotation.Bean;
 import io.micronaut.context.annotation.Factory;
@@ -50,11 +51,10 @@ class ModelServiceTest {
 
    private static final Path RESOURCE_PATH = Path.of( "src", "test", "resources", "services" );
 
-   private static final String SAMM_URN = "urn:samm";
    private static final String EXAMPLE_NAMESPACE = "org.eclipse.esmf.example";
    private static final String VERSION = "1.0.0";
 
-   private static final String NAMESPACE_VERSION = SAMM_URN + ":" + EXAMPLE_NAMESPACE + ":" + VERSION;
+   private static final AspectModelUrn NAMESPACE = AspectModelUrn.fromUrn( "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION );
 
    private static final Path TEST_NAMESPACE_PATH = Path.of( RESOURCE_PATH.toString(), EXAMPLE_NAMESPACE, VERSION );
 
@@ -63,24 +63,24 @@ class ModelServiceTest {
    private static final String TEST_MODEL_TO_DELETE = "FileToDelete";
    private static final String TEST_FILEPATH = Path.of( EXAMPLE_NAMESPACE, VERSION, TEST_MODEL_FOR_SERVICE + FILE_EXTENSION ).toString();
 
-   private static final String URN = "urn:samm:org.eclipse.esmf.example:1.0.0#FileToDelete";
    private static final Path TTL_PATH = Path.of( "src", "test", "resources", "services", "org.eclipse.esmf.example", "1.0.0",
          "FileToDelete.ttl" );
 
    @Test
    void testDeleteModel() {
-      modelService.deleteModel( NAMESPACE_VERSION + "#" + TEST_MODEL_TO_DELETE );
+      modelService.deleteModel( NAMESPACE.withName( TEST_MODEL_TO_DELETE ) );
 
       final Path deletedFilePath = Path.of( TEST_NAMESPACE_PATH.toString(), "#", TEST_MODEL_TO_DELETE );
       assertFalse( Files.exists( deletedFilePath ), "The file should not exist after deleteModel() is called." );
 
-      assertThrows( FileNotFoundException.class, () -> modelService.getModel( URN, TTL_PATH.toString() ),
+      assertThrows( FileNotFoundException.class,
+            () -> modelService.getModel( NAMESPACE.withName( TEST_MODEL_TO_DELETE ), TTL_PATH.toString() ),
             "Expected FileNotFoundException when accessing a deleted model." );
    }
 
    @Test
    void testGetModel() throws ModelResolutionException {
-      final String result = modelService.getModel( NAMESPACE_VERSION + "#" + TEST_MODEL_FOR_SERVICE, TEST_FILEPATH );
+      final String result = modelService.getModel( NAMESPACE.withName( TEST_MODEL_FOR_SERVICE ), TEST_FILEPATH );
       assertTrue( result.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> ." ) );
       assertTrue( result.contains( "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ." ) );
       assertTrue( result.contains( "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> ." ) );
@@ -91,8 +91,8 @@ class ModelServiceTest {
 
    @Test()
    void testGetModelThrowsNotFoundException() {
-      assertThrows( FileNotFoundException.class,
-            () -> modelService.getModel( NAMESPACE_VERSION + "#" + TEST_MODEL_NOT_FOUND, TEST_FILEPATH ) );
+      assertThrows( FileNotFoundException.class, () ->
+            modelService.getModel( NAMESPACE.withName( TEST_MODEL_NOT_FOUND ), TEST_FILEPATH ) );
    }
 
    @Test
@@ -110,7 +110,7 @@ class ModelServiceTest {
          final Path fileToReplace = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL_FOR_SERVICE + FILE_EXTENSION );
          final String turtleData = Files.readString( fileToReplace, StandardCharsets.UTF_8 );
 
-         modelService.createOrSaveModel( turtleData, NAMESPACE_VERSION + "#" + TEST_MODEL_FOR_SERVICE,
+         modelService.createOrSaveModel( turtleData, NAMESPACE.withName( TEST_MODEL_FOR_SERVICE ),
                TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, RESOURCE_PATH.toAbsolutePath() );
       } );
    }

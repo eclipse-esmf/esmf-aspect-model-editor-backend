@@ -25,6 +25,7 @@ import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.utils.ModelUtils;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
@@ -37,6 +38,7 @@ import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
+import io.vavr.Value;
 
 /**
  * Controller class where all the requests are mapped. The RequestMapping for the class is "models".
@@ -52,6 +54,13 @@ public class ModelController {
       this.modelService = modelService;
    }
 
+   private AspectModelUrn parseAspectModelUrn( final Optional<String> urn ) {
+      return urn.map( ModelUtils::sanitizeFileInformation )
+            .map( AspectModelUrn::from )
+            .flatMap( Value::toJavaOptional )
+            .orElseThrow( () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
+   }
+
    /**
     * Method used to return a turtle file based on the header parameter: Aspect-Model-Urn which consists of
     * urn:samm:namespace:version#AspectModelElement
@@ -60,12 +69,8 @@ public class ModelController {
    @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
    public HttpResponse<String> getModel( @Header( URN ) final Optional<String> urn,
          @Header( "file-path" ) final Optional<String> filePath ) {
-      final Optional<String> optionalUrn = urn.map( ModelUtils::sanitizeFileInformation );
-
-      final String aspectModelUrn = optionalUrn.orElseThrow( () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
-
+      final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
       final String path = filePath.orElse( null );
-
       return HttpResponse.ok( modelService.getModel( aspectModelUrn, path ) );
    }
 
@@ -77,15 +82,10 @@ public class ModelController {
    @Post( consumes = { MediaType.TEXT_PLAIN, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public HttpResponse<String> createOrSaveModel( @Body final String turtleData, @Header( URN ) final Optional<String> urn,
          @Header( "file-name" ) final Optional<String> fileName ) {
-      final Optional<String> optionalUrn = urn.map( ModelUtils::sanitizeFileInformation );
       final Optional<String> optionalFileName = fileName.map( ModelUtils::sanitizeFileInformation );
-
-      final String aspectModelUrn = optionalUrn.orElseThrow( () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
-
+      final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
       final String name = optionalFileName.orElse( "" );
-
       modelService.createOrSaveModel( turtleData, aspectModelUrn, name, ApplicationSettings.getMetaModelStoragePath() );
-
       return HttpResponse.status( HttpStatus.CREATED );
    }
 
@@ -95,11 +95,7 @@ public class ModelController {
     */
    @Delete()
    public void deleteModel( @Header( URN ) final Optional<String> urn ) {
-      final Optional<String> optionalUrn = urn.map( ModelUtils::sanitizeFileInformation );
-
-      final String aspectModelUrn = optionalUrn.orElseThrow( () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
-
-      modelService.deleteModel( aspectModelUrn );
+      modelService.deleteModel( parseAspectModelUrn( urn ) );
    }
 
    /**

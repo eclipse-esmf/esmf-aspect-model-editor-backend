@@ -116,7 +116,7 @@ public class PackageService {
 
    public Map<String, List<Version>> importPackage( final CompletedFileUpload zipFile ) {
       try {
-         final ModelsRoot modelsRoot = new StructuredModelsRoot( this.modelPath );
+         final ModelsRoot modelsRoot = new StructuredModelsRoot( modelPath );
          final byte[] zipContent = IOUtils.toByteArray( zipFile.getInputStream() );
          final NamespacePackage namespacePackage = new NamespacePackage( zipContent, null );
 
@@ -128,7 +128,7 @@ public class PackageService {
 
          final Stream<URI> savedUris = saveAspectModelFiles( changeManager.aspectModelFiles() );
 
-         return new ModelGroupingUtils( this.aspectModelLoader, this.modelPath ).groupModelsByNamespaceAndVersion( savedUris );
+         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( savedUris );
       } catch ( final IOException e ) {
          throw new ModelResolutionException( "Could not read from input", e );
       }
