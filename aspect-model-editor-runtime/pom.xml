@@ -412,6 +412,7 @@
                         <arg>-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.configure=ALL-UNNAMED</arg>
                         <arg>-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jni=ALL-UNNAMED</arg>
                         <arg>--initialize-at-build-time=org.eclipse.esmf.nativefeatures.Native</arg>
+                        <arg>--initialize-at-build-time=ch.qos.logback</arg>
                         <arg>--initialize-at-run-time=org.graphper.api.attributes.Layout</arg>
                      </buildArgs>
                      <quickBuild>true</quickBuild>
