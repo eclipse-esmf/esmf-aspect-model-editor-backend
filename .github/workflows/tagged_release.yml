@@ -81,13 +81,13 @@ jobs:
 
       - name: Creating native image (Mac)
         if: matrix.os == 'macos-13'
-        run: mvn install -P native-image,native-test-config -DskipTests -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+        run: mvn install -P native-image,native-test-config -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: mvn install -P native-image,native-test-config -DskipTests -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+        run: mvn install -P native-image,native-test-config -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
 
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -98,7 +98,7 @@ jobs:
 
       - name: Creating native image (Win)
         if: matrix.os == 'windows-latest'
-        run: mvn install -P native-image,native-test-config -DskipTests -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
+        run: mvn install -P native-image,native-test-config -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
