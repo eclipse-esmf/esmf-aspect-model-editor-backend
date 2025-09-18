@@ -33,13 +33,13 @@ import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.ame.validation.utils.ValidationUtils;
+import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
 import org.eclipse.esmf.aspectmodel.edit.AspectChangeManager;
 import org.eclipse.esmf.aspectmodel.edit.change.CopyFileWithIncreasedNamespaceVersion;
 import org.eclipse.esmf.aspectmodel.edit.change.IncreaseVersion;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
-import org.eclipse.esmf.aspectmodel.resolver.fs.StructuredModelsRoot;
 import org.eclipse.esmf.aspectmodel.serializer.AspectSerializer;
 import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
@@ -118,7 +118,8 @@ public class ModelService {
    }
 
    public void deleteModel( final AspectModelUrn aspectModelUrn ) {
-      ModelUtils.deleteEmptyFiles( new StructuredModelsRoot( modelPath ).determineAspectModelFile( aspectModelUrn ) );
+      final AspectModelFile aspectModelFile = aspectModelLoader.load( aspectModelUrn ).files().getFirst();
+      ModelUtils.deleteEmptyFiles( aspectModelFile );
    }
 
    public ViolationReport validateModel( final String turtleData ) {
@@ -134,7 +135,9 @@ public class ModelService {
       final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
       final AspectModel aspectModel = aspectModelLoader.load( inputStream );
 
-      return aspectModel.files().stream().filter( a -> a.sourceLocation().isEmpty() ).findFirst()
+      return aspectModel.files().stream()
+            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "inmemory" ) ).orElse( false ) )
+            .findFirst()
             .map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to migrate" ) );
    }
@@ -143,7 +146,9 @@ public class ModelService {
       final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
       final AspectModel aspectModel = aspectModelLoader.load( inputStream );
 
-      return aspectModel.files().stream().filter( a -> a.sourceLocation().isEmpty() ).findFirst()
+      return aspectModel.files().stream()
+            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "inmemory" ) ).orElse( false ) )
+            .findFirst()
             .map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to formate" ) );
    }
