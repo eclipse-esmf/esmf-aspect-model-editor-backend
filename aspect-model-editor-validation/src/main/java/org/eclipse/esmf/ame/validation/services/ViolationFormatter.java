@@ -44,12 +44,12 @@ import org.eclipse.esmf.aspectmodel.shacl.violation.MinLengthViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.NodeKindViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.NotViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.PatternViolation;
-import org.eclipse.esmf.aspectmodel.shacl.violation.ProcessingViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.SparqlConstraintViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.UniqueLanguageViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.ValueFromListViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+import org.eclipse.esmf.aspectmodel.validation.ProcessingViolation;
 
 /**
  * The ViolationFormatter class is responsible for formatting a list of violations

@@ -21,17 +21,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
-import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.metamodel.AspectModel;
@@ -60,20 +57,10 @@ public class ModelUtils {
    /**
     * Finds and deletes all the parent folders that are empty for the given file.
     *
-    * @param file - that will be removed.
+    * @param aspectModelFile - that will be removed.
     */
-   public static void deleteEmptyFiles( @Nonnull final File file ) {
-      if ( !ApplicationSettings.getEndFilePath().toFile().getName().equals( file.getName() ) ) {
-         final File parentFile = file.getParentFile();
-         deleteFileSafely( file );
-
-         final List<File> fileList = Arrays.stream( Objects.requireNonNull( parentFile.listFiles() ) )
-               .filter( f -> filterOutUnVisibleFiles().test( f ) ).toList();
-
-         if ( fileList.isEmpty() ) {
-            deleteEmptyFiles( parentFile );
-         }
-      }
+   public static void deleteEmptyFiles( @Nonnull final AspectModelFile aspectModelFile ) {
+      aspectModelFile.sourceLocation().ifPresent( uri -> deleteFileSafely( new File( uri ) ) );
    }
 
    /**
