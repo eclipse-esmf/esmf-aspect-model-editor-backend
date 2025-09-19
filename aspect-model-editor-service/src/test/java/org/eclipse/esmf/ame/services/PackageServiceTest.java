@@ -20,18 +20,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import io.micronaut.core.annotation.Nullable;
+import org.eclipse.esmf.ame.model.MockFileUpload;
+
 import io.micronaut.http.MediaType;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -100,66 +98,5 @@ class PackageServiceTest {
 
       assertTrue( Arrays.stream( Objects.requireNonNull( RESOURCE_PATH.toFile().list() ) )
             .anyMatch( file -> file.contains( "backup-" ) ) );
-   }
-
-   private class MockFileUpload implements CompletedFileUpload {
-      private final String filename;
-      private final MediaType mediaType;
-      private final byte[] content;
-
-      public MockFileUpload( final String filename, final byte[] content, final MediaType mediaType ) {
-         this( filename, mediaType, content );
-      }
-
-      public MockFileUpload( final String filename, final MediaType mediaType, @Nullable final byte[] content ) {
-         this.filename = filename;
-         this.mediaType = mediaType;
-         this.content = ( content != null ? content : new byte[0] );
-      }
-
-      @Override
-      public InputStream getInputStream() {
-         return new ByteArrayInputStream( content );
-      }
-
-      @Override
-      public byte[] getBytes() {
-         return content;
-      }
-
-      @Override
-      public ByteBuffer getByteBuffer() {
-         return ByteBuffer.wrap( content );
-      }
-
-      @Override
-      public Optional<MediaType> getContentType() {
-         return Optional.of( mediaType );
-      }
-
-      @Override
-      public String getName() {
-         return filename;
-      }
-
-      @Override
-      public String getFilename() {
-         return filename;
-      }
-
-      @Override
-      public long getSize() {
-         return content.length;
-      }
-
-      @Override
-      public long getDefinedSize() {
-         return content.length;
-      }
-
-      @Override
-      public boolean isComplete() {
-         return true;
-      }
    }
 }

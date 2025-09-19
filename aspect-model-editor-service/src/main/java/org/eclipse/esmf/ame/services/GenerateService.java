@@ -13,9 +13,10 @@
 
 package org.eclipse.esmf.ame.services;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -50,6 +51,7 @@ import org.eclipse.esmf.metamodel.AspectModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.micronaut.http.multipart.CompletedFileUpload;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,9 +71,9 @@ public class GenerateService {
       this.aspectModelLoader = aspectModelLoader;
    }
 
-   public byte[] generateHtmlDocument( final String turtleData, final String language ) {
-      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+   public byte[] generateHtmlDocument( final CompletedFileUpload aspectModelFile, final URI uri, final String language ) {
+      final InputStream inputStream = ModelUtils.openInputStreamFromUpload( aspectModelFile );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream, uri );
 
       final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
@@ -83,9 +85,9 @@ public class GenerateService {
       return byteArrayOutputStream.toByteArray();
    }
 
-   public String jsonSchema( final String turtleData, final String language ) {
-      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+   public String jsonSchema( final CompletedFileUpload aspectModelFile, final URI uri, final String language ) {
+      final InputStream inputStream = ModelUtils.openInputStreamFromUpload( aspectModelFile );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream, uri );
 
       final JsonSchemaGenerationConfig config = JsonSchemaGenerationConfigBuilder.builder().locale(
             Locale.forLanguageTag( language ) ).build();
@@ -95,18 +97,18 @@ public class GenerateService {
       return generator.generateJson();
    }
 
-   public String sampleJSONPayload( final String turtleData ) {
-      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+   public String sampleJSONPayload( final CompletedFileUpload aspectModelFile, final URI uri ) {
+      final InputStream inputStream = ModelUtils.openInputStreamFromUpload( aspectModelFile );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream, uri );
 
       final AspectModelJsonPayloadGenerator generator = new AspectModelJsonPayloadGenerator( aspectModel.aspect() );
 
       return generator.generateJson();
    }
 
-   public String generateAASXFile( final String turtleData ) {
-      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+   public String generateAASXFile( final CompletedFileUpload aspectModelFile, final URI uri ) {
+      final InputStream inputStream = ModelUtils.openInputStreamFromUpload( aspectModelFile );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream, uri );
 
       final AspectModelAasGenerator generator = new AspectModelAasGenerator( aspectModel.aspect(),
             AasGenerationConfigBuilder.builder().format( AasFileFormat.AASX ).build() );
@@ -114,9 +116,9 @@ public class GenerateService {
       return new String( generator.getContent() );
    }
 
-   public String generateAasXmlFile( final String turtleData ) {
-      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+   public String generateAasXmlFile( final CompletedFileUpload aspectModelFile, final URI uri ) {
+      final InputStream inputStream = ModelUtils.openInputStreamFromUpload( aspectModelFile );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream, uri );
 
       final AspectModelAasGenerator generator = new AspectModelAasGenerator( aspectModel.aspect(),
             AasGenerationConfigBuilder.builder().format( AasFileFormat.XML ).build() );
@@ -124,9 +126,9 @@ public class GenerateService {
       return new String( generator.getContent() );
    }
 
-   public String generateAasJsonFile( final String turtleData ) {
-      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+   public String generateAasJsonFile( final CompletedFileUpload aspectModelFile, final URI uri ) {
+      final InputStream inputStream = ModelUtils.openInputStreamFromUpload( aspectModelFile );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream, uri );
 
       final AspectModelAasGenerator generator = new AspectModelAasGenerator( aspectModel.aspect(),
             AasGenerationConfigBuilder.builder().format( AasFileFormat.JSON ).build() );
@@ -134,9 +136,10 @@ public class GenerateService {
       return new String( generator.getContent() );
    }
 
-   public String generateYamlOpenApiSpec( final String turtleData, final OpenApiSchemaGenerationConfig config ) {
-      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+   public String generateYamlOpenApiSpec( final CompletedFileUpload aspectModelFile, final URI uri,
+         final OpenApiSchemaGenerationConfig config ) {
+      final InputStream inputStream = ModelUtils.openInputStreamFromUpload( aspectModelFile );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream, uri );
 
       final String ymlOutput = new AspectModelOpenApiGenerator( aspectModel.aspect(), config ).generateYaml();
 
@@ -147,10 +150,11 @@ public class GenerateService {
       return ymlOutput;
    }
 
-   public String generateJsonOpenApiSpec( final String turtleData, final OpenApiSchemaGenerationConfig config ) {
+   public String generateJsonOpenApiSpec( final CompletedFileUpload aspectModelFile, final URI uri,
+         final OpenApiSchemaGenerationConfig config ) {
       try {
-         final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-         final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+         final InputStream inputStream = ModelUtils.openInputStreamFromUpload( aspectModelFile );
+         final AspectModel aspectModel = aspectModelLoader.load( inputStream, uri );
 
          final JsonNode json = new AspectModelOpenApiGenerator( aspectModel.aspect(), config ).getContent();
 
@@ -172,11 +176,11 @@ public class GenerateService {
       }
    }
 
-   public byte[] generateAsyncApiSpec( final String turtleData, final String language, final String output,
+   public byte[] generateAsyncApiSpec( final CompletedFileUpload aspectModelFile, final URI uri, final String language, final String output,
          final String applicationId, final String channelAddress, final boolean useSemanticVersion,
          final boolean writeSeparateFiles ) {
-      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+      final InputStream inputStream = ModelUtils.openInputStreamFromUpload( aspectModelFile );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream, uri );
 
       final AsyncApiSchemaGenerationConfig config = buildAsyncApiSchemaGenerationConfig( applicationId, channelAddress,
             useSemanticVersion, language );

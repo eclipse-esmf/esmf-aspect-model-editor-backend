@@ -20,11 +20,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
+import org.eclipse.esmf.ame.model.MockFileUpload;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
@@ -37,6 +39,8 @@ import io.micronaut.context.annotation.Factory;
 import io.micronaut.context.annotation.Property;
 import io.micronaut.context.annotation.Replaces;
 import io.micronaut.context.annotation.Requires;
+import io.micronaut.http.MediaType;
+import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -98,8 +102,11 @@ class ModelServiceTest {
    @Test
    void testValidateModel() throws IOException {
       final Path storagePath = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL_FOR_SERVICE + FILE_EXTENSION );
-      final String testModelForService = Files.readString( storagePath, StandardCharsets.UTF_8 );
-      final ViolationReport validateReport = modelService.validateModel( testModelForService );
+      final byte[] testModelForService = Files.readAllBytes( storagePath );
+      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+            MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
+
+      final ViolationReport validateReport = modelService.validateModel( URI.create( "inmemory:///" + storagePath ), mockedZipFile );
 
       assertTrue( validateReport.getViolationErrors().isEmpty() );
    }
@@ -118,8 +125,11 @@ class ModelServiceTest {
    @Test
    void testMigrateModel() throws IOException {
       final Path storagePath = Path.of( TEST_NAMESPACE_PATH.toString(), "OldAspectModel.ttl" );
-      final String testModel = Files.readString( storagePath, StandardCharsets.UTF_8 );
-      final String migratedModel = modelService.migrateModel( testModel );
+      final byte[] testModelForService = Files.readAllBytes( storagePath );
+      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+            MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
+
+      final String migratedModel = modelService.migrateModel( URI.create( "inmemory:///" + storagePath ), mockedZipFile );
 
       checkMigratedModel( migratedModel );
    }

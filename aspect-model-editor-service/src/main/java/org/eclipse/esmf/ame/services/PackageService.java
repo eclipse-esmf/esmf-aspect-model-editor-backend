@@ -94,7 +94,7 @@ public class PackageService {
 
          final Stream<URI> savedUris = saveAspectModelFiles( changeManager.aspectModelFiles() );
 
-         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( savedUris );
+         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( savedUris, false );
       } catch ( final IOException e ) {
          throw new ModelResolutionException( "Could not read from input", e );
       }

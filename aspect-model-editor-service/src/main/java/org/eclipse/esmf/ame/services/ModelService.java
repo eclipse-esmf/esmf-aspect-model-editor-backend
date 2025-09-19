@@ -13,9 +13,9 @@
 
 package org.eclipse.esmf.ame.services;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +46,7 @@ import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
 
+import io.micronaut.http.multipart.CompletedFileUpload;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +59,8 @@ import org.slf4j.LoggerFactory;
 public class ModelService {
    private static final Logger LOG = LoggerFactory.getLogger( ModelService.class );
 
-   private static final String sammStructureInfo = "Please check whether the SAMM structure has been followed in the workspace: "
-         + "Namespace/Version/Aspect model.";
+   private static final String sammStructureInfo =
+         "Please check whether the SAMM structure has been followed in the workspace: " + "Namespace/Version/Aspect model.";
 
    private final AspectModelValidator aspectModelValidator;
    private final AspectModelLoader aspectModelLoader;
@@ -78,9 +79,8 @@ public class ModelService {
                loadModelFromUrn( aspectModelUrn );
          validateModel( aspectModel );
 
-         return aspectModel.files().stream()
-               .filter( a -> a.elements().stream().anyMatch( e -> e.urn().equals( aspectModelUrn ) ) ).findFirst()
-               .map( AspectSerializer.INSTANCE::aspectModelFileToString )
+         return aspectModel.files().stream().filter( a -> a.elements().stream().anyMatch( e -> e.urn().equals( aspectModelUrn ) ) )
+               .findFirst().map( AspectSerializer.INSTANCE::aspectModelFileToString )
                .orElseThrow( () -> new FileNotFoundException( "Aspect Model not found" ) );
       } catch ( final ModelResolutionException e ) {
          throw new FileNotFoundException( e.getMessage(), e );
@@ -122,43 +122,42 @@ public class ModelService {
       ModelUtils.deleteEmptyFiles( aspectModelFile );
    }
 
-   public ViolationReport validateModel( final String turtleData ) {
-      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-      final Supplier<AspectModel> aspectModelSupplier = () -> aspectModelLoader.load( inputStream );
+   public ViolationReport validateModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
+      final Supplier<AspectModel> aspectModelSupplier = () -> aspectModelLoader.load(
+            ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
       final List<Violation> violations = aspectModelValidator.validateModel( aspectModelSupplier );
       final List<ViolationError> violationErrors = ValidationUtils.violationErrors( violations );
-
       return new ViolationReport( violationErrors );
    }
 
-   public String migrateModel( final String turtleData ) {
-      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+   public String migrateModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
+      final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
       return aspectModel.files().stream()
-            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "inmemory" ) ).orElse( false ) )
-            .findFirst()
+            .filter( a -> a.sourceLocation().map( source -> {
+               System.out.println( "Das hier: " + source.getScheme() );
+               return source.getScheme().equals( "inmemory" );
+            } ).orElse( false ) ).findFirst()
             .map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to migrate" ) );
    }
 
-   public String getFormattedModel( final String turtleData ) {
-      final ByteArrayInputStream inputStream = ModelUtils.createInputStream( turtleData );
-      final AspectModel aspectModel = aspectModelLoader.load( inputStream );
+   public String getFormattedModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
+      final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
       return aspectModel.files().stream()
-            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "inmemory" ) ).orElse( false ) )
-            .findFirst()
+            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "inmemory" ) ).orElse( false ) ).findFirst()
             .map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to formate" ) );
    }
 
-   public Map<String, List<Version>> getAllNamespaces() {
+   public Map<String, List<Version>> getAllNamespaces( final boolean onlyAspectModels ) {
       try {
-         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( aspectModelLoader.listContents() );
+         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( aspectModelLoader.listContents(),
+               onlyAspectModels );
       } catch ( final UnsupportedVersionException e ) {
-         LOG.error( "{} There is a loose .ttl file somewhere — remove it along with any other non-standardized files.",
-               sammStructureInfo, e );
+         LOG.error( "{} There is a loose .ttl file somewhere — remove it along with any other non-standardized files.", sammStructureInfo,
+               e );
          throw new FileReadException( sammStructureInfo + " Remove all non-standardized files." );
       }
    }
@@ -167,7 +166,7 @@ public class ModelService {
       final List<String> errors = new ArrayList<>();
 
       try {
-         getAllNamespaces().forEach(
+         getAllNamespaces( false ).forEach(
                ( namespace, versions ) -> versions.forEach( version -> processVersion( namespace, version, setNewVersion, errors ) ) );
          return new MigrationResult( true, errors );
       } catch ( final Exception e ) {

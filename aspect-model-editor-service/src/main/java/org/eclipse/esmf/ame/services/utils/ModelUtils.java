@@ -16,12 +16,11 @@ package org.eclipse.esmf.ame.services.utils;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
@@ -33,6 +32,7 @@ import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.metamodel.AspectModel;
 
+import io.micronaut.http.multipart.CompletedFileUpload;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -43,16 +43,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ModelUtils {
    private static final Logger LOG = LoggerFactory.getLogger( ModelUtils.class );
-
-   /**
-    * Creates a ByteArrayInputStream from the given Turtle data string.
-    *
-    * @param turtleData the Turtle data as a string
-    * @return a ByteArrayInputStream containing the Turtle data
-    */
-   public static ByteArrayInputStream createInputStream( final String turtleData ) {
-      return new ByteArrayInputStream( turtleData.getBytes( StandardCharsets.UTF_8 ) );
-   }
 
    /**
     * Finds and deletes all the parent folders that are empty for the given file.
@@ -148,6 +138,24 @@ public class ModelUtils {
    }
 
    /**
+    * Opens an InputStream from the given CompletedFileUpload.
+    * <p>
+    * Note: The InputStream is closed immediately due to the try-with-resources block,
+    * so the returned InputStream will not be usable. Consider refactoring this method.
+    *
+    * @param aspectModel the uploaded file
+    * @return the InputStream of the uploaded file
+    * @throws FileReadException if an I/O error occurs while reading the file
+    */
+   public static InputStream openInputStreamFromUpload( final CompletedFileUpload aspectModel ) {
+      try {
+         return aspectModel.getInputStream();
+      } catch ( final IOException e ) {
+         throw new FileReadException( "Failed to read uploaded file" );
+      }
+   }
+
+   /**
     * Returns a Supplier for loading an AspectModel based on the given Turtle data and file.
     *
     * @param turtleData the Turtle data as a string
@@ -157,10 +165,9 @@ public class ModelUtils {
     */
    public static Supplier<AspectModel> getAspectModelSupplier( final String turtleData, final File newFile,
          final AspectModelLoader aspectModelLoader ) {
-      final Optional<URI> sourceLocation = Optional.of( newFile.toURI() );
       final ByteArrayInputStream inputStream = new ByteArrayInputStream( turtleData.getBytes( StandardCharsets.UTF_8 ) );
 
-      return createLazySupplier( () -> aspectModelLoader.load( inputStream, sourceLocation ) );
+      return createLazySupplier( () -> aspectModelLoader.load( inputStream, newFile.toURI() ) );
    }
 
    private static Supplier<AspectModel> createLazySupplier( final Supplier<AspectModel> loader ) {

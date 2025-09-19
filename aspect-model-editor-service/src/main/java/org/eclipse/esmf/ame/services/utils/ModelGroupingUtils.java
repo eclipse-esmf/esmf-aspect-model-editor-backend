@@ -24,46 +24,55 @@ import java.util.stream.Stream;
 
 import org.eclipse.esmf.ame.services.models.Model;
 import org.eclipse.esmf.ame.services.models.Version;
+import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.metamodel.ModelElement;
 
 /**
  * A utility class for grouping model URIs by namespace and version.
+ *
+ * @param aspectModelLoader the loader for aspect models
  */
-public class ModelGroupingUtils {
-   private final AspectModelLoader aspectModelLoader;
-
+public record ModelGroupingUtils( AspectModelLoader aspectModelLoader ) {
    /**
     * Constructs a ModelGrouper with the given base model path.
-    *
-    * @param aspectModelLoader the loader for aspect models
     */
-   public ModelGroupingUtils( final AspectModelLoader aspectModelLoader ) {
-      this.aspectModelLoader = aspectModelLoader;
+   public ModelGroupingUtils {
    }
 
    /**
     * Groups model URIs by namespace and version, setting the existing field as specified.
     *
     * @param uriStream a stream of model URIs
+    * @param onlyAspectModels get only Aspect Models with Aspects as namespace list.
     * @return a map where the keys are namespaces and the values are lists of maps containing versions and their associated models
     */
-   public Map<String, List<Version>> groupModelsByNamespaceAndVersion( final Stream<URI> uriStream ) {
+   public Map<String, List<Version>> groupModelsByNamespaceAndVersion( final Stream<URI> uriStream, final boolean onlyAspectModels ) {
       return aspectModelLoader.load( uriStream.map( File::new ).toList() ).files().stream()
-            .flatMap( aspectModelFile -> aspectModelFile.aspects().stream().map( ModelElement.class::cast ).findFirst().or( () ->
-                  aspectModelFile.elements().stream().filter( modelElement -> !modelElement.isAnonymous() ).findAny() ).stream() )
-            .map( modelElement -> new Model( modelElement.getSourceFile().filename().orElse( "unnamed file" ), modelElement.urn(), true ) )
-            .collect( Collectors.groupingBy( model -> model.getAspectModelUrn().getNamespaceMainPart() ) )
-            .entrySet().stream().sorted( Map.Entry.comparingByKey() )
-            .map( modelsByNamespaceEntry -> Map.entry( modelsByNamespaceEntry.getKey(),
-                  modelsByNamespaceEntry.getValue().stream()
-                        .collect( Collectors.groupingBy( model -> model.getAspectModelUrn().getVersion() ) )
-                        .entrySet().stream().sorted( Map.Entry.comparingByKey() )
-                        .map( modelsByVersion -> new Version( modelsByVersion.getKey(),
-                              modelsByVersion.getValue().stream().sorted( Comparator.comparing( Model::getModel ) ).toList() ) )
-                        .toList() ) )
-            .collect( Collectors.toMap( Map.Entry::getKey, Map.Entry::getValue, ( v1, v2 ) -> {
-               throw new RuntimeException( String.format( "Duplicate key for values %s and %s", v1, v2 ) );
-            }, LinkedHashMap::new ) );
+            .flatMap( file -> extractModelElement( file, onlyAspectModels ) ).map( this::createModel )
+            .collect( Collectors.groupingBy( model -> model.getAspectModelUrn().getNamespaceMainPart() ) ).entrySet().stream()
+            .sorted( Map.Entry.comparingByKey() ).collect( Collectors.toMap( Map.Entry::getKey, entry -> groupByVersion( entry.getValue() ),
+                  ( v1, v2 ) -> {throw new RuntimeException( String.format( "Duplicate key for values %s and %s", v1, v2 ) );},
+                  LinkedHashMap::new ) );
+   }
+
+   private Stream<ModelElement> extractModelElement( final AspectModelFile file, final boolean onlyAspectModels ) {
+      if ( onlyAspectModels ) {
+         return file.aspects().stream().map( ModelElement.class::cast ).findFirst().stream();
+      }
+
+      return file.aspects().stream().map( ModelElement.class::cast ).findFirst()
+            .or( () -> file.elements().stream().filter( element -> !element.isAnonymous() ).findAny() ).stream();
+   }
+
+   private Model createModel( final ModelElement element ) {
+      final String filename = element.getSourceFile().filename().orElse( "unnamed file" );
+      return new Model( filename, element.urn(), true );
+   }
+
+   private List<Version> groupByVersion( final List<Model> models ) {
+      return models.stream().collect( Collectors.groupingBy( model -> model.getAspectModelUrn().getVersion() ) ).entrySet().stream()
+            .sorted( Map.Entry.comparingByKey() ).map( entry -> new Version( entry.getKey(),
+                  entry.getValue().stream().sorted( Comparator.comparing( Model::getModel ) ).toList() ) ).toList();
    }
 }
