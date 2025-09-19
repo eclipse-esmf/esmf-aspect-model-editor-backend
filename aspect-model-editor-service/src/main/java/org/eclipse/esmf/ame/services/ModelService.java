@@ -134,10 +134,7 @@ public class ModelService {
       final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
       return aspectModel.files().stream()
-            .filter( a -> a.sourceLocation().map( source -> {
-               System.out.println( "Das hier: " + source.getScheme() );
-               return source.getScheme().equals( "inmemory" );
-            } ).orElse( false ) ).findFirst()
+            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "inmemory" ) ).orElse( false ) ).findFirst()
             .map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to migrate" ) );
    }

@@ -22,11 +22,7 @@ import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.multipart.CompletedFileUpload;
 
-public class MockFileUpload implements CompletedFileUpload {
-   private final String filename;
-   private final MediaType mediaType;
-   private final byte[] content;
-
+public record MockFileUpload( String filename, MediaType mediaType, byte[] content ) implements CompletedFileUpload {
    public MockFileUpload( final String filename, final byte[] content, final MediaType mediaType ) {
       this( filename, mediaType, content );
    }

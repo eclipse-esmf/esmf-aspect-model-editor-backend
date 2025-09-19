@@ -44,8 +44,4 @@ public class ApplicationSettings {
    public static Path getMetaModelStoragePath() {
       return Path.of( META_MODEL_PATH );
    }
-
-   public static Path getEndFilePath() {
-      return Path.of( END_FILE_PATH );
-   }
 }
