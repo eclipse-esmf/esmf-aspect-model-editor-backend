@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
@@ -45,6 +46,7 @@ import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
+import org.eclipse.esmf.samm.KnownVersion;
 
 import io.micronaut.http.multipart.CompletedFileUpload;
 import jakarta.inject.Singleton;
@@ -134,7 +136,7 @@ public class ModelService {
       final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
       return aspectModel.files().stream()
-            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "inmemory" ) ).orElse( false ) ).findFirst()
+            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "blob" ) ).orElse( false ) ).findFirst()
             .map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to migrate" ) );
    }
@@ -143,7 +145,7 @@ public class ModelService {
       final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
       return aspectModel.files().stream()
-            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "inmemory" ) ).orElse( false ) ).findFirst()
+            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "blob" ) ).orElse( false ) ).findFirst()
             .map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to formate" ) );
    }
@@ -175,11 +177,19 @@ public class ModelService {
    private void processVersion( final String namespace, final Version version, final boolean setNewVersion, final List<String> errors ) {
       version.getModels().forEach( model -> {
          try {
+            final boolean isNotLatestKnownVersion = KnownVersion.fromVersionString( model.getVersion() )
+                  .filter( v -> KnownVersion.getLatest().equals( v ) ).isPresent();
+
+            if ( isNotLatestKnownVersion ) {
+               return;
+            }
+
             final Path aspectModelPath = ModelUtils.constructModelPath( modelPath, namespace, version.getVersion(), model.getModel() );
             final AspectModel aspectModel = aspectModelLoader.load( aspectModelPath.toFile() );
 
             if ( setNewVersion ) {
                applyNamespaceVersionChange( aspectModel );
+               return;
             }
 
             saveAspectModelFiles( aspectModel, setNewVersion );
@@ -190,10 +200,37 @@ public class ModelService {
    }
 
    private void applyNamespaceVersionChange( final AspectModel aspectModel ) {
-      final AspectChangeManager aspectChangeManager = new AspectChangeManager( aspectModel );
-      final CopyFileWithIncreasedNamespaceVersion changes = new CopyFileWithIncreasedNamespaceVersion( aspectModel.files().getFirst(),
-            IncreaseVersion.MAJOR );
-      aspectChangeManager.applyChange( changes );
+      try {
+         final AspectModelFile originalFile = aspectModel.files().getFirst();
+         final AspectChangeManager changeManager = new AspectChangeManager( aspectModel );
+         changeManager.applyChange( new CopyFileWithIncreasedNamespaceVersion( originalFile, IncreaseVersion.MAJOR ) );
+
+         final List<AspectModelFile> newFiles = aspectModel.files().stream()
+               .filter( file -> !file.namespaceUrn().getVersion().equals( originalFile.namespaceUrn().getVersion() ) )
+               .toList();
+
+         if ( newFiles.size() != 1 ) {
+            return;
+         }
+
+         final AspectModelFile updatedFile = newFiles.getFirst();
+         final URI sourceLocation = updatedFile.sourceLocation()
+               .orElseThrow( () -> new IllegalStateException( "Source location missing" ) );
+
+         if ( new File( sourceLocation ).exists() ) {
+            return;
+         }
+
+         ModelUtils.createFile(
+               updatedFile.namespaceUrn(),
+               updatedFile.filename().orElseThrow( () -> new IllegalStateException( "Filename missing" ) ),
+               ApplicationSettings.getMetaModelStoragePath()
+         );
+
+         AspectSerializer.INSTANCE.write( updatedFile );
+      } catch ( final IOException e ) {
+         throw new CreateFileException( "Cannot create file %s on workspace", e );
+      }
    }
 
    private void saveAspectModelFiles( final AspectModel aspectModel, final boolean setNewVersion ) {

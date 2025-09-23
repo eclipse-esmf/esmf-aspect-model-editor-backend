@@ -15,10 +15,12 @@ package org.eclipse.esmf.ame.services.utils;
 
 import java.io.File;
 import java.net.URI;
+import java.util.AbstractMap;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,7 +28,14 @@ import org.eclipse.esmf.ame.services.models.Model;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
+import org.eclipse.esmf.aspectmodel.resolver.AspectModelFileLoader;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+import org.eclipse.esmf.metamodel.AspectModel;
 import org.eclipse.esmf.metamodel.ModelElement;
+import org.eclipse.esmf.metamodel.vocabulary.SammNs;
+import org.eclipse.esmf.samm.KnownVersion;
+
+import io.vavr.control.Try;
 
 /**
  * A utility class for grouping model URIs by namespace and version.
@@ -48,12 +57,35 @@ public record ModelGroupingUtils( AspectModelLoader aspectModelLoader ) {
     * @return a map where the keys are namespaces and the values are lists of maps containing versions and their associated models
     */
    public Map<String, List<Version>> groupModelsByNamespaceAndVersion( final Stream<URI> uriStream, final boolean onlyAspectModels ) {
-      return aspectModelLoader.load( uriStream.map( File::new ).toList() ).files().stream()
-            .flatMap( file -> extractModelElement( file, onlyAspectModels ) ).map( this::createModel )
-            .collect( Collectors.groupingBy( model -> model.getAspectModelUrn().getNamespaceMainPart() ) ).entrySet().stream()
-            .sorted( Map.Entry.comparingByKey() ).collect( Collectors.toMap( Map.Entry::getKey, entry -> groupByVersion( entry.getValue() ),
-                  ( v1, v2 ) -> {throw new RuntimeException( String.format( "Duplicate key for values %s and %s", v1, v2 ) );},
-                  LinkedHashMap::new ) );
+      return uriStream.map( File::new )
+            .map( file -> {
+               final Optional<KnownVersion> metaModelVersionFromFile = Try.of(
+                           () -> AspectModelFileLoader.load( file ).sourceModel().getNsPrefixMap().get( SammNs.SAMM.getShortForm() ) )
+                     .flatMap( AspectModelUrn::from )
+                     .toJavaOptional()
+                     .map( AspectModelUrn::getVersion )
+                     .flatMap( KnownVersion::fromVersionString );
+               final AspectModel loadedModel = aspectModelLoader.load( file );
+               return new AbstractMap.SimpleEntry<>( loadedModel, metaModelVersionFromFile );
+            } )
+            .flatMap( entry ->
+                  entry.getKey().files().stream()
+                        .flatMap( file -> extractModelElement( file, onlyAspectModels ) )
+                        .map( modelElement -> createModel( modelElement, entry.getValue().orElse( null ) ) )
+            )
+            .collect( Collectors.groupingBy(
+                  model -> model.getAspectModelUrn().getNamespaceMainPart()
+            ) )
+            .entrySet().stream()
+            .sorted( Map.Entry.comparingByKey() )
+            .collect( Collectors.toMap(
+                  Map.Entry::getKey,
+                  entry -> groupByVersion( entry.getValue() ),
+                  ( v1, v2 ) -> {
+                     throw new RuntimeException( String.format( "Duplicate key for values %s and %s", v1, v2 ) );
+                  },
+                  LinkedHashMap::new
+            ) );
    }
 
    private Stream<ModelElement> extractModelElement( final AspectModelFile file, final boolean onlyAspectModels ) {
@@ -65,9 +97,9 @@ public record ModelGroupingUtils( AspectModelLoader aspectModelLoader ) {
             .or( () -> file.elements().stream().filter( element -> !element.isAnonymous() ).findAny() ).stream();
    }
 
-   private Model createModel( final ModelElement element ) {
+   private Model createModel( final ModelElement element, final KnownVersion version ) {
       final String filename = element.getSourceFile().filename().orElse( "unnamed file" );
-      return new Model( filename, element.urn(), true );
+      return new Model( filename, element.urn(), version.toVersionString(), true );
    }
 
    private List<Version> groupByVersion( final List<Model> models ) {

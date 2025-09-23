@@ -106,7 +106,7 @@ class ModelServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final ViolationReport validateReport = modelService.validateModel( URI.create( "inmemory:///" + storagePath ), mockedZipFile );
+      final ViolationReport validateReport = modelService.validateModel( URI.create( "blob:///" + storagePath ), mockedZipFile );
 
       assertTrue( validateReport.getViolationErrors().isEmpty() );
    }
@@ -129,7 +129,7 @@ class ModelServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final String migratedModel = modelService.migrateModel( URI.create( "inmemory:///" + storagePath ), mockedZipFile );
+      final String migratedModel = modelService.migrateModel( URI.create( "blob:///" + storagePath ), mockedZipFile );
 
       checkMigratedModel( migratedModel );
    }

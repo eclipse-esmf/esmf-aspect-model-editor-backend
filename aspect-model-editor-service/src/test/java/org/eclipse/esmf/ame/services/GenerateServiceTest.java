@@ -59,7 +59,7 @@ class GenerateServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final byte[] payload = generateService.generateHtmlDocument( mockedZipFile, URI.create( "inmemory:///" + storagePath ), "en" );
+      final byte[] payload = generateService.generateHtmlDocument( mockedZipFile, URI.create( "blob:///" + storagePath ), "en" );
 
       assertTrue( new String( payload, StandardCharsets.UTF_8 ).contains( "<!doctype html>" ) );
    }
@@ -71,7 +71,7 @@ class GenerateServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final String payload = generateService.sampleJSONPayload( mockedZipFile, URI.create( "inmemory:///" + storagePath ) );
+      final String payload = generateService.sampleJSONPayload( mockedZipFile, URI.create( "blob:///" + storagePath ) );
 
       final ObjectMapper mapper = new ObjectMapper();
       final JsonNode expected = mapper.readTree(
@@ -89,7 +89,7 @@ class GenerateServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final String payload = generateService.jsonSchema( mockedZipFile, URI.create( "inmemory:///" + storagePath ), "en-EN" );
+      final String payload = generateService.jsonSchema( mockedZipFile, URI.create( "blob:///" + storagePath ), "en-EN" );
 
       assertTrue( payload.contains( "#/components/schemas/Coordinate" ) );
    }
@@ -106,7 +106,7 @@ class GenerateServiceTest {
             "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
             false, false, false, null );
 
-      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
@@ -141,7 +141,7 @@ class GenerateServiceTest {
             "https://test.com", "/resource/{resourceId}", jsonProperties, PagingOption.TIME_BASED_PAGING, false, false,
             false, false, false, null );
 
-      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
@@ -180,7 +180,7 @@ class GenerateServiceTest {
             false, false, false, null );
 
       assertThrows( GenerationException.class,
-            () -> generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config ) );
+            () -> generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config ) );
    }
 
    @Test
@@ -195,7 +195,7 @@ class GenerateServiceTest {
             "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, true,
             false, false, false, null );
 
-      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
@@ -219,7 +219,7 @@ class GenerateServiceTest {
             "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
             true, false, false, null );
 
-      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
@@ -243,7 +243,7 @@ class GenerateServiceTest {
             "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
             false, false, true, null );
 
-      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
@@ -267,7 +267,7 @@ class GenerateServiceTest {
             "https://test.com", "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
             false, true, false, null );
 
-      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "\"openapi\" : \"3.0.3\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
@@ -292,7 +292,7 @@ class GenerateServiceTest {
             PagingOption.TIME_BASED_PAGING, false, false,
             false, false, false, null );
 
-      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
       assertTrue( payload.contains( "title: movement" ) );
@@ -324,7 +324,7 @@ class GenerateServiceTest {
             "https://test.com", "/resource/{resourceId}", yamlProperties, PagingOption.TIME_BASED_PAGING, false, false,
             false, false, false, null );
 
-      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
       assertTrue( payload.contains( "title: movement" ) );
@@ -360,7 +360,7 @@ class GenerateServiceTest {
             false, false, false, null );
 
       assertThrows( GenerationException.class,
-            () -> generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config ) );
+            () -> generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config ) );
    }
 
    @Test
@@ -376,7 +376,7 @@ class GenerateServiceTest {
             PagingOption.TIME_BASED_PAGING, false, true,
             false, false, false, null );
 
-      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
       assertTrue( payload.contains( "title: movement" ) );
@@ -401,7 +401,7 @@ class GenerateServiceTest {
             PagingOption.TIME_BASED_PAGING, false, false,
             true, false, false, null );
 
-      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
       assertTrue( payload.contains( "title: movement" ) );
@@ -426,7 +426,7 @@ class GenerateServiceTest {
             PagingOption.TIME_BASED_PAGING, false, false,
             false, false, true, null );
 
-      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
       assertTrue( payload.contains( "title: movement" ) );
@@ -451,7 +451,7 @@ class GenerateServiceTest {
             PagingOption.TIME_BASED_PAGING, false, false,
             false, true, false, null );
 
-      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), config );
+      final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), config );
 
       assertTrue( payload.contains( "openapi: 3.0.3" ) );
       assertTrue( payload.contains( "title: movement" ) );
@@ -470,7 +470,7 @@ class GenerateServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final String payload = generateService.generateAASXFile( mockedZipFile, URI.create( "inmemory:///" + storagePath ) );
+      final String payload = generateService.generateAASXFile( mockedZipFile, URI.create( "blob:///" + storagePath ) );
 
       assertTrue( payload.contains( "aasx" ) );
    }
@@ -482,7 +482,7 @@ class GenerateServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final String payload = generateService.generateAasXmlFile( mockedZipFile, URI.create( "inmemory:///" + storagePath ) );
+      final String payload = generateService.generateAasXmlFile( mockedZipFile, URI.create( "blob:///" + storagePath ) );
 
       assertTrue( payload.contains( "<?xml version='1.0' encoding='UTF-8'?>" ) );
       assertTrue( payload.contains( "https://admin-shell.io/aas/3/0" ) );
@@ -495,7 +495,7 @@ class GenerateServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final String payload = generateService.generateAasJsonFile( mockedZipFile, URI.create( "inmemory:///" + storagePath ) );
+      final String payload = generateService.generateAasJsonFile( mockedZipFile, URI.create( "blob:///" + storagePath ) );
 
       assertTrue( payload.contains( "{" ) );
       assertTrue( payload.contains( "}" ) );
@@ -511,7 +511,7 @@ class GenerateServiceTest {
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final String payload = new String(
-            generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), "en", "json", "application:id",
+            generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), "en", "json", "application:id",
                   "foo/bar", false, false ),
             StandardCharsets.UTF_8 );
 
@@ -530,7 +530,7 @@ class GenerateServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final byte[] payload = generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), "en", "json",
+      final byte[] payload = generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), "en", "json",
             "application:id", "foo/bar",
             false, true );
 
@@ -545,7 +545,7 @@ class GenerateServiceTest {
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final String payload = new String(
-            generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), "en", "yaml", "application:id",
+            generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), "en", "yaml", "application:id",
                   "foo/bar", false, false ),
             StandardCharsets.UTF_8 );
 
@@ -564,7 +564,7 @@ class GenerateServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final byte[] payload = generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "inmemory:///" + storagePath ), "en", "yaml",
+      final byte[] payload = generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "blob:///" + storagePath ), "en", "yaml",
             "application:id", "foo/bar",
             false, true );
 
