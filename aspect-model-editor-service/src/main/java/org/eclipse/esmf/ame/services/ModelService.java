@@ -24,6 +24,7 @@ import java.util.function.Supplier;
 
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
+import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
@@ -188,26 +189,25 @@ public class ModelService {
             final AspectModel aspectModel = aspectModelLoader.load( aspectModelPath.toFile() );
 
             if ( setNewVersion ) {
-               applyNamespaceVersionChange( aspectModel );
+               applyNamespaceVersionChange( aspectModel, errors );
                return;
             }
 
-            saveAspectModelFiles( aspectModel, setNewVersion );
+            AspectSerializer.INSTANCE.write( aspectModel );
          } catch ( final Exception e ) {
             errors.add( String.format( "Error processing model: %s", model.getModel() ) );
          }
       } );
    }
 
-   private void applyNamespaceVersionChange( final AspectModel aspectModel ) {
+   private void applyNamespaceVersionChange( final AspectModel aspectModel, final List<String> errors ) {
       try {
          final AspectModelFile originalFile = aspectModel.files().getFirst();
          final AspectChangeManager changeManager = new AspectChangeManager( aspectModel );
          changeManager.applyChange( new CopyFileWithIncreasedNamespaceVersion( originalFile, IncreaseVersion.MAJOR ) );
 
          final List<AspectModelFile> newFiles = aspectModel.files().stream()
-               .filter( file -> !file.namespaceUrn().getVersion().equals( originalFile.namespaceUrn().getVersion() ) )
-               .toList();
+               .filter( file -> !file.namespaceUrn().getVersion().equals( originalFile.namespaceUrn().getVersion() ) ).toList();
 
          if ( newFiles.size() != 1 ) {
             return;
@@ -218,43 +218,18 @@ public class ModelService {
                .orElseThrow( () -> new IllegalStateException( "Source location missing" ) );
 
          if ( new File( sourceLocation ).exists() ) {
+            errors.add( String.format( "A new version of the Aspect Model: %s with Version: %s already exists",
+                  updatedFile.filename().orElse( "unknown" ), originalFile.namespaceUrn().getVersion() ) );
             return;
          }
 
-         ModelUtils.createFile(
-               updatedFile.namespaceUrn(),
-               updatedFile.filename().orElseThrow( () -> new IllegalStateException( "Filename missing" ) ),
-               ApplicationSettings.getMetaModelStoragePath()
-         );
+         ModelUtils.createFile( updatedFile.namespaceUrn(),
+               updatedFile.filename().orElseThrow( () -> new FileHandlingException( "Filename missing" ) ),
+               ApplicationSettings.getMetaModelStoragePath() );
 
          AspectSerializer.INSTANCE.write( updatedFile );
       } catch ( final IOException e ) {
          throw new CreateFileException( "Cannot create file %s on workspace", e );
       }
-   }
-
-   private void saveAspectModelFiles( final AspectModel aspectModel, final boolean setNewVersion ) {
-      aspectModel.files().forEach( aspectModelFile -> aspectModelFile.sourceLocation().ifPresent( sourceLocation -> {
-         final File file = new File( sourceLocation );
-         try {
-            if ( !setNewVersion ) {
-               AspectSerializer.INSTANCE.write( aspectModelFile );
-               return;
-            }
-
-            if ( file.exists() ) {
-               return;
-            }
-
-            final File parent = file.getParentFile();
-            if ( !parent.exists() && !parent.mkdirs() ) {
-               throw new IOException( "Failed to create directories for: " + parent );
-            }
-
-            AspectSerializer.INSTANCE.write( aspectModelFile );
-         } catch ( final IOException e ) {
-            throw new RuntimeException( "Error saving aspect model file: " + sourceLocation, e );
-         }
-      } ) );
    }
 }
