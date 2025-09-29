@@ -21,15 +21,22 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.StreamSupport;
 
+import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.aspectmodel.AspectLoadingException;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
+import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
+import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.metamodel.AspectModel;
+import org.eclipse.esmf.metamodel.ModelElement;
 
 import io.micronaut.http.multipart.CompletedFileUpload;
 import jakarta.annotation.Nonnull;
@@ -77,22 +84,32 @@ public class ModelUtils {
    }
 
    /**
-    * Creates a file based on the given AspectModelUrn.
+    * Creates a new file for the given AspectModelUrn and file name in the specified storage path.
+    * If necessary, parent directories are created.
     *
-    * @param aspectModelUrn - The Aspect Model URN.
-    * @param fileName - The name of the Aspect Model file.
-    * @return The created file.
-    * @throws IOException if an I/O error occurs.
+    * @param aspectModelUrn the Aspect Model URN
+    * @param fileName the name of the file to create
+    * @param storagePath the base storage path
+    * @throws IOException if an I/O error occurs during creation
     */
-   public static File createFile( final AspectModelUrn aspectModelUrn, final String fileName, final Path storagePath ) throws IOException {
+   public static void createFile( final AspectModelUrn aspectModelUrn, final String fileName, final Path storagePath ) throws IOException {
       final Path filePath = createFilePath( aspectModelUrn, fileName, storagePath );
+      createFile( filePath );
+   }
 
+   /**
+    * Creates a file at the specified path, including any necessary parent directories.
+    * Logs the creation process.
+    *
+    * @param filePath the path of the file to create
+    * @throws IOException if an I/O error occurs during creation
+    */
+   public static void createFile( final Path filePath ) throws IOException {
       try {
          if ( Files.notExists( filePath.getParent() ) ) {
             Files.createDirectories( filePath.getParent() );
             LOG.info( "Directories created: {}", filePath.getParent() );
          }
-
          if ( Files.notExists( filePath ) ) {
             Files.createFile( filePath );
             LOG.info( "File created: {}", filePath );
@@ -103,8 +120,6 @@ public class ModelUtils {
          LOG.error( "Failed to create file: {}", filePath, e );
          throw e;
       }
-
-      return filePath.toFile();
    }
 
    /**
@@ -160,9 +175,37 @@ public class ModelUtils {
     */
    public static Supplier<AspectModel> getAspectModelSupplier( final String turtleData, final File newFile,
          final AspectModelLoader aspectModelLoader ) {
-      final ByteArrayInputStream inputStream = new ByteArrayInputStream( turtleData.getBytes( StandardCharsets.UTF_8 ) );
+      return createLazySupplier( () -> {
+         try ( final ByteArrayInputStream inputStream = new ByteArrayInputStream( turtleData.getBytes( StandardCharsets.UTF_8 ) ) ) {
+            final AspectModel aspectModel = aspectModelLoader.load( inputStream, newFile.toURI() );
+            checkForDuplicateFiles( aspectModel, newFile.getName() );
+            return aspectModel;
+         } catch ( final IOException e ) {
+            throw new CreateFileException( "Failed to process Turtle data", e );
+         }
+      } );
+   }
 
-      return createLazySupplier( () -> aspectModelLoader.load( inputStream, newFile.toURI() ) );
+   private static void checkForDuplicateFiles( final AspectModel aspectModel,
+         final String sourceFilename ) {
+
+      final boolean hasDifferentFile = aspectModel.elements().stream()
+            .filter( modelElement -> modelElement.getSourceFile().filename().orElse( "" ).equals( sourceFilename ) )
+            .anyMatch( modelElement -> hasDifferentFileForElement( modelElement, sourceFilename ) );
+
+      if ( hasDifferentFile ) {
+         LOG.warn( "Some elements are already defined in the same namespace" );
+         throw new CreateFileException( "Some elements are already defined in the same namespace" );
+      }
+   }
+
+   private static boolean hasDifferentFileForElement( final ModelElement modelElement, final String sourceFilename ) {
+      try {
+         final String modelSourceFileName = modelElement.getSourceFile().filename().orElse( "" );
+         return !modelSourceFileName.equals( sourceFilename );
+      } catch ( final ModelResolutionException | AspectLoadingException ex ) {
+         return false;
+      }
    }
 
    private static Supplier<AspectModel> createLazySupplier( final Supplier<AspectModel> loader ) {
@@ -181,6 +224,14 @@ public class ModelUtils {
       };
    }
 
+   /**
+    * Loads an {@link AspectModel} from a file path by constructing the full model path.
+    *
+    * @param modelPath the base path to the model storage directory
+    * @param filePath the relative file path (namespace/version/modelName)
+    * @param aspectModelLoader the loader to load the {@link AspectModel}
+    * @return the loaded {@link AspectModel}
+    */
    public static AspectModel loadModelFromFile( final Path modelPath, final String filePath, final AspectModelLoader aspectModelLoader ) {
       final Path path = Paths.get( filePath ).normalize();
       final String[] pathParts = StreamSupport.stream( path.spliterator(), false ).map( Path::toString ).toArray( String[]::new );
@@ -188,7 +239,28 @@ public class ModelUtils {
       return aspectModelLoader.load( aspectModelPath.toFile() );
    }
 
+   /**
+    * Constructs a model file path from the given components.
+    *
+    * @param modelPath the base path to the model storage directory
+    * @param namespace the namespace part of the model
+    * @param version the version part of the model
+    * @param modelName the name of the model file
+    * @return the constructed {@link Path}
+    */
    public static Path constructModelPath( final Path modelPath, final String namespace, final String version, final String modelName ) {
       return Path.of( modelPath.toString(), namespace, version, modelName );
+   }
+
+   /**
+    * Throws the given exception if any violation in the list matches the predicate.
+    *
+    * @param violations the list of {@link Violation} objects to check
+    * @param predicate the predicate to filter violations
+    * @param exception the exception to throw if a matching violation is found
+    */
+   public static void throwIfViolationPresent( final List<Violation> violations, final Predicate<Violation> predicate,
+         final RuntimeException exception ) {
+      violations.stream().filter( predicate ).findFirst().ifPresent( v -> {throw exception;} );
    }
 }

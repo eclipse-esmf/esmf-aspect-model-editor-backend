@@ -23,6 +23,15 @@ public class CreateFileException extends RuntimeException {
     * Constructs a CreateFileException with message and cause.
     *
     * @param message the message of the exception
+    */
+   public CreateFileException( final String message ) {
+      super( message );
+   }
+
+   /**
+    * Constructs a CreateFileException with message and cause.
+    *
+    * @param message the message of the exception
     * @param cause of the exception
     */
    public CreateFileException( final String message, final Throwable cause ) {

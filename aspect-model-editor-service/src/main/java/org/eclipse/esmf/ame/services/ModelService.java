@@ -105,15 +105,21 @@ public class ModelService {
    public void createOrSaveModel( final String turtleData, final AspectModelUrn aspectModelUrn, final String fileName,
          final Path storagePath ) {
       try {
-         final File newFile = ModelUtils.createFile( aspectModelUrn, fileName, storagePath );
+         final Path newFile = ModelUtils.createFilePath( aspectModelUrn, fileName, storagePath );
 
-         final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplier( turtleData, newFile, aspectModelLoader );
+         final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplier( turtleData, newFile.toFile(),
+               aspectModelLoader );
          final List<Violation> violations = aspectModelValidator.validateModel( aspectModelSupplier );
 
-         if ( violations.stream().anyMatch( ValidationUtils.isInvalidSyntaxViolation() ) ) {
-            throw new FileReadException( "Aspect Model syntax is not valid" );
-         }
+         ModelUtils.throwIfViolationPresent( violations, ValidationUtils.isInvalidSyntaxViolation(), new FileReadException(
+               violations.stream().filter( ValidationUtils.isInvalidSyntaxViolation() ).findFirst().map( Violation::message )
+                     .orElse( "Aspect Model is not valid" ) ) );
 
+         ModelUtils.throwIfViolationPresent( violations, ValidationUtils.isProcessingViolation(), new CreateFileException(
+               violations.stream().filter( ValidationUtils.isProcessingViolation() ).findFirst().map( Violation::message )
+                     .orElse( "Processing violation" ) ) );
+
+         ModelUtils.createFile( newFile );
          AspectSerializer.INSTANCE.write( aspectModelSupplier.get().files().getFirst() );
       } catch ( final IOException e ) {
          throw new CreateFileException( String.format( "Cannot create file %s on workspace", aspectModelUrn ), e );
