@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
@@ -168,12 +167,13 @@ public class ModelService {
       }
    }
 
-   public MigrationResult migrateWorkspace( final boolean setNewVersion ) {
+   public MigrationResult migrateWorkspace( final boolean setNewVersion, final Path metaModelStoragePath ) {
       final List<String> errors = new ArrayList<>();
 
       try {
          getAllNamespaces( false ).forEach(
-               ( namespace, versions ) -> versions.forEach( version -> processVersion( namespace, version, setNewVersion, errors ) ) );
+               ( namespace, versions ) -> versions.forEach(
+                     version -> processVersion( namespace, version, setNewVersion, errors, metaModelStoragePath ) ) );
          return new MigrationResult( true, errors );
       } catch ( final Exception e ) {
          errors.add( e.getMessage() );
@@ -181,7 +181,8 @@ public class ModelService {
       }
    }
 
-   private void processVersion( final String namespace, final Version version, final boolean setNewVersion, final List<String> errors ) {
+   private void processVersion( final String namespace, final Version version, final boolean setNewVersion, final List<String> errors,
+         final Path metaModelStoragePath ) {
       version.getModels().forEach( model -> {
          try {
             final boolean isNotLatestKnownVersion = KnownVersion.fromVersionString( model.getVersion() )
@@ -195,7 +196,7 @@ public class ModelService {
             final AspectModel aspectModel = aspectModelLoader.load( aspectModelPath.toFile() );
 
             if ( setNewVersion ) {
-               applyNamespaceVersionChange( aspectModel, errors );
+               applyNamespaceVersionChange( aspectModel, errors, metaModelStoragePath );
                return;
             }
 
@@ -206,7 +207,7 @@ public class ModelService {
       } );
    }
 
-   private void applyNamespaceVersionChange( final AspectModel aspectModel, final List<String> errors ) {
+   private void applyNamespaceVersionChange( final AspectModel aspectModel, final List<String> errors, final Path metaModelStoragePath ) {
       try {
          final AspectModelFile originalFile = aspectModel.files().getFirst();
          final AspectChangeManager changeManager = new AspectChangeManager( aspectModel );
@@ -231,7 +232,7 @@ public class ModelService {
 
          ModelUtils.createFile( updatedFile.namespaceUrn(),
                updatedFile.filename().orElseThrow( () -> new FileHandlingException( "Filename missing" ) ),
-               ApplicationSettings.getMetaModelStoragePath() );
+               metaModelStoragePath );
 
          AspectSerializer.INSTANCE.write( updatedFile );
       } catch ( final IOException e ) {

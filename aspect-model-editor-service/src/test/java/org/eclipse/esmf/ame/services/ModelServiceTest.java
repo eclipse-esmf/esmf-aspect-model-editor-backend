@@ -179,7 +179,7 @@ class ModelServiceSpecialTest {
 
    @Test
    void testMigrateWorkspaceWithoutVersionUpgrade() throws IOException {
-      final MigrationResult migrationResult = modelService.migrateWorkspace( false );
+      final MigrationResult migrationResult = modelService.migrateWorkspace( false, MIGRATION_WORKSPACE_PATH );
 
       assertTrue( migrationResult.isSuccess() );
 
@@ -201,7 +201,7 @@ class ModelServiceSpecialTest {
 
    @Test
    void testMigrateWorkspaceWithVersionUpgrade() throws IOException {
-      final MigrationResult migrationResult = modelService.migrateWorkspace( true );
+      final MigrationResult migrationResult = modelService.migrateWorkspace( true, MIGRATION_WORKSPACE_PATH );
 
       assertTrue( migrationResult.isSuccess() );
 

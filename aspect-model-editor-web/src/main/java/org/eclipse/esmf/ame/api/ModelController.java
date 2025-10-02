@@ -166,6 +166,6 @@ public class ModelController {
     */
    @Get( uri = "migrate-workspace" )
    public HttpResponse<MigrationResult> migrateWorkspace( @QueryValue( defaultValue = "false" ) final boolean setNewVersion ) {
-      return HttpResponse.ok( modelService.migrateWorkspace( setNewVersion ) );
+      return HttpResponse.ok( modelService.migrateWorkspace( setNewVersion, ApplicationSettings.getMetaModelStoragePath() ) );
    }
 }
