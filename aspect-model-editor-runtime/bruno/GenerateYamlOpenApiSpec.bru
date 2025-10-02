@@ -6,7 +6,7 @@ meta {
 
 post {
   url: http://localhost:{{port}}/ame/api/generate/open-api-spec?output=yaml&baseUrl=http://www.test.com&includeQueryApi=false&useSemanticVersion=false&pagingOption=OFFSET_BASED_PAGING
-  body: text
+  body: multipartForm
   auth: none
 }
 
@@ -19,7 +19,7 @@ params:query {
 }
 
 headers {
-  Content-Type: text/plain
+  uri: blob://movement.ttl
 }
 
 body:text {
@@ -116,6 +116,10 @@ body:text {
      samm:dataType xsd:float ;
      samm-c:unit unit:metre .
   
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/Movement.ttl)
 }
 
 tests {

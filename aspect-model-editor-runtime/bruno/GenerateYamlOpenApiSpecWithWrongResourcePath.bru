@@ -6,7 +6,7 @@ meta {
 
 post {
   url: http://localhost:{{port}}/ame/api/generate/open-api-spec?output=yaml&baseUrl=http://www.test.com&includeQueryApi=false&useSemanticVersion=false&pagingOption=OFFSET_BASED_PAGING&resourcePath=/resource/%7BresourceId%7D&ymlProperties=wrongId%3A%0A%20%20name%3A%20wrongId%0A%20%20in%3A%20path%0A%20%20description%3A%20An%20example%20resource%20Id.%0A%20%20required%3A%20true%0A%20%20schema%3A%0A%20%20%20%20type%3A%20string
-  body: text
+  body: multipartForm
   auth: none
 }
 
@@ -27,7 +27,7 @@ params:query {
 }
 
 headers {
-  Content-Type: text/plain
+  uri: blob://movement.ttl
 }
 
 body:text {
@@ -124,6 +124,10 @@ body:text {
      samm:dataType xsd:float ;
      samm-c:unit unit:metre .
   
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/Movement.ttl)
 }
 
 tests {

@@ -6,12 +6,12 @@ meta {
 
 post {
   url: http://localhost:{{port}}/ame/api/models/validate
-  body: text
+  body: multipartForm
   auth: none
 }
 
 headers {
-  Content-Type: text/plain
+  uri: blob://movement.ttl
 }
 
 body:text {
@@ -41,6 +41,14 @@ body:text {
      samm:description "Characteristic Description 1 "@en ;
      samm:dataType xsd:float .
   
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/AspectWithInvalidSchematics.ttl)
+}
+
+body:file {
+  ~file: @file()
 }
 
 tests {
