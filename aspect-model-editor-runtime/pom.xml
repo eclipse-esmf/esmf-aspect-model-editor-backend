@@ -389,9 +389,7 @@
                   <configuration>
                      <mainClass>${main.class}</mainClass>
                      <imageName>ame-backend-${project.version}-${os.platform}</imageName>
-                     <verbose>true</verbose>
                      <buildArgs>
-                        <arg>--verbose</arg>
                         <arg>-H:EnableURLProtocols=http,https</arg>
                         <arg>--enable-https</arg>
                         <arg>--no-fallback</arg>
