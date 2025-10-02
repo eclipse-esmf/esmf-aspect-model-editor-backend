@@ -342,10 +342,6 @@
                      <reuseForks>false</reuseForks>
                      <argLine>--add-exports org.graalvm.nativeimage/org.graalvm.nativeimage.impl=ALL-UNNAMED</argLine>
                      <argLine>-agentlib:native-image-agent=config-merge-dir=${native-config-path}</argLine>
-                     <systemPropertyVariables>
-                        <org.slf4j.simpleLogger.defaultLogLevel>info</org.slf4j.simpleLogger.defaultLogLevel>
-                        <org.slf4j.simpleLogger.log.org.apache.jena>info</org.slf4j.simpleLogger.log.org.apache.jena>
-                     </systemPropertyVariables>
                   </configuration>
                </plugin>
                <plugin>

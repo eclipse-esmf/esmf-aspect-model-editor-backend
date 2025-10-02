@@ -17,6 +17,8 @@
    <logger name="io.micronaut.context" level="INFO"/>
    <logger name="io.micronaut.data" level="INFO"/>
 
+   <logger name="org.apache.jena" level="INFO"/>
+
    <root level="INFO">
       <appender-ref ref="STDOUT"/>
       <appender-ref ref="file"/>
