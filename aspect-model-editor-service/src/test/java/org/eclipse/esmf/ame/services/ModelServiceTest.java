@@ -106,7 +106,8 @@ class ModelServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final ViolationReport validateReport = modelService.validateModel( URI.create( "blob:///" + storagePath ), mockedZipFile );
+      final ViolationReport validateReport = modelService.validateModel( URI.create( "blob:///" + toUriPath( storagePath ) ),
+            mockedZipFile );
 
       assertTrue( validateReport.getViolationErrors().isEmpty() );
    }
@@ -129,13 +130,21 @@ class ModelServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final String migratedModel = modelService.migrateModel( URI.create( "blob:///" + storagePath ), mockedZipFile );
+      final String migratedModel = modelService.migrateModel( URI.create( "blob:///" + toUriPath( storagePath ) ), mockedZipFile );
 
       checkMigratedModel( migratedModel );
    }
 
    public void checkMigratedModel( final String migratedModel ) {
       assertTrue( migratedModel.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#>" ) );
+   }
+
+   public String toUriPath( final Path path ) {
+      String uriPath = path.toString();
+      if ( System.getProperty( "os.name" ).toLowerCase().contains( "win" ) ) {
+         uriPath = uriPath.replace( "\\", "/" );
+      }
+      return uriPath;
    }
 }
 
