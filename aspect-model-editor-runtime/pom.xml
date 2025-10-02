@@ -397,8 +397,6 @@
                         <arg>-H:-DeadlockWatchdogExitOnTimeout</arg>
                         <arg>-H:DeadlockWatchdogInterval=0</arg>
                         <arg>-H:+AddAllCharsets</arg>
-                        <arg>-H:+ReportExceptionStackTraces</arg>
-                        <arg>-H:+PrintClassInitialization</arg>
                         <arg>-J-XX:MaxRAMPercentage=90.0</arg>
                         <arg>-J-XX:GCTimeRatio=19</arg>
                         <arg>--report-unsupported-elements-at-runtime</arg>
