@@ -119,7 +119,15 @@ public class ModelService {
                      .orElse( "Processing violation" ) ) );
 
          ModelUtils.createFile( newFile );
-         AspectSerializer.INSTANCE.write( aspectModelSupplier.get().files().getFirst() );
+
+         final AspectModelFile createdFile = aspectModelSupplier.get().files().stream()
+               .filter( aspectModelFile -> aspectModelFile.sourceLocation()
+                     .map( src -> src.equals( newFile.toUri() ) )
+                     .orElse( false ) )
+               .findFirst()
+               .orElseThrow( () -> new FileNotFoundException( "Created aspect model file not found: " + newFile ) );
+
+         AspectSerializer.INSTANCE.write( createdFile );
       } catch ( final IOException e ) {
          throw new CreateFileException( String.format( "Cannot create file %s on workspace", aspectModelUrn ), e );
       }
