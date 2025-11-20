@@ -6,7 +6,7 @@ meta {
 
 post {
   url: http://localhost:{{port}}/ame/api/generate/open-api-spec?output=yaml&baseUrl=http://www.test.com&includeQueryApi=true&useSemanticVersion=true&pagingOption=NO_PAGING
-  body: text
+  body: multipartForm
   auth: none
 }
 
@@ -19,7 +19,7 @@ params:query {
 }
 
 headers {
-  Content-Type: text/plain
+  uri: blob://movement.ttl
 }
 
 body:text {
@@ -41,6 +41,10 @@ body:text {
   
   :Characteristic1 a samm:Characteristic .
   
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/InvalidAspectModel.ttl)
 }
 
 tests {

@@ -6,7 +6,7 @@ meta {
 
 post {
   url: http://localhost:{{port}}/ame/api/generate/async-api-spec?language=en&output=yaml&applicationId=application:id&channelAddress=foo/bar&useSemanticVersion=false&writeSeparateFiles=false
-  body: text
+  body: multipartForm
   auth: none
 }
 
@@ -20,7 +20,7 @@ params:query {
 }
 
 headers {
-  Content-Type: text/plain
+  uri: blob://movement.ttl
 }
 
 body:text {
@@ -117,6 +117,10 @@ body:text {
      samm:dataType xsd:float ;
      samm-c:unit unit:metre .
   
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/Movement.ttl)
 }
 
 tests {

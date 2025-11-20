@@ -15,17 +15,16 @@ package org.eclipse.esmf.ame.exceptions;
 
 import java.io.Serial;
 
-public class FileWriteException extends RuntimeException {
+public class UriNotDefinedException extends RuntimeException {
    @Serial
    private static final long serialVersionUID = 1L;
 
    /**
-    * Constructs a FileWriteException with message and cause.
+    * Constructs a UriNotDefinedException with message, cause and value.
     *
     * @param message the message of the exception
-    * @param cause of the exception
     */
-   public FileWriteException( final String message, final Throwable cause ) {
-      super( message, cause );
+   public UriNotDefinedException( final String message ) {
+      super( message );
    }
 }

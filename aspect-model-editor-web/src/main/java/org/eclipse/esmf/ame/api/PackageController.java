@@ -70,25 +70,6 @@ public class PackageController {
    }
 
    /**
-    * Validates a ZIP file containing Aspect Model files.
-    *
-    * @param zipFile The uploaded ZIP file containing Aspect Model files.
-    * @return An HttpResponse containing a list of maps, where each map represents a validated file with its details.
-    * @throws FileReadException if the uploaded file is not in ZIP format.
-    */
-   @Post( "/validate-package" )
-   @Consumes( MediaType.MULTIPART_FORM_DATA )
-   public HttpResponse<List<Map<String, String>>> validatePackage( @Part( "zipFile" ) final CompletedFileUpload zipFile ) {
-      final String extension = FilenameUtils.getExtension( zipFile.getFilename() );
-
-      if ( !Objects.requireNonNull( extension ).equals( "zip" ) ) {
-         throw new FileReadException( "The file you selected is not in ZIP format." );
-      }
-
-      return HttpResponse.ok( packageService.validatePackage( zipFile ) );
-   }
-
-   /**
     * Imports a zip file containing Aspect Models.
     *
     * @param zipFile - The zip file containing Aspect Model files.

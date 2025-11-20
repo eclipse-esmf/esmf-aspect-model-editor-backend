@@ -13,6 +13,8 @@
 
 package org.eclipse.esmf.ame.api;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,6 +22,7 @@ import java.util.Optional;
 import org.eclipse.esmf.ame.MediaTypeExtension;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
+import org.eclipse.esmf.ame.exceptions.UriNotDefinedException;
 import org.eclipse.esmf.ame.services.ModelService;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.services.models.Version;
@@ -35,9 +38,11 @@ import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Delete;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Header;
+import io.micronaut.http.annotation.Part;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
+import io.micronaut.http.multipart.CompletedFileUpload;
 import io.vavr.Value;
 
 /**
@@ -46,7 +51,8 @@ import io.vavr.Value;
  */
 @Controller( "models" )
 public class ModelController {
-   public static final String URN = "aspect-model-urn";
+   private static final String URI = "uri";
+   private static final String URN = "aspect-model-urn";
 
    private final ModelService modelService;
 
@@ -55,9 +61,7 @@ public class ModelController {
    }
 
    private AspectModelUrn parseAspectModelUrn( final Optional<String> urn ) {
-      return urn.map( ModelUtils::sanitizeFileInformation )
-            .map( AspectModelUrn::from )
-            .flatMap( Value::toJavaOptional )
+      return urn.map( ModelUtils::sanitizeFileInformation ).map( AspectModelUrn::from ).flatMap( Value::toJavaOptional )
             .orElseThrow( () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
    }
 
@@ -105,10 +109,12 @@ public class ModelController {
     * @return Either an empty array if the model is syntactically correct and conforms to the Aspect Meta Model
     * semantics or provides a number of * {@link ViolationReport}s that describe all validation violations.
     */
-   @Post( uri = "validate", consumes = { MediaType.TEXT_PLAIN, MediaTypeExtension.TEXT_TURTLE_VALUE } )
+   @Post( uri = "validate", consumes = { MediaType.MULTIPART_FORM_DATA } )
    @Produces( MediaType.APPLICATION_JSON )
-   public HttpResponse<ViolationReport> validateModel( @Body final String aspectModel ) {
-      return HttpResponse.ok( modelService.validateModel( aspectModel ) ).contentType( MediaType.APPLICATION_JSON );
+   public HttpResponse<ViolationReport> validateModel( @Header( URI ) final Optional<String> optionalUri,
+         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
+      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
+      return HttpResponse.ok( modelService.validateModel( new URI( uriString ), aspectModel ) ).contentType( MediaType.APPLICATION_JSON );
    }
 
    /**
@@ -117,10 +123,12 @@ public class ModelController {
     * @param aspectModel - The Aspect Model Data
     * @return A migrated version of the Aspect Model
     */
-   @Post( uri = "migrate", consumes = { MediaType.TEXT_PLAIN, MediaTypeExtension.TEXT_TURTLE_VALUE } )
+   @Post( uri = "migrate", consumes = { MediaType.MULTIPART_FORM_DATA } )
    @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
-   public HttpResponse<String> migrateModel( @Body final String aspectModel ) {
-      return HttpResponse.ok( modelService.migrateModel( aspectModel ) );
+   public HttpResponse<String> migrateModel( @Header( URI ) final Optional<String> optionalUri,
+         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
+      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
+      return HttpResponse.ok( modelService.migrateModel( new URI( uriString ), aspectModel ) );
    }
 
    /**
@@ -129,21 +137,25 @@ public class ModelController {
     * @param aspectModel - The Aspect Model Data
     * @return A formatted version of the Aspect Model
     */
-   @Post( uri = "format", consumes = { MediaType.TEXT_PLAIN, MediaTypeExtension.TEXT_TURTLE_VALUE } )
+   @Post( uri = "format", consumes = { MediaType.MULTIPART_FORM_DATA } )
    @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
-   public HttpResponse<String> getFormattedModel( @Body final String aspectModel ) {
-      return HttpResponse.ok( modelService.getFormattedModel( aspectModel ) );
+   public HttpResponse<String> getFormattedModel( @Header( URI ) final Optional<String> optionalUri,
+         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
+      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
+      return HttpResponse.ok( modelService.getFormattedModel( new URI( uriString ), aspectModel ) );
    }
 
    /**
     * Returns a map of namespaces to their respective versions and models.
     * Each namespace is mapped to a list of versions, and each version contains a list of models.
     *
+    * @param onlyAspectModels get only Aspect Models with Aspects as namespace list.
     * @return a HttpResponse containing a map where the key is the namespace and the value is a list of Version objects.
     */
    @Get( uri = "namespaces", consumes = MediaType.TEXT_PLAIN )
-   public HttpResponse<Map<String, List<Version>>> getAllNamespaces() {
-      return HttpResponse.ok( modelService.getAllNamespaces() );
+   public HttpResponse<Map<String, List<Version>>> getAllNamespaces(
+         @QueryValue( defaultValue = "false" ) final boolean onlyAspectModels ) {
+      return HttpResponse.ok( modelService.getAllNamespaces( onlyAspectModels ) );
    }
 
    /**
@@ -154,6 +166,6 @@ public class ModelController {
     */
    @Get( uri = "migrate-workspace" )
    public HttpResponse<MigrationResult> migrateWorkspace( @QueryValue( defaultValue = "false" ) final boolean setNewVersion ) {
-      return HttpResponse.ok( modelService.migrateWorkspace( setNewVersion ) );
+      return HttpResponse.ok( modelService.migrateWorkspace( setNewVersion, ApplicationSettings.getMetaModelStoragePath() ) );
    }
 }

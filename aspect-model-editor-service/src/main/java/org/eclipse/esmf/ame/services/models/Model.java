@@ -26,14 +26,16 @@ import io.micronaut.serde.annotation.Serdeable;
 public class Model {
    private String model;
    private AspectModelUrn aspectModelUrn;
+   private String version;
    private boolean existing;
 
    public Model() {
    }
 
-   public Model( final String model, final AspectModelUrn aspectModelUrn, final boolean existing ) {
+   public Model( final String model, final AspectModelUrn aspectModelUrn, final String version, final boolean existing ) {
       this.model = model;
       this.aspectModelUrn = aspectModelUrn;
+      this.version = version;
       this.existing = existing;
    }
 
@@ -51,6 +53,14 @@ public class Model {
 
    public void setAspectModelUrn( final AspectModelUrn aspectModelUrn ) {
       this.aspectModelUrn = aspectModelUrn;
+   }
+
+   public String getVersion() {
+      return version;
+   }
+
+   public void setVersion( final String version ) {
+      this.version = version;
    }
 
    public boolean isExisting() {

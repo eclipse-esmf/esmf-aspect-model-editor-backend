@@ -49,8 +49,10 @@ public class GlobalExceptionHandler implements ExceptionHandler<RuntimeException
    private HttpStatus determineHttpStatus( final RuntimeException e ) {
       if ( e instanceof FileNotFoundException ) {
          return HttpStatus.NOT_FOUND;
-      } else if ( e instanceof FileWriteException || e instanceof GenerationException ) {
+      } else if ( e instanceof GenerationException ) {
          return HttpStatus.BAD_REQUEST;
+      } else if ( e instanceof UriNotDefinedException ) {
+         return HttpStatus.UNPROCESSABLE_ENTITY;
       } else if ( e instanceof AspectLoadingException || e instanceof InvalidAspectModelException
             || e instanceof FileReadException ) {
          return HttpStatus.CONFLICT;

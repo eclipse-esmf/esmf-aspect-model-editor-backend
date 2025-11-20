@@ -18,9 +18,9 @@ import java.util.function.Predicate;
 
 import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.services.ViolationFormatter;
-import org.eclipse.esmf.aspectmodel.shacl.violation.InvalidSyntaxViolation;
-import org.eclipse.esmf.aspectmodel.shacl.violation.ProcessingViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
+import org.eclipse.esmf.aspectmodel.validation.InvalidSyntaxViolation;
+import org.eclipse.esmf.aspectmodel.validation.ProcessingViolation;
 
 /**
  * Utility class for validation-related operations.

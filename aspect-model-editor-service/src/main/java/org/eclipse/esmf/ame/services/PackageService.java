@@ -13,7 +13,6 @@
 
 package org.eclipse.esmf.ame.services;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -34,7 +33,6 @@ import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
-import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.edit.AspectChangeManager;
 import org.eclipse.esmf.aspectmodel.edit.AspectChangeManagerConfig;
@@ -48,7 +46,6 @@ import org.eclipse.esmf.aspectmodel.resolver.NamespacePackage;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
 import org.eclipse.esmf.aspectmodel.resolver.fs.ModelsRoot;
 import org.eclipse.esmf.aspectmodel.resolver.fs.StructuredModelsRoot;
-import org.eclipse.esmf.aspectmodel.resolver.modelfile.RawAspectModelFile;
 import org.eclipse.esmf.aspectmodel.resolver.modelfile.RawAspectModelFileBuilder;
 import org.eclipse.esmf.aspectmodel.serializer.AspectSerializer;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
@@ -83,37 +80,6 @@ public class PackageService {
             .orElseThrow( () -> new FileNotFoundException( String.format( "No file found for %s", aspectModelUrn ) ) ).getContent();
    }
 
-   public List<Map<String, String>> validatePackage( final CompletedFileUpload zipFile ) {
-      try {
-         final byte[] zipContent = IOUtils.toByteArray( zipFile.getInputStream() );
-         final NamespacePackage namespacePackage = new NamespacePackage( zipContent, null );
-
-         return namespacePackage.loadContents().flatMap( file -> {
-                  final ByteArrayInputStream inputStream =
-                        ModelUtils.createInputStream( ( (RawAspectModelFile) file ).sourceRepresentation() );
-                  final AspectModel aspectModel = aspectModelLoader.load( inputStream );
-                  if ( aspectModel != null ) {
-                     return aspectModel.files().stream()
-                           .flatMap( aspectModelFile -> {
-                              try {
-                                 return aspectModelLoader.load( aspectModelFile.elements().getFirst().urn() )
-                                       .files().stream().map( AspectModelFile::filename )
-                                       .filter( Optional::isPresent ).map( Optional::get );
-                              } catch ( final ModelResolutionException e ) {
-                                 LOG.info( "Ignoring Exception" );
-                                 return Stream.empty();
-                              }
-                           } );
-                  }
-                  return Stream.empty();
-               } )
-               .map( filename -> Map.of( "model", filename ) )
-               .toList();
-      } catch ( final IOException e ) {
-         throw new ModelResolutionException( "Could not read from input", e );
-      }
-   }
-
    public Map<String, List<Version>> importPackage( final CompletedFileUpload zipFile ) {
       try {
          final ModelsRoot modelsRoot = new StructuredModelsRoot( modelPath );
@@ -128,7 +94,7 @@ public class PackageService {
 
          final Stream<URI> savedUris = saveAspectModelFiles( changeManager.aspectModelFiles() );
 
-         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( savedUris );
+         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( savedUris, false );
       } catch ( final IOException e ) {
          throw new ModelResolutionException( "Could not read from input", e );
       }

@@ -6,12 +6,12 @@ meta {
 
 post {
   url: http://localhost:{{port}}/ame/api/generate/json-sample
-  body: text
+  body: multipartForm
   auth: none
 }
 
 headers {
-  Content-Type: text/plain
+  uri: blob://movement.ttl
 }
 
 body:text {
@@ -108,6 +108,10 @@ body:text {
      samm:dataType xsd:float ;
      samm-c:unit unit:metre .
   
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/Movement.ttl)
 }
 
 tests {
