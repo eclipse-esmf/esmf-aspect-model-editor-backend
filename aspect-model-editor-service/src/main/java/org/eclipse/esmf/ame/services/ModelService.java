@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
@@ -46,9 +47,12 @@ import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
+import org.eclipse.esmf.metamodel.Namespace;
 import org.eclipse.esmf.samm.KnownVersion;
 
 import io.micronaut.http.multipart.CompletedFileUpload;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,12 +78,30 @@ public class ModelService {
       this.modelPath = modelPath;
    }
 
-   public String getModel( final AspectModelUrn aspectModelUrn, final String filePath ) {
+   public Tuple2<Optional<String>, String> getModel( final AspectModelUrn aspectModelUrn, final String filePath ) {
       try {
          final AspectModel aspectModel = ( filePath != null ) ?
                ModelUtils.loadModelFromFile( modelPath, filePath, aspectModelLoader ) :
                loadModelFromUrn( aspectModelUrn );
          validateModel( aspectModel );
+
+         return aspectModel.files().stream().filter( a -> a.elements().stream().anyMatch( e -> e.urn().equals( aspectModelUrn ) ) )
+               .findFirst().map( aspectModelFile -> Tuple.of( aspectModelFile.filename(),
+                     AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ) ) )
+               .orElseThrow( () -> new FileNotFoundException( "Aspect Model not found" ) );
+      } catch ( final ModelResolutionException e ) {
+         throw new FileNotFoundException( e.getMessage(), e );
+      }
+   }
+
+   public String getModelNamespace( final AspectModelUrn aspectModelUrn, final String filePath ) {
+      try {
+         final AspectModel aspectModel = ( filePath != null ) ?
+               ModelUtils.loadModelFromFile( modelPath, filePath, aspectModelLoader ) :
+               loadModelFromUrn( aspectModelUrn );
+         validateModel( aspectModel );
+
+         final Namespace first = aspectModel.namespaces().getFirst();
 
          return aspectModel.files().stream().filter( a -> a.elements().stream().anyMatch( e -> e.urn().equals( aspectModelUrn ) ) )
                .findFirst().map( AspectSerializer.INSTANCE::aspectModelFileToString )

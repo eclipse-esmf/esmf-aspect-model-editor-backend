@@ -84,7 +84,7 @@ class ModelServiceTest {
 
    @Test
    void testGetModel() throws ModelResolutionException {
-      final String result = modelService.getModel( NAMESPACE.withName( TEST_MODEL_FOR_SERVICE ), TEST_FILEPATH );
+      final String result = modelService.getModel( NAMESPACE.withName( TEST_MODEL_FOR_SERVICE ), TEST_FILEPATH )._2;
       assertTrue( result.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> ." ) );
       assertTrue( result.contains( "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ." ) );
       assertTrue( result.contains( "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> ." ) );
