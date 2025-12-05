@@ -27,6 +27,7 @@ import java.nio.file.Path;
 
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.model.MockFileUpload;
+import org.eclipse.esmf.ame.services.models.AspectModelResult;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
@@ -84,13 +85,14 @@ class ModelServiceTest {
 
    @Test
    void testGetModel() throws ModelResolutionException {
-      final String result = modelService.getModel( NAMESPACE.withName( TEST_MODEL_FOR_SERVICE ), TEST_FILEPATH )._2;
-      assertTrue( result.contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> ." ) );
-      assertTrue( result.contains( "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ." ) );
-      assertTrue( result.contains( "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> ." ) );
-      assertTrue( result.contains( "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> ." ) );
-      assertTrue( result.contains( "@prefix : <urn:samm:org.eclipse.esmf.example:1.0.0#> ." ) );
-      assertTrue( result.contains( ":Movement a samm:Aspect ;" ) );
+      final AspectModelResult result = modelService.getModel( NAMESPACE.withName( TEST_MODEL_FOR_SERVICE ), TEST_FILEPATH );
+      assertTrue( result.content().contains( "@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> ." ) );
+      assertTrue( result.content().contains( "@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ." ) );
+      assertTrue( result.content().contains( "@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> ." ) );
+      assertTrue( result.content().contains( "@prefix xsd: <http://www.w3.org/2001/XMLSchema#> ." ) );
+      assertTrue( result.content().contains( "@prefix : <urn:samm:org.eclipse.esmf.example:1.0.0#> ." ) );
+      assertTrue( result.content().contains( ":Movement a samm:Aspect ;" ) );
+      assertTrue( result.filename().get().contains( "Movement.ttl" ) );
    }
 
    @Test()
@@ -190,7 +192,7 @@ class ModelServiceSpecialTest {
    void testMigrateWorkspaceWithoutVersionUpgrade() throws IOException {
       final MigrationResult migrationResult = modelService.migrateWorkspace( false, MIGRATION_WORKSPACE_PATH );
 
-      assertTrue( migrationResult.isSuccess() );
+      assertTrue( migrationResult.success() );
 
       final String migratedModelOne = Files.readString( new File( MIGRATE_WORKSPACE_ONE + File.separator + "ToMigrateOne.ttl" ).toPath()
                   .toAbsolutePath(),
@@ -212,7 +214,7 @@ class ModelServiceSpecialTest {
    void testMigrateWorkspaceWithVersionUpgrade() throws IOException {
       final MigrationResult migrationResult = modelService.migrateWorkspace( true, MIGRATION_WORKSPACE_PATH );
 
-      assertTrue( migrationResult.isSuccess() );
+      assertTrue( migrationResult.success() );
 
       final String migratedModelOne = Files.readString(
             new File( MIGRATE_WORKSPACE_ONE_NEW_VERSION + File.separator + "ToMigrateOne.ttl" ).toPath()
