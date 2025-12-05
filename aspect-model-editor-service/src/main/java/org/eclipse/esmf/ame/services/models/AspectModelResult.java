@@ -13,22 +13,19 @@
 
 package org.eclipse.esmf.ame.services.models;
 
-import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 
 /**
- * Represents the result of a migration operation.
+ * Represents the result of an aspect model operation.
  *
- * @param success indicates whether the migration was successful
- * @param errors list of error messages encountered during migration, empty if successful
+ * @param filename the optional name of the file associated with the model result
+ * @param content the content of the model result
  */
 @Serdeable
 @Introspected
 @JsonInclude( JsonInclude.Include.ALWAYS )
-public record MigrationResult(
-      boolean success,
-      List<String> errors
-) {}
+public record AspectModelResult( Optional<String> filename, String content ) {}

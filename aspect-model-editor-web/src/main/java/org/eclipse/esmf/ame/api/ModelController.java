@@ -15,6 +15,7 @@ package org.eclipse.esmf.ame.api;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,6 +25,9 @@ import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.UriNotDefinedException;
 import org.eclipse.esmf.ame.services.ModelService;
+import org.eclipse.esmf.ame.services.models.AspectModelResult;
+import org.eclipse.esmf.ame.services.models.FileEntry;
+import org.eclipse.esmf.ame.services.models.FileInformation;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.utils.ModelUtils;
@@ -75,7 +79,33 @@ public class ModelController {
          @Header( "file-path" ) final Optional<String> filePath ) {
       final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
       final String path = filePath.orElse( null );
-      return HttpResponse.ok( modelService.getModel( aspectModelUrn, path ) );
+      return HttpResponse.ok( modelService.getModel( aspectModelUrn, path ).content() );
+   }
+
+   /**
+    * Method used to return multiple turtle files in batch based on a list of Aspect Model URNs.
+    * Each URN consists of urn:samm:namespace:version#AspectModelElement
+    */
+   @Post( uri = "batch", consumes = MediaType.APPLICATION_JSON )
+   @Produces( MediaType.APPLICATION_JSON )
+   public HttpResponse<List<FileInformation>> getModelsBatch( @Body final List<FileEntry> fileEntries ) {
+      final List<FileInformation> fileInformations = new ArrayList<>();
+
+      for ( final FileEntry entry : fileEntries ) {
+         try {
+            final AspectModelUrn urn = parseAspectModelUrn( Optional.of( entry.aspectModelUrn() ) );
+            final AspectModelResult aspectModelResult = modelService.getModel( urn, null );
+
+            final FileInformation fileInformation = new FileInformation( entry.absoluteName(), entry.aspectModelUrn(),
+                  entry.modelVersion(), aspectModelResult.content(), aspectModelResult.filename().orElse( "" ) );
+            fileInformations.add( fileInformation );
+         } catch ( final Exception e ) {
+            throw new FileNotFoundException(
+                  String.format( "Failed to retrieve Aspect Model for URN: %s - %s", entry.absoluteName(), e.getMessage() ) );
+         }
+      }
+
+      return HttpResponse.ok( fileInformations );
    }
 
    /**

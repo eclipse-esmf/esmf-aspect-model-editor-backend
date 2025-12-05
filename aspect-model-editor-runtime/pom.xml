@@ -446,7 +446,7 @@
                         </goals>
                         <configuration>
                            <workingDirectory>${project.build.directory}</workingDirectory>
-                           <arguments>install . @usebruno/cli</arguments>
+                           <arguments>install --ignore-scripts . @usebruno/cli@2.15.0</arguments>
                         </configuration>
                      </execution>
                   </executions>

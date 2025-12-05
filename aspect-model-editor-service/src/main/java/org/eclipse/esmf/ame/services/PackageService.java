@@ -30,6 +30,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
+import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
@@ -43,7 +44,6 @@ import org.eclipse.esmf.aspectmodel.edit.change.AddAspectModelFile;
 import org.eclipse.esmf.aspectmodel.generator.zip.AspectModelNamespacePackageCreator;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.NamespacePackage;
-import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
 import org.eclipse.esmf.aspectmodel.resolver.fs.ModelsRoot;
 import org.eclipse.esmf.aspectmodel.resolver.fs.StructuredModelsRoot;
 import org.eclipse.esmf.aspectmodel.resolver.modelfile.RawAspectModelFileBuilder;
@@ -96,11 +96,16 @@ public class PackageService {
 
          return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( savedUris, false );
       } catch ( final IOException e ) {
-         throw new ModelResolutionException( "Could not read from input", e );
+         throw new FileHandlingException( "Could not read from input", e );
       }
    }
 
    private AddAspectModelFile createAddChange( final AspectModelFile file, final ModelsRoot modelsRoot ) {
+      if ( file.sourceModel().isEmpty() ) {
+         // TODO check why this will not returend ...
+         throw new FileHandlingException( "Source model is empty for file: " + file );
+      }
+
       final URI targetLocation = modelsRoot.directoryForNamespace( file.namespaceUrn() ).resolve( file.filename().orElseThrow() ).toUri();
 
       final RawAspectModelFileBuilder builder = RawAspectModelFileBuilder.builder().sourceModel( file.sourceModel() )
