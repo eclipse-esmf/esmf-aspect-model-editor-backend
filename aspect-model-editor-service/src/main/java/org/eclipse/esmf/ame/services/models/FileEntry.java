@@ -13,60 +13,28 @@
 
 package org.eclipse.esmf.ame.services.models;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 
 /**
- * Represents a single migration result with success and erros.
+ * Represents a file entry with aspect model information.
+ *
+ * @param absoluteName the absolute path of the file
+ * @param fileName the name of the file
+ * @param aspectModelUrn the URN of the aspect model
+ * @param modelVersion the version of the model
  */
 @Serdeable
 @Introspected
-public class FileEntry {
-   private String absoluteName;
-   private String fileName;
-   private String aspectModelUrn;
-   private String modelVersion;
-
+@JsonInclude( JsonInclude.Include.ALWAYS )
+public record FileEntry( String absoluteName, String fileName, String aspectModelUrn, String modelVersion ) {
+   /**
+    * Creates a FileEntry with only the aspect model URN.
+    *
+    * @param aspectModelUrn the URN of the aspect model
+    */
    public FileEntry( final String aspectModelUrn ) {
-      this.aspectModelUrn = aspectModelUrn;
-   }
-
-   public FileEntry( final String absoluteName, final String fileName, final String aspectModelUrn, final String modelVersion ) {
-      this.absoluteName = absoluteName;
-      this.fileName = fileName;
-      this.aspectModelUrn = aspectModelUrn;
-      this.modelVersion = modelVersion;
-   }
-
-   public String getAbsoluteName() {
-      return absoluteName;
-   }
-
-   public void setAbsoluteName( final String absoluteName ) {
-      this.absoluteName = absoluteName;
-   }
-
-   public String getFileName() {
-      return fileName;
-   }
-
-   public void setFileName( final String fileName ) {
-      this.fileName = fileName;
-   }
-
-   public String getAspectModelUrn() {
-      return aspectModelUrn;
-   }
-
-   public void setAspectModelUrn( final String aspectModelUrn ) {
-      this.aspectModelUrn = aspectModelUrn;
-   }
-
-   public String getModelVersion() {
-      return modelVersion;
-   }
-
-   public void setModelVersion( final String modelVersion ) {
-      this.modelVersion = modelVersion;
+      this( null, null, aspectModelUrn, null );
    }
 }

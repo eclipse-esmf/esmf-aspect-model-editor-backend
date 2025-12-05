@@ -74,7 +74,7 @@ public record ModelGroupingUtils( AspectModelLoader aspectModelLoader ) {
                         .map( modelElement -> createModel( modelElement, entry.getValue().orElse( null ) ) )
             )
             .collect( Collectors.groupingBy(
-                  model -> model.getAspectModelUrn().getNamespaceMainPart()
+                  model -> model.aspectModelUrn().getNamespaceMainPart()
             ) )
             .entrySet().stream()
             .sorted( Map.Entry.comparingByKey() )
@@ -105,19 +105,19 @@ public record ModelGroupingUtils( AspectModelLoader aspectModelLoader ) {
    private List<Version> groupByVersion( final List<Model> models ) {
       return models.stream()
             .collect( Collectors.toMap(
-                  Model::getAspectModelUrn,
+                  Model::aspectModelUrn,
                   model -> model,
                   ( existing, duplicate ) -> existing,
                   LinkedHashMap::new
             ) )
             .values()
             .stream()
-            .collect( Collectors.groupingBy( model -> model.getAspectModelUrn().getVersion() ) )
+            .collect( Collectors.groupingBy( model -> model.aspectModelUrn().getVersion() ) )
             .entrySet()
             .stream()
             .sorted( Map.Entry.comparingByKey() )
             .map( entry -> new Version( entry.getKey(),
-                  entry.getValue().stream().sorted( Comparator.comparing( Model::getModel ) ).toList() ) )
+                  entry.getValue().stream().sorted( Comparator.comparing( Model::model ) ).toList() ) )
             .toList();
    }
 }

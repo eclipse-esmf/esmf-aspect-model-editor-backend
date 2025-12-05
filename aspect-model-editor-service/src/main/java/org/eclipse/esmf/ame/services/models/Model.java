@@ -15,59 +15,24 @@ package org.eclipse.esmf.ame.services.models;
 
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 
 /**
  * Represents a single model with its name or properties.
+ *
+ * @param model the model name or content
+ * @param aspectModelUrn the URN of the aspect model
+ * @param version the version of the model
+ * @param existing indicates whether the model already exists
  */
 @Serdeable
 @Introspected
-public class Model {
-   private String model;
-   private AspectModelUrn aspectModelUrn;
-   private String version;
-   private boolean existing;
-
-   public Model() {
-   }
-
-   public Model( final String model, final AspectModelUrn aspectModelUrn, final String version, final boolean existing ) {
-      this.model = model;
-      this.aspectModelUrn = aspectModelUrn;
-      this.version = version;
-      this.existing = existing;
-   }
-
-   public String getModel() {
-      return model;
-   }
-
-   public void setModel( final String model ) {
-      this.model = model;
-   }
-
-   public AspectModelUrn getAspectModelUrn() {
-      return aspectModelUrn;
-   }
-
-   public void setAspectModelUrn( final AspectModelUrn aspectModelUrn ) {
-      this.aspectModelUrn = aspectModelUrn;
-   }
-
-   public String getVersion() {
-      return version;
-   }
-
-   public void setVersion( final String version ) {
-      this.version = version;
-   }
-
-   public boolean isExisting() {
-      return existing;
-   }
-
-   public void setExisting( final boolean existing ) {
-      this.existing = existing;
-   }
-}
+@JsonInclude( JsonInclude.Include.ALWAYS )
+public record Model(
+      String model,
+      AspectModelUrn aspectModelUrn,
+      String version,
+      boolean existing
+) {}

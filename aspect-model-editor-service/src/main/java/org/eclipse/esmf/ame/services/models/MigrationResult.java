@@ -15,39 +15,20 @@ package org.eclipse.esmf.ame.services.models;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 
 /**
- * Represents a single migration result with success and erros.
+ * Represents the result of a migration operation.
+ *
+ * @param success indicates whether the migration was successful
+ * @param errors list of error messages encountered during migration, empty if successful
  */
 @Serdeable
 @Introspected
-public class MigrationResult {
-   private boolean success;
-   private List<String> errors;
-
-   public MigrationResult() {
-   }
-
-   public MigrationResult( final boolean success, final List<String> errors ) {
-      this.success = success;
-      this.errors = errors;
-   }
-
-   public boolean isSuccess() {
-      return success;
-   }
-
-   public void setSuccess( final boolean success ) {
-      this.success = success;
-   }
-
-   public List<String> getErrors() {
-      return errors;
-   }
-
-   public void setErrors( final List<String> errors ) {
-      this.errors = errors;
-   }
-}
+@JsonInclude( JsonInclude.Include.ALWAYS )
+public record MigrationResult(
+      boolean success,
+      List<String> errors
+) {}

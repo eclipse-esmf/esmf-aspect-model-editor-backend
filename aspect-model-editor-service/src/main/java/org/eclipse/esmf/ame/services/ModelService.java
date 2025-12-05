@@ -20,7 +20,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
@@ -28,6 +27,7 @@ import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
+import org.eclipse.esmf.ame.services.models.AspectModelResult;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
@@ -47,12 +47,9 @@ import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
-import org.eclipse.esmf.metamodel.Namespace;
 import org.eclipse.esmf.samm.KnownVersion;
 
 import io.micronaut.http.multipart.CompletedFileUpload;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,33 +75,19 @@ public class ModelService {
       this.modelPath = modelPath;
    }
 
-   public Tuple2<Optional<String>, String> getModel( final AspectModelUrn aspectModelUrn, final String filePath ) {
+   public AspectModelResult getModel( final AspectModelUrn aspectModelUrn, final String filePath ) {
       try {
          final AspectModel aspectModel = ( filePath != null ) ?
                ModelUtils.loadModelFromFile( modelPath, filePath, aspectModelLoader ) :
                loadModelFromUrn( aspectModelUrn );
          validateModel( aspectModel );
 
-         return aspectModel.files().stream().filter( a -> a.elements().stream().anyMatch( e -> e.urn().equals( aspectModelUrn ) ) )
-               .findFirst().map( aspectModelFile -> Tuple.of( aspectModelFile.filename(),
+         return aspectModel.files().stream()
+               .filter( a -> a.elements().stream().anyMatch( e -> e.urn().equals( aspectModelUrn ) ) )
+               .findFirst()
+               .map( aspectModelFile -> new AspectModelResult(
+                     aspectModelFile.filename(),
                      AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ) ) )
-               .orElseThrow( () -> new FileNotFoundException( "Aspect Model not found" ) );
-      } catch ( final ModelResolutionException e ) {
-         throw new FileNotFoundException( e.getMessage(), e );
-      }
-   }
-
-   public String getModelNamespace( final AspectModelUrn aspectModelUrn, final String filePath ) {
-      try {
-         final AspectModel aspectModel = ( filePath != null ) ?
-               ModelUtils.loadModelFromFile( modelPath, filePath, aspectModelLoader ) :
-               loadModelFromUrn( aspectModelUrn );
-         validateModel( aspectModel );
-
-         final Namespace first = aspectModel.namespaces().getFirst();
-
-         return aspectModel.files().stream().filter( a -> a.elements().stream().anyMatch( e -> e.urn().equals( aspectModelUrn ) ) )
-               .findFirst().map( AspectSerializer.INSTANCE::aspectModelFileToString )
                .orElseThrow( () -> new FileNotFoundException( "Aspect Model not found" ) );
       } catch ( final ModelResolutionException e ) {
          throw new FileNotFoundException( e.getMessage(), e );
@@ -213,16 +196,16 @@ public class ModelService {
 
    private void processVersion( final String namespace, final Version version, final boolean setNewVersion, final List<String> errors,
          final Path metaModelStoragePath ) {
-      version.getModels().forEach( model -> {
+      version.models().forEach( model -> {
          try {
-            final boolean isNotLatestKnownVersion = KnownVersion.fromVersionString( model.getVersion() )
+            final boolean isNotLatestKnownVersion = KnownVersion.fromVersionString( model.version() )
                   .filter( v -> KnownVersion.getLatest().equals( v ) ).isPresent();
 
             if ( isNotLatestKnownVersion ) {
                return;
             }
 
-            final Path aspectModelPath = ModelUtils.constructModelPath( modelPath, namespace, version.getVersion(), model.getModel() );
+            final Path aspectModelPath = ModelUtils.constructModelPath( modelPath, namespace, version.version(), model.model() );
             final AspectModel aspectModel = aspectModelLoader.load( aspectModelPath.toFile() );
 
             if ( setNewVersion ) {
@@ -232,7 +215,7 @@ public class ModelService {
 
             AspectSerializer.INSTANCE.write( aspectModel );
          } catch ( final Exception e ) {
-            errors.add( String.format( "Error processing model: %s", model.getModel() ) );
+            errors.add( String.format( "Error processing model: %s", model.model() ) );
          }
       } );
    }

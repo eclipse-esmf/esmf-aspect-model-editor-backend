@@ -25,6 +25,7 @@ import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.UriNotDefinedException;
 import org.eclipse.esmf.ame.services.ModelService;
+import org.eclipse.esmf.ame.services.models.AspectModelResult;
 import org.eclipse.esmf.ame.services.models.FileEntry;
 import org.eclipse.esmf.ame.services.models.FileInformation;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
@@ -46,7 +47,6 @@ import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.multipart.CompletedFileUpload;
-import io.vavr.Tuple2;
 import io.vavr.Value;
 
 /**
@@ -79,7 +79,7 @@ public class ModelController {
          @Header( "file-path" ) final Optional<String> filePath ) {
       final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
       final String path = filePath.orElse( null );
-      return HttpResponse.ok( modelService.getModel( aspectModelUrn, path )._2 );
+      return HttpResponse.ok( modelService.getModel( aspectModelUrn, path ).content() );
    }
 
    /**
@@ -93,15 +93,15 @@ public class ModelController {
 
       for ( final FileEntry entry : fileEntries ) {
          try {
-            final AspectModelUrn urn = parseAspectModelUrn( Optional.of( entry.getAspectModelUrn() ) );
-            final Tuple2<Optional<String>, String> model = modelService.getModel( urn, null );
+            final AspectModelUrn urn = parseAspectModelUrn( Optional.of( entry.aspectModelUrn() ) );
+            final AspectModelResult aspectModelResult = modelService.getModel( urn, null );
 
-            final FileInformation fileInformation = new FileInformation( entry.getAbsoluteName(), entry.getAspectModelUrn(),
-                  entry.getModelVersion(), model._2, model._1.orElse( "" ) );
+            final FileInformation fileInformation = new FileInformation( entry.absoluteName(), entry.aspectModelUrn(),
+                  entry.modelVersion(), aspectModelResult.content(), aspectModelResult.filename().orElse( "" ) );
             fileInformations.add( fileInformation );
          } catch ( final Exception e ) {
             throw new FileNotFoundException(
-                  String.format( "Failed to retrieve Aspect Model for URN: %s - %s", entry.getAspectModelUrn(), e.getMessage() ) );
+                  String.format( "Failed to retrieve Aspect Model for URN: %s - %s", entry.absoluteName(), e.getMessage() ) );
          }
       }
 
