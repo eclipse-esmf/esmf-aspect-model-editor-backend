@@ -47,6 +47,8 @@ import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
+import org.eclipse.esmf.metamodel.impl.DefaultScalar;
+import org.eclipse.esmf.metamodel.impl.DefaultScalarValue;
 import org.eclipse.esmf.samm.KnownVersion;
 
 import io.micronaut.http.multipart.CompletedFileUpload;
@@ -82,11 +84,10 @@ public class ModelService {
                loadModelFromUrn( aspectModelUrn );
          validateModel( aspectModel );
 
-         return aspectModel.files().stream()
-               .filter( a -> a.elements().stream().anyMatch( e -> e.urn().equals( aspectModelUrn ) ) )
-               .findFirst()
-               .map( aspectModelFile -> new AspectModelResult(
-                     aspectModelFile.filename(),
+         return aspectModel.files().stream().filter( a -> a.elements().stream().anyMatch(
+                     e -> ( e instanceof DefaultScalarValue && ( (DefaultScalarValue) e ).getType()
+                           .equals( new DefaultScalar( aspectModelUrn.toString() ) ) ) || e.urn().equals( aspectModelUrn ) ) ).findFirst()
+               .map( aspectModelFile -> new AspectModelResult( aspectModelFile.filename(),
                      AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ) ) )
                .orElseThrow( () -> new FileNotFoundException( "Aspect Model not found" ) );
       } catch ( final ModelResolutionException e ) {
@@ -126,11 +127,8 @@ public class ModelService {
          ModelUtils.createFile( newFile );
 
          final AspectModelFile createdFile = aspectModelSupplier.get().files().stream()
-               .filter( aspectModelFile -> aspectModelFile.sourceLocation()
-                     .map( src -> src.equals( newFile.toUri() ) )
-                     .orElse( false ) )
-               .findFirst()
-               .orElseThrow( () -> new FileNotFoundException( "Created aspect model file not found: " + newFile ) );
+               .filter( aspectModelFile -> aspectModelFile.sourceLocation().map( src -> src.equals( newFile.toUri() ) ).orElse( false ) )
+               .findFirst().orElseThrow( () -> new FileNotFoundException( "Created aspect model file not found: " + newFile ) );
 
          AspectSerializer.INSTANCE.write( createdFile );
       } catch ( final IOException e ) {
@@ -184,9 +182,8 @@ public class ModelService {
       final List<String> errors = new ArrayList<>();
 
       try {
-         getAllNamespaces( false ).forEach(
-               ( namespace, versions ) -> versions.forEach(
-                     version -> processVersion( namespace, version, setNewVersion, errors, metaModelStoragePath ) ) );
+         getAllNamespaces( false ).forEach( ( namespace, versions ) -> versions.forEach(
+               version -> processVersion( namespace, version, setNewVersion, errors, metaModelStoragePath ) ) );
          return new MigrationResult( true, errors );
       } catch ( final Exception e ) {
          errors.add( e.getMessage() );
@@ -244,8 +241,7 @@ public class ModelService {
          }
 
          ModelUtils.createFile( updatedFile.namespaceUrn(),
-               updatedFile.filename().orElseThrow( () -> new FileHandlingException( "Filename missing" ) ),
-               metaModelStoragePath );
+               updatedFile.filename().orElseThrow( () -> new FileHandlingException( "Filename missing" ) ), metaModelStoragePath );
 
          AspectSerializer.INSTANCE.write( updatedFile );
       } catch ( final IOException e ) {
