@@ -14,7 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-13, windows-latest, ubuntu-latest ]
+        os: [ macos-15-intel, windows-latest, ubuntu-latest ]
 
     steps:
       - name: Checkout project
@@ -68,7 +68,7 @@ jobs:
           git push origin ${{ env.release_branch_name }}
 
       - name: Set maven version
-        if: matrix.os == 'macos-13' || matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'macos-15-intel' || matrix.os == 'ubuntu-latest'
         run: mvn versions:set -DnewVersion=${{ github.event.inputs.release_version }}
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -80,7 +80,7 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Creating native image (Mac)
-        if: matrix.os == 'macos-13'
+        if: matrix.os == 'macos-15-intel'
         run: mvn install -P native-image,native-test-config -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -126,7 +126,7 @@ jobs:
             aspect-model-editor-runtime/target/lib/
 
       - name: Upload binary (Mac)
-        if: matrix.os == 'macos-13'
+        if: matrix.os == 'macos-15-intel'
         uses: actions/upload-artifact@v4
         with:
           name: ame-backend-v${{ github.event.inputs.release_version }}-mac

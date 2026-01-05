@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-13, windows-latest, ubuntu-latest ]
+        os: [ macos-15-intel, windows-latest, ubuntu-latest ]
 
     steps:
       - name: Checkout project
@@ -47,7 +47,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Creating native image (Mac)
-        if: matrix.os == 'macos-13'
+        if: matrix.os == 'macos-15-intel'
         run: mvn install -P native-image,native-test-config -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -69,7 +69,7 @@ jobs:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Mac
-        if: matrix.os == 'macos-13'
+        if: matrix.os == 'macos-15-intel'
         run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=mac
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -107,7 +107,7 @@ jobs:
             aspect-model-editor-runtime/target/*.so
 
       - name: Upload binary (Mac)
-        if: matrix.os == 'macos-13'
+        if: matrix.os == 'macos-15-intel'
         uses: actions/upload-artifact@v4
         with:
           name: ame-backend-mac
