@@ -95,10 +95,15 @@ class ModelServiceTest {
       assertTrue( result.filename().get().contains( "Movement.ttl" ) );
    }
 
+   @Test
+   void testCheckElementExists() throws ModelResolutionException {
+      assertTrue( modelService.checkElementExists( NAMESPACE.withName( TEST_MODEL_FOR_SERVICE ), "Example.ttl" ) );
+      assertFalse( modelService.checkElementExists( NAMESPACE.withName( TEST_MODEL_FOR_SERVICE ), "Movement.ttl" ) );
+   }
+
    @Test()
    void testGetModelThrowsNotFoundException() {
-      assertThrows( FileNotFoundException.class, () ->
-            modelService.getModel( NAMESPACE.withName( TEST_MODEL_NOT_FOUND ), TEST_FILEPATH ) );
+      assertThrows( FileNotFoundException.class, () -> modelService.getModel( NAMESPACE.withName( TEST_MODEL_NOT_FOUND ), TEST_FILEPATH ) );
    }
 
    @Test
@@ -120,8 +125,8 @@ class ModelServiceTest {
          final Path fileToReplace = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL_FOR_SERVICE + FILE_EXTENSION );
          final String turtleData = Files.readString( fileToReplace, StandardCharsets.UTF_8 );
 
-         modelService.createOrSaveModel( turtleData, NAMESPACE.withName( TEST_MODEL_FOR_SERVICE ),
-               TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, RESOURCE_PATH.toAbsolutePath() );
+         modelService.createOrSaveModel( turtleData, NAMESPACE.withName( TEST_MODEL_FOR_SERVICE ), TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+               RESOURCE_PATH.toAbsolutePath() );
       } );
    }
 
@@ -194,15 +199,14 @@ class ModelServiceSpecialTest {
 
       assertTrue( migrationResult.success() );
 
-      final String migratedModelOne = Files.readString( new File( MIGRATE_WORKSPACE_ONE + File.separator + "ToMigrateOne.ttl" ).toPath()
-                  .toAbsolutePath(),
-            StandardCharsets.UTF_8 );
+      final String migratedModelOne = Files.readString(
+            new File( MIGRATE_WORKSPACE_ONE + File.separator + "ToMigrateOne.ttl" ).toPath().toAbsolutePath(), StandardCharsets.UTF_8 );
       final String migratedModelTwo = Files.readString( new File( MIGRATE_WORKSPACE_ONE + File.separator + "ToMigrateTwo.ttl" ).toPath(),
             StandardCharsets.UTF_8 );
-      final String migratedModelThree = Files.readString(
-            new File( MIGRATE_WORKSPACE_TWO + File.separator + "ToMigrateOne.ttl" ).toPath(), StandardCharsets.UTF_8 );
-      final String migratedModelFour = Files.readString(
-            new File( MIGRATE_WORKSPACE_TWO + File.separator + "ToMigrateTwo.ttl" ).toPath(), StandardCharsets.UTF_8 );
+      final String migratedModelThree = Files.readString( new File( MIGRATE_WORKSPACE_TWO + File.separator + "ToMigrateOne.ttl" ).toPath(),
+            StandardCharsets.UTF_8 );
+      final String migratedModelFour = Files.readString( new File( MIGRATE_WORKSPACE_TWO + File.separator + "ToMigrateTwo.ttl" ).toPath(),
+            StandardCharsets.UTF_8 );
 
       checkMigratedModel( migratedModelOne );
       checkMigratedModel( migratedModelTwo );
@@ -217,12 +221,10 @@ class ModelServiceSpecialTest {
       assertTrue( migrationResult.success() );
 
       final String migratedModelOne = Files.readString(
-            new File( MIGRATE_WORKSPACE_ONE_NEW_VERSION + File.separator + "ToMigrateOne.ttl" ).toPath()
-                  .toAbsolutePath(),
+            new File( MIGRATE_WORKSPACE_ONE_NEW_VERSION + File.separator + "ToMigrateOne.ttl" ).toPath().toAbsolutePath(),
             StandardCharsets.UTF_8 );
       final String migratedModelTwo = Files.readString(
-            new File( MIGRATE_WORKSPACE_ONE_NEW_VERSION + File.separator + "ToMigrateTwo.ttl" ).toPath(),
-            StandardCharsets.UTF_8 );
+            new File( MIGRATE_WORKSPACE_ONE_NEW_VERSION + File.separator + "ToMigrateTwo.ttl" ).toPath(), StandardCharsets.UTF_8 );
       final String migratedModelThree = Files.readString(
             new File( MIGRATE_WORKSPACE_TWO_NEW_VERSION + File.separator + "ToMigrateOne.ttl" ).toPath(), StandardCharsets.UTF_8 );
       final String migratedModelFour = Files.readString(

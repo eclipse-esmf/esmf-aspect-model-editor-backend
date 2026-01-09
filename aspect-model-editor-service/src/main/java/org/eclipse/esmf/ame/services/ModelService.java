@@ -53,6 +53,7 @@ import org.eclipse.esmf.samm.KnownVersion;
 
 import io.micronaut.http.multipart.CompletedFileUpload;
 import jakarta.inject.Singleton;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,7 @@ import org.slf4j.LoggerFactory;
 public class ModelService {
    private static final Logger LOG = LoggerFactory.getLogger( ModelService.class );
 
-   private static final String sammStructureInfo =
+   private static final String SAMM_STRUCTURE_INFO =
          "Please check whether the SAMM structure has been followed in the workspace: " + "Namespace/Version/Aspect model.";
 
    private final AspectModelValidator aspectModelValidator;
@@ -77,7 +78,7 @@ public class ModelService {
       this.modelPath = modelPath;
    }
 
-   public AspectModelResult getModel( final AspectModelUrn aspectModelUrn, final String filePath ) {
+   public AspectModelResult getModel( final AspectModelUrn aspectModelUrn, final @Nullable String filePath ) {
       try {
          final AspectModel aspectModel = ( filePath != null ) ?
                ModelUtils.loadModelFromFile( modelPath, filePath, aspectModelLoader ) :
@@ -172,9 +173,9 @@ public class ModelService {
          return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( aspectModelLoader.listContents(),
                onlyAspectModels );
       } catch ( final UnsupportedVersionException e ) {
-         LOG.error( "{} There is a loose .ttl file somewhere — remove it along with any other non-standardized files.", sammStructureInfo,
+         LOG.error( "{} There is a loose .ttl file somewhere — remove it along with any other non-standardized files.", SAMM_STRUCTURE_INFO,
                e );
-         throw new FileReadException( sammStructureInfo + " Remove all non-standardized files." );
+         throw new FileReadException( SAMM_STRUCTURE_INFO + " Remove all non-standardized files." );
       }
    }
 
@@ -246,6 +247,17 @@ public class ModelService {
          AspectSerializer.INSTANCE.write( updatedFile );
       } catch ( final IOException e ) {
          throw new CreateFileException( "Cannot create file %s on workspace", e );
+      }
+   }
+
+   public boolean checkElementExists( final AspectModelUrn aspectModelUrn, final String fileName ) {
+      try {
+
+         System.out.println( loadModelFromUrn( aspectModelUrn ).files() );
+         return loadModelFromUrn( aspectModelUrn ).files().stream()
+               .anyMatch( f -> !fileName.equals( f.filename().orElse( "" ) ) );
+      } catch ( final ModelResolutionException e ) {
+         return false;
       }
    }
 }

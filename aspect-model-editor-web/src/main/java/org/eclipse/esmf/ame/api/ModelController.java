@@ -83,6 +83,23 @@ public class ModelController {
    }
 
    /**
+    * Checks if an Aspect Model element exists in the workspace.
+    * <p>
+    * This endpoint verifies the existence of an Aspect Model element identified by its URN
+    * and checks if it exists in a file with a name different from the provided file name.
+    *
+    * @param urn the Aspect Model URN header parameter in the format urn:samm:namespace:version#AspectModelElement
+    * @param fileName the file name to exclude from the existence check
+    * @return True if the element exists in a different file, false otherwise
+    */
+   @Get( uri = "check-element", consumes = MediaType.APPLICATION_JSON )
+   public HttpResponse<Boolean> checkElementExists( @Header( URN ) final Optional<String> urn,
+         @QueryValue() final String fileName ) {
+      final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
+      return HttpResponse.ok( modelService.checkElementExists( aspectModelUrn, fileName ) );
+   }
+
+   /**
     * Method used to return multiple turtle files in batch based on a list of Aspect Model URNs.
     * Each URN consists of urn:samm:namespace:version#AspectModelElement
     */
@@ -96,8 +113,8 @@ public class ModelController {
             final AspectModelUrn urn = parseAspectModelUrn( Optional.of( entry.aspectModelUrn() ) );
             final AspectModelResult aspectModelResult = modelService.getModel( urn, null );
 
-            final FileInformation fileInformation = new FileInformation( entry.absoluteName(), entry.aspectModelUrn(),
-                  entry.modelVersion(), aspectModelResult.content(), aspectModelResult.filename().orElse( "" ) );
+            final FileInformation fileInformation = new FileInformation( entry.absoluteName(), entry.aspectModelUrn(), entry.modelVersion(),
+                  aspectModelResult.content(), aspectModelResult.filename().orElse( "" ) );
             fileInformations.add( fileInformation );
          } catch ( final Exception e ) {
             throw new FileNotFoundException(
