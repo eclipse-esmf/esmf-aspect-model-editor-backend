@@ -36,10 +36,6 @@
          <artifactId>aspect-model-editor-validation</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.eclipse.esmf</groupId>
-         <artifactId>esmf-native-support</artifactId>
-      </dependency>
-      <dependency>
          <groupId>org.apache.commons</groupId>
          <artifactId>commons-compress</artifactId>
       </dependency>
@@ -76,17 +72,8 @@
          <artifactId>micronaut-serde-jackson</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.graalvm.sdk</groupId>
-         <artifactId>graal-sdk</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
          <groupId>org.apache.logging.log4j</groupId>
          <artifactId>log4j-core</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.graalvm.truffle</groupId>
-         <artifactId>truffle-api</artifactId>
       </dependency>
 
       <!-- Third party testing dependencies -->

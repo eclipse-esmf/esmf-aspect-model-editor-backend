@@ -28,7 +28,6 @@
 
    <properties>
       <main.class>org.eclipse.esmf.ame.Application</main.class>
-      <native-image-jar>${project.artifactId}-${project.version}</native-image-jar>
       <micronaut.aot.enabled>true</micronaut.aot.enabled>
       <micronaut.io.watch>false</micronaut.io.watch>
       <integration-test-port>5001</integration-test-port>
@@ -83,20 +82,6 @@
          <groupId>io.micronaut.serde</groupId>
          <artifactId>micronaut-serde-jackson</artifactId>
          <version>${micronaut.serialization.version}</version>
-      </dependency>
-      <dependency>
-         <groupId>org.graalvm.sdk</groupId>
-         <artifactId>graal-sdk</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.graalvm.nativeimage</groupId>
-         <artifactId>svm</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.graalvm.truffle</groupId>
-         <artifactId>truffle-api</artifactId>
       </dependency>
       <dependency>
          <groupId>jakarta.validation</groupId>
@@ -221,13 +206,6 @@
                               <exclude>org/apache/batik/apps/rasterizer/resources/rasterizer.policy</exclude>
                            </excludes>
                         </filter>
-                        <!-- These configs add lots of spurious GraalVM configuration -->
-                        <filter>
-                           <artifact>org.jboss.forge.roaster:roaster-jdt</artifact>
-                           <excludes>
-                              <exclude>META-INF/native-image/**</exclude>
-                           </excludes>
-                        </filter>
                         <!-- Required to have Model Instantiators available -->
                         <filter>
                            <artifact>org.eclipse.esmf:esmf-aspect-meta-model-java</artifact>
@@ -285,138 +263,6 @@
    </build>
 
    <profiles>
-      <profile>
-         <id>copy-font-configuration</id>
-         <activation>
-            <os>
-               <family>windows</family>
-            </os>
-         </activation>
-         <build>
-            <plugins>
-               <!-- Copy font configuration files from the GraalVM directory (pointed to by JAVA_HOME in native builds) to the output directory -->
-               <plugin>
-                  <groupId>org.codehaus.mojo</groupId>
-                  <artifactId>wagon-maven-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>copy-fontconfig-bfc</id>
-                        <phase>process-resources</phase>
-                        <goals>
-                           <goal>download-single</goal>
-                        </goals>
-                        <configuration>
-                           <url>file://${env.JAVA_HOME}/lib</url>
-                           <fromFile>fontconfig.bfc</fromFile>
-                           <toFile>${project.build.outputDirectory}/fontconfig.bfc</toFile>
-                        </configuration>
-                     </execution>
-                  </executions>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-      <profile>
-         <id>native-image</id>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-clean-plugin</artifactId>
-                  <inherited>false</inherited>
-                  <configuration>
-                     <filesets>
-                        <fileset>
-                           <directory>${relative-native-config-path}</directory>
-                        </fileset>
-                     </filesets>
-                  </configuration>
-               </plugin>
-
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <configuration>
-                     <skip>false</skip>
-                     <forkCount>1</forkCount>
-                     <reuseForks>false</reuseForks>
-                     <argLine>--add-exports org.graalvm.nativeimage/org.graalvm.nativeimage.impl=ALL-UNNAMED</argLine>
-                     <argLine>-agentlib:native-image-agent=config-merge-dir=${native-config-path}</argLine>
-                  </configuration>
-               </plugin>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-antrun-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>copy-native-configs</id>
-                        <phase>process-classes</phase>
-                        <goals>
-                           <goal>run</goal>
-                        </goals>
-                        <configuration>
-                           <target>
-                              <copy todir="${native-config-path}">
-                                 <fileset dir="${native-config-dir-service}">
-                                    <include name="**/*"/>
-                                 </fileset>
-                              </copy>
-                              <echo message="Native configuration files have been copied to ${native-config-path}."/>
-                           </target>
-                        </configuration>
-                     </execution>
-                  </executions>
-               </plugin>
-               <plugin>
-                  <groupId>org.graalvm.buildtools</groupId>
-                  <artifactId>native-maven-plugin</artifactId>
-                  <extensions>true</extensions>
-                  <executions>
-                     <execution>
-                        <id>add-reachability-metadata</id>
-                        <goals>
-                           <goal>add-reachability-metadata</goal>
-                        </goals>
-                     </execution>
-                     <execution>
-                        <id>build-native</id>
-                        <goals>
-                           <goal>compile</goal>
-                        </goals>
-                        <phase>prepare-package</phase>
-                     </execution>
-                  </executions>
-                  <configuration>
-                     <mainClass>${main.class}</mainClass>
-                     <imageName>ame-backend-${project.version}-${os.platform}</imageName>
-                     <buildArgs>
-                        <arg>-H:EnableURLProtocols=http,https</arg>
-                        <arg>--enable-https</arg>
-                        <arg>--no-fallback</arg>
-                        <arg>-march=compatibility</arg>
-                        <arg>-H:-DeadlockWatchdogExitOnTimeout</arg>
-                        <arg>-H:DeadlockWatchdogInterval=0</arg>
-                        <arg>-H:+AddAllCharsets</arg>
-                        <arg>-J-XX:MaxRAMPercentage=90.0</arg>
-                        <arg>-J-XX:GCTimeRatio=19</arg>
-                        <arg>--report-unsupported-elements-at-runtime</arg>
-                        <arg>--features=org.eclipse.esmf.ame.nativefeatures.AmeFeature</arg>
-                        <arg>-H:ConfigurationFileDirectories=${relative-native-config-path}</arg>
-                        <arg>-H:IncludeResourceBundles=org.apache.jena.ext.xerces.impl.msg.XMLSchemaMessages</arg>
-                        <arg>-J--add-exports=java.desktop/sun.awt=ALL-UNNAMED</arg>
-                        <arg>-J--add-exports=java.desktop/sun.font=ALL-UNNAMED</arg>
-                        <arg>-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.configure=ALL-UNNAMED</arg>
-                        <arg>-J--add-exports=org.graalvm.nativeimage.builder/com.oracle.svm.core.jni=ALL-UNNAMED</arg>
-                        <arg>--initialize-at-build-time=org.eclipse.esmf.nativefeatures.Native</arg>
-                        <arg>--initialize-at-build-time=ch.qos.logback</arg>
-                        <arg>--initialize-at-run-time=org.graphper.api.attributes.Layout</arg>
-                     </buildArgs>
-                     <quickBuild>true</quickBuild>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
       <profile>
          <id>dependencies-for-integration-tests</id>
          <build>
@@ -527,7 +373,7 @@
          </build>
       </profile>
       <profile>
-         <id>start-windows-native-image-for-integration-tests</id>
+         <id>start-windows-image-for-integration-tests</id>
          <build>
             <plugins>
                <plugin>
@@ -536,7 +382,7 @@
                   <executions>
                      <!--Start process-->
                      <execution>
-                        <id>start-native-image-process</id>
+                        <id>start-image-process</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                            <goal>start</goal>
@@ -553,7 +399,7 @@
                      </execution>
                      <!--Stop Process-->
                      <execution>
-                        <id>stop-native-image-process</id>
+                        <id>stop-image-process</id>
                         <phase>post-integration-test</phase>
                         <goals>
                            <goal>stop-all</goal>
@@ -565,7 +411,7 @@
          </build>
       </profile>
       <profile>
-         <id>start-unix-native-image-for-integration-tests</id>
+         <id>start-unix-image-for-integration-tests</id>
          <build>
             <plugins>
                <plugin>
@@ -574,7 +420,7 @@
                   <executions>
                      <!--Start process-->
                      <execution>
-                        <id>start-native-image-process</id>
+                        <id>start-image-process</id>
                         <phase>pre-integration-test</phase>
                         <goals>
                            <goal>start</goal>
@@ -589,7 +435,7 @@
                      </execution>
                      <!--Stop Process-->
                      <execution>
-                        <id>stop-native-image-process</id>
+                        <id>stop-image-process</id>
                         <phase>post-integration-test</phase>
                         <goals>
                            <goal>stop-all</goal>

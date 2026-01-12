@@ -35,15 +35,6 @@
 
       <!-- Third party dependencies -->
       <dependency>
-         <groupId>org.graalvm.sdk</groupId>
-         <artifactId>graal-sdk</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.graalvm.truffle</groupId>
-         <artifactId>truffle-api</artifactId>
-      </dependency>
-      <dependency>
          <groupId>ch.qos.logback</groupId>
          <artifactId>logback-classic</artifactId>
       </dependency>

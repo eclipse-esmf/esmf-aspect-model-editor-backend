@@ -31,58 +31,139 @@ jobs:
           maximum-size: 16GB
           disk-root: "C:"
 
-      - name: Setup graalvm ce
-        uses: graalvm/setup-graalvm@v1
+      - name: Setup JDK
+        uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'graalvm'
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          java-version: '21.0.7'
+          distribution: 'temurin'
 
-      - name: Cache maven packages
-        uses: actions/cache@v3
+      - name: Cache Maven packages
+        uses: actions/cache@v4
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Creating native image (Mac)
-        if: matrix.os == 'macos-15-intel'
-        run: mvn install -P native-image,native-test-config -Dos.platform=mac -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Configure Pagefile (Windows)
+        if: matrix.os == 'windows-latest'
+        # Fix for "LINK : fatal error LNK1171: unable to load mspdbcore.dll (error code: 1455)":
+        # This seems to be caused by running out of memory; increasing page file
+        # size suggested here:
+        # https://github.com/actions/virtual-environments/issues/3420#issuecomment-861342418
+        uses: al-cheb/configure-pagefile-action@86589fd789a4de3e62ba628dda2cb10027b66d67 # v1.3
+        with:
+          minimum-size: 32GB
+          maximum-size: 32GB
+          disk-root: "C:"
 
-      - name: Creating native image (Linux)
+      - name: Set Swap Space (Linux)
         if: matrix.os == 'ubuntu-latest'
-        run: mvn install -P native-image,native-test-config -Dos.platform=linux -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: pierotofy/set-swap-space@49819abfb41bd9b44fb781159c033dba90353a7c # master
+        with:
+          swap-size-gb: 12
 
-      - name: Set up MSVC
-        if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1
+      - name: Build and run tests
+        run: |
+          java --version
+          export MAVEN_OPTS="-Xmx4096m"
+          export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8"
+          # Build aspect model editor executable jar
+          unset JAVA_TOOL_OPTIONS
+          mvn -B clean install -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+        shell: bash
 
-      - name: Creating native image (Win)
+      - name: Build native image (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
+          mkdir ${bundle}
+          mkdir -p "${bundle}/jre"
+          curl -Lo jre.tar.gz https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.7%2B6/OpenJDK21U-jre_x64_linux_hotspot_21.0.7_6.tar.gz
+          tar -xvf jre.tar.gz
+          cp -r ./jdk-21.0.7+6-jre/* ./${bundle}/jre
+          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar ./${bundle}/
+          
+          cat <<EOF > ./${bundle}/run.sh
+          #!/usr/bin/env bash
+
+          HERE=\${BASH_SOURCE%/*}
+
+          "\$HERE/jre/bin/java" -jar "\$HERE/aspect-model-editor-runtime-DEV-SNAPSHOT.jar" "\$@"
+          EOF
+          chmod +x ./${bundle}/run.sh
+
+          curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.3.0/linux-x64.warp-packer
+          chmod +x warp-packer
+          
+          ./warp-packer --arch linux-x64 --input_dir ${bundle} --exec run.sh --output ame-backend-DEV-SNAPSHOT-linux
+          chmod +x ame-backend-DEV-SNAPSHOT-linux
+          
+          cp ame-backend-DEV-SNAPSHOT-linux aspect-model-editor-runtime/target/
+        shell: bash
+
+      - name: Build native image (Windows)
         if: matrix.os == 'windows-latest'
-        run: mvn install -P native-image,native-test-config -D os.platform=win -D maven.wagon.httpconnectionManager.ttlSeconds=60
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $bundle = "aspect-model-editor-bundle-DEV-SNAPSHOT-$([int][double]::Parse((Get-Date -UFormat %s)))"
+          mkdir $bundle
+          New-Item -ItemType Directory -Path "$bundle\jre" -Force
+          curl -Lo jre.zip https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.7%2B6/OpenJDK21U-jre_x64_windows_hotspot_21.0.7_6.zip
+          tar -xf jre.zip
+          Copy-Item .\jdk-21.0.7+6-jre\* .\$bundle\jre -Recurse
+          Copy-Item aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar .\$bundle\
+
+          Set-Content -Path .\$bundle\run.bat -Value "@echo off`n%~dp0jre\bin\java -jar %~dp0aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar %*"
+
+          curl -Lo warp-packer.exe https://github.com/dgiagio/warp/releases/download/v0.3.0/windows-x64.warp-packer.exe
+          .\warp-packer.exe --arch windows-x64 --input_dir $bundle --exec run.bat --output ame-backend-DEV-SNAPSHOT-win
+
+          Copy-Item ame-backend-DEV-SNAPSHOT-win.exe aspect-model-editor-runtime/target/
+        shell: pwsh
+
+      - name: Build native image (Mac)
+        if: matrix.os == 'macos-15-intel'
+        run: |
+          bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
+          mkdir ${bundle}
+          curl -Lo jre.tar.gz https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.7%2B6/OpenJDK21U-jre_x64_mac_hotspot_21.0.7_6.tar.gz
+          tar -xvf jre.tar.gz
+          cp -r ./jdk-21.0.7+6-jre/Contents/Home ./${bundle}/jre
+          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar ./${bundle}/
+
+          cat <<EOF > ./${bundle}/run.sh
+          #!/usr/bin/env bash
+
+          HERE=\${BASH_SOURCE%/*}
+
+          "\$HERE/jre/bin/java" -jar "\$HERE/aspect-model-editor-runtime-DEV-SNAPSHOT.jar" "\$@"
+          EOF
+          chmod +x ./${bundle}/run.sh
+
+          curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.3.0/macos-x64.warp-packer
+          chmod +x warp-packer
+          
+          ./warp-packer --arch macos-x64 --input_dir ${bundle} --exec run.sh --output ame-backend-DEV-SNAPSHOT-mac
+          chmod +x ame-backend-DEV-SNAPSHOT-mac
+
+          cp ame-backend-DEV-SNAPSHOT-mac aspect-model-editor-runtime/target/
+        shell: bash
 
       - name: Performing integration test for Mac
         if: matrix.os == 'macos-15-intel'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=mac
+        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=mac
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Linux
         if: matrix.os == 'ubuntu-latest'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-native-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=linux
+        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-unix-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=linux
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Windows
         if: matrix.os == 'windows-latest'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-windows-native-image-for-integration-tests,run-bruno-integration-tests -D os.platform=win
+        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-windows-image-for-integration-tests,run-bruno-integration-tests -D os.platform=win
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -93,9 +174,6 @@ jobs:
           name: ame-backend-win
           path: |
             aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win.exe
-            aspect-model-editor-runtime/target/*.dll
-            aspect-model-editor-runtime/target/*.bat
-            aspect-model-editor-runtime/target/lib/
 
       - name: Upload binary (Linux)
         if: matrix.os == 'ubuntu-latest'
@@ -104,7 +182,6 @@ jobs:
           name: ame-backend-linux
           path: |
             aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux
-            aspect-model-editor-runtime/target/*.so
 
       - name: Upload binary (Mac)
         if: matrix.os == 'macos-15-intel'
