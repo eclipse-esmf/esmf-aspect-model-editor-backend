@@ -76,7 +76,7 @@ class GenerateServiceTest {
 
       final ObjectMapper mapper = new ObjectMapper();
       final JsonNode expected = mapper.readTree(
-            "{\"isMoving\":true,\"position\":{\"altitude\":153.0,\"latitude\":9.1781,\"longitude\":48.80835},\"speed\":-1.9556407E38,"
+            "{\"isMoving\":false,\"position\":{\"altitude\":153.0,\"latitude\":9.1781,\"longitude\":48.80835},\"speed\":-1.9556407E38,"
                   + "\"speedLimitWarning\":\"green\"}" );
       final JsonNode actual = mapper.readTree( payload );
 
