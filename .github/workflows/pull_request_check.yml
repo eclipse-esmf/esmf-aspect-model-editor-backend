@@ -73,7 +73,7 @@ jobs:
           mvn -B clean install -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         shell: bash
 
-      - name: Build native image (Linux)
+      - name: Build warp packer (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
@@ -102,7 +102,7 @@ jobs:
           cp ame-backend-DEV-SNAPSHOT-linux aspect-model-editor-runtime/target/
         shell: bash
 
-      - name: Build native image (Windows)
+      - name: Build warp packer (Windows)
         if: matrix.os == 'windows-latest'
         run: |
           $bundle = "aspect-model-editor-bundle-DEV-SNAPSHOT-$([int][double]::Parse((Get-Date -UFormat %s)))"
@@ -116,12 +116,12 @@ jobs:
           Set-Content -Path .\$bundle\run.bat -Value "@echo off`n%~dp0jre\bin\java -jar %~dp0aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar %*"
 
           curl -Lo warp-packer.exe https://github.com/dgiagio/warp/releases/download/v0.3.0/windows-x64.warp-packer.exe
-          .\warp-packer.exe --arch windows-x64 --input_dir $bundle --exec run.bat --output ame-backend-DEV-SNAPSHOT-win
+          .\warp-packer.exe --arch windows-x64 --input_dir $bundle --exec run.bat --output ame-backend-DEV-SNAPSHOT-win.exe
 
           Copy-Item ame-backend-DEV-SNAPSHOT-win.exe aspect-model-editor-runtime/target/
         shell: pwsh
 
-      - name: Build native image (Mac)
+      - name: Build warp packer (Mac)
         if: matrix.os == 'macos-15-intel'
         run: |
           bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
