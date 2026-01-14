@@ -47,7 +47,7 @@ pipeline {
                     sh "mkdir -p unpack_dir"
                     sh "unzip -o ame-backend-v${env.version}-win.zip -d unpack_dir"
                     sh "rm '${winOsFile}'"
-                    sh "ls -a unpack_dir"
+                    sh "ls -lh unpack_dir"
                 }
             }
         }
@@ -59,7 +59,7 @@ pipeline {
                     sh "find unpack_dir -name '*.dll' -exec mv {} signed_dir \\;"
                     sh "curl -o signed_dir/ame-backend-${env.version}-win.exe -F file=@unpack_dir/ame-backend-${env.version}-win.exe https://cbi.eclipse.org/authenticode/sign"
                     sh "zip -r ame-backend-v${env.version}-win.zip signed_dir"
-                    sh "ls -a signed_dir"
+                    sh "ls -lh signed_dir"
                 }
             }
         }
@@ -74,7 +74,7 @@ pipeline {
                         --output '${macOsFile}'"
                     sh "unzip -o ame-backend-v${env.version}-mac.zip -d unpack_dir"
                     sh "rm '${macOsFile}'"
-                    sh "ls -a unpack_dir"
+                    sh "ls -lh unpack_dir"
                 }
             }
         }
@@ -84,7 +84,7 @@ pipeline {
                 script {
                     sh "mkdir -p signed_dir"
                     sh "curl -o signed_dir/ame-backend-${env.version}-mac -F file=@unpack_dir/ame-backend-${env.version}-mac -F entitlements=@entitlements.plist https://cbi-staging.eclipse.org/macos/codesign/sign"
-                    sh "ls -a signed_dir"
+                    sh "ls -lh signed_dir"
                 }
             }
         }
