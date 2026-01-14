@@ -19,7 +19,7 @@
    <parent>
       <groupId>io.micronaut.platform</groupId>
       <artifactId>micronaut-parent</artifactId>
-      <version>4.7.6</version>
+      <version>4.10.7</version>
    </parent>
 
    <groupId>org.eclipse.esmf</groupId>
@@ -66,11 +66,13 @@
       <!-- Internal esmf dependencies -->
       <esmf-sdk-version>2.13.0</esmf-sdk-version>
 
-      <!-- Versions of third party dependencies -->
-      <micronaut.version>4.7.6</micronaut.version>
+      <!-- Micronaut settings -->
       <micronaut.runtime>netty</micronaut.runtime>
       <micronaut.aot.enabled>true</micronaut.aot.enabled>
-      <micronaut.aot.packageName>org.eclipse.esmf.ame.aot.generated</micronaut.aot.packageName>
+      <micronaut.aot.enabled>false</micronaut.aot.enabled>
+      <micronaut.native.enabled>false</micronaut.native.enabled>
+
+      <!-- Versions of third party dependencies -->
       <logback-classic-version>1.5.16</logback-classic-version>
       <commons-io-version>2.14.0</commons-io-version>
       <commons-validator-version>1.7</commons-validator-version>
@@ -429,13 +431,6 @@
                <version>${process-exec-version}</version>
             </plugin>
             <plugin>
-               <groupId>io.micronaut.maven</groupId>
-               <artifactId>micronaut-maven-plugin</artifactId>
-               <configuration>
-                  <configFile>aot-${packaging}.properties</configFile>
-               </configuration>
-            </plugin>
-            <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-enforcer-plugin</artifactId>
             </plugin>
@@ -482,34 +477,6 @@
             </executions>
          </plugin>
          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>${maven-compiler-plugin-version}</version>
-            <configuration>
-               <annotationProcessorPaths combine.children="append">
-                  <path>
-                     <groupId>io.micronaut</groupId>
-                     <artifactId>micronaut-http-validation</artifactId>
-                     <version>${micronaut.validation.version}</version>
-                  </path>
-                  <path>
-                     <groupId>io.micronaut.serde</groupId>
-                     <artifactId>micronaut-serde-processor</artifactId>
-                     <version>${micronaut.serialization.version}</version>
-                  </path>
-                  <path>
-                     <groupId>io.micronaut.validation</groupId>
-                     <artifactId>micronaut-validation-processor</artifactId>
-                     <version>${micronaut.validation.version}</version>
-                  </path>
-               </annotationProcessorPaths>
-               <compilerArgs>
-                  <arg>-Amicronaut.processing.group=org.eclipse.esmf.ame</arg>
-                  <arg>-Amicronaut.processing.module=aspect-model-editor</arg>
-               </compilerArgs>
-            </configuration>
-         </plugin>
-         <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>build-helper-maven-plugin</artifactId>
             <version>${build-helper-maven-plugin-version}</version>
@@ -534,6 +501,7 @@
             <version>${maven-surefire-plugin-version}</version>
             <configuration>
                <skip>false</skip>
+               <argLine></argLine>
                <reportsDirectory>${project.build.directory}/${testreports.surefire}</reportsDirectory>
                <includes>
                   <include>**/*Tests.java</include>
