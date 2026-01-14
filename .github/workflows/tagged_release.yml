@@ -104,8 +104,7 @@ jobs:
           bundle="aspect-model-editor-bundle-${{ github.event.inputs.release_version }}-$(date +%s)"
           mkdir ${bundle}
           curl -Lo jre.tar.gz https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.9%2B10/OpenJDK21U-jre_x64_linux_hotspot_21.0.9_10.tar.gz
-          tar -xvf jre.tar.gz
-          cp -r ./jdk-21.0.9+10-jre ./${bundle}/jre
+          tar -xvf jre.tar.gz -C .\$bundle
           cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-${{ github.event.inputs.release_version }}.jar ./${bundle}/
           
           cat <<EOF > ./${bundle}/run.sh
@@ -113,7 +112,7 @@ jobs:
 
           HERE=\${BASH_SOURCE%/*}
 
-          "\$HERE/jre/bin/java" -jar "\$HERE/aspect-model-editor-runtime-${{ github.event.inputs.release_version }}.jar" "\$@"
+          "\$HERE/jdk-21.0.9+10-jre/bin/java" -jar "\$HERE/aspect-model-editor-runtime-${{ github.event.inputs.release_version }}.jar" "\$@"
           EOF
           chmod +x ./${bundle}/run.sh
 
@@ -131,13 +130,11 @@ jobs:
         run: |
           $bundle = "aspect-model-editor-bundle-${{ github.event.inputs.release_version }}-$([int][double]::Parse((Get-Date -UFormat %s)))"
           mkdir $bundle
-          New-Item -ItemType Directory -Path "$bundle\jre" -Force
           curl -Lo jre.zip https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.9%2B10/OpenJDK21U-jre_x64_windows_hotspot_21.0.9_10.zip
-          tar -xf jre.zip
-          Copy-Item .\jdk-21.0.9+10-jre\* .\$bundle\jre -Recurse
+          tar -xf jre.zip -C .\$bundle
           Copy-Item aspect-model-editor-runtime/target/aspect-model-editor-runtime-${{ github.event.inputs.release_version }}.jar .\$bundle\
 
-          Set-Content -Path .\$bundle\run.bat -Value "@echo off`n%~dp0jre\bin\java -jar %~dp0aspect-model-editor-runtime-${{ github.event.inputs.release_version }}.jar %*"
+          Set-Content -Path .\$bundle\run.bat -Value "@echo off`n%~dp0jdk-21.0.9-jre\bin\java -jar %~dp0aspect-model-editor-runtime-${{ github.event.inputs.release_version }}.jar %*"
 
           curl -Lo warp-packer.exe https://github.com/dgiagio/warp/releases/download/v0.3.0/windows-x64.warp-packer.exe
           .\warp-packer.exe --arch windows-x64 --input_dir $bundle --exec run.bat --output ame-backend-${{ github.event.inputs.release_version }}-win.exe
