@@ -27,7 +27,7 @@ Are you having trouble with Aspect Model Editor backend? We want to help!
 ## Setup
 
 * Download and
-  install [GraalVm 22.3.1 and JDK 17](https://github.com/graalvm/graalvm-ce-builds/releases/tag/vm-22.3.1)
+  install [JDK 21](https://github.com/adoptium/temurin21-binaries/releases)
 * Download and Install [Maven](https://maven.apache.org/download.cgi)
 * Environment Settings
     * Add "{JAVA_HOME}/bin" to PATH
@@ -54,7 +54,3 @@ This program and the accompanying materials are made available under the terms o
 [Mozilla Public License, v. 2.0](LICENSE).
 
 The [Notice file](NOTICE.md) details contained third party materials.
-
-## GraalVm native-image
-
-To build a native image we use GraalVm: [GraalVm](https://github.com/oracle/graal/tree/vm-ce-22.1.0)

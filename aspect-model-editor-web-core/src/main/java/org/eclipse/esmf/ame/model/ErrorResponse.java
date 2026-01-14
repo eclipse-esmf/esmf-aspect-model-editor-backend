@@ -13,7 +13,7 @@
 
 package org.eclipse.esmf.ame.model;
 
-import io.micronaut.serde.annotation.SerdeImport;
+import io.micronaut.serde.annotation.Serdeable;
 
 /**
  * Represents a response containing error details.
@@ -24,5 +24,5 @@ import io.micronaut.serde.annotation.SerdeImport;
  *
  * @param error The {@link Error} object containing details about the error.
  */
-@SerdeImport( ErrorResponse.class )
+@Serdeable
 public record ErrorResponse( Error error ) {}
