@@ -96,14 +96,14 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
 
-      - name: Build fet-jar
+      - name: Build Fat-jar
         run: |
           java --version
           export MAVEN_OPTS="-Xmx4096m"
           export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8"
           # Build aspect model editor executable jar
           unset JAVA_TOOL_OPTIONS
-          mvn -B clean install -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
+          mvn -B clean install -DskipTests -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         shell: bash
 
       - name: Build warp packer (Linux)
