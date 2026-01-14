@@ -15,7 +15,6 @@ package org.eclipse.esmf.ame.services.models;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 
@@ -27,7 +26,6 @@ import io.micronaut.serde.annotation.Serdeable;
  */
 @Serdeable
 @Introspected
-@JsonInclude( JsonInclude.Include.ALWAYS )
 public record Version(
       String version,
       List<Model> models
