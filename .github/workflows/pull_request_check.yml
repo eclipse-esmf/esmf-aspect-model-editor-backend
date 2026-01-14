@@ -171,16 +171,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ame-backend-win
-          path: |
-            aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win.exe
+          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win.exe
 
       - name: Upload binary (Linux)
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@v4
         with:
           name: ame-backend-linux
-          path: |
-            aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux
+          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux
 
       - name: Upload binary (Mac)
         if: matrix.os == 'macos-15-intel'
