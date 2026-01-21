@@ -83,7 +83,14 @@ pipeline {
             steps {
                 script {
                     sh "mkdir -p signed_dir"
-                    sh "curl -o signed_dir/ame-backend-${env.version}-mac -F file=@unpack_dir/ame-backend-${env.version}-mac -F entitlements=@entitlements.plist https://cbi-staging.eclipse.org/macos/codesign/sign"
+                    sh "cd unpack_dir && zip -r ../ame-backend-${env.version}-mac.zip ame-backend-DEV-SNAPSHOT-mac.app"
+                    sh "curl -o signed_dir/ame-backend-${env.version}-mac-signed.zip \
+                        -F file=@ame-backend-${env.version}-mac.zip \
+                        -F entitlements=@entitlements.plist \
+                        https://cbi.eclipse.org/macos/codesign/sign"
+                    sh "cd signed_dir && unzip ame-backend-${env.version}-mac-signed.zip"
+                    sh "rm ame-backend-${env.version}-mac.zip"
+                    sh "rm signed_dir/ame-backend-${env.version}-mac-signed.zip"
                     sh "ls -lh signed_dir"
                 }
             }
@@ -92,7 +99,7 @@ pipeline {
         stage('MacOS Notarization') {
             steps {
                 script {
-                    sh "zip -j ame-backend-v${env.version}-mac.zip signed_dir/ame-backend-${env.version}-mac"
+                    sh "cd signed_dir && zip -r ../ame-backend-v${env.version}-mac.zip ame-backend-DEV-SNAPSHOT-mac.app"
 
                     def macOsFile = "ame-backend-v${env.version}-mac.zip"
 

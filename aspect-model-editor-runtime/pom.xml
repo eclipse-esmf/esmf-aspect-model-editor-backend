@@ -411,7 +411,7 @@
          </build>
       </profile>
       <profile>
-         <id>start-unix-image-for-integration-tests</id>
+         <id>start-linux-image-for-integration-tests</id>
          <build>
             <plugins>
                <plugin>
@@ -429,6 +429,43 @@
                            <workingDir>${project.build.directory}</workingDir>
                            <arguments>
                               <argument>./ame-backend-${project.version}-${os.platform}</argument>
+                              <argument>-Dmicronaut.server.port=${integration-test-port}</argument>
+                           </arguments>
+                        </configuration>
+                     </execution>
+                     <!--Stop Process-->
+                     <execution>
+                        <id>stop-image-process</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                           <goal>stop-all</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+      <profile>
+         <id>start-mac-image-for-integration-tests</id>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>com.bazaarvoice.maven.plugins</groupId>
+                  <artifactId>process-exec-maven-plugin</artifactId>
+                  <executions>
+                     <!--Start process-->
+                     <execution>
+                        <id>start-image-process</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                           <goal>start</goal>
+                        </goals>
+                        <configuration>
+                           <workingDir>${project.build.directory}</workingDir>
+                           <arguments>
+                              <argument>./ame-backend-${project.version}-${os.platform}.app/Contents/MacOs/ame-backend-${project.version}-${os.platform}
+                              </argument>
                               <argument>-Dmicronaut.server.port=${integration-test-port}</argument>
                            </arguments>
                         </configuration>
