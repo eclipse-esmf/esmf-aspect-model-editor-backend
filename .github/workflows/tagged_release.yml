@@ -185,6 +185,12 @@ jobs:
           name: ame-backend-v${{ github.event.inputs.release_version }}-win
           path: aspect-model-editor-runtime/target/ame-backend-${{ github.event.inputs.release_version }}-win.exe
 
+      - name: Create proper zip with .app bundle
+        if: matrix.os == 'macos-15-intel'
+        run: |
+          cd aspect-model-editor-runtime/target
+          ditto -c -k --keepParent ame-backend-${{ github.event.inputs.release_version }}-mac.app ame-backend-v${{ github.event.inputs.release_version }}-mac.zip
+
       - name: Upload binary (Mac)
         if: matrix.os == 'macos-15-intel'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
