@@ -69,7 +69,7 @@ function compactFlattenedList(list) {
 
 const signFile = file => {
     console.log(`Signing ${file}...`);
-    child_process.spawnSync(signCommand, [path.basename(file), entitlements], {
+    child_process.spawnSync(signCommand, [path.basename(file), entitlements, file], {
         cwd: path.dirname(file), maxBuffer: 1024 * 10000, env: process.env, stdio: 'inherit', encoding: 'utf-8',
     });
 };
