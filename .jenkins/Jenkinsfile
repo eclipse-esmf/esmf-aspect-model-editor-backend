@@ -77,7 +77,6 @@ pipeline {
                         --output '${githubArtifact}'"
                     sh "unzip -o ${githubArtifact} -d unpack_mac_dir"
                     sh "mv ${githubArtifact} unpack_mac_dir/Ame-Backend.zip"
-                    sh "rm '${githubArtifact}'"
                     sh "ls -lh ."
                 }
             }
