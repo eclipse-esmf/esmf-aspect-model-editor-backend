@@ -464,8 +464,7 @@
                         <configuration>
                            <workingDir>${project.build.directory}</workingDir>
                            <arguments>
-                              <argument>./ame-backend-${project.version}-${os.platform}.app/Contents/MacOs/ame-backend-${project.version}-${os.platform}
-                              </argument>
+                              <argument>./ame-backend-${project.version}-${os.platform}</argument>
                               <argument>-Dmicronaut.server.port=${integration-test-port}</argument>
                            </arguments>
                         </configuration>
