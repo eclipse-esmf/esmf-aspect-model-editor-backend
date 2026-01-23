@@ -75,9 +75,8 @@ pipeline {
                         -H 'Authorization: Bearer ${GITHUB_BOT_TOKEN}' \
                         '${env.artifact_url_mac}' \
                         --output '${githubArtifact}'"
-                    sh "unzip -o '${githubArtifact}'"
-                    sh "unzip -o ${macOsFile} -d unpack_mac_dir"
-                    sh "mv unpack_mac_dir/ame-backend-${env.version}-mac.app unpack_mac_dir/Ame-Backend.app"
+                    sh "unzip -o ${githubArtifact} -d unpack_mac_dir"
+                    sh "mv unpack_mac_dir/ame-backend-${env.version}-mac unpack_mac_dir/Ame-Backend"
                     sh "rm '${githubArtifact}'"
                     sh "ls -lh ."
                 }

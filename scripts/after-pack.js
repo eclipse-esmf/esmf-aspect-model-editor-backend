@@ -69,14 +69,14 @@ function compactFlattenedList(list) {
 
 const signFile = file => {
     console.log(`Signing ${file}...`);
-    child_process.spawnSync(signCommand, [path.basename(file), entitlements, file], {
+    child_process.spawnSync(signCommand, [path.basename(file), entitlements], {
         cwd: path.dirname(file), maxBuffer: 1024 * 10000, env: process.env, stdio: 'inherit', encoding: 'utf-8',
     });
 };
 
 async function defaultFunction() {
     const appOutDir = path.join(__dirname, '..', 'unpack_mac_dir');
-    const singedAppPath = path.resolve(appOutDir, 'Ame-Backend.app');
+    const singedAppPath = path.resolve(appOutDir, 'Ame-Backend');
 
     let childPaths = await walkAsync(appOutDir);
 

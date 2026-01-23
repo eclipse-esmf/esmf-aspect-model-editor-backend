@@ -2,14 +2,7 @@
 
 INPUT=$1
 ENTITLEMENTS=$2
-FILE=$3
 NEEDS_UNZIP=false
-
-# if input contains "*", do nothing
-if [[ $FILE == *"Ame-Backend.app/Contents/runtime/Contents/MacOS/libjli.dylib"* ]]; then
-    exit 0
-fi
-
 
 # if folder, zip it
 if [ -d "${INPUT}" ]; then
