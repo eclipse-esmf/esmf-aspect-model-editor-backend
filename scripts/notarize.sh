@@ -6,6 +6,11 @@ NEEDS_UNZIP=false
 UUID_REGEX='"uuid"\s*:\s*"([^"]+)'
 STATUS_REGEX='"status"\s*:\s*"([^"]+)'
 
+# if input contains "*", do nothing
+if [[ $FILE == *"libjli.dylib"* ]]; then
+    exit 0
+fi
+
 # if folder, zip it
 if [ -d "${INPUT}" ]; then
     NEEDS_UNZIP=true
