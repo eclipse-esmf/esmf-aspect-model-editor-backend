@@ -76,6 +76,7 @@ pipeline {
                         '${env.artifact_url_mac}' \
                         --output '${githubArtifact}'"
                     sh "unzip -o ${githubArtifact} -d unpack_mac_dir"
+                    sh "rm ${githubArtifact}"
                     sh "ls -lh unpack_mac_dir"
                 }
             }
@@ -84,18 +85,50 @@ pipeline {
         stage('Sign Application on Mac') {
             steps {
                 script {
+                    sh "mkdir -p signed_dir"
                     nodejs(nodeJSInstallationName: 'node_20.x') {
                     sh """
                         echo "NPM version:"
                         npm --version
                         npm install isbinaryfile@5
                         chmod +x scripts/sign.sh
-                        chmod +x scripts/notarize.sh
                         node scripts/after-pack.js ${env.version}
                     """
               }
             }
           }
+        }
+
+        stage('MacOS Notarization') {
+            steps {
+                script {
+                    sh "mv signed_dir/ame-backend-v${env.version}-mac.zip ."
+
+                    def macOsFile = "ame-backend-v${env.version}-mac.zip"
+
+                    def jsonOptions = "options={\"primaryBundleId\": \"org.eclipse.esmf\", \"staple\": true};type=application/json"
+                    def response = sh(script: "curl -X POST -F file=@${macOsFile} -F '${jsonOptions}' https://cbi.eclipse.org/macos/xcrun/notarize", returnStdout: true).trim()
+
+                    def jsonSlurper = new JsonSlurper()
+                    def json = jsonSlurper.parseText(response)
+                    String uuid = json.uuid
+
+                    while (json.notarizationStatus.status == 'IN_PROGRESS') {
+                        sleep(time: 1, unit: 'MINUTES')
+                        response = sh(script: "curl https://cbi.eclipse.org/macos/xcrun/${uuid}/status", returnStdout: true).trim()
+                        json = jsonSlurper.parseText(response)
+                    }
+
+                    if (json.notarizationStatus.status != 'COMPLETE') {
+                        echo "Notarization failed: ${response}"
+                        error("Notarization failed.")
+                    }
+
+                    sh "rm '${macOsFile}'"
+
+                    sh "curl -JO -o ame-backend-v${env.version}-mac.zip https://cbi.eclipse.org/macos/xcrun/${uuid}/download"
+                }
+            }
         }
 
         stage('Release signed Windows and Mac artifact to GitHub Releases') {

@@ -1,5 +1,18 @@
 #!/bin/bash -x
 
+#
+# Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+#
+# See the AUTHORS file(s) distributed with this work for
+# additional information regarding authorship.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# SPDX-License-Identifier: MPL-2.0
+#
+
 INPUT=$1
 ENTITLEMENTS=$2
 NEEDS_UNZIP=false
@@ -13,7 +26,7 @@ if [ -d "${INPUT}" ]; then
 fi
 
 # sign with curl
-curl -o "${INPUT}" -F file=@"${INPUT}" -F entitlements=@"${ENTITLEMENTS}" https://cbi.eclipse.org/macos/codesign/sign
+curl -o "../signed-output/${INPUT}" -F file=@"${INPUT}" -F entitlements=@"${ENTITLEMENTS}" https://cbi.eclipse.org/macos/codesign/sign
 
 # if unzip needed
 if [ "$NEEDS_UNZIP" = true ]; then

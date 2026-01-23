@@ -7,7 +7,6 @@ const isBinaryFile = require('isbinaryfile').isBinaryFile;
 
 const rootDir = path.join(__dirname, '..');
 const signCommand = path.join(__dirname, 'sign.sh');
-const notarizeCommand = path.join(__dirname, 'notarize.sh');
 const entitlements = path.resolve(rootDir, 'entitlements.plist');
 
 const version = process.argv[2];
@@ -83,11 +82,6 @@ async function defaultFunction() {
     let childPaths = await walkAsync(appOutDir);
 
     childPaths.sort((a, b) => b.split(path.sep).length - a.split(path.sep).length).forEach(file => signFile(file));
-
-    console.log('Notarizing the application...');
-    child_process.spawnSync(notarizeCommand, [path.basename(singedAppPath), 'org.eclipse.esmf'], {
-        cwd: path.dirname(singedAppPath), maxBuffer: 1024 * 10000, env: process.env, stdio: 'inherit', encoding: 'utf-8',
-    });
 }
 
 defaultFunction().catch(console.error);
