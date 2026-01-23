@@ -84,7 +84,7 @@ pipeline {
             }
         }
 
-        stage('Sign Electron Application on Mac') {
+        stage('Sign Application on Mac') {
             steps {
                 script {
                     nodejs(nodeJSInstallationName: 'node_20.x') {
@@ -92,10 +92,9 @@ pipeline {
                       echo "NPM version:"
                       npm --version
                       npm install isbinaryfile@5
-                      cd core
-                      chmod +x ./scripts/sign.sh
-                      chmod +x e./scripts/notarize.sh
-                      node ./scripts/after-pack.js
+                      chmod +x scripts/sign.sh
+                      chmod +x scripts/notarize.sh
+                      node scripts/after-pack.js
                     '''
               }
             }
