@@ -85,7 +85,7 @@ pipeline {
                     sh "curl -o signed_dir/ame-backend-v${env.version}-mac.zip \
                         -F file=@ame-backend-v${env.version}-mac.zip \
                         -F entitlements=@entitlements.plist \
-                        https://cbi.eclipse.org/macos/codesign/sign"
+                        https://cbi-staging.eclipse.org/macos/codesign/sign"
                     sh "rm ame-backend-v${env.version}-mac.zip"
                     sh "ls -lh signed_dir"
                 }
