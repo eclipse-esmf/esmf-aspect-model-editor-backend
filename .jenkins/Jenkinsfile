@@ -68,65 +68,47 @@ pipeline {
             steps {
                 script {
                     def githubArtifact = "ame-backend-v${env.version}-mac.zip"
+                    def macOsFile = "ame-backend-v${env.version}-mac.zip"
+
+                    sh "mkdir -p unpack_mac_dir"
                     sh "curl -L -H 'Accept: application/vnd.github.v3+json' \
                         -H 'Authorization: Bearer ${GITHUB_BOT_TOKEN}' \
                         '${env.artifact_url_mac}' \
                         --output '${githubArtifact}'"
                     sh "unzip -o '${githubArtifact}'"
+                    sh "unzip -o ${macOsFile} -d unpack_mac_dir"
+                    sh "mv unpack_mac_dir/ame-backend-v${env.version}-mac.app unpack_mac_dir/Ame-Backend.app"
+                    sh "rm '${githubArtifact}'"
+                    sh "rm '${macOsFile}'"
                     sh "ls -lh ."
                 }
             }
         }
 
-        stage('Sign Mac Applications') {
+        stage('Sign Electron Application on Mac') {
             steps {
                 script {
-                    sh "mkdir -p signed_dir"
-                    sh "curl -o signed_dir/ame-backend-v${env.version}-mac.zip \
-                        -F file=@ame-backend-v${env.version}-mac.zip \
-                        -F entitlements=@entitlements.plist \
-                        https://cbi-staging.eclipse.org/macos/codesign/sign"
-                    sh "rm ame-backend-v${env.version}-mac.zip"
-                    sh "ls -lh signed_dir"
-                }
+                    nodejs(nodeJSInstallationName: 'node_20.x') {
+                    sh '''
+                      echo "NPM version:"
+                      npm --version
+                      npm install isbinaryfile@5
+                      cd core
+                      chmod +x ./scripts/sign.sh
+                      chmod +x e./scripts/notarize.sh
+                      node ./scripts/after-pack.js
+                    '''
+              }
             }
-        }
-
-        stage('MacOS Notarization') {
-            steps {
-                script {
-                    sh "mv signed_dir/ame-backend-v${env.version}-mac.zip ."
-
-                    def macOsFile = "ame-backend-v${env.version}-mac.zip"
-
-                    def jsonOptions = "options={\"primaryBundleId\": \"org.eclipse.esmf\", \"staple\": true};type=application/json"
-                    def response = sh(script: "curl -X POST -F file=@${macOsFile} -F '${jsonOptions}' https://cbi.eclipse.org/macos/xcrun/notarize", returnStdout: true).trim()
-
-                    def jsonSlurper = new JsonSlurper()
-                    def json = jsonSlurper.parseText(response)
-                    String uuid = json.uuid
-
-                    while (json.notarizationStatus.status == 'IN_PROGRESS') {
-                        sleep(time: 1, unit: 'MINUTES')
-                        response = sh(script: "curl https://cbi.eclipse.org/macos/xcrun/${uuid}/status", returnStdout: true).trim()
-                        json = jsonSlurper.parseText(response)
-                    }
-
-                    if (json.notarizationStatus.status != 'COMPLETE') {
-                        echo "Notarization failed: ${response}"
-                        error("Notarization failed.")
-                    }
-
-                    sh "rm '${macOsFile}'"
-
-                    sh "curl -JO -o ame-backend-v${env.version}-mac.zip https://cbi.eclipse.org/macos/xcrun/${uuid}/download"
-                }
-            }
+          }
         }
 
         stage('Release signed Windows and Mac artifact to GitHub Releases') {
             steps {
                 script {
+                    def macOsFile = "ame-backend-v${env.version}-mac.zip"
+                    sh "mv unpack_mac_dir/notarized.zip ./${macOsFile}"
+
                     def repo = "eclipse-esmf/esmf-aspect-model-editor-backend"
                     def tagName = "v${env.version}"
                     def fileNameWin = "ame-backend-v${env.version}-win.zip"
