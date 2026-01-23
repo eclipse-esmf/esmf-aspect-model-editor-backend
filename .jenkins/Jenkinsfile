@@ -76,7 +76,7 @@ pipeline {
                         '${env.artifact_url_mac}' \
                         --output '${githubArtifact}'"
                     sh "unzip -o ${githubArtifact} -d unpack_mac_dir"
-                    sh "ls -lh ."
+                    sh "ls -lh unpack_mac_dir"
                 }
             }
         }

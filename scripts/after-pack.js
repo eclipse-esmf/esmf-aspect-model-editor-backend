@@ -1,16 +1,3 @@
-/*
- * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
- *
- * See the AUTHORS file(s) distributed with this work for
- * additional information regarding authorship.
- *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at https://mozilla.org/MPL/2.0/.
- *
- * SPDX-License-Identifier: MPL-2.0
- */
-
 #!/usr/bin/env node
 
 const fs = require('fs').promises;
@@ -91,7 +78,7 @@ const signFile = file => {
 
 async function defaultFunction() {
     const appOutDir = path.join(__dirname, '..', 'unpack_mac_dir');
-    const singedAppPath = path.resolve(appOutDir, `ame-backend-${version}-mac.zip`);
+    const singedAppPath = path.resolve(appOutDir, `ame-backend-${version}-mac`);
 
     let childPaths = await walkAsync(appOutDir);
 
