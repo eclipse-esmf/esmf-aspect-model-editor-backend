@@ -26,7 +26,7 @@ if [ -d "${INPUT}" ]; then
 fi
 
 # sign with curl
-curl -o "../signed-output/${INPUT}" -F file=@"${INPUT}" -F entitlements=@"${ENTITLEMENTS}" https://cbi.eclipse.org/macos/codesign/sign
+curl -o "../signed_dir/${INPUT}" -F file=@"${INPUT}" -F entitlements=@"${ENTITLEMENTS}" https://cbi.eclipse.org/macos/codesign/sign
 
 # if unzip needed
 if [ "$NEEDS_UNZIP" = true ]; then
