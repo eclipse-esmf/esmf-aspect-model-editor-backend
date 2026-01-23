@@ -5,7 +5,7 @@ const path = require('path');
 const child_process = require('child_process');
 const isBinaryFile = require('isbinaryfile').isBinaryFile;
 
-const rootDir = path.join(__dirname, '..', '..', '..');
+const rootDir = path.join(__dirname, '..');
 const signCommand = path.join(__dirname, 'sign.sh');
 const notarizeCommand = path.join(__dirname, 'notarize.sh');
 const entitlements = path.resolve(rootDir, 'entitlements.plist');
