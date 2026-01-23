@@ -83,7 +83,7 @@ pipeline {
             steps {
                 script {
                     sh "mkdir -p signed_dir"
-                    sh "cd unpack_dir && zip -r ../ame-backend-${env.version}-mac.zip ame-backend-DEV-SNAPSHOT-mac.app"
+                    sh "cd unpack_dir && zip -r ../ame-backend-${env.version}-mac.zip ame-backend-${env.version}-mac.app"
                     sh "curl -o signed_dir/ame-backend-${env.version}-mac-signed.zip \
                         -F file=@ame-backend-${env.version}-mac.zip \
                         -F entitlements=@entitlements.plist \
@@ -99,7 +99,7 @@ pipeline {
         stage('MacOS Notarization') {
             steps {
                 script {
-                    sh "cd signed_dir && zip -r ../ame-backend-v${env.version}-mac.zip ame-backend-DEV-SNAPSHOT-mac.app"
+                    sh "cd signed_dir && zip -r ../ame-backend-v${env.version}-mac.zip ame-backend-${env.version}-mac.app"
 
                     def macOsFile = "ame-backend-v${env.version}-mac.zip"
 
