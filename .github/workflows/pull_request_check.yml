@@ -170,3 +170,4 @@ jobs:
         with:
           name: ame-backend-mac
           path: aspect-model-editor-runtime/target/ame-backend-mac.zip
+          compression-level: 0
