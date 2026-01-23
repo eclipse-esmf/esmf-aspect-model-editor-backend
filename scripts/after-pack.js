@@ -75,7 +75,7 @@ const signFile = file => {
 };
 
 async function defaultFunction() {
-    const appOutDir = path.join(__dirname, 'unpack_mac_dir');
+    const appOutDir = path.join(__dirname, '..', 'unpack_mac_dir');
     const singedAppPath = path.resolve(appOutDir, 'Ame-Backend.app');
 
     let childPaths = await walkAsync(appOutDir);
