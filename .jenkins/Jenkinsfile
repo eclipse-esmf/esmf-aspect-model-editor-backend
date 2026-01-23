@@ -77,7 +77,7 @@ pipeline {
                         --output '${githubArtifact}'"
                     sh "unzip -o '${githubArtifact}'"
                     sh "unzip -o ${macOsFile} -d unpack_mac_dir"
-                    sh "mv unpack_mac_dir/ame-backend-v${env.version}-mac.app unpack_mac_dir/Ame-Backend.app"
+                    sh "mv unpack_mac_dir/ame-backend-${env.version}-mac.app unpack_mac_dir/Ame-Backend.app"
                     sh "rm '${githubArtifact}'"
                     sh "rm '${macOsFile}'"
                     sh "ls -lh ."
