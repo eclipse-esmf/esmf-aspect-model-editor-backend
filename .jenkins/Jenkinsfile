@@ -72,6 +72,8 @@ pipeline {
                         -H 'Authorization: Bearer ${GITHUB_BOT_TOKEN}' \
                         '${env.artifact_url_mac}' \
                         --output '${macOsFile}'"
+                    sh "mkdir -p unpack_dir"
+                    sh "cd unpack_dir && unzip -o ../${macOsFile}"
                     sh "unzip -o ame-backend-v${env.version}-mac.zip -d unpack_dir"
                     sh "rm '${macOsFile}'"
                     sh "ls -lh unpack_dir"
@@ -88,7 +90,7 @@ pipeline {
                         -F file=@ame-backend-${env.version}-mac.zip \
                         -F entitlements=@entitlements.plist \
                         https://cbi.eclipse.org/macos/codesign/sign"
-                    sh "cd signed_dir && unzip ame-backend-${env.version}-mac-signed.zip"
+                    sh "cd signed_dir && unzip -o ../ame-backend-${env.version}-mac-signed.zip"
                     sh "rm ame-backend-${env.version}-mac.zip"
                     sh "rm signed_dir/ame-backend-${env.version}-mac-signed.zip"
                     sh "ls -lh signed_dir"
