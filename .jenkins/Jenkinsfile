@@ -67,16 +67,13 @@ pipeline {
         stage('Download Mac artifact') {
             steps {
                 script {
-                    def macOsFile = "ame-backend-v${env.version}-mac.zip"
+                    def githubArtifact = "ame-backend-v${env.version}-mac.zip"
                     sh "curl -L -H 'Accept: application/vnd.github.v3+json' \
                         -H 'Authorization: Bearer ${GITHUB_BOT_TOKEN}' \
                         '${env.artifact_url_mac}' \
-                        --output '${macOsFile}'"
-                    sh "mkdir -p unpack_dir"
-                    sh "cd unpack_dir && unzip -o ../${macOsFile}"
-                    sh "unzip -o ame-backend-v${env.version}-mac.zip -d unpack_dir"
-                    sh "rm '${macOsFile}'"
-                    sh "ls -lh unpack_dir"
+                        --output '${githubArtifact}'"
+                    sh "unzip -o '${githubArtifact}'"
+                    sh "ls -lh ."
                 }
             }
         }
@@ -85,14 +82,11 @@ pipeline {
             steps {
                 script {
                     sh "mkdir -p signed_dir"
-                    sh "cd unpack_dir && zip -r ../ame-backend-${env.version}-mac.zip ame-backend-${env.version}-mac.app"
-                    sh "curl -o signed_dir/ame-backend-${env.version}-mac-signed.zip \
-                        -F file=@ame-backend-${env.version}-mac.zip \
+                    sh "curl -o signed_dir/ame-backend-v${env.version}-mac.zip \
+                        -F file=@ame-backend-v${env.version}-mac.zip \
                         -F entitlements=@entitlements.plist \
                         https://cbi.eclipse.org/macos/codesign/sign"
-                    sh "cd signed_dir && unzip -o ../ame-backend-${env.version}-mac-signed.zip"
-                    sh "rm ame-backend-${env.version}-mac.zip"
-                    sh "rm signed_dir/ame-backend-${env.version}-mac-signed.zip"
+                    sh "rm ame-backend-v${env.version}-mac.zip"
                     sh "ls -lh signed_dir"
                 }
             }
@@ -101,7 +95,7 @@ pipeline {
         stage('MacOS Notarization') {
             steps {
                 script {
-                    sh "cd signed_dir && zip -r ../ame-backend-v${env.version}-mac.zip ame-backend-${env.version}-mac.app"
+                    sh "mv signed_dir/ame-backend-v${env.version}-mac.zip ."
 
                     def macOsFile = "ame-backend-v${env.version}-mac.zip"
 
