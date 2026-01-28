@@ -92,9 +92,9 @@ public class PackageService {
          final AspectChangeManager changeManager = initChangeManager();
          changeManager.applyChange( new ChangeGroup( fileChanges ) );
 
-         final Stream<URI> savedUris = saveAspectModelFiles( changeManager.aspectModelFiles() );
+         final List<File> list = saveAspectModelFiles( changeManager.aspectModelFiles() ).map( File::new ).toList();
 
-         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( savedUris, false );
+         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( list, false );
       } catch ( final IOException e ) {
          throw new FileHandlingException( "Could not read from input", e );
       }

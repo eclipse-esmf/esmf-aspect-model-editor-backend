@@ -57,35 +57,33 @@ public record ModelGroupingUtils( AspectModelLoader aspectModelLoader ) {
     * @return a map where the keys are namespaces and the values are lists of maps containing versions and their associated models
     */
    public Map<String, List<Version>> groupModelsByNamespaceAndVersion( final Stream<URI> uriStream, final boolean onlyAspectModels ) {
-      return uriStream.map( File::new )
-            .map( file -> {
+      return this.groupModelsByNamespaceAndVersion( uriStream.map( File::new ).toList(), onlyAspectModels );
+   }
+
+   /**
+    * Groups model URIs by namespace and version, setting the existing field as specified.
+    *
+    * @param files a List of model Files
+    * @param onlyAspectModels get only Aspect Models with Aspects as namespace list.
+    * @return a map where the keys are namespaces and the values are lists of maps containing versions and their associated models
+    */
+   public Map<String, List<Version>> groupModelsByNamespaceAndVersion( final List<File> files, final boolean onlyAspectModels ) {
+      return files.stream().map( file -> {
                final Optional<KnownVersion> metaModelVersionFromFile = Try.of(
                            () -> AspectModelFileLoader.load( file ).sourceModel().getNsPrefixMap().get( SammNs.SAMM.getShortForm() ) )
-                     .flatMap( AspectModelUrn::from )
-                     .toJavaOptional()
-                     .map( AspectModelUrn::getVersion )
+                     .flatMap( AspectModelUrn::from ).toJavaOptional().map( AspectModelUrn::getVersion )
                      .flatMap( KnownVersion::fromVersionString );
                final AspectModel loadedModel = aspectModelLoader.load( file );
                return new AbstractMap.SimpleEntry<>( loadedModel, metaModelVersionFromFile );
-            } )
-            .flatMap( entry ->
-                  entry.getKey().files().stream()
-                        .flatMap( file -> extractModelElement( file, onlyAspectModels ) )
-                        .map( modelElement -> createModel( modelElement, entry.getValue().orElse( null ) ) )
-            )
-            .collect( Collectors.groupingBy(
-                  model -> model.aspectModelUrn().getNamespaceMainPart()
-            ) )
-            .entrySet().stream()
+            } ).flatMap(
+                  entry -> entry.getKey().files().stream().flatMap( file -> extractModelElement( file, onlyAspectModels ) ).map( modelElement -> {
+                     assert entry.getValue().orElse( null ) != null;
+                     return createModel( modelElement, entry.getValue().orElse( null ) );
+                  } ) ).collect( Collectors.groupingBy( model -> model.aspectModelUrn().getNamespaceMainPart() ) ).entrySet().stream()
             .sorted( Map.Entry.comparingByKey() )
-            .collect( Collectors.toMap(
-                  Map.Entry::getKey,
-                  entry -> groupByVersion( entry.getValue() ),
-                  ( v1, v2 ) -> {
-                     throw new RuntimeException( String.format( "Duplicate key for values %s and %s", v1, v2 ) );
-                  },
-                  LinkedHashMap::new
-            ) );
+            .collect( Collectors.toMap( Map.Entry::getKey, entry -> groupByVersion( entry.getValue() ), ( v1, v2 ) -> {
+               throw new RuntimeException( String.format( "Duplicate key for values %s and %s", v1, v2 ) );
+            }, LinkedHashMap::new ) );
    }
 
    private Stream<ModelElement> extractModelElement( final AspectModelFile file, final boolean onlyAspectModels ) {
@@ -104,20 +102,9 @@ public record ModelGroupingUtils( AspectModelLoader aspectModelLoader ) {
 
    private List<Version> groupByVersion( final List<Model> models ) {
       return models.stream()
-            .collect( Collectors.toMap(
-                  Model::aspectModelUrn,
-                  model -> model,
-                  ( existing, duplicate ) -> existing,
-                  LinkedHashMap::new
-            ) )
-            .values()
-            .stream()
-            .collect( Collectors.groupingBy( model -> model.aspectModelUrn().getVersion() ) )
-            .entrySet()
-            .stream()
-            .sorted( Map.Entry.comparingByKey() )
-            .map( entry -> new Version( entry.getKey(),
-                  entry.getValue().stream().sorted( Comparator.comparing( Model::model ) ).toList() ) )
-            .toList();
+            .collect( Collectors.toMap( Model::aspectModelUrn, model -> model, ( existing, duplicate ) -> existing, LinkedHashMap::new ) )
+            .values().stream().collect( Collectors.groupingBy( model -> model.aspectModelUrn().getVersion() ) ).entrySet().stream()
+            .sorted( Map.Entry.comparingByKey() ).map( entry -> new Version( entry.getKey(),
+                  entry.getValue().stream().sorted( Comparator.comparing( Model::model ) ).toList() ) ).toList();
    }
 }
