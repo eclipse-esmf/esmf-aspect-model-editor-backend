@@ -13,6 +13,7 @@
 
 package org.eclipse.esmf.ame.api;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.utils.ModelUtils;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
+import org.eclipse.esmf.aspectmodel.resolver.AspectModelFileLoader;
+import org.eclipse.esmf.aspectmodel.resolver.modelfile.RawAspectModelFile;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 import io.micronaut.http.HttpResponse;
@@ -66,7 +69,7 @@ public class ModelController {
 
    private AspectModelUrn parseAspectModelUrn( final Optional<String> urn ) {
       return urn.map( ModelUtils::sanitizeFileInformation ).map( AspectModelUrn::from ).flatMap( Value::toJavaOptional )
-            .orElseThrow( () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
+              .orElseThrow( () -> new FileNotFoundException( "Please specify an aspect model urn" ) );
    }
 
    /**
@@ -75,11 +78,9 @@ public class ModelController {
     */
    @Get()
    @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
-   public HttpResponse<String> getModel( @Header( URN ) final Optional<String> urn,
-         @Header( "file-path" ) final Optional<String> filePath ) {
+   public HttpResponse<String> getModel( @Header( URN ) final Optional<String> urn ) {
       final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
-      final String path = filePath.orElse( null );
-      return HttpResponse.ok( modelService.getModel( aspectModelUrn, path ).content() );
+      return HttpResponse.ok( modelService.getModel( aspectModelUrn, null ).content() );
    }
 
    /**
@@ -88,13 +89,13 @@ public class ModelController {
     * This endpoint verifies the existence of an Aspect Model element identified by its URN
     * and checks if it exists in a file with a name different from the provided file name.
     *
-    * @param urn the Aspect Model URN header parameter in the format urn:samm:namespace:version#AspectModelElement
+    * @param urn      the Aspect Model URN header parameter in the format urn:samm:namespace:version#AspectModelElement
     * @param fileName the file name to exclude from the existence check
     * @return True if the element exists in a different file, false otherwise
     */
    @Get( uri = "check-element", consumes = MediaType.APPLICATION_JSON )
    public HttpResponse<Boolean> checkElementExists( @Header( URN ) final Optional<String> urn,
-         @QueryValue() final String fileName ) {
+                                                    @QueryValue() final String fileName ) {
       final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
       return HttpResponse.ok( modelService.checkElementExists( aspectModelUrn, fileName ) );
    }
@@ -111,14 +112,14 @@ public class ModelController {
       for ( final FileEntry entry : fileEntries ) {
          try {
             final AspectModelUrn urn = parseAspectModelUrn( Optional.of( entry.aspectModelUrn() ) );
-            final AspectModelResult aspectModelResult = modelService.getModel( urn, null );
+            final AspectModelResult aspectModelResult = modelService.getModel( urn, entry.absoluteName() );
 
             final FileInformation fileInformation = new FileInformation( entry.absoluteName(), entry.aspectModelUrn(), entry.modelVersion(),
-                  aspectModelResult.content(), aspectModelResult.filename().orElse( "" ) );
+                    aspectModelResult.content(), aspectModelResult.filename().orElse( "" ) );
             fileInformations.add( fileInformation );
          } catch ( final Exception e ) {
             throw new FileNotFoundException(
-                  String.format( "Failed to retrieve Aspect Model for URN: %s - %s", entry.absoluteName(), e.getMessage() ) );
+                    String.format( "Failed to retrieve Aspect Model for URN: %s - %s", entry.absoluteName(), e.getMessage() ) );
          }
       }
 
@@ -132,7 +133,7 @@ public class ModelController {
     */
    @Post( consumes = { MediaType.TEXT_PLAIN, MediaTypeExtension.TEXT_TURTLE_VALUE } )
    public HttpResponse<String> createOrSaveModel( @Body final String turtleData, @Header( URN ) final Optional<String> urn,
-         @Header( "file-name" ) final Optional<String> fileName ) {
+                                                  @Header( "file-name" ) final Optional<String> fileName ) {
       final Optional<String> optionalFileName = fileName.map( ModelUtils::sanitizeFileInformation );
       final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
       final String name = optionalFileName.orElse( "" );
@@ -159,7 +160,7 @@ public class ModelController {
    @Post( uri = "validate", consumes = { MediaType.MULTIPART_FORM_DATA } )
    @Produces( MediaType.APPLICATION_JSON )
    public HttpResponse<ViolationReport> validateModel( @Header( URI ) final Optional<String> optionalUri,
-         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
+                                                       @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
       final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
       return HttpResponse.ok( modelService.validateModel( new URI( uriString ), aspectModel ) ).contentType( MediaType.APPLICATION_JSON );
    }
@@ -173,7 +174,7 @@ public class ModelController {
    @Post( uri = "migrate", consumes = { MediaType.MULTIPART_FORM_DATA } )
    @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
    public HttpResponse<String> migrateModel( @Header( URI ) final Optional<String> optionalUri,
-         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
+                                             @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
       final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
       return HttpResponse.ok( modelService.migrateModel( new URI( uriString ), aspectModel ) );
    }
@@ -187,7 +188,7 @@ public class ModelController {
    @Post( uri = "format", consumes = { MediaType.MULTIPART_FORM_DATA } )
    @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
    public HttpResponse<String> getFormattedModel( @Header( URI ) final Optional<String> optionalUri,
-         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
+                                                  @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
       final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
       return HttpResponse.ok( modelService.getFormattedModel( new URI( uriString ), aspectModel ) );
    }
@@ -201,7 +202,7 @@ public class ModelController {
     */
    @Get( uri = "namespaces", consumes = MediaType.TEXT_PLAIN )
    public HttpResponse<Map<String, List<Version>>> getAllNamespaces(
-         @QueryValue( defaultValue = "false" ) final boolean onlyAspectModels ) {
+           @QueryValue( defaultValue = "false" ) final boolean onlyAspectModels ) {
       return HttpResponse.ok( modelService.getAllNamespaces( onlyAspectModels ) );
    }
 

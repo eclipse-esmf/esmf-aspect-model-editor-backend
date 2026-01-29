@@ -233,7 +233,7 @@ public class ModelUtils {
     * @return the loaded {@link AspectModel}
     */
    public static AspectModel loadModelFromFile( final Path modelPath, final String filePath, final AspectModelLoader aspectModelLoader ) {
-      final Path path = Paths.get( filePath ).normalize();
+      final Path path = Paths.get( filePath.replace( ":", File.separator ) ).normalize();
       final String[] pathParts = StreamSupport.stream( path.spliterator(), false ).map( Path::toString ).toArray( String[]::new );
       final Path aspectModelPath = constructModelPath( modelPath, pathParts[0], pathParts[1], pathParts[2] );
       return aspectModelLoader.load( aspectModelPath.toFile() );
