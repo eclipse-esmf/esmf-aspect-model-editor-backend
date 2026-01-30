@@ -75,11 +75,9 @@ public class ModelController {
     */
    @Get()
    @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
-   public HttpResponse<String> getModel( @Header( URN ) final Optional<String> urn,
-         @Header( "file-path" ) final Optional<String> filePath ) {
+   public HttpResponse<String> getModel( @Header( URN ) final Optional<String> urn ) {
       final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
-      final String path = filePath.orElse( null );
-      return HttpResponse.ok( modelService.getModel( aspectModelUrn, path ).content() );
+      return HttpResponse.ok( modelService.getModel( aspectModelUrn, null ).content() );
    }
 
    /**
@@ -93,8 +91,7 @@ public class ModelController {
     * @return True if the element exists in a different file, false otherwise
     */
    @Get( uri = "check-element", consumes = MediaType.APPLICATION_JSON )
-   public HttpResponse<Boolean> checkElementExists( @Header( URN ) final Optional<String> urn,
-         @QueryValue() final String fileName ) {
+   public HttpResponse<Boolean> checkElementExists( @Header( URN ) final Optional<String> urn, @QueryValue() final String fileName ) {
       final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
       return HttpResponse.ok( modelService.checkElementExists( aspectModelUrn, fileName ) );
    }
@@ -111,7 +108,7 @@ public class ModelController {
       for ( final FileEntry entry : fileEntries ) {
          try {
             final AspectModelUrn urn = parseAspectModelUrn( Optional.of( entry.aspectModelUrn() ) );
-            final AspectModelResult aspectModelResult = modelService.getModel( urn, null );
+            final AspectModelResult aspectModelResult = modelService.getModel( urn, entry.absoluteName() );
 
             final FileInformation fileInformation = new FileInformation( entry.absoluteName(), entry.aspectModelUrn(), entry.modelVersion(),
                   aspectModelResult.content(), aspectModelResult.filename().orElse( "" ) );

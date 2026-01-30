@@ -53,10 +53,6 @@
 
       <!-- Third party dependencies -->
       <dependency>
-         <groupId>org.apache.velocity</groupId>
-         <artifactId>velocity-engine-core</artifactId>
-      </dependency>
-      <dependency>
          <groupId>io.micronaut</groupId>
          <artifactId>micronaut-http-client</artifactId>
          <scope>compile</scope>

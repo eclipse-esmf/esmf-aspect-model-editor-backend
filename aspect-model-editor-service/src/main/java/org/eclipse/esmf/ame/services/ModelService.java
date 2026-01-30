@@ -16,6 +16,7 @@ package org.eclipse.esmf.ame.services;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,14 +86,36 @@ public class ModelService {
                loadModelFromUrn( aspectModelUrn );
          validateModel( aspectModel );
 
-         return aspectModel.files().stream().filter( a -> a.elements().stream().anyMatch(
-                     e -> ( e instanceof DefaultScalarValue && ( (DefaultScalarValue) e ).getType()
-                           .equals( new DefaultScalar( aspectModelUrn.toString() ) ) ) || e.urn().equals( aspectModelUrn ) ) ).findFirst()
+         return aspectModel.files().stream().filter( file -> containsElement( file, aspectModelUrn ) )
+               .filter( aspectModelFile -> aspectModelFile.sourceLocation().isPresent() ).filter( this::hasValidCasing ).findFirst()
                .map( aspectModelFile -> new AspectModelResult( aspectModelFile.filename(),
                      AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ) ) )
                .orElseThrow( () -> new FileNotFoundException( "Aspect Model not found" ) );
       } catch ( final ModelResolutionException e ) {
          throw new FileNotFoundException( e.getMessage(), e );
+      }
+   }
+
+   private boolean containsElement( final AspectModelFile file, final AspectModelUrn aspectModelUrn ) {
+      return file.elements().stream().anyMatch( e -> ( e instanceof DefaultScalarValue && ( (DefaultScalarValue) e ).getType()
+            .equals( new DefaultScalar( aspectModelUrn.toString() ) ) ) || e.urn().equals( aspectModelUrn ) );
+   }
+
+   private boolean hasValidCasing( final AspectModelFile aspectModelFile ) {
+      try {
+         final URI sourceLocation = aspectModelFile.sourceLocation().orElseThrow( () -> new IOException( "Source location not present" ) );
+         final Path file = Path.of( sourceLocation );
+
+         if ( !Files.exists( file ) ) {
+            return false;
+         }
+
+         final Path realPath = file.toRealPath();
+         final Path providedPath = file.toAbsolutePath().normalize();
+
+         return realPath.getFileName().toString().equals( providedPath.getFileName().toString() );
+      } catch ( final IOException e ) {
+         return false;
       }
    }
 
@@ -254,8 +277,7 @@ public class ModelService {
       try {
 
          System.out.println( loadModelFromUrn( aspectModelUrn ).files() );
-         return loadModelFromUrn( aspectModelUrn ).files().stream()
-               .anyMatch( f -> !fileName.equals( f.filename().orElse( "" ) ) );
+         return loadModelFromUrn( aspectModelUrn ).files().stream().anyMatch( f -> !fileName.equals( f.filename().orElse( "" ) ) );
       } catch ( final ModelResolutionException e ) {
          return false;
       }
