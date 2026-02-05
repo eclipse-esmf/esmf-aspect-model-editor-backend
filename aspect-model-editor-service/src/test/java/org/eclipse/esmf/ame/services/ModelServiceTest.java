@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -113,8 +112,7 @@ class ModelServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final ViolationReport validateReport = modelService.validateModel( URI.create( "blob:///" + toUriPath( storagePath ) ),
-            mockedZipFile );
+      final ViolationReport validateReport = modelService.validateModel( mockedZipFile );
 
       assertTrue( validateReport.getViolationErrors().isEmpty() );
    }
@@ -137,7 +135,7 @@ class ModelServiceTest {
       final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final String migratedModel = modelService.migrateModel( URI.create( "blob:///" + toUriPath( storagePath ) ), mockedZipFile );
+      final String migratedModel = modelService.migrateModel( mockedZipFile );
 
       checkMigratedModel( migratedModel );
    }

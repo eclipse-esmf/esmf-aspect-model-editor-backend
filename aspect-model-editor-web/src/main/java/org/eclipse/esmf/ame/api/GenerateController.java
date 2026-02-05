@@ -13,13 +13,10 @@
 
 package org.eclipse.esmf.ame.api;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.Optional;
 
 import org.eclipse.esmf.ame.MediaTypeExtension;
-import org.eclipse.esmf.ame.exceptions.UriNotDefinedException;
 import org.eclipse.esmf.ame.services.GenerateService;
 import org.eclipse.esmf.aspectmodel.generator.openapi.OpenApiSchemaGenerationConfig;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
@@ -32,7 +29,6 @@ import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Part;
 import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
@@ -44,8 +40,6 @@ import io.micronaut.http.multipart.CompletedFileUpload;
  */
 @Controller( "generate" )
 public class GenerateController {
-   private static final String URI = "uri";
-
    private final GenerateService generateService;
 
    public GenerateController( final GenerateService generateService ) {
@@ -61,11 +55,9 @@ public class GenerateController {
     */
    @Post( uri = "/documentation", consumes = { MediaType.MULTIPART_FORM_DATA, "application/json" } )
    @Produces( MediaType.TEXT_HTML )
-   public HttpResponse<byte[]> generateHtml( @Header( URI ) final Optional<String> optionalUri,
-         @Part( "aspectModel" ) final CompletedFileUpload aspectModel, @QueryValue( defaultValue = "en" ) final String language )
-         throws URISyntaxException {
-      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
-      return HttpResponse.ok( generateService.generateHtmlDocument( aspectModel, new URI( uriString ), language ) );
+   public HttpResponse<byte[]> generateHtml( @Part( "aspectModel" ) final CompletedFileUpload aspectModel,
+         @QueryValue( defaultValue = "en" ) final String language ) {
+      return HttpResponse.ok( generateService.generateHtmlDocument( aspectModel, language ) );
    }
 
    /**
@@ -76,11 +68,9 @@ public class GenerateController {
     * @return The JSON Schema
     */
    @Post( uri = "/json-schema", consumes = { MediaType.MULTIPART_FORM_DATA, "application/json" } )
-   public HttpResponse<String> jsonSchema( @Header( URI ) final Optional<String> optionalUri,
-         @Part( "aspectModel" ) final CompletedFileUpload aspectModel, @QueryValue( defaultValue = "en" ) final String language )
-         throws URISyntaxException {
-      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
-      return HttpResponse.ok( generateService.jsonSchema( aspectModel, new URI( uriString ), language ) );
+   public HttpResponse<String> jsonSchema( @Part( "aspectModel" ) final CompletedFileUpload aspectModel,
+         @QueryValue( defaultValue = "en" ) final String language ) {
+      return HttpResponse.ok( generateService.jsonSchema( aspectModel, language ) );
    }
 
    /**
@@ -90,10 +80,8 @@ public class GenerateController {
     * @return The JSON Sample Payload
     */
    @Post( uri = "/json-sample", consumes = { MediaType.MULTIPART_FORM_DATA, "application/json" } )
-   public HttpResponse<Object> jsonSample( @Header( URI ) final Optional<String> optionalUri,
-         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
-      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
-      return HttpResponse.ok( generateService.sampleJSONPayload( aspectModel, new URI( uriString ) ) );
+   public HttpResponse<Object> jsonSample( @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) {
+      return HttpResponse.ok( generateService.sampleJSONPayload( aspectModel ) );
    }
 
    /**
@@ -104,10 +92,8 @@ public class GenerateController {
     */
    @Post( uri = "/aasx", consumes = MediaType.MULTIPART_FORM_DATA )
    @Produces( MediaTypeExtension.APPLICATION_AASX )
-   public HttpResponse<String> generateAasx( @Header( URI ) final Optional<String> optionalUri,
-         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
-      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
-      return HttpResponse.ok( generateService.generateAASXFile( aspectModel, new URI( uriString ) ) );
+   public HttpResponse<String> generateAasx( @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) {
+      return HttpResponse.ok( generateService.generateAASXFile( aspectModel ) );
    }
 
    /**
@@ -118,10 +104,8 @@ public class GenerateController {
     */
    @Post( uri = "/aas-xml", consumes = MediaType.MULTIPART_FORM_DATA )
    @Produces( MediaType.APPLICATION_XML )
-   public HttpResponse<String> generateAasXml( @Header( URI ) final Optional<String> optionalUri,
-         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
-      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
-      return HttpResponse.ok( generateService.generateAasXmlFile( aspectModel, new URI( uriString ) ) );
+   public HttpResponse<String> generateAasXml( @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) {
+      return HttpResponse.ok( generateService.generateAasXmlFile( aspectModel ) );
    }
 
    /**
@@ -131,10 +115,8 @@ public class GenerateController {
     * @return A {@link String} containing the result of the AAS JSON file generation.
     */
    @Post( uri = "/aas-json", consumes = MediaType.MULTIPART_FORM_DATA )
-   public HttpResponse<String> generateAasJson( @Header( URI ) final Optional<String> optionalUri,
-         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
-      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
-      return HttpResponse.ok( generateService.generateAasJsonFile( aspectModel, new URI( uriString ) ) );
+   public HttpResponse<String> generateAasJson( @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) {
+      return HttpResponse.ok( generateService.generateAasJsonFile( aspectModel ) );
    }
 
    /**
@@ -162,8 +144,8 @@ public class GenerateController {
     */
    @Post( uri = "/open-api-spec", consumes = MediaType.MULTIPART_FORM_DATA, produces = MediaType.APPLICATION_JSON )
    @Produces( { MediaType.APPLICATION_YAML, MediaType.APPLICATION_JSON } )
-   public HttpResponse<String> openApiSpec( @Header( URI ) final Optional<String> optionalUri,
-         @Part( "aspectModel" ) final CompletedFileUpload aspectModel, @QueryValue( defaultValue = "en" ) final String language,
+   public HttpResponse<String> openApiSpec( @Part( "aspectModel" ) final CompletedFileUpload aspectModel,
+         @QueryValue( defaultValue = "en" ) final String language,
          @QueryValue( defaultValue = "yaml" ) final String output,
          @QueryValue( defaultValue = "https://www.eclipse.org" ) final String baseUrl,
          @QueryValue( defaultValue = "false" ) final boolean includeQueryApi,
@@ -172,14 +154,13 @@ public class GenerateController {
          @QueryValue( defaultValue = "false" ) final boolean includeCrud, @QueryValue( defaultValue = "false" ) final boolean includePost,
          @QueryValue( defaultValue = "false" ) final boolean includePut, @QueryValue( defaultValue = "false" ) final boolean includePatch,
          @QueryValue( defaultValue = "" ) final String resourcePath, @QueryValue( defaultValue = "" ) final String ymlProperties,
-         @QueryValue( defaultValue = "" ) final String jsonProperties ) throws JsonProcessingException, URISyntaxException {
-      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
+         @QueryValue( defaultValue = "" ) final String jsonProperties ) throws JsonProcessingException {
 
       final Optional<String> properties = !resourcePath.isEmpty() && ( !ymlProperties.isEmpty() || !jsonProperties.isEmpty() ) ?
             Optional.of( !ymlProperties.isEmpty() ? ymlProperties : jsonProperties ) :
             Optional.empty();
 
-      final String openApiOutput = generateOpenApiSpec( language, new URI( uriString ), aspectModel, baseUrl, includeQueryApi,
+      final String openApiOutput = generateOpenApiSpec( language, aspectModel, baseUrl, includeQueryApi,
             useSemanticVersion, pagingOption, resourcePath, includeCrud, includePost, includePut, includePatch, properties, output );
 
       final String contentType = output.equalsIgnoreCase( "json" ) ? MediaType.APPLICATION_JSON : MediaType.APPLICATION_YAML;
@@ -187,7 +168,7 @@ public class GenerateController {
       return HttpResponse.ok( openApiOutput ).contentType( contentType );
    }
 
-   private String generateOpenApiSpec( final String language, final URI uri, final CompletedFileUpload aspectModel, final String baseUrl,
+   private String generateOpenApiSpec( final String language, final CompletedFileUpload aspectModel, final String baseUrl,
          final boolean includeQueryApi, final boolean useSemanticVersion, final PagingOption pagingOption, final String resourcePath,
          final boolean includeCrud, final boolean includePost, final boolean includePut, final boolean includePatch,
          final Optional<String> properties, final String output ) throws JsonProcessingException {
@@ -198,8 +179,8 @@ public class GenerateController {
             pagingOption, includeQueryApi, includeCrud, includePost, includePut, includePatch, properties, objectMapper );
 
       return output.equals( "json" ) ?
-            generateService.generateJsonOpenApiSpec( aspectModel, uri, config ) :
-            generateService.generateYamlOpenApiSpec( aspectModel, uri, config );
+            generateService.generateJsonOpenApiSpec( aspectModel, config ) :
+            generateService.generateYamlOpenApiSpec( aspectModel, config );
    }
 
    private OpenApiSchemaGenerationConfig createOpenApiSchemaGenerationConfig( final String language, final String baseUrl,
@@ -228,14 +209,13 @@ public class GenerateController {
     */
    @Post( uri = "/async-api-spec", consumes = MediaType.MULTIPART_FORM_DATA )
    @Produces( { MediaType.APPLICATION_YAML, MediaType.APPLICATION_JSON, MediaType.APPLICATION_ZIP } )
-   public HttpResponse<byte[]> asyncApiSpec( @Header( URI ) final Optional<String> optionalUri,
-         @Part( "aspectModel" ) final CompletedFileUpload aspectModel, @QueryValue( defaultValue = "en" ) final String language,
+   public HttpResponse<byte[]> asyncApiSpec( @Part( "aspectModel" ) final CompletedFileUpload aspectModel,
+         @QueryValue( defaultValue = "en" ) final String language,
          @QueryValue( defaultValue = "yaml" ) final String output, @QueryValue( defaultValue = "" ) final String applicationId,
          @QueryValue( defaultValue = "" ) final String channelAddress,
          @QueryValue( defaultValue = "false" ) final boolean useSemanticVersion,
-         @QueryValue( defaultValue = "false" ) final boolean writeSeparateFiles ) throws URISyntaxException {
-      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
-      final byte[] asyncApiSpec = generateService.generateAsyncApiSpec( aspectModel, new URI( uriString ), language, output, applicationId,
+         @QueryValue( defaultValue = "false" ) final boolean writeSeparateFiles ) {
+      final byte[] asyncApiSpec = generateService.generateAsyncApiSpec( aspectModel, language, output, applicationId,
             channelAddress, useSemanticVersion, writeSeparateFiles );
 
       return buildResponse( asyncApiSpec, writeSeparateFiles, output );

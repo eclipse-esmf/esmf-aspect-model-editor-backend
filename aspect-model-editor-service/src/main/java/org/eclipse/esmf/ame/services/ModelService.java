@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
@@ -165,16 +166,16 @@ public class ModelService {
       ModelUtils.deleteEmptyFiles( aspectModelFile );
    }
 
-   public ViolationReport validateModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
+   public ViolationReport validateModel( final CompletedFileUpload aspectModelFile ) {
       final Supplier<AspectModel> aspectModelSupplier = () -> aspectModelLoader.load(
-            ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
+            ModelUtils.openInputStreamFromUpload( aspectModelFile ), Optional.empty() );
       final List<Violation> violations = aspectModelValidator.validateModel( aspectModelSupplier );
       final List<ViolationError> violationErrors = ValidationUtils.violationErrors( violations );
       return new ViolationReport( violationErrors );
    }
 
-   public String migrateModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
-      final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
+   public String migrateModel( final CompletedFileUpload aspectModelFile ) {
+      final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), Optional.empty() );
 
       return aspectModel.files().stream()
             .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "blob" ) ).orElse( false ) ).findFirst()
@@ -182,8 +183,8 @@ public class ModelService {
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to migrate" ) );
    }
 
-   public String getFormattedModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
-      final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
+   public String getFormattedModel( final CompletedFileUpload aspectModelFile ) {
+      final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), Optional.empty() );
 
       return aspectModel.files().stream()
             .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "blob" ) ).orElse( false ) ).findFirst()
