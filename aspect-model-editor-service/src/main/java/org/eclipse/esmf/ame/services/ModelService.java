@@ -21,7 +21,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
@@ -90,7 +89,7 @@ public class ModelService {
          return aspectModel.files().stream().filter( file -> containsElement( file, aspectModelUrn ) )
                .filter( aspectModelFile -> aspectModelFile.sourceLocation().isPresent() ).filter( this::hasValidCasing ).findFirst()
                .map( aspectModelFile -> new AspectModelResult( aspectModelFile.filename(),
-                     AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ) ) )
+                     AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ), aspectModelFile.sourceLocation() ) )
                .orElseThrow( () -> new FileNotFoundException( "Aspect Model not found" ) );
       } catch ( final ModelResolutionException e ) {
          throw new FileNotFoundException( e.getMessage(), e );
@@ -166,28 +165,28 @@ public class ModelService {
       ModelUtils.deleteEmptyFiles( aspectModelFile );
    }
 
-   public ViolationReport validateModel( final CompletedFileUpload aspectModelFile ) {
+   public ViolationReport validateModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
       final Supplier<AspectModel> aspectModelSupplier = () -> aspectModelLoader.load(
-            ModelUtils.openInputStreamFromUpload( aspectModelFile ), Optional.empty() );
+            ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
       final List<Violation> violations = aspectModelValidator.validateModel( aspectModelSupplier );
       final List<ViolationError> violationErrors = ValidationUtils.violationErrors( violations );
       return new ViolationReport( violationErrors );
    }
 
-   public String migrateModel( final CompletedFileUpload aspectModelFile ) {
-      final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), Optional.empty() );
+   public String migrateModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
+      final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
       return aspectModel.files().stream()
-            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "inmemory" ) ).orElse( false ) ).findFirst()
+            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "blob" ) ).orElse( false ) ).findFirst()
             .map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to migrate" ) );
    }
 
-   public String getFormattedModel( final CompletedFileUpload aspectModelFile ) {
-      final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), Optional.empty() );
+   public String getFormattedModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
+      final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
       return aspectModel.files().stream()
-            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "inmemory" ) ).orElse( false ) ).findFirst()
+            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "blob" ) ).orElse( false ) ).findFirst()
             .map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to formate" ) );
    }

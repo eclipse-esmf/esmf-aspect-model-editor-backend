@@ -13,6 +13,8 @@
 
 package org.eclipse.esmf.ame.api;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,11 +23,13 @@ import java.util.Optional;
 import org.eclipse.esmf.ame.MediaTypeExtension;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
+import org.eclipse.esmf.ame.exceptions.UriNotDefinedException;
 import org.eclipse.esmf.ame.services.ModelService;
 import org.eclipse.esmf.ame.services.models.AspectModelResult;
 import org.eclipse.esmf.ame.services.models.FileEntry;
 import org.eclipse.esmf.ame.services.models.FileInformation;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
+import org.eclipse.esmf.ame.services.models.ModelResponse;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.utils.ModelUtils;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
@@ -52,6 +56,7 @@ import io.vavr.Value;
  */
 @Controller( "models" )
 public class ModelController {
+   private static final String URI = "uri";
    private static final String URN = "aspect-model-urn";
 
    private final ModelService modelService;
@@ -70,10 +75,11 @@ public class ModelController {
     * urn:samm:namespace:version#AspectModelElement
     */
    @Get()
-   @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
-   public HttpResponse<String> getModel( @Header( URN ) final Optional<String> urn ) {
+   @Produces( MediaType.APPLICATION_JSON )
+   public HttpResponse<ModelResponse> getModel( @Header( URN ) final Optional<String> urn ) {
       final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
-      return HttpResponse.ok( modelService.getModel( aspectModelUrn, null ).content() );
+      final AspectModelResult result = modelService.getModel( aspectModelUrn, null );
+      return HttpResponse.ok( new ModelResponse( result.content(), result.sourceLocation().orElse( null ) ) );
    }
 
    /**
@@ -151,8 +157,10 @@ public class ModelController {
     */
    @Post( uri = "validate", consumes = { MediaType.MULTIPART_FORM_DATA } )
    @Produces( MediaType.APPLICATION_JSON )
-   public HttpResponse<ViolationReport> validateModel( @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) {
-      return HttpResponse.ok( modelService.validateModel( aspectModel ) ).contentType( MediaType.APPLICATION_JSON );
+   public HttpResponse<ViolationReport> validateModel( @Header( URI ) final Optional<String> optionalUri,
+         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
+      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
+      return HttpResponse.ok( modelService.validateModel( new URI( uriString ), aspectModel ) ).contentType( MediaType.APPLICATION_JSON );
    }
 
    /**
@@ -163,8 +171,10 @@ public class ModelController {
     */
    @Post( uri = "migrate", consumes = { MediaType.MULTIPART_FORM_DATA } )
    @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
-   public HttpResponse<String> migrateModel( @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) {
-      return HttpResponse.ok( modelService.migrateModel( aspectModel ) );
+   public HttpResponse<String> migrateModel( @Header( URI ) final Optional<String> optionalUri,
+         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
+      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
+      return HttpResponse.ok( modelService.migrateModel( new URI( uriString ), aspectModel ) );
    }
 
    /**
@@ -175,8 +185,10 @@ public class ModelController {
     */
    @Post( uri = "format", consumes = { MediaType.MULTIPART_FORM_DATA } )
    @Produces( MediaTypeExtension.TEXT_TURTLE_VALUE )
-   public HttpResponse<String> getFormattedModel( @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) {
-      return HttpResponse.ok( modelService.getFormattedModel( aspectModel ) );
+   public HttpResponse<String> getFormattedModel( @Header( URI ) final Optional<String> optionalUri,
+         @Part( "aspectModel" ) final CompletedFileUpload aspectModel ) throws URISyntaxException {
+      final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
+      return HttpResponse.ok( modelService.getFormattedModel( new URI( uriString ), aspectModel ) );
    }
 
    /**

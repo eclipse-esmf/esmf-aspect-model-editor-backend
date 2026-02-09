@@ -14,20 +14,23 @@
 package org.eclipse.esmf.ame.services.models;
 
 import java.net.URI;
-import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
+import org.jspecify.annotations.Nullable;
 
 /**
- * Represents the result of an aspect model operation.
+ * Response object containing an aspect model and its metadata.
+ * <p>
+ * This record encapsulates the content of an aspect model file along with
+ * optional information about its source location.
  *
- * @param filename the optional name of the file associated with the model result
- * @param content the content of the model result
- * @param sourceLocation the optional source location URI of the aspect model file
+ * @param content the aspect model content as a string (e.g., in Turtle format)
+ * @param sourceLocation a URI indicating the original location of the aspect model file
  */
 @Serdeable
 @Introspected
 @JsonInclude( JsonInclude.Include.ALWAYS )
-public record AspectModelResult( Optional<String> filename, String content, Optional<URI> sourceLocation ) {}
+public record ModelResponse( String content, @Nullable URI sourceLocation ) {}
+
