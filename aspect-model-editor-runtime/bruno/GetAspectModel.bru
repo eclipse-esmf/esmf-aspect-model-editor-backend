@@ -25,6 +25,10 @@ tests {
   test("Body contains content", function(){
     let currentSammVersion = bru.getEnvVar("currentSammVersion");
     const body = res.getBody();
-    expect(body).to.contains(`@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:${currentSammVersion}#> .`)
+    const content = body.content;
+    const sourceLocation = body.sourceLocation;
+    expect(content).to.contains(`@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:${currentSammVersion}#> .`)
+      expect(sourceLocation).to.contains(`file:`)
+    expect(sourceLocation).to.contains(`aspect-model-editor/models/org.eclipse.examples/1.0.0/Movement`)
   });
 }
