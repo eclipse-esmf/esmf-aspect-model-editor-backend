@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [ '**' ]
 
+permissions: {}
+
 jobs:
   build:
     name: Check if passes all requirements
@@ -17,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6.0.1
 
       - name: Configure Pagefile
         if: matrix.os == 'windows-latest'
@@ -25,21 +27,21 @@ jobs:
         # This seems to be caused by running out of memory; increasing page file
         # size suggested here:
         # https://github.com/actions/virtual-environments/issues/3420#issuecomment-861342418
-        uses: al-cheb/configure-pagefile-action@v1.2
+        uses: al-cheb/configure-pagefile-action@9b6da52fb72a3c6147c1aad2df22d8d905681adc # v1.5
         with:
           minimum-size: 16GB
           maximum-size: 16GB
           disk-root: "C:"
 
       - name: Setup graalvm ce
-        uses: graalvm/setup-graalvm@v1
+        uses: graalvm/setup-graalvm@54b4f5a65c1a84b2fdfdc2078fe43df32819e4b1 # v1.4.5
         with:
           java-version: '21'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb #v5.0.1
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -60,7 +62,7 @@ jobs:
 
       - name: Set up MSVC
         if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
 
       - name: Creating native image (Win)
         if: matrix.os == 'windows-latest'
@@ -88,7 +90,7 @@ jobs:
 
       - name: Upload binary (Windows)
         if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
           name: ame-backend-win
           path: |
@@ -99,7 +101,7 @@ jobs:
 
       - name: Upload binary (Linux)
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
           name: ame-backend-linux
           path: |
@@ -108,7 +110,7 @@ jobs:
 
       - name: Upload binary (Mac)
         if: matrix.os == 'macos-15-intel'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
           name: ame-backend-mac
           path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac
