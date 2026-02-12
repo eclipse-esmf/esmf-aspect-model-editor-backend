@@ -7,6 +7,11 @@ on:
         description: 'Version number of the release'
         required: true
 
+env:
+  RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+
+permissions: {}
+
 jobs:
   build:
     name: Create tagged release
@@ -16,9 +21,13 @@ jobs:
       matrix:
         os: [ macos-15-intel, windows-latest, ubuntu-latest ]
 
+    permissions:
+      contents: write
+      actions: read
+
     steps:
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6.0.1
 
       - name: Setup Git
         run: |
@@ -31,21 +40,21 @@ jobs:
         # This seems to be caused by running out of memory; increasing page file
         # size suggested here:
         # https://github.com/actions/virtual-environments/issues/3420#issuecomment-861342418
-        uses: al-cheb/configure-pagefile-action@v1.2
+        uses: al-cheb/configure-pagefile-action@9b6da52fb72a3c6147c1aad2df22d8d905681adc # v1.5
         with:
           minimum-size: 16GB
           maximum-size: 16GB
           disk-root: "C:"
 
       - name: Setup graalvm ce
-        uses: graalvm/setup-graalvm@v1
+        uses: graalvm/setup-graalvm@54b4f5a65c1a84b2fdfdc2078fe43df32819e4b1 # v1.4.5
         with:
           java-version: '21'
           distribution: 'graalvm'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache maven packages
-        uses: actions/cache@v3
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb #v5.0.1
         with:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
@@ -55,8 +64,7 @@ jobs:
       - name: Set versions
         if: matrix.os == 'ubuntu-latest'
         run: |
-          release_version=${{ github.event.inputs.release_version }}
-          release_branch_name=${release_version%.*}.x
+          release_branch_name=${RELEASE_VERSION%.*}.x
           echo "release_branch_name=$release_branch_name" >> $GITHUB_ENV
 
       - name: Create Release branch
@@ -69,13 +77,13 @@ jobs:
 
       - name: Set maven version
         if: matrix.os == 'macos-15-intel' || matrix.os == 'ubuntu-latest'
-        run: mvn versions:set -DnewVersion=${{ github.event.inputs.release_version }}
+        run: mvn versions:set -DnewVersion=${RELEASE_VERSION}
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set maven version on Windows
         if: matrix.os == 'windows-latest'
-        run: mvn versions:set -DnewVersion="${{ github.event.inputs.release_version }}"
+        run: mvn versions:set -DnewVersion="${RELEASE_VERSION}"
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -94,7 +102,7 @@ jobs:
 
       - name: Set up MSVC
         if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
 
       - name: Creating native image (Win)
         if: matrix.os == 'windows-latest'
@@ -106,7 +114,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: |
           $sourceFolder = "aspect-model-editor-runtime/target"
-          $zipFile = "aspect-model-editor-v${{ github.event.inputs.release_version }}-win.zip"
+          $zipFile = "aspect-model-editor-v${{ env.RELEASE_VERSION }}-win.zip"
           $tempDir = New-Item -ItemType Directory -Force -Path "$Env:TEMP\zip_temp"
           Get-ChildItem "$sourceFolder" -Filter "*.exe" | Copy-Item -Destination $tempDir
           Get-ChildItem "$sourceFolder" -Filter "*.dll" | Copy-Item -Destination $tempDir
@@ -116,58 +124,61 @@ jobs:
 
       - name: Upload binary (Windows)
         if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
-          name: ame-backend-v${{ github.event.inputs.release_version }}-win
+          name: ame-backend-v${{ env.RELEASE_VERSION }}-win
           path: |
-            aspect-model-editor-runtime/target/ame-backend-${{ github.event.inputs.release_version }}-win.exe
+            aspect-model-editor-runtime/target/ame-backend-${{ env.RELEASE_VERSION }}-win.exe
             aspect-model-editor-runtime/target/*.dll
             aspect-model-editor-runtime/target/*.bat
             aspect-model-editor-runtime/target/lib/
 
       - name: Upload binary (Mac)
         if: matrix.os == 'macos-15-intel'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
-          name: ame-backend-v${{ github.event.inputs.release_version }}-mac
-          path: aspect-model-editor-runtime/target/ame-backend-${{ github.event.inputs.release_version }}-mac
+          name: ame-backend-v${{ env.RELEASE_VERSION }}-mac
+          path: aspect-model-editor-runtime/target/ame-backend-${{ env.RELEASE_VERSION }}-mac
 
       - name: Upload binary (Linux)
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
-          name: ame-backend-v${{ github.event.inputs.release_version }}-linux
-          path: aspect-model-editor-runtime/target/ame-backend-${{ github.event.inputs.release_version }}-linux
+          name: ame-backend-v${{ env.RELEASE_VERSION }}-linux
+          path: aspect-model-editor-runtime/target/ame-backend-${{ env.RELEASE_VERSION }}-linux
 
       # Release Linux executables
       - name: Create GitHub release (Linux)
         if: ${{ (matrix.os == 'ubuntu-latest') &&  (!contains( github.ref, '-M' )) }}
-        uses: svenstaro/upload-release-action@latest
+        uses: svenstaro/upload-release-action@6b7fa9f267e90b50a19fef07b3596790bb941741 # v2.11.3
         with:
           file_glob: true
           overwrite: true
           prerelease: false
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: aspect-model-editor-runtime/target/ame-backend-${{ github.event.inputs.release_version }}-linux
-          tag: v${{ github.event.inputs.release_version }}
+          file: aspect-model-editor-runtime/target/ame-backend-${{ env.RELEASE_VERSION }}-linux
+          tag: v${{ env.RELEASE_VERSION }}
 
       - name: Create GitHub pre-release (Linux)
         if: ${{ (matrix.os == 'ubuntu-latest') &&  (contains( github.ref, '-M' )) }}
-        uses: svenstaro/upload-release-action@latest
+        uses: svenstaro/upload-release-action@6b7fa9f267e90b50a19fef07b3596790bb941741 # v2.11.3
         with:
           file_glob: true
           overwrite: true
           prerelease: true
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: aspect-model-editor-runtime/target/ame-backend-${{ github.event.inputs.release_version }}-linux
-          tag: v${{ github.event.inputs.release_version }}
+          file: aspect-model-editor-runtime/target/ame-backend-${{ env.RELEASE_VERSION }}-linux
+          tag: v${{ env.RELEASE_VERSION }}
 
   release:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
     steps:
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6.0.1
 
       # Sign (Windows & Mac) executable
       - name: Get Artifact ID (Windows & Mac)
@@ -195,7 +206,7 @@ jobs:
 
           echo "artifact_url_win=$ARTIFACT_URL_WIN" > parameters.txt
           echo "artifact_url_mac=$ARTIFACT_URL_MAC" >> parameters.txt
-          echo "version=${{ github.event.inputs.release_version }}" >> parameters.txt
+          echo "version=${{ env.RELEASE_VERSION }}" >> parameters.txt
 
           git config --global user.email "github-actions@github.com"
           git config --global user.name "github-actions"
