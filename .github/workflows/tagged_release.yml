@@ -8,7 +8,7 @@ on:
         required: true
 
 env:
-  RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+  RELEASE_VERSION: ${{ github.event.inputs.release_version }}
 
 permissions: {}
 
