@@ -195,6 +195,9 @@ public class ModelService {
       try {
          return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( aspectModelLoader.listContents(),
                onlyAspectModels );
+      } catch ( final ModelResolutionException e ) {
+         LOG.error( e.getMessage() );
+         throw new FileNotFoundException( "The models folder was not found. Please restart the application to create it automatically." );
       } catch ( final UnsupportedVersionException e ) {
          LOG.error( "{} There is a loose .ttl file somewhere — remove it along with any other non-standardized files.", SAMM_STRUCTURE_INFO,
                e );

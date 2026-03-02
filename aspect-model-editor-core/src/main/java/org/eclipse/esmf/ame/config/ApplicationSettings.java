@@ -14,10 +14,14 @@
 package org.eclipse.esmf.ame.config;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+
+import org.eclipse.esmf.ame.exceptions.CreateFileException;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
 import jakarta.inject.Singleton;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Application settings configuration class.
@@ -42,6 +46,14 @@ public class ApplicationSettings {
    }
 
    public static Path getMetaModelStoragePath() {
-      return Path.of( META_MODEL_PATH );
+      try {
+         final Path modelPath = Path.of( META_MODEL_PATH );
+         FileUtils.forceMkdir( modelPath.toFile() );
+         return modelPath;
+      } catch ( final IOException e ) {
+         throw new CreateFileException( String.format(
+               "Unable to create the meta model storage directory at: %s. Please check your permissions or the validity of the path.",
+               META_MODEL_PATH ), e );
+      }
    }
 }
