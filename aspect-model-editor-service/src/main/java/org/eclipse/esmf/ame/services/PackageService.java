@@ -35,6 +35,7 @@ import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
+import org.eclipse.esmf.aspectmodel.ValueParsingException;
 import org.eclipse.esmf.aspectmodel.edit.AspectChangeManager;
 import org.eclipse.esmf.aspectmodel.edit.AspectChangeManagerConfig;
 import org.eclipse.esmf.aspectmodel.edit.AspectChangeManagerConfigBuilder;
@@ -95,8 +96,12 @@ public class PackageService {
          final List<File> list = saveAspectModelFiles( changeManager.aspectModelFiles() ).map( File::new ).toList();
 
          return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( list, false );
-      } catch ( final IOException e ) {
-         throw new FileHandlingException( "Could not read from input", e );
+      } catch ( final ValueParsingException | IOException e ) {
+         if ( e instanceof ValueParsingException ) {
+            throw new FileHandlingException( "The structure inside the .zip file does not match the expected format." );
+         } else {
+            throw new FileHandlingException( "Could not read from input", e );
+         }
       }
    }
 
