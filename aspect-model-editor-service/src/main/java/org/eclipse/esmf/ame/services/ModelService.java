@@ -177,7 +177,10 @@ public class ModelService {
       final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
       return aspectModel.files().stream()
-            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "blob" ) ).orElse( false ) ).findFirst()
+            .filter( a -> a.sourceLocation().map( source -> {
+               final String scheme = source.getScheme();
+               return "blob".equals( scheme ) || "file".equals( scheme );
+            } ).orElse( false ) ).findFirst()
             .map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to migrate" ) );
    }
@@ -186,7 +189,10 @@ public class ModelService {
       final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
       return aspectModel.files().stream()
-            .filter( a -> a.sourceLocation().map( source -> source.getScheme().equals( "blob" ) ).orElse( false ) ).findFirst()
+            .filter( a -> a.sourceLocation().map( source -> {
+               final String scheme = source.getScheme();
+               return "blob".equals( scheme ) || "file".equals( scheme );
+            } ).orElse( false ) ).findFirst()
             .map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to formate" ) );
    }
