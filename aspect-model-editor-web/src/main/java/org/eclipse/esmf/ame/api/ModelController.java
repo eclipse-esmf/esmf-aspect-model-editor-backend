@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.eclipse.esmf.ame.MediaTypeExtension;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
@@ -33,6 +34,7 @@ import org.eclipse.esmf.ame.services.models.ModelResponse;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.utils.ModelUtils;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
+import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 import io.micronaut.http.HttpResponse;
@@ -116,6 +118,19 @@ public class ModelController {
                   aspectModelResult.content(), aspectModelResult.filename().orElse( "" ) );
             fileInformations.add( fileInformation );
          } catch ( final Exception e ) {
+            if ( e.getCause() instanceof final ModelResolutionException mre ) {
+               final String details = mre.getCheckedLocations().stream()
+                     .map( ModelResolutionException.LoadingFailure::element )
+                     .flatMap( Optional::stream )
+                     .map( Object::toString )
+                     .map( urn -> urn.contains( "#" ) ? urn.substring( 0, urn.indexOf( '#' ) ) : urn )
+                     .distinct()
+                     .collect( Collectors.joining( ", " ) );
+
+               throw new FileNotFoundException(
+                     String.format( "Failed to retrieve Aspect Model for URN: %s. Missing Namespace: %s", entry.absoluteName(), details ) );
+            }
+
             throw new FileNotFoundException(
                   String.format( "Failed to retrieve Aspect Model for URN: %s - %s", entry.absoluteName(), e.getMessage() ) );
          }
