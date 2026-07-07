@@ -64,8 +64,9 @@ class PackageServiceTest {
             while ( ( entry = zis.getNextEntry() ) != null ) {
                assertNotNull( entry.getName() );
                assertFalse( entry.getName().isEmpty() );
-               assertTrue( entry.getName().contains( "TestFileOne" + FILE_EXTENSION ) || entry.getName()
-                     .contains( "TestFileTwo" + FILE_EXTENSION ) || entry.getName().contains( "TestFileThree" + FILE_EXTENSION ) );
+               assertTrue( entry.getName().contains( "org.eclipse.esmf.export" ) || entry.getName().contains( "1.0.0" ) || entry.getName()
+                     .contains( "TestFileOne" + FILE_EXTENSION ) || entry.getName().contains( "TestFileThree" + FILE_EXTENSION ) );
+               assertFalse( entry.getName().contains( "TestFileTwo" + FILE_EXTENSION ) );
             }
          }
       } );
@@ -96,7 +97,6 @@ class PackageServiceTest {
    void testBackupWorkspace() {
       packageService.backupWorkspace();
 
-      assertTrue( Arrays.stream( Objects.requireNonNull( RESOURCE_PATH.toFile().list() ) )
-            .anyMatch( file -> file.contains( "backup-" ) ) );
+      assertTrue( Arrays.stream( Objects.requireNonNull( RESOURCE_PATH.toFile().list() ) ).anyMatch( file -> file.contains( "backup-" ) ) );
    }
 }

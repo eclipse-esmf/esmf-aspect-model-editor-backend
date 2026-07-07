@@ -31,7 +31,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileHandlingException;
-import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
@@ -42,7 +41,6 @@ import org.eclipse.esmf.aspectmodel.edit.AspectChangeManagerConfigBuilder;
 import org.eclipse.esmf.aspectmodel.edit.Change;
 import org.eclipse.esmf.aspectmodel.edit.ChangeGroup;
 import org.eclipse.esmf.aspectmodel.edit.change.AddAspectModelFile;
-import org.eclipse.esmf.aspectmodel.generator.zip.AspectModelNamespacePackageCreator;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.NamespacePackage;
 import org.eclipse.esmf.aspectmodel.resolver.fs.ModelsRoot;
@@ -75,10 +73,7 @@ public class PackageService {
 
    public byte[] exportPackage( final String aspectModelUrn ) {
       final AspectModel aspectModel = aspectModelLoader.load( AspectModelUrn.fromUrn( aspectModelUrn ) );
-      final AspectModelNamespacePackageCreator packageCreator = new AspectModelNamespacePackageCreator( aspectModel );
-
-      return packageCreator.generate().findFirst()
-            .orElseThrow( () -> new FileNotFoundException( String.format( "No file found for %s", aspectModelUrn ) ) ).getContent();
+      return new NamespacePackage( aspectModel ).serialize();
    }
 
    public Map<String, List<Version>> importPackage( final CompletedFileUpload zipFile ) {
