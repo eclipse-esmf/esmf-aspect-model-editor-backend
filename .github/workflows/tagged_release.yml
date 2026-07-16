@@ -228,6 +228,29 @@ jobs:
           file: aspect-model-editor-runtime/target/ame-backend-${{ env.RELEASE_VERSION }}-linux
           tag: v${{ env.RELEASE_VERSION }}
 
+      # Release Mac executables
+      - name: Create GitHub release (Linux)
+        if: ${{ (matrix.os == 'macos-15-intel') &&  (!contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@6b7fa9f267e90b50a19fef07b3596790bb941741 # v2.11.3
+        with:
+          file_glob: true
+          overwrite: true
+          prerelease: false
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: aspect-model-editor-runtime/target/ame-backend-${{ env.RELEASE_VERSION }}-mac
+          tag: v${{ env.RELEASE_VERSION }}
+
+      - name: Create GitHub pre-release (Linux)
+        if: ${{ (matrix.os == 'macos-15-intel') &&  (contains( github.ref, '-M' )) }}
+        uses: svenstaro/upload-release-action@6b7fa9f267e90b50a19fef07b3596790bb941741 # v2.11.3
+        with:
+          file_glob: true
+          overwrite: true
+          prerelease: true
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: aspect-model-editor-runtime/target/ame-backend-${{ env.RELEASE_VERSION }}-mac
+          tag: v${{ env.RELEASE_VERSION }}
+
   release:
     needs: build
     runs-on: ubuntu-latest
