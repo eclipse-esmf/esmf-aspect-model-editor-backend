@@ -208,8 +208,8 @@ public class GenerateController {
          final Optional<String> properties, final ObjectMapper objectMapper ) throws JsonProcessingException {
       final ObjectNode propertiesNode = objectMapper.readValue( properties.orElse( "{}" ), ObjectNode.class );
 
-      return new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( language ), false, useSemanticVersion, baseUrl, null, null,
-            resourcePath, propertiesNode, pagingOption, includeQueryApi, includeCrud, includePost, includePut, includePatch, null );
+      return new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( language ), false, useSemanticVersion, baseUrl, resourcePath,
+            propertiesNode, pagingOption, includeQueryApi, includeCrud, includePost, includePut, includePatch, null );
    }
 
    /**
