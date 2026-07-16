@@ -208,8 +208,8 @@ public class GenerateController {
          final Optional<String> properties, final ObjectMapper objectMapper ) throws JsonProcessingException {
       final ObjectNode propertiesNode = objectMapper.readValue( properties.orElse( "{}" ), ObjectNode.class );
 
-      return new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( language ), false, useSemanticVersion, baseUrl, resourcePath,
-            propertiesNode, pagingOption, includeQueryApi, includeCrud, includePost, includePut, includePatch, null );
+      return new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( language ), false, useSemanticVersion, baseUrl, null, null,
+            resourcePath, propertiesNode, pagingOption, includeQueryApi, includeCrud, includePost, includePut, includePatch, null );
    }
 
    /**
@@ -217,7 +217,7 @@ public class GenerateController {
     *
     * @param aspectModel the Aspect Model Data
     * @param language the language of the generated AsyncApi specification
-    * @param output the format of the AsyncApi specification (json or yaml)
+    * @param output the format of the AsyncApi specification (JSON or YAML)
     * @param applicationId Sets the application id, e.g. an identifying URL
     * @param channelAddress Sets the channel address (i.e., for MQTT, the topic's name)
     * @param useSemanticVersion if set to true, the complete semantic version of the Aspect Model will be used as
