@@ -36,7 +36,7 @@ jobs:
       - name: Setup JDK
         uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
         with:
-          java-version: '21.0.9'
+          java-version: '25.0.3'
           distribution: 'temurin'
 
       - name: Cache Maven packages
