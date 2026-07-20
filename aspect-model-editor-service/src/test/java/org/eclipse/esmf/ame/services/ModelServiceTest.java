@@ -218,11 +218,11 @@ class ModelServiceTest {
                   TEST_MODEL_FOR_BATCH + FILE_EXTENSION, "", "2.2.0" ) );
 
       final FileNotFoundException fileNotFoundException = assertThrows( FileNotFoundException.class,
-            () -> modelService.getModels( fileEntries ),
-            "Should throw FileNotFoundException when element is missing" );
+            () -> modelService.getModels( fileEntries ), "Should throw FileNotFoundException when element is missing" );
 
       assertTrue( fileNotFoundException.getMessage().contains( "Failed to load file" ) );
-      assertTrue( fileNotFoundException.getMessage().contains( "org.eclipse.esmf.example/1.0.0/BatchTestAspect.ttl" ) );
+      assertTrue( fileNotFoundException.getMessage()
+            .contains( "org.eclipse.esmf.example" + File.separator + "1.0.0" + File.separator + "BatchTestAspect.ttl" ) );
       assertTrue( fileNotFoundException.getMessage()
             .contains( "Element 'urn:samm:org.eclipse.esmf.example:1.0.0#notDefinedProperty' not found" ) );
    }
@@ -273,12 +273,10 @@ class ModelServiceTest {
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + nonExistentFile, nonExistentFile, "", "" ) );
 
       final FileNotFoundException fileNotFoundException = assertThrows( FileNotFoundException.class,
-            () -> modelService.getModels( fileEntries ),
-            "Should throw FileNotFoundException" );
+            () -> modelService.getModels( fileEntries ), "Should throw FileNotFoundException" );
 
       assertTrue( fileNotFoundException.getMessage().contains( nonExistentFile ) || fileNotFoundException.getMessage()
-                  .contains( EXAMPLE_NAMESPACE ),
-            "Exception message should contain file name or namespace information" );
+            .contains( EXAMPLE_NAMESPACE ), "Exception message should contain file name or namespace information" );
    }
 
    @Test
