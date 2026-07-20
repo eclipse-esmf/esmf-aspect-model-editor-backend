@@ -130,7 +130,7 @@ tests {
   
   test("Response body is valid", function() {
     const body = res.getBody();
-    expect(body).to.contains("asyncapi: 3.0.0");
+    expect(body).to.contains("asyncapi: 3.1.0");
     expect(body).to.contains("id: application:id");
     expect(body).to.contains("title: movement MQTT API");
     expect(body).to.contains("version: v1");

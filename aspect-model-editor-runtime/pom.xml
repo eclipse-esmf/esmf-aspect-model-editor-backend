@@ -152,9 +152,16 @@
                      <createSourcesJar>false</createSourcesJar>
                      <transformers>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                           <resource>META-INF/truffle/language</resource>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                           <resource>META-INF/truffle/instrument</resource>
+                        </transformer>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                            <manifestEntries>
                               <Main-Class>${main.class}</Main-Class>
+                              <Multi-Release>true</Multi-Release>
                            </manifestEntries>
                         </transformer>
                      </transformers>
@@ -169,11 +176,15 @@
                            <artifact>*:*</artifact>
                            <excludes>
                               <exclude>module-info.class</exclude>
-                              <exclude>META-INF/*</exclude>
+                              <exclude>META-INF/MANIFEST.MF</exclude>
+                              <exclude>META-INF/*.SF</exclude>
+                              <exclude>META-INF/*.DSA</exclude>
+                              <exclude>META-INF/*.RSA</exclude>
+                              <exclude>META-INF/LICENSE*</exclude>
+                              <exclude>META-INF/NOTICE*</exclude>
+                              <exclude>META-INF/DEPENDENCIES*</exclude>
                               <exclude>META-INF/sisu/javax.inject.Named</exclude>
                               <exclude>META-INF/plexus/components.xml</exclude>
-                              <exclude>META-INF.versions*/**</exclude>
-                              <exclude>META-INF/versions*/**</exclude>
                               <exclude>META-INF/maven/**</exclude>
                               <exclude>plugin.xml</exclude>
                               <exclude>about.html</exclude>
@@ -211,6 +222,28 @@
                            <artifact>org.eclipse.esmf:esmf-aspect-meta-model-java</artifact>
                            <includes>
                               <include>**</include>
+                           </includes>
+                        </filter>
+                        <!-- Ensure GraalVM/Truffle resources are included -->
+                        <filter>
+                           <artifact>org.graalvm.truffle:*</artifact>
+                           <includes>
+                              <include>**</include>
+                              <include>META-INF/**</include>
+                           </includes>
+                        </filter>
+                        <filter>
+                           <artifact>org.graalvm.polyglot:*</artifact>
+                           <includes>
+                              <include>**</include>
+                              <include>META-INF/**</include>
+                           </includes>
+                        </filter>
+                        <filter>
+                           <artifact>org.graphper:*</artifact>
+                           <includes>
+                              <include>**</include>
+                              <include>META-INF/**</include>
                            </includes>
                         </filter>
                         <!-- Prevent overlapping classes from javax modules -->
