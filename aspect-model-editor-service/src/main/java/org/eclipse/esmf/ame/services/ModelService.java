@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
@@ -89,8 +90,10 @@ public class ModelService {
                loadModelFromUrn( aspectModelUrn );
          validateModel( aspectModel );
 
-         return aspectModel.files().stream().filter( file -> containsElement( file, aspectModelUrn ) )
-               .filter( aspectModelFile -> aspectModelFile.sourceLocation().isPresent() ).filter( this::hasValidCasing ).findFirst()
+         return aspectModel.files().stream()
+               .filter( file -> containsElement( file, aspectModelUrn ) )
+               .filter( this::hasValidCasing )
+               .findFirst()
                .map( aspectModelFile -> new AspectModelResult( aspectModelFile.filename(),
                      AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ), aspectModelFile.sourceLocation() ) )
                .orElseThrow( () -> new FileNotFoundException( "Aspect Model not found" ) );
@@ -293,14 +296,28 @@ public class ModelService {
       final List<FileInformation> results = new ArrayList<>();
 
       for ( final FileEntry fileEntry : fileEntries ) {
-         final File file = ModelUtils.convertFileEntryToFile( fileEntry, modelPath );
+         final Supplier<AspectModel> lazySupplier;
+         if ( fileEntry.absoluteName() != null ) {
+            final File file = ModelUtils.convertFileEntryToFile( fileEntry, modelPath );
+            lazySupplier = ModelUtils.getAspectModelSupplierFromFiles( List.of( file ), aspectModelLoader );
+         } else {
+            lazySupplier = ModelUtils.getAspectModelSupplierFromUrns(
+                  List.of( AspectModelUrn.from( fileEntry.aspectModelUrn() ).get() ), aspectModelLoader );
+         }
 
          try {
-            final Supplier<AspectModel> lazySupplier = ModelUtils.getAspectModelSupplierFromFiles( List.of( file ), aspectModelLoader );
             final AspectModel aspectModel = lazySupplier.get();
 
-            aspectModel.files().stream().filter( f -> f.sourceLocation().isPresent() ).filter( this::hasValidCasing )
-                  .map( this::convertToFileInformation ).forEach( results::add );
+            final Optional<AspectModelFile> firstElement = aspectModel.files().stream()
+                  .filter( file -> containsElement( file, AspectModelUrn.from( fileEntry.aspectModelUrn() ).get() ) )
+                  .filter( this::hasValidCasing )
+                  .findFirst();
+
+            if ( firstElement.isPresent() ) {
+               results.add( this.convertToFileInformation( firstElement.get() ) );
+            } else {
+               throw new FileNotFoundException( "Aspect Model not found" );
+            }
          } catch ( final ModelResolutionException e ) {
             final String elementInfo = e.getCheckedLocations().stream().findFirst()
                   .flatMap( ModelResolutionException.LoadingFailure::element )

@@ -29,6 +29,7 @@ import java.util.stream.StreamSupport;
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.ame.services.models.FileEntry;
 import org.eclipse.esmf.aspectmodel.AspectLoadingException;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
@@ -165,6 +166,18 @@ public class ModelUtils {
    public static Supplier<AspectModel> getAspectModelSupplierFromUrn( final AspectModelUrn aspectModelUrn,
          final AspectModelLoader aspectModelLoader ) {
       return createLazySupplier( () -> aspectModelLoader.load( aspectModelUrn ) );
+   }
+
+   /**
+    * Returns a Supplier for loading an AspectModel based on the given AspectModelUrn.
+    *
+    * @param aspectModelUrns a list of Aspect Model URNs
+    * @param aspectModelLoader the loader to load the Aspect Model
+    * @return a Supplier for the Aspect Model
+    */
+   public static Supplier<AspectModel> getAspectModelSupplierFromUrns( final List<AspectModelUrn> aspectModelUrns,
+         final AspectModelLoader aspectModelLoader ) {
+      return createLazySupplier( () -> aspectModelLoader.loadUrns( aspectModelUrns ) );
    }
 
    /**
@@ -307,7 +320,7 @@ public class ModelUtils {
     * @return the resolved File object
     * @throws AssertionError if the fileEntry's absoluteName is null
     */
-   public static File convertFileEntryToFile( final org.eclipse.esmf.ame.services.models.FileEntry fileEntry, final Path modelPath ) {
+   public static File convertFileEntryToFile( final FileEntry fileEntry, final Path modelPath ) {
       assert fileEntry.absoluteName() != null;
       final Path path = Paths.get( fileEntry.absoluteName().replace( ":", File.separator ) ).normalize();
       final String[] pathParts = StreamSupport.stream( path.spliterator(), false ).map( Path::toString ).toArray( String[]::new );
