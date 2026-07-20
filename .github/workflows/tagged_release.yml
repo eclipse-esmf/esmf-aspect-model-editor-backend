@@ -261,8 +261,8 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6.0.1
 
-      # Sign (Windows & Mac) executable
-      - name: Get Artifact ID (Windows & Mac)
+      # Sign Windows executable
+      - name: Get Artifact ID Windows
         shell: bash
         run: |
           # Get the list of artifacts for the specified workflow run
@@ -270,30 +270,26 @@ jobs:
 
           # Filter out the ID of the artifacts
           artifact_id_win=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("win")) | .id')
-          artifact_id_mac=$(echo "$response" | jq -r '.artifacts[] | select(.name | contains("mac")) | .id')
 
           # Save the artifact ID in an environment variable
           echo "ARTIFACT_ID_WIN=$artifact_id_win" >> $GITHUB_ENV
-          echo "ARTIFACT_ID_MAC=$artifact_id_mac" >> $GITHUB_ENV
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Commit Artifact url and version changes and push to pre release branch for jenkins (Windows & Mac)
+      - name: Commit Artifact url and version changes and push to pre release branch for jenkins Windows
         shell: bash
         run: |
           ARTIFACT_URL_WIN="https://api.github.com/repos/eclipse-esmf/esmf-aspect-model-editor-backend/actions/artifacts/$ARTIFACT_ID_WIN/zip"
-          ARTIFACT_URL_MAC="https://api.github.com/repos/eclipse-esmf/esmf-aspect-model-editor-backend/actions/artifacts/$ARTIFACT_ID_MAC/zip"
           BRANCH_NAME="pre_release_configuration"
 
           echo "artifact_url_win=$ARTIFACT_URL_WIN" > parameters.txt
-          echo "artifact_url_mac=$ARTIFACT_URL_MAC" >> parameters.txt
           echo "version=${{ env.RELEASE_VERSION }}" >> parameters.txt
 
           git config --global user.email "github-actions@github.com"
           git config --global user.name "github-actions"
           git checkout -b $BRANCH_NAME
           git add parameters.txt
-          git commit -m "Add parameters.txt with artifact_url_win, artifact_url_mac and version"
+          git commit -m "Add parameters.txt with artifact_url_win and the version"
           git push origin $BRANCH_NAME
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

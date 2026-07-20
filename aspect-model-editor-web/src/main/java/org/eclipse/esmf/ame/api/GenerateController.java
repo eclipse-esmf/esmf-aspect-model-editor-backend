@@ -24,10 +24,6 @@ import org.eclipse.esmf.ame.services.GenerateService;
 import org.eclipse.esmf.aspectmodel.generator.openapi.OpenApiSchemaGenerationConfig;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.MediaType;
@@ -38,6 +34,9 @@ import io.micronaut.http.annotation.Post;
 import io.micronaut.http.annotation.Produces;
 import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.multipart.CompletedFileUpload;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.dataformat.yaml.YAMLFactory;
 
 /**
  * Controller class that supports the generation of the aspect model into other formats.
@@ -172,7 +171,7 @@ public class GenerateController {
          @QueryValue( defaultValue = "false" ) final boolean includeCrud, @QueryValue( defaultValue = "false" ) final boolean includePost,
          @QueryValue( defaultValue = "false" ) final boolean includePut, @QueryValue( defaultValue = "false" ) final boolean includePatch,
          @QueryValue( defaultValue = "" ) final String resourcePath, @QueryValue( defaultValue = "" ) final String ymlProperties,
-         @QueryValue( defaultValue = "" ) final String jsonProperties ) throws JsonProcessingException, URISyntaxException {
+         @QueryValue( defaultValue = "" ) final String jsonProperties ) throws URISyntaxException {
       final String uriString = optionalUri.orElseThrow( () -> new UriNotDefinedException( "Invalid Aspect Model File URI Format" ) );
 
       final Optional<String> properties = !resourcePath.isEmpty() && ( !ymlProperties.isEmpty() || !jsonProperties.isEmpty() ) ?
@@ -190,7 +189,7 @@ public class GenerateController {
    private String generateOpenApiSpec( final String language, final URI uri, final CompletedFileUpload aspectModel, final String baseUrl,
          final boolean includeQueryApi, final boolean useSemanticVersion, final PagingOption pagingOption, final String resourcePath,
          final boolean includeCrud, final boolean includePost, final boolean includePut, final boolean includePatch,
-         final Optional<String> properties, final String output ) throws JsonProcessingException {
+         final Optional<String> properties, final String output ) {
 
       final ObjectMapper objectMapper = output.equals( "json" ) ? new ObjectMapper() : new ObjectMapper( new YAMLFactory() );
 
@@ -205,10 +204,10 @@ public class GenerateController {
    private OpenApiSchemaGenerationConfig createOpenApiSchemaGenerationConfig( final String language, final String baseUrl,
          final boolean useSemanticVersion, final String resourcePath, final PagingOption pagingOption, final boolean includeQueryApi,
          final boolean includeCrud, final boolean includePost, final boolean includePut, final boolean includePatch,
-         final Optional<String> properties, final ObjectMapper objectMapper ) throws JsonProcessingException {
+         final Optional<String> properties, final ObjectMapper objectMapper ) {
       final ObjectNode propertiesNode = objectMapper.readValue( properties.orElse( "{}" ), ObjectNode.class );
 
-      return new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( language ), false, useSemanticVersion, baseUrl, null, null,
+      return new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( language ), false, useSemanticVersion, baseUrl, null, null, null,
             resourcePath, propertiesNode, pagingOption, includeQueryApi, includeCrud, includePost, includePut, includePatch, null );
    }
 

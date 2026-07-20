@@ -31,15 +31,15 @@ import org.eclipse.esmf.ame.model.MockFileUpload;
 import org.eclipse.esmf.aspectmodel.generator.openapi.OpenApiSchemaGenerationConfig;
 import org.eclipse.esmf.aspectmodel.generator.openapi.PagingOption;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.dataformat.yaml.YAMLFactory;
 
 @MicronautTest
 class GenerateServiceTest {
@@ -55,7 +55,7 @@ class GenerateServiceTest {
    void testAspectModelHtmlDocumentation() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final byte[] payload = generateService.generateHtmlDocument( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
@@ -68,7 +68,7 @@ class GenerateServiceTest {
    void testAspectModelJsonSample() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final String payload = generateService.sampleJSONPayload( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ) );
@@ -93,7 +93,7 @@ class GenerateServiceTest {
    void testAspectModelJsonSchema() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final String payload = generateService.jsonSchema( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ), "en-EN" );
@@ -105,12 +105,12 @@ class GenerateServiceTest {
    void testAspectModelJsonOpenApiSpecWithoutResourcePath() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false, false,
-            false, false, null );
+            "https://test.com", null, null, null, "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
+            false, false, false, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -125,7 +125,7 @@ class GenerateServiceTest {
    void testAspectModelJsonOpenApiSpecWithResourcePath() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final ObjectMapper objectMapper = new ObjectMapper();
@@ -144,8 +144,8 @@ class GenerateServiceTest {
             """ );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "/resource/{resourceId}", jsonProperties, PagingOption.TIME_BASED_PAGING, false, false, false,
-            false, false, null );
+            "https://test.com", null, null, null, "/resource/{resourceId}", jsonProperties, PagingOption.TIME_BASED_PAGING, false, false,
+            false, false, false, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -163,7 +163,7 @@ class GenerateServiceTest {
    void testAspectModelJsonOpenApiSpecWithWrongResourcePathProperties() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final ObjectMapper objectMapper = new ObjectMapper();
@@ -182,8 +182,8 @@ class GenerateServiceTest {
             """ );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "/resource/{resourceId}", jsonProperties, PagingOption.TIME_BASED_PAGING, false, false, false,
-            false, false, null );
+            "https://test.com", null, null, null, "/resource/{resourceId}", jsonProperties, PagingOption.TIME_BASED_PAGING, false, false,
+            false, false, false, null );
 
       assertThrows( GenerationException.class,
             () -> generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ), config ) );
@@ -193,12 +193,12 @@ class GenerateServiceTest {
    void testAspectModelJsonOpenApiSpecWithIncludeCrud() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, true, false,
-            false, false, null );
+            "https://test.com", null, null, null, "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, true,
+            false, false, false, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -217,12 +217,12 @@ class GenerateServiceTest {
    void testAspectModelJsonOpenApiSpecWithIncludePost() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false, true,
-            false, false, null );
+            "https://test.com", null, null, null, "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
+            true, false, false, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -241,12 +241,12 @@ class GenerateServiceTest {
    void testAspectModelJsonOpenApiSpecWithIncludePatch() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false, false,
-            false, true, null );
+            "https://test.com", null, null, null, "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
+            false, false, true, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -265,12 +265,12 @@ class GenerateServiceTest {
    void testAspectModelJsonOpenApiSpecWithIncludePut() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false, false,
-            true, false, null );
+            "https://test.com", null, null, null, "", new ObjectMapper().createObjectNode(), PagingOption.TIME_BASED_PAGING, false, false,
+            false, true, false, null );
 
       final String payload = generateService.generateJsonOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -289,12 +289,12 @@ class GenerateServiceTest {
    void testAspectModelYamlOpenApiSpecWithoutResourcePath() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "", new ObjectMapper( new YAMLFactory() ).createObjectNode(), PagingOption.TIME_BASED_PAGING,
-            false, false, false, false, false, null );
+            "https://test.com", null, null, null, "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
+            PagingOption.TIME_BASED_PAGING, false, false, false, false, false, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -309,7 +309,7 @@ class GenerateServiceTest {
    void testAspectModelYamlOpenApiSpecWithResourcePath() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final ObjectMapper objectMapper = new ObjectMapper( new YAMLFactory() );
@@ -325,8 +325,8 @@ class GenerateServiceTest {
             """ );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "/resource/{resourceId}", yamlProperties, PagingOption.TIME_BASED_PAGING, false, false, false,
-            false, false, null );
+            "https://test.com", null, null, null, "/resource/{resourceId}", yamlProperties, PagingOption.TIME_BASED_PAGING, false, false,
+            false, false, false, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -344,7 +344,7 @@ class GenerateServiceTest {
    void testAspectModelYamlOpenApiSpecWithWrongResourcePathProperties() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final ObjectMapper objectMapper = new ObjectMapper( new YAMLFactory() );
@@ -360,8 +360,8 @@ class GenerateServiceTest {
             """ );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "/resource/{resourceId}", yamlProperties, PagingOption.TIME_BASED_PAGING, false, false, false,
-            false, false, null );
+            "https://test.com", null, null, null, "/resource/{resourceId}", yamlProperties, PagingOption.TIME_BASED_PAGING, false, false,
+            false, false, false, null );
 
       assertThrows( GenerationException.class,
             () -> generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ), config ) );
@@ -371,12 +371,12 @@ class GenerateServiceTest {
    void testAspectModelYamlOpenApiSpecWithIncludeCrud() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "", new ObjectMapper( new YAMLFactory() ).createObjectNode(), PagingOption.TIME_BASED_PAGING,
-            false, true, false, false, false, null );
+            "https://test.com", null, null, null, "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
+            PagingOption.TIME_BASED_PAGING, false, true, false, false, false, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -395,12 +395,12 @@ class GenerateServiceTest {
    void testAspectModelYamlOpenApiSpecWithIncludePost() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "", new ObjectMapper( new YAMLFactory() ).createObjectNode(), PagingOption.TIME_BASED_PAGING,
-            false, false, true, false, false, null );
+            "https://test.com", null, null, null, "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
+            PagingOption.TIME_BASED_PAGING, false, false, true, false, false, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -419,12 +419,12 @@ class GenerateServiceTest {
    void testAspectModelYamlOpenApiSpecWithIncludePatch() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "", new ObjectMapper( new YAMLFactory() ).createObjectNode(), PagingOption.TIME_BASED_PAGING,
-            false, false, false, false, true, null );
+            "https://test.com", null, null, null, "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
+            PagingOption.TIME_BASED_PAGING, false, false, false, false, true, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -443,12 +443,12 @@ class GenerateServiceTest {
    void testAspectModelYamlOpenApiSpecWithIncludePut() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final OpenApiSchemaGenerationConfig config = new OpenApiSchemaGenerationConfig( Locale.forLanguageTag( "en" ), false, false,
-            "https://test.com", null, null, "", new ObjectMapper( new YAMLFactory() ).createObjectNode(), PagingOption.TIME_BASED_PAGING,
-            false, false, false, true, false, null );
+            "https://test.com", null, null, null, "", new ObjectMapper( new YAMLFactory() ).createObjectNode(),
+            PagingOption.TIME_BASED_PAGING, false, false, false, true, false, null );
 
       final String payload = generateService.generateYamlOpenApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ),
             config );
@@ -467,7 +467,7 @@ class GenerateServiceTest {
    void testAspectModelAASX() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final String payload = generateService.generateAASXFile( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ) );
@@ -479,20 +479,20 @@ class GenerateServiceTest {
    void testAspectModelAASXml() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final String payload = generateService.generateAasXmlFile( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ) );
 
       assertTrue( payload.contains( "<?xml version='1.0' encoding='UTF-8'?>" ) );
-      assertTrue( payload.contains( "https://admin-shell.io/aas/3/0" ) );
+      assertTrue( payload.contains( "https://admin-shell.io/aas/3/1" ) );
    }
 
    @Test
    void testAspectModelAASJson() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final String payload = generateService.generateAasJsonFile( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ) );
@@ -507,14 +507,14 @@ class GenerateServiceTest {
    void testAspectModelJsonAsyncApiSpec() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final String payload = new String(
             generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ), "en", "json",
                   "application:id", "foo/bar", false, false ), StandardCharsets.UTF_8 );
 
-      assertTrue( payload.contains( "\"asyncapi\" : \"3.0.0\"" ) );
+      assertTrue( payload.contains( "\"asyncapi\" : \"3.1.0\"" ) );
       assertTrue( payload.contains( "\"id\" : \"application:id\"" ) );
       assertTrue( payload.contains( "\"title\" : \"movement MQTT API\"" ) );
       assertTrue( payload.contains( "\"version\" : \"v1\"" ) );
@@ -526,7 +526,7 @@ class GenerateServiceTest {
    void testAspectModelJsonAsyncApiSpecWithSeparateFiles() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final byte[] payload = generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ), "en",
@@ -539,14 +539,14 @@ class GenerateServiceTest {
    void testAspectModelYAMLAsyncApiSpec() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final String payload = new String(
             generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ), "en", "yaml",
                   "application:id", "foo/bar", false, false ), StandardCharsets.UTF_8 );
 
-      assertTrue( payload.contains( "asyncapi: 3.0.0" ) );
+      assertTrue( payload.contains( "asyncapi: 3.1.0" ) );
       assertTrue( payload.contains( "id: application:id" ) );
       assertTrue( payload.contains( "title: movement MQTT API" ) );
       assertTrue( payload.contains( "version: v1" ) );
@@ -558,7 +558,7 @@ class GenerateServiceTest {
    void testAspectModelYAMLAsyncApiSpecWithSeparateFiles() throws IOException {
       final Path storagePath = Path.of( eclipseTestPath.toString(), model );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final byte[] payload = generateService.generateAsyncApiSpec( mockedZipFile, URI.create( "blob:///" + toUriPath( storagePath ) ), "en",

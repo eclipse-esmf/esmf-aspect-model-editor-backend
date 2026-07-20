@@ -110,7 +110,7 @@ class ModelServiceTest {
    void testValidateModel() throws IOException {
       final Path storagePath = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL_FOR_SERVICE + FILE_EXTENSION );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final ViolationReport validateReport = modelService.validateModel( URI.create( "blob:///" + toUriPath( storagePath ) ),
@@ -134,7 +134,7 @@ class ModelServiceTest {
    void testMigrateModel() throws IOException {
       final Path storagePath = Path.of( TEST_NAMESPACE_PATH.toString(), "OldAspectModel.ttl" );
       final byte[] testModelForService = Files.readAllBytes( storagePath );
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.ttl", testModelForService,
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.ttl", testModelForService,
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
       final String migratedModel = modelService.migrateModel( URI.create( "blob:///" + toUriPath( storagePath ) ), mockedZipFile );

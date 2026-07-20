@@ -13,68 +13,27 @@
 
 package org.eclipse.esmf.ame.model;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.util.Optional;
-
-import io.micronaut.core.annotation.Nullable;
+import io.micronaut.core.io.buffer.ReadBuffer;
+import io.micronaut.core.io.buffer.ReadBufferFactory;
 import io.micronaut.http.MediaType;
 import io.micronaut.http.multipart.CompletedFileUpload;
+import io.micronaut.http.multipart.FormFieldMetadata;
 
-public record MockFileUpload( String filename, MediaType mediaType, byte[] content ) implements CompletedFileUpload {
-   public MockFileUpload( final String filename, final byte[] content, final MediaType mediaType ) {
-      this( filename, mediaType, content );
+public final class MockFileUpload {
+
+   private MockFileUpload() {
    }
 
-   public MockFileUpload( final String filename, final MediaType mediaType, @Nullable final byte[] content ) {
-      this.filename = filename;
-      this.mediaType = mediaType;
-      this.content = ( content != null ? content : new byte[0] );
+   public static CompletedFileUpload create( final String filename, final byte[] content, final MediaType mediaType ) {
+      final byte[] data = content != null ? content : new byte[0];
+
+      final FormFieldMetadata metadata = new FormFieldMetadata( filename, filename, mediaType );
+      final ReadBuffer readBuffer = ReadBufferFactory.getJdkFactory().adapt( data.clone() );
+
+      return CompletedFileUpload.ofMemory( metadata, readBuffer );
    }
 
-   @Override
-   public InputStream getInputStream() {
-      return new ByteArrayInputStream( content );
-   }
-
-   @Override
-   public byte[] getBytes() {
-      return content;
-   }
-
-   @Override
-   public ByteBuffer getByteBuffer() {
-      return ByteBuffer.wrap( content );
-   }
-
-   @Override
-   public Optional<MediaType> getContentType() {
-      return Optional.of( mediaType );
-   }
-
-   @Override
-   public String getName() {
-      return filename;
-   }
-
-   @Override
-   public String getFilename() {
-      return filename;
-   }
-
-   @Override
-   public long getSize() {
-      return content.length;
-   }
-
-   @Override
-   public long getDefinedSize() {
-      return content.length;
-   }
-
-   @Override
-   public boolean isComplete() {
-      return true;
+   public static CompletedFileUpload create( final String filename, final MediaType mediaType, final byte[] content ) {
+      return create( filename, content, mediaType );
    }
 }

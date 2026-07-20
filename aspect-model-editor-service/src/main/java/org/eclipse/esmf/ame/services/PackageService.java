@@ -48,6 +48,7 @@ import org.eclipse.esmf.aspectmodel.resolver.fs.StructuredModelsRoot;
 import org.eclipse.esmf.aspectmodel.resolver.modelfile.RawAspectModelFileBuilder;
 import org.eclipse.esmf.aspectmodel.serializer.AspectSerializer;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
 
 import io.micronaut.http.multipart.CompletedFileUpload;
@@ -66,9 +67,11 @@ public class PackageService {
    private final AspectModelLoader aspectModelLoader;
    private final Path modelPath;
 
-   public PackageService( final AspectModelLoader aspectModelLoader, final Path modelPath ) {
+   public PackageService( final AspectModelLoader aspectModelLoader, final Path modelPath,
+         final AspectModelValidator aspectModelValidator ) {
       this.aspectModelLoader = aspectModelLoader;
       this.modelPath = modelPath;
+      this.aspectModelValidator = aspectModelValidator;
    }
 
    public byte[] exportPackage( final String aspectModelUrn ) {
@@ -90,7 +93,7 @@ public class PackageService {
 
          final List<File> list = saveAspectModelFiles( changeManager.aspectModelFiles() ).map( File::new ).toList();
 
-         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( list, false );
+         return new ModelGroupingUtils( aspectModelLoader, aspectModelValidator ).groupModelsByNamespaceAndVersion( list, false );
       } catch ( final ValueParsingException | IOException e ) {
          if ( e instanceof ValueParsingException ) {
             throw new FileHandlingException( "The structure inside the .zip file does not match the expected format." );
@@ -158,4 +161,6 @@ public class PackageService {
          throw new CreateFileException( "An error occurred while creating the zip file.", e );
       }
    }
+
+   private final AspectModelValidator aspectModelValidator;
 }

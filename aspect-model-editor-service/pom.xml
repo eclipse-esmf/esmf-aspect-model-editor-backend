@@ -52,12 +52,14 @@
 
       <!-- Third party dependencies -->
       <dependency>
-         <groupId>com.fasterxml.jackson.dataformat</groupId>
-         <artifactId>jackson-dataformat-xml</artifactId>
+         <groupId>com.fasterxml.jackson.core</groupId>
+         <artifactId>jackson-annotations</artifactId>
+         <version>${jackson-annotations.version}</version>
       </dependency>
       <dependency>
          <groupId>com.fasterxml.jackson.core</groupId>
-         <artifactId>jackson-core</artifactId>
+         <artifactId>jackson-databind</artifactId>
+         <version>${jackson-databind2.version}</version>
       </dependency>
       <dependency>
          <groupId>io.micronaut</groupId>

@@ -77,7 +77,7 @@ class PackageServiceTest {
       final Path zipFilePath = Paths.get( RESOURCE_PATH.toString(), "TestArchive.zip" );
       final byte[] testPackage = Files.readAllBytes( zipFilePath );
 
-      final CompletedFileUpload mockedZipFile = new MockFileUpload( "TestArchive.zip", testPackage, MediaType.APPLICATION_PDF_TYPE );
+      final CompletedFileUpload mockedZipFile = MockFileUpload.create( "TestArchive.zip", testPackage, MediaType.APPLICATION_PDF_TYPE );
 
       packageService.importPackage( mockedZipFile );
 
