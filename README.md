@@ -10,8 +10,7 @@
 
 ## Introduction
 
-This project is used as the backend for the Aspect Model Editor and interacts with
-the [ESMF-SDK](https://github.com/eclipse-esmf/esmf-sdk) to
+This project is used as the backend for the Aspect Model Editor and interacts with the [ESMF-SDK](https://github.com/eclipse-esmf/esmf-sdk) to
 create [SAMM](https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model) specific Aspect Models.
 
 ## Getting help
@@ -19,15 +18,12 @@ create [SAMM](https://github.com/eclipse-esmf/esmf-semantic-aspect-meta-model) s
 Are you having trouble with Aspect Model Editor backend? We want to help!
 
 * Check the [developer documentation](https://eclipse-esmf.github.io)
-* Check the
-  SAMM [specification](https://eclipse-esmf.github.io/samm-specification/2.0.0/index.html)
-* Having issues with the Aspect Model Editor backend? Open
-  a [GitHub issue](https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/issues).
+* Check the SAMM [specification](https://eclipse-esmf.github.io/samm-specification/2.0.0/index.html)
+* Having issues with the Aspect Model Editor backend? Open a [GitHub issue](https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend/issues).
 
 ## Setup
 
-* Download and
-  install [JDK 21](https://github.com/adoptium/temurin21-binaries/releases)
+* Download and install [JDK 25](https://github.com/adoptium/temurin25-binaries/releases)
 * Download and Install [Maven](https://maven.apache.org/download.cgi)
 * Environment Settings
     * Add "{JAVA_HOME}/bin" to PATH
