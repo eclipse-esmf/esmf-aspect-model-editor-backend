@@ -24,10 +24,13 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.model.MockFileUpload;
 import org.eclipse.esmf.ame.services.models.AspectModelResult;
+import org.eclipse.esmf.ame.services.models.FileEntry;
+import org.eclipse.esmf.ame.services.models.FileInformation;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
@@ -64,6 +67,8 @@ class ModelServiceTest {
    private static final Path TEST_NAMESPACE_PATH = Path.of( RESOURCE_PATH.toString(), EXAMPLE_NAMESPACE, VERSION );
 
    private static final String TEST_MODEL_FOR_SERVICE = "Movement";
+   private static final String TEST_MODEL_FOR_BATCH = "BatchTestAspect";
+   private static final String TEST_MODEL_OLD_ASPECT = "OldAspectModel";
    private static final String TEST_MODEL_NOT_FOUND = "NOTFOUND";
    private static final String TEST_MODEL_TO_DELETE = "FileToDelete";
    private static final String TEST_FILEPATH = Path.of( EXAMPLE_NAMESPACE, VERSION, TEST_MODEL_FOR_SERVICE + FILE_EXTENSION ).toString();
@@ -152,6 +157,144 @@ class ModelServiceTest {
          uriPath = uriPath.replace( "\\", "/" );
       }
       return uriPath;
+   }
+
+   @Test
+   void testGetModels_Success() {
+      final List<FileEntry> fileEntriesWithTwoFiles = List.of(
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "", "" ),
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_OLD_ASPECT + FILE_EXTENSION,
+                  TEST_MODEL_OLD_ASPECT + FILE_EXTENSION, "", "" ) );
+
+      final List<FileInformation> resultOne = modelService.getModels( fileEntriesWithTwoFiles );
+
+      assertFalse( resultOne.isEmpty(), "Results should not be empty" );
+      assertTrue( resultOne.stream().anyMatch( fi -> fi.fileName().contains( TEST_MODEL_FOR_SERVICE ) ),
+            "Results should contain Movement model" );
+
+      final List<FileEntry> fileEntriesWithOneFile = List.of(
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "", "" ) );
+
+      final List<FileInformation> resultTwo = modelService.getModels( fileEntriesWithOneFile );
+
+      assertFalse( resultTwo.isEmpty(), "Results should not be empty" );
+      assertTrue( resultTwo.stream().anyMatch( fi -> fi.fileName().contains( TEST_MODEL_FOR_SERVICE ) ),
+            "Results should contain the requested model" );
+   }
+
+   @Test
+   void testGetModels_EmptyList() {
+      final var emptyList = List.<FileEntry> of();
+      final var results = modelService.getModels( emptyList );
+
+      assertTrue( results.isEmpty(), "Results should be empty for empty input" );
+   }
+
+   @Test
+   void testGetModels_FileNotFound() {
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_NOT_FOUND + FILE_EXTENSION,
+                  TEST_MODEL_NOT_FOUND + FILE_EXTENSION, "", "" ) );
+
+      assertThrows( FileNotFoundException.class, () -> modelService.getModels( fileEntries ),
+            "Should throw FileNotFoundException when file does not exist" );
+   }
+
+   @Test
+   void testGetModels_InvalidNamespace() {
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( "invalid.namespace:1.0.0:InvalidModel.ttl", "InvalidModel.ttl", "", "" ) );
+
+      assertThrows( FileNotFoundException.class, () -> modelService.getModels( fileEntries ),
+            "Should throw FileNotFoundException for invalid namespace" );
+   }
+
+   @Test
+   void testGetModels_MissingElement() {
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_BATCH + FILE_EXTENSION,
+                  TEST_MODEL_FOR_BATCH + FILE_EXTENSION, "", "2.2.0" ) );
+
+      final FileNotFoundException fileNotFoundException = assertThrows( FileNotFoundException.class,
+            () -> modelService.getModels( fileEntries ),
+            "Should throw FileNotFoundException when element is missing" );
+
+      assertTrue( fileNotFoundException.getMessage().contains( "Failed to load file" ) );
+      assertTrue( fileNotFoundException.getMessage().contains( "org.eclipse.esmf.example/1.0.0/BatchTestAspect.ttl" ) );
+      assertTrue( fileNotFoundException.getMessage()
+            .contains( "Element 'urn:samm:org.eclipse.esmf.example:1.0.0#notDefinedProperty' not found" ) );
+   }
+
+   @Test
+   void testGetModels_MultipleValidFiles() {
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "", "" ),
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_OLD_ASPECT + FILE_EXTENSION,
+                  TEST_MODEL_OLD_ASPECT + FILE_EXTENSION, "", "" ) );
+
+      final List<FileInformation> results = modelService.getModels( fileEntries );
+
+      assertFalse( results.isEmpty(), "Results should not be empty" );
+      assertTrue( results.size() >= 2, "Should load multiple models" );
+
+      results.forEach( fileInfo -> {
+         assertFalse( fileInfo.fileName().isEmpty(), "File name should not be empty" );
+         assertFalse( fileInfo.aspectModelUrn().isEmpty(), "URN should not be empty" );
+         assertFalse( fileInfo.aspectModel().isEmpty(), "Content should not be empty" );
+         assertFalse( fileInfo.modelVersion().isEmpty(), "Model version should not be empty" );
+      } );
+   }
+
+   @Test
+   void testGetModels_VerifyFileInformation() {
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "", "" ) );
+
+      final List<FileInformation> results = modelService.getModels( fileEntries );
+
+      assertFalse( results.isEmpty(), "Results should not be empty" );
+
+      final FileInformation fileInfo = results.getFirst();
+      assertTrue( fileInfo.fileName().contains( ".ttl" ), "File name should have .ttl extension" );
+      assertTrue( fileInfo.aspectModelUrn().contains( "urn:samm:" ), "URN should start with urn:samm:" );
+      assertTrue( fileInfo.aspectModel().contains( "@prefix samm:" ), "Content should contain SAMM prefix" );
+      assertTrue( fileInfo.aspectModel().contains( ":Movement" ), "Content should contain Movement aspect" );
+      assertFalse( fileInfo.modelVersion().isEmpty(), "Model version should not be empty" );
+   }
+
+   @Test
+   void testGetModels_ExceptionMessageContainsFileName() {
+      final String nonExistentFile = "NonExistent.ttl";
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + nonExistentFile, nonExistentFile, "", "" ) );
+
+      final FileNotFoundException fileNotFoundException = assertThrows( FileNotFoundException.class,
+            () -> modelService.getModels( fileEntries ),
+            "Should throw FileNotFoundException" );
+
+      assertTrue( fileNotFoundException.getMessage().contains( nonExistentFile ) || fileNotFoundException.getMessage()
+                  .contains( EXAMPLE_NAMESPACE ),
+            "Exception message should contain file name or namespace information" );
+   }
+
+   @Test
+   void testGetModels_DifferentNamespaces() {
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "", "" ) );
+
+      final List<FileInformation> results = modelService.getModels( fileEntries );
+
+      assertFalse( results.isEmpty(), "Results should not be empty" );
+
+      results.forEach( fileInfo -> {
+         assertTrue( fileInfo.absoluteName().contains( EXAMPLE_NAMESPACE ), "Absolute name should contain namespace" );
+         assertTrue( fileInfo.absoluteName().contains( VERSION ), "Absolute name should contain version" );
+      } );
    }
 }
 

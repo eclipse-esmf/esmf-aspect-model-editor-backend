@@ -18,13 +18,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
-import java.util.stream.StreamSupport;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileHandlingException;
@@ -295,8 +293,9 @@ public class ModelService {
       final List<FileInformation> results = new ArrayList<>();
 
       for ( final FileEntry fileEntry : fileEntries ) {
+         final File file = ModelUtils.convertFileEntryToFile( fileEntry, modelPath );
+
          try {
-            final File file = convertFileEntryToFile( fileEntry );
             final Supplier<AspectModel> lazySupplier = ModelUtils.getAspectModelSupplierFromFiles( List.of( file ), aspectModelLoader );
             final AspectModel aspectModel = lazySupplier.get();
 
@@ -307,18 +306,11 @@ public class ModelService {
                   .flatMap( ModelResolutionException.LoadingFailure::element )
                   .map( element -> String.format( "Element '%s' not found", element ) ).orElse( "Model resolution failed" );
 
-            throw new FileNotFoundException( String.format( "Failed to load file '%s': %s", fileEntry.absoluteName(), elementInfo ), e );
+            throw new FileNotFoundException( String.format( "Failed to load file '%s': %s", file.getAbsoluteFile(), elementInfo ), e );
          }
       }
 
       return results;
-   }
-
-   private File convertFileEntryToFile( final FileEntry fileEntry ) {
-      assert fileEntry.absoluteName() != null;
-      final Path path = Paths.get( fileEntry.absoluteName().replace( ":", File.separator ) ).normalize();
-      final String[] pathParts = StreamSupport.stream( path.spliterator(), false ).map( Path::toString ).toArray( String[]::new );
-      return modelPath.resolve( pathParts[0] ).resolve( pathParts[1] ).resolve( pathParts[2] ).toFile();
    }
 
    private FileInformation convertToFileInformation( final AspectModelFile aspectModelFile ) {

@@ -296,4 +296,21 @@ public class ModelUtils {
             .map( KnownVersion::toVersionString )
             .orElseThrow( () -> new FileReadException( "Invalid SAMM version in model" ) );
    }
+
+   /**
+    * Converts a FileEntry to a File by resolving its absolute name path. The absolute name format is expected to be
+    * "namespace:version:filename" (e.g., "org.eclipse.esmf.example:1.0.0:BatchTestAspect.ttl"). This method replaces
+    * colons with the system's file separator, splits the path into components, and resolves it against the model path.
+    *
+    * @param fileEntry the file entry containing the absolute name path
+    * @param modelPath the base path to the model storage directory
+    * @return the resolved File object
+    * @throws AssertionError if the fileEntry's absoluteName is null
+    */
+   public static File convertFileEntryToFile( final org.eclipse.esmf.ame.services.models.FileEntry fileEntry, final Path modelPath ) {
+      assert fileEntry.absoluteName() != null;
+      final Path path = Paths.get( fileEntry.absoluteName().replace( ":", File.separator ) ).normalize();
+      final String[] pathParts = StreamSupport.stream( path.spliterator(), false ).map( Path::toString ).toArray( String[]::new );
+      return modelPath.resolve( pathParts[0] ).resolve( pathParts[1] ).resolve( pathParts[2] ).toFile();
+   }
 }
