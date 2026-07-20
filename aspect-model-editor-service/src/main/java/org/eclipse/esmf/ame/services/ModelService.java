@@ -18,10 +18,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileHandlingException;
@@ -29,6 +32,8 @@ import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.services.models.AspectModelResult;
+import org.eclipse.esmf.ame.services.models.FileEntry;
+import org.eclipse.esmf.ame.services.models.FileInformation;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
@@ -120,7 +125,7 @@ public class ModelService {
    }
 
    private AspectModel loadModelFromUrn( final AspectModelUrn aspectModelUrn ) {
-      final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplier( aspectModelUrn, aspectModelLoader );
+      final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplierFromUrn( aspectModelUrn, aspectModelLoader );
       return aspectModelSupplier.get();
    }
 
@@ -136,7 +141,7 @@ public class ModelService {
       try {
          final Path newFile = ModelUtils.createFilePath( aspectModelUrn, fileName, storagePath );
 
-         final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplier( turtleData, newFile.toFile(),
+         final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplierFromTurtle( turtleData, newFile.toFile(),
                aspectModelLoader );
          final List<Violation> violations = aspectModelValidator.validateModel( aspectModelSupplier );
 
@@ -176,31 +181,27 @@ public class ModelService {
    public String migrateModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
       final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
-      return aspectModel.files().stream()
-            .filter( a -> a.sourceLocation().map( source -> {
+      return aspectModel.files().stream().filter( a -> a.sourceLocation().map( source -> {
                final String scheme = source.getScheme();
                return "blob".equals( scheme ) || "file".equals( scheme );
-            } ).orElse( false ) ).findFirst()
-            .map( AspectSerializer.INSTANCE::aspectModelFileToString )
+            } ).orElse( false ) ).findFirst().map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to migrate" ) );
    }
 
    public String getFormattedModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
       final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
-      return aspectModel.files().stream()
-            .filter( a -> a.sourceLocation().map( source -> {
+      return aspectModel.files().stream().filter( a -> a.sourceLocation().map( source -> {
                final String scheme = source.getScheme();
                return "blob".equals( scheme ) || "file".equals( scheme );
-            } ).orElse( false ) ).findFirst()
-            .map( AspectSerializer.INSTANCE::aspectModelFileToString )
+            } ).orElse( false ) ).findFirst().map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to formate" ) );
    }
 
    public Map<String, List<Version>> getAllNamespaces( final boolean onlyAspectModels ) {
       try {
-         return new ModelGroupingUtils( aspectModelLoader ).groupModelsByNamespaceAndVersion( aspectModelLoader.listContents(),
-               onlyAspectModels );
+         return new ModelGroupingUtils( aspectModelLoader, aspectModelValidator ).groupModelsByNamespaceAndVersion(
+               aspectModelLoader.listContents(), onlyAspectModels );
       } catch ( final ModelResolutionException e ) {
          LOG.error( e.getMessage() );
          throw new FileNotFoundException( "The models folder was not found. Please restart the application to create it automatically." );
@@ -284,11 +285,60 @@ public class ModelService {
 
    public boolean checkElementExists( final AspectModelUrn aspectModelUrn, final String fileName ) {
       try {
-
-         System.out.println( loadModelFromUrn( aspectModelUrn ).files() );
          return loadModelFromUrn( aspectModelUrn ).files().stream().anyMatch( f -> !fileName.equals( f.filename().orElse( "" ) ) );
       } catch ( final ModelResolutionException e ) {
          return false;
+      }
+   }
+
+   public List<FileInformation> getModels( final List<FileEntry> fileEntries ) {
+      final List<FileInformation> results = new ArrayList<>();
+
+      for ( final FileEntry fileEntry : fileEntries ) {
+         try {
+            final File file = convertFileEntryToFile( fileEntry );
+            final Supplier<AspectModel> lazySupplier = ModelUtils.getAspectModelSupplierFromFiles( List.of( file ), aspectModelLoader );
+            final AspectModel aspectModel = lazySupplier.get();
+
+            aspectModel.files().stream().filter( f -> f.sourceLocation().isPresent() ).filter( this::hasValidCasing )
+                  .map( this::convertToFileInformation ).forEach( results::add );
+         } catch ( final ModelResolutionException e ) {
+            final String elementInfo = e.getCheckedLocations().stream().findFirst()
+                  .flatMap( ModelResolutionException.LoadingFailure::element )
+                  .map( element -> String.format( "Element '%s' not found", element ) ).orElse( "Model resolution failed" );
+
+            throw new FileNotFoundException( String.format( "Failed to load file '%s': %s", fileEntry.absoluteName(), elementInfo ), e );
+         }
+      }
+
+      return results;
+   }
+
+   private File convertFileEntryToFile( final FileEntry fileEntry ) {
+      assert fileEntry.absoluteName() != null;
+      final Path path = Paths.get( fileEntry.absoluteName().replace( ":", File.separator ) ).normalize();
+      final String[] pathParts = StreamSupport.stream( path.spliterator(), false ).map( Path::toString ).toArray( String[]::new );
+      return modelPath.resolve( pathParts[0] ).resolve( pathParts[1] ).resolve( pathParts[2] ).toFile();
+   }
+
+   private FileInformation convertToFileInformation( final AspectModelFile aspectModelFile ) {
+      final String urn = extractUrn( aspectModelFile );
+      final String sammVersion = ModelUtils.extractSammVersion( aspectModelFile );
+      final AspectModelUrn aspectModelUrn = aspectModelFile.namespaceUrn();
+      final String fileName = aspectModelFile.filename().orElse( "" );
+
+      final String fileKey = String.format( "%s:%s:%s", aspectModelUrn.getNamespaceMainPart(), aspectModelUrn.getVersion(),
+            aspectModelFile.filename().orElseThrow( () -> new FileReadException( "Filename missing" ) ) );
+
+      return new FileInformation( fileKey, urn, sammVersion, AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ),
+            fileName );
+   }
+
+   private String extractUrn( final AspectModelFile aspectModelFile ) {
+      try {
+         return aspectModelFile.aspect().urn().toString();
+      } catch ( final NoSuchElementException e ) {
+         return aspectModelFile.elements().getFirst().urn().toString();
       }
    }
 }
