@@ -80,7 +80,7 @@ jobs:
         run: |
           bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
           mkdir ${bundle}
-          curl -Lo jre.tar.gz https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.9%2B10/OpenJDK21U-jre_x64_linux_hotspot_21.0.9_10.tar.gz
+          curl -Lo jre.tar.gz https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jre_x64_linux_hotspot_25.0.3_9.tar.gz
           tar -xvf jre.tar.gz -C $bundle
           cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar ./${bundle}/
           
@@ -89,7 +89,7 @@ jobs:
 
           HERE=\${BASH_SOURCE%/*}
 
-          "\$HERE/jdk-21.0.9+10-jre/bin/java" -jar "\$HERE/aspect-model-editor-runtime-DEV-SNAPSHOT.jar" "\$@"
+          "\$HERE/jdk-25.0.3+9-jre/bin/java" -jar "\$HERE/aspect-model-editor-runtime-DEV-SNAPSHOT.jar" "\$@"
           EOF
           chmod +x ./${bundle}/run.sh
 
@@ -107,11 +107,11 @@ jobs:
         run: |
           $bundle = "aspect-model-editor-bundle-DEV-SNAPSHOT-$([int][double]::Parse((Get-Date -UFormat %s)))"
           mkdir $bundle
-          curl -Lo jre.zip https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.9%2B10/OpenJDK21U-jre_x64_windows_hotspot_21.0.9_10.zip
+          curl -Lo jre.zip https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jre_x64_windows_hotspot_25.0.3_9.zip
           tar -xf jre.zip -C .\$bundle
           Copy-Item aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar .\$bundle\
 
-          Set-Content -Path .\$bundle\run.bat -Value "@echo off`n%~dp0jdk-21.0.9+10-jre\bin\java -jar %~dp0aspect-model-editor-runtime-DEV-SNAPSHOT.jar %*"
+          Set-Content -Path .\$bundle\run.bat -Value "@echo off`n%~dp0jdk-25.0.3+9-jre\bin\java -jar %~dp0aspect-model-editor-runtime-DEV-SNAPSHOT.jar %*"
 
           curl -Lo warp-packer.exe https://github.com/dgiagio/warp/releases/download/v0.3.0/windows-x64.warp-packer.exe
           .\warp-packer.exe --arch windows-x64 --input_dir $bundle --exec run.bat --output ame-backend-DEV-SNAPSHOT-win.exe
@@ -124,9 +124,9 @@ jobs:
         run: |
           bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
           mkdir ${bundle}
-          curl -Lo jre.tar.gz https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.9%2B10/OpenJDK21U-jre_x64_mac_hotspot_21.0.9_10.tar.gz
+          curl -Lo jre.tar.gz https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jre_x64_mac_hotspot_25.0.3_9.tar.gz
           tar -xvf jre.tar.gz
-          cp -r ./jdk-21.0.9+10-jre ./${bundle}/jre
+          cp -r ./jdk-25.0.3+9-jre ./${bundle}/jre
           cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar ./${bundle}/
 
           cat <<EOF > ./${bundle}/run.sh
