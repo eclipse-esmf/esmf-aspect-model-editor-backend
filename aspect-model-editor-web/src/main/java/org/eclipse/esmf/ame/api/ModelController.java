@@ -103,7 +103,7 @@ public class ModelController {
     */
    @Post( uri = "batch", consumes = MediaType.APPLICATION_JSON )
    @Produces( MediaType.APPLICATION_JSON )
-   public HttpResponse<List<FileInformation>> getModelsBatch( @Body final List<FileEntry> fileEntries ) {
+   public HttpResponse<List<FileInformation>> getModels( @Body final List<FileEntry> fileEntries ) {
       return HttpResponse.ok( modelService.getModels( fileEntries ) );
    }
 
