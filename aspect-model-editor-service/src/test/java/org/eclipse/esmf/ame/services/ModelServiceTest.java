@@ -163,9 +163,11 @@ class ModelServiceTest {
    void testGetModels_Success() {
       final List<FileEntry> fileEntriesWithTwoFiles = List.of(
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
-                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "", "" ),
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_FOR_SERVICE, "" ),
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_OLD_ASPECT + FILE_EXTENSION,
-                  TEST_MODEL_OLD_ASPECT + FILE_EXTENSION, "", "" ) );
+                  TEST_MODEL_OLD_ASPECT + FILE_EXTENSION,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_OLD_ASPECT, "" ) );
 
       final List<FileInformation> resultOne = modelService.getModels( fileEntriesWithTwoFiles );
 
@@ -175,7 +177,8 @@ class ModelServiceTest {
 
       final List<FileEntry> fileEntriesWithOneFile = List.of(
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
-                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "", "" ) );
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_FOR_SERVICE, "" ) );
 
       final List<FileInformation> resultTwo = modelService.getModels( fileEntriesWithOneFile );
 
@@ -196,7 +199,8 @@ class ModelServiceTest {
    void testGetModels_FileNotFound() {
       final List<FileEntry> fileEntries = List.of(
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_NOT_FOUND + FILE_EXTENSION,
-                  TEST_MODEL_NOT_FOUND + FILE_EXTENSION, "", "" ) );
+                  TEST_MODEL_NOT_FOUND + FILE_EXTENSION,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_NOT_FOUND, "" ) );
 
       assertThrows( FileNotFoundException.class, () -> modelService.getModels( fileEntries ),
             "Should throw FileNotFoundException when file does not exist" );
@@ -205,17 +209,41 @@ class ModelServiceTest {
    @Test
    void testGetModels_InvalidNamespace() {
       final List<FileEntry> fileEntries = List.of(
-            new FileEntry( "invalid.namespace:1.0.0:InvalidModel.ttl", "InvalidModel.ttl", "", "" ) );
+            new FileEntry( null, "InvalidModel.ttl", "invalid.namespace:1.0.0:InvalidModel.ttl", "" ) );
 
-      assertThrows( FileNotFoundException.class, () -> modelService.getModels( fileEntries ),
-            "Should throw FileNotFoundException for invalid namespace" );
+      final IllegalArgumentException exception = assertThrows( IllegalArgumentException.class,
+            () -> modelService.getModels( fileEntries ),
+            "Should throw IllegalArgumentException for invalid URN" );
+
+      assertTrue( exception.getMessage().contains( "Invalid aspect model URN" ),
+            "Exception message should indicate invalid URN" );
+      assertTrue( exception.getMessage().contains( "invalid.namespace:1.0.0:InvalidModel.ttl" ),
+            "Exception message should contain the invalid URN" );
+   }
+
+   @Test
+   void testGetModels_InvalidUrnFormat() {
+      final List<FileEntry> invalidEntries = List.of(
+            new FileEntry( null, "InvalidModel.ttl", "not-a-valid-urn", "" ),
+            new FileEntry( null, "EmptyUrn.ttl", "", "" ),
+            new FileEntry( null, "Malformed.ttl", "::::", "" ) );
+
+      for ( final FileEntry entry : invalidEntries ) {
+         final IllegalArgumentException exception = assertThrows( IllegalArgumentException.class,
+               () -> modelService.getModels( List.of( entry ) ),
+               "Should throw IllegalArgumentException for malformed URN: " + entry.aspectModelUrn() );
+
+         assertTrue( exception.getMessage().contains( "Invalid aspect model URN" ),
+               "Exception message should indicate invalid URN" );
+      }
    }
 
    @Test
    void testGetModels_MissingElement() {
       final List<FileEntry> fileEntries = List.of(
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_BATCH + FILE_EXTENSION,
-                  TEST_MODEL_FOR_BATCH + FILE_EXTENSION, "", "2.2.0" ) );
+                  TEST_MODEL_FOR_BATCH + FILE_EXTENSION,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_FOR_BATCH, "2.2.0" ) );
 
       final FileNotFoundException fileNotFoundException = assertThrows( FileNotFoundException.class,
             () -> modelService.getModels( fileEntries ), "Should throw FileNotFoundException when element is missing" );
@@ -231,9 +259,11 @@ class ModelServiceTest {
    void testGetModels_MultipleValidFiles() {
       final List<FileEntry> fileEntries = List.of(
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
-                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "", "" ),
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_FOR_SERVICE, "" ),
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_OLD_ASPECT + FILE_EXTENSION,
-                  TEST_MODEL_OLD_ASPECT + FILE_EXTENSION, "", "" ) );
+                  TEST_MODEL_OLD_ASPECT + FILE_EXTENSION,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_OLD_ASPECT, "" ) );
 
       final List<FileInformation> results = modelService.getModels( fileEntries );
 
@@ -252,7 +282,8 @@ class ModelServiceTest {
    void testGetModels_VerifyFileInformation() {
       final List<FileEntry> fileEntries = List.of(
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
-                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "", "" ) );
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_FOR_SERVICE, "" ) );
 
       final List<FileInformation> results = modelService.getModels( fileEntries );
 
@@ -270,7 +301,9 @@ class ModelServiceTest {
    void testGetModels_ExceptionMessageContainsFileName() {
       final String nonExistentFile = "NonExistent.ttl";
       final List<FileEntry> fileEntries = List.of(
-            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + nonExistentFile, nonExistentFile, "", "" ) );
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + nonExistentFile,
+                  nonExistentFile,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#NonExistent", "" ) );
 
       final FileNotFoundException fileNotFoundException = assertThrows( FileNotFoundException.class,
             () -> modelService.getModels( fileEntries ), "Should throw FileNotFoundException" );
@@ -283,7 +316,8 @@ class ModelServiceTest {
    void testGetModels_DifferentNamespaces() {
       final List<FileEntry> fileEntries = List.of(
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
-                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "", "" ) );
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_FOR_SERVICE, "" ) );
 
       final List<FileInformation> results = modelService.getModels( fileEntries );
 

@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
@@ -297,33 +296,45 @@ public class ModelService {
 
       for ( final FileEntry fileEntry : fileEntries ) {
          final Supplier<AspectModel> lazySupplier;
+         final String fileIdentifier;
+         final AspectModelUrn urn;
+
          if ( fileEntry.absoluteName() != null ) {
             final File file = ModelUtils.convertFileEntryToFile( fileEntry, modelPath );
             lazySupplier = ModelUtils.getAspectModelSupplierFromFiles( List.of( file ), aspectModelLoader );
+            fileIdentifier = file.getAbsolutePath();
+
+            urn = AspectModelUrn.from( fileEntry.aspectModelUrn() )
+                  .getOrElseThrow( () -> new IllegalArgumentException(
+                        String.format( "Invalid aspect model URN: '%s'", fileEntry.aspectModelUrn() ) ) );
          } else {
-            lazySupplier = ModelUtils.getAspectModelSupplierFromUrns(
-                  List.of( AspectModelUrn.from( fileEntry.aspectModelUrn() ).get() ), aspectModelLoader );
+            urn = AspectModelUrn.from( fileEntry.aspectModelUrn() )
+                  .getOrElseThrow( () -> new IllegalArgumentException(
+                        String.format( "Invalid aspect model URN: '%s'", fileEntry.aspectModelUrn() ) ) );
+
+            lazySupplier = ModelUtils.getAspectModelSupplierFromUrns( List.of( urn ), aspectModelLoader );
+            fileIdentifier = fileEntry.aspectModelUrn();
          }
 
          try {
             final AspectModel aspectModel = lazySupplier.get();
 
-            final Optional<AspectModelFile> firstElement = aspectModel.files().stream()
-                  .filter( file -> containsElement( file, AspectModelUrn.from( fileEntry.aspectModelUrn() ).get() ) )
+            final AspectModelFile aspectModelFile = aspectModel.files().stream()
+                  .filter( file -> containsElement( file, urn ) )
                   .filter( this::hasValidCasing )
-                  .findFirst();
+                  .findFirst()
+                  .orElseThrow( () -> new FileNotFoundException(
+                        String.format( "Aspect Model not found for URN '%s' in file '%s'", urn, fileIdentifier ) ) );
 
-            if ( firstElement.isPresent() ) {
-               results.add( this.convertToFileInformation( firstElement.get() ) );
-            } else {
-               throw new FileNotFoundException( "Aspect Model not found" );
-            }
+            results.add( convertToFileInformation( aspectModelFile ) );
          } catch ( final ModelResolutionException e ) {
             final String elementInfo = e.getCheckedLocations().stream().findFirst()
                   .flatMap( ModelResolutionException.LoadingFailure::element )
-                  .map( element -> String.format( "Element '%s' not found", element ) ).orElse( "Model resolution failed" );
+                  .map( element -> String.format( "Element '%s' not found", element ) )
+                  .orElse( "Model resolution failed" );
 
-            throw new FileNotFoundException( String.format( "Failed to load file '%s': %s", file.getAbsoluteFile(), elementInfo ), e );
+            throw new FileNotFoundException(
+                  String.format( "Failed to load file '%s': %s", fileIdentifier, elementInfo ), e );
          }
       }
 
