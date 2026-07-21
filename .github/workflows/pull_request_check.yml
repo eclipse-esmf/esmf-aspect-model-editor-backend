@@ -105,12 +105,13 @@ jobs:
         run: |
           bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
           mkdir "$bundle"
+          mkdir "$bundle/app"
           curl -Lo jre.zip https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jre_x64_windows_hotspot_25.0.3_9.zip
           unzip -q jre.zip -d "./$bundle"
           mv "./$bundle/jdk-25.0.3+9-jre" "./$bundle/jre"
           rm jre.zip
 
-          mv aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar "./$bundle/"
+          mv aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar "./$bundle/app"
           cp ./scripts/windows/run.bat "./$bundle/"
 
           curl -Lo warp-packer.exe https://github.com/kirbylink/warp/releases/download/v1.3.0/windows-x64.warp-packer.exe
