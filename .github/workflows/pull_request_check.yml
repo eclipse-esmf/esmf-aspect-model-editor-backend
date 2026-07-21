@@ -118,16 +118,16 @@ jobs:
             echo "Warp packer checksum does not match"
             exit 1
           fi
+          
+          ./warp-packer.exe pack --arch windows-x64 --input-dir "$bundle" --exec run.bat --output ame-backend-DEV-SNAPSHOT-win.exe
 
-          size=$(stat -c%s ame-backend-DEV-SNAPSHOT-win.exe 2>/dev/null || stat -f%z ame-backend-DEV-SNAPSHOT-win.exe)
-          size_mb=$((size / 1048576))
+          size_mb=$(( $(wc -c < ame-backend-DEV-SNAPSHOT-win.exe) / 1048576 ))
           echo "EXE size: ${size_mb} MB"
           if [ "$size_mb" -lt 100 ]; then
             echo "ERROR: EXE too small (${size_mb} MB) - warp packing likely failed"
             exit 1
           fi
 
-          ./warp-packer.exe pack --arch windows-x64 --input-dir "$bundle" --exec run.bat --output ame-backend-DEV-SNAPSHOT-win.exe
           mv ame-backend-DEV-SNAPSHOT-win.exe aspect-model-editor-runtime/target/
         shell: bash
 
