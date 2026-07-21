@@ -39,6 +39,12 @@ jobs:
           java-version: '25.0.3'
           distribution: 'temurin'
 
+      - name: Setup Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 #v6.3.0
+        with:
+          python-version: '3.13'
+      - run: pip install pefile
+
       - name: Cache Maven packages
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
@@ -84,7 +90,7 @@ jobs:
           tar -xvf jre.tar.gz -C $bundle
           cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar ./${bundle}/
           
-          cp .scripts/linux/run.sh ./${bundle}/
+          cp scripts/linux/run.sh ./${bundle}/
           chmod +x ./${bundle}/run.sh
 
           curl -Lo warp-packer https://github.com/kirbylink/warp/releases/download/v1.3.0/linux-x64.warp-packer
@@ -119,7 +125,7 @@ jobs:
           fi
 
           .\warp-packer.exe pack --arch windows-x64 --input_dir ${bundle} --exec run.bat --output ame-backend-DEV-SNAPSHOT-win.exe
-          python3 .scripts/windows/set_cui_flag.py ame-backend-DEV-SNAPSHOT-win.exe
+          python3 scripts/windows/set_cui_flag.py ame-backend-DEV-SNAPSHOT-win.exe
 
           Move-Item ame-backend-DEV-SNAPSHOT-win.exe aspect-model-editor-runtime/target/
         shell: bash
@@ -133,7 +139,7 @@ jobs:
           tar -xvf jre.tar.gz
           cp -r ./jdk-25.0.3+9-jre ./${bundle}/jre
           cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar ./${bundle}/
-          cp .scripts/macos/run.sh ./${bundle}/
+          cp scripts/macos/run.sh ./${bundle}/
           chmod +x ./${bundle}/run.sh
 
           curl -Lo warp-packer https://github.com/kirbylink/warp/releases/download/v1.3.0/macos-x64.warp-packer
