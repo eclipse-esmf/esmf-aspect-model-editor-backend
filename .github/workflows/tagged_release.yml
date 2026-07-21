@@ -115,19 +115,17 @@ jobs:
           tar -xvf jre.tar.gz -C $bundle
           cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-${{ env.RELEASE_VERSION }}.jar ./${bundle}/
           
-          cat <<EOF > ./${bundle}/run.sh
-          #!/usr/bin/env bash
-
-          HERE=\${BASH_SOURCE%/*}
-
-          "\$HERE/jdk-25.0.3+9-jre/bin/java" -jar "\$HERE/aspect-model-editor-runtime-${{ env.RELEASE_VERSION }}.jar" "\$@"
-          EOF
+          cp scripts/linux/run.sh ./${bundle}/
           chmod +x ./${bundle}/run.sh
 
-          curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.3.0/linux-x64.warp-packer
+          curl -Lo warp-packer https://github.com/kirbylink/warp/releases/download/v1.3.0/linux-x64.warp-packer
+          if [ "$(sha256sum warp-packer | cut -d' ' -f1)" != "add6f937db8b9207d1bb81a900ef609f41875f07c6c8b2d596bfc134c8f285ff" ]; then
+            echo "Warp packer checksum does not match"
+            exit 1
+          fi
           chmod +x warp-packer
           
-          ./warp-packer --arch linux-x64 --input_dir ${bundle} --exec run.sh --output ame-backend-${{ env.RELEASE_VERSION }}-linux
+          ./warp-packer pack --arch linux-x64 --input-dir ${bundle} --exec run.sh --output ame-backend-${{ env.RELEASE_VERSION }}-linux
           chmod +x ame-backend-${{ env.RELEASE_VERSION }}-linux
           
           cp ame-backend-${{ env.RELEASE_VERSION }}-linux aspect-model-editor-runtime/target/
@@ -136,19 +134,27 @@ jobs:
       - name: Build warp packer (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          $bundle = "aspect-model-editor-bundle-${{ env.RELEASE_VERSION }}-$([int][double]::Parse((Get-Date -UFormat %s)))"
-          mkdir $bundle
+          bundle="aspect-model-editor-bundle-${{ env.RELEASE_VERSION }}-$(date +%s)"
+          mkdir "$bundle"
+          mkdir "$bundle/app"
           curl -Lo jre.zip https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jre_x64_windows_hotspot_25.0.3_9.zip
-          tar -xf jre.zip -C .\$bundle
-          Copy-Item aspect-model-editor-runtime/target/aspect-model-editor-runtime-${{ env.RELEASE_VERSION }}.jar .\$bundle\
+          unzip -q jre.zip -d "./$bundle"
+          mv "./$bundle/jdk-25.0.3+9-jre" "./$bundle/jre"
+          rm jre.zip
 
-           Set-Content -Path .\$bundle\run.bat -Value "@echo off`n%~dp0jdk-25.0.3+9-jre\bin\java -jar %~dp0aspect-model-editor-runtime-${{ env.RELEASE_VERSION }}.jar %*"
+          mv aspect-model-editor-runtime/target/aspect-model-editor-runtime-${{ env.RELEASE_VERSION }}.jar "./$bundle/app"
+          cp ./scripts/windows/run.bat "./$bundle/"
 
-          curl -Lo warp-packer.exe https://github.com/dgiagio/warp/releases/download/v0.3.0/windows-x64.warp-packer.exe
-          .\warp-packer.exe --arch windows-x64 --input_dir $bundle --exec run.bat --output ame-backend-${{ env.RELEASE_VERSION }}-win.exe
+          curl -Lo warp-packer.exe https://github.com/kirbylink/warp/releases/download/v1.3.0/windows-x64.warp-packer.exe
+          if [ "$(sha256sum warp-packer.exe | cut -d' ' -f1)" != "483726e0eb10a43167c03c8e4f27a2901741affd245e5ec8ed45509f9dcd7a8a" ]; then
+            echo "Warp packer checksum does not match"
+            exit 1
+          fi
+          
+          ./warp-packer.exe pack --arch windows-x64 --input-dir "$bundle" --exec run.bat --output ame-backend-${{ env.RELEASE_VERSION }}-win.exe
 
-          Copy-Item ame-backend-${{ env.RELEASE_VERSION }}-win.exe aspect-model-editor-runtime/target/
-        shell: pwsh
+          mv ame-backend-${{ env.RELEASE_VERSION }}-win.exe aspect-model-editor-runtime/target/
+        shell: bash
 
       - name: Build warp packer (Mac)
         if: matrix.os == 'macos-15-intel'
@@ -159,20 +165,18 @@ jobs:
           tar -xvf jre.tar.gz
           cp -r ./jdk-25.0.3+9-jre ./${bundle}/jre
           cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-${{ env.RELEASE_VERSION }}.jar ./${bundle}/
-
-          cat <<EOF > ./${bundle}/run.sh
-          #!/usr/bin/env bash
-
-          HERE=\${BASH_SOURCE%/*}
-
-          "\$HERE/jre/Contents/Home/bin/java" -jar "\$HERE/aspect-model-editor-runtime-${{ env.RELEASE_VERSION }}.jar" "\$@"
-          EOF
+          cp scripts/macos/run.sh ./${bundle}/
           chmod +x ./${bundle}/run.sh
 
-          curl -Lo warp-packer https://github.com/dgiagio/warp/releases/download/v0.3.0/macos-x64.warp-packer
+          curl -Lo warp-packer https://github.com/kirbylink/warp/releases/download/v1.3.0/macos-x64.warp-packer
+          if [ "$(shasum -a 256 warp-packer | cut -d' ' -f1)" != "311bd238d087ea92f486d3d754a0f11826d9bd49d6f8ae849e5d6f6089a2e9c9" ]; then
+            echo "Warp packer checksum does not match"
+            exit 1
+          fi
           chmod +x warp-packer
-          
-          ./warp-packer --arch macos-x64 --input_dir ${bundle} --exec run.sh --output ame-backend-${{ env.RELEASE_VERSION }}-mac
+          xattr -d com.apple.quarantine warp-packer || true
+
+          ./warp-packer pack --arch macos-x64 --input-dir ${bundle} --exec run.sh --output ame-backend-${{ env.RELEASE_VERSION }}-mac
           chmod +x ame-backend-${{ env.RELEASE_VERSION }}-mac
 
           cp ame-backend-${{ env.RELEASE_VERSION }}-mac aspect-model-editor-runtime/target/
