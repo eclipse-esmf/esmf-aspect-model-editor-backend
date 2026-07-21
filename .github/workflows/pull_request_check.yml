@@ -100,7 +100,7 @@ jobs:
           fi
           chmod +x warp-packer
 
-          ./warp-packer pack --arch linux-x64 --input_dir ${bundle} --exec run.sh --output ame-backend-DEV-SNAPSHOT-linux
+          ./warp-packer pack --arch linux-x64 --input-dir ${bundle} --exec run.sh --output ame-backend-DEV-SNAPSHOT-linux
           chmod +x ame-backend-DEV-SNAPSHOT-linux
           
           cp ame-backend-DEV-SNAPSHOT-linux aspect-model-editor-runtime/target/
@@ -124,7 +124,7 @@ jobs:
             exit 1
           fi
 
-          .\warp-packer.exe pack --arch windows-x64 --input_dir ${bundle} --exec run.bat --output ame-backend-DEV-SNAPSHOT-win.exe
+          .\warp-packer.exe pack --arch windows-x64 --input-dir ${bundle} --exec run.bat --output ame-backend-DEV-SNAPSHOT-win.exe
           python3 scripts/windows/set_cui_flag.py ame-backend-DEV-SNAPSHOT-win.exe
 
           Move-Item ame-backend-DEV-SNAPSHOT-win.exe aspect-model-editor-runtime/target/
@@ -150,7 +150,7 @@ jobs:
           chmod +x warp-packer
           xattr -d com.apple.quarantine warp-packer || true
 
-          ./warp-packer pack --arch macos-x64 --input_dir ${bundle} --exec run.sh --output ame-backend-DEV-SNAPSHOT-mac
+          ./warp-packer pack --arch macos-x64 --input-dir ${bundle} --exec run.sh --output ame-backend-DEV-SNAPSHOT-mac
           chmod +x ame-backend-DEV-SNAPSHOT-mac
 
           cp ame-backend-DEV-SNAPSHOT-mac aspect-model-editor-runtime/target/
