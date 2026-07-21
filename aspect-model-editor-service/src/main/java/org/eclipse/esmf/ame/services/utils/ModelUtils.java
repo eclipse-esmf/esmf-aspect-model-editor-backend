@@ -29,6 +29,7 @@ import java.util.stream.StreamSupport;
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.ame.services.models.FileEntry;
 import org.eclipse.esmf.aspectmodel.AspectLoadingException;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
@@ -37,10 +38,12 @@ import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.metamodel.AspectModel;
 import org.eclipse.esmf.metamodel.ModelElement;
+import org.eclipse.esmf.samm.KnownVersion;
 
 import io.micronaut.http.multipart.CompletedFileUpload;
 import jakarta.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
+import org.apache.jena.rdf.model.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,18 +139,6 @@ public class ModelUtils {
    }
 
    /**
-    * Returns a Supplier for loading an AspectModel based on the given AspectModelUrn.
-    *
-    * @param aspectModelUrn the Aspect Model URN
-    * @param aspectModelLoader the loader to load the Aspect Model
-    * @return a Supplier for the Aspect Model
-    */
-   public static Supplier<AspectModel> getAspectModelSupplier( final AspectModelUrn aspectModelUrn,
-         final AspectModelLoader aspectModelLoader ) {
-      return createLazySupplier( () -> aspectModelLoader.load( aspectModelUrn ) );
-   }
-
-   /**
     * Opens an InputStream from the given CompletedFileUpload.
     * <p>
     * Note: The InputStream is closed immediately due to the try-with-resources block,
@@ -166,6 +157,30 @@ public class ModelUtils {
    }
 
    /**
+    * Returns a Supplier for loading an AspectModel based on the given AspectModelUrn.
+    *
+    * @param aspectModelUrn the Aspect Model URN
+    * @param aspectModelLoader the loader to load the Aspect Model
+    * @return a Supplier for the Aspect Model
+    */
+   public static Supplier<AspectModel> getAspectModelSupplierFromUrn( final AspectModelUrn aspectModelUrn,
+         final AspectModelLoader aspectModelLoader ) {
+      return createLazySupplier( () -> aspectModelLoader.load( aspectModelUrn ) );
+   }
+
+   /**
+    * Returns a Supplier for loading an AspectModel based on the given AspectModelUrn.
+    *
+    * @param aspectModelUrns a list of Aspect Model URNs
+    * @param aspectModelLoader the loader to load the Aspect Model
+    * @return a Supplier for the Aspect Model
+    */
+   public static Supplier<AspectModel> getAspectModelSupplierFromUrns( final List<AspectModelUrn> aspectModelUrns,
+         final AspectModelLoader aspectModelLoader ) {
+      return createLazySupplier( () -> aspectModelLoader.loadUrns( aspectModelUrns ) );
+   }
+
+   /**
     * Returns a Supplier for loading an AspectModel based on the given Turtle data and file.
     *
     * @param turtleData the Turtle data as a string
@@ -173,7 +188,7 @@ public class ModelUtils {
     * @param aspectModelLoader the loader to load the Aspect Model
     * @return a Supplier for the Aspect Model
     */
-   public static Supplier<AspectModel> getAspectModelSupplier( final String turtleData, final File newFile,
+   public static Supplier<AspectModel> getAspectModelSupplierFromTurtle( final String turtleData, final File newFile,
          final AspectModelLoader aspectModelLoader ) {
       return createLazySupplier( () -> {
          try ( final ByteArrayInputStream inputStream = new ByteArrayInputStream( turtleData.getBytes( StandardCharsets.UTF_8 ) ) ) {
@@ -184,6 +199,18 @@ public class ModelUtils {
             throw new CreateFileException( "Failed to process Turtle data", e );
          }
       } );
+   }
+
+   /**
+    * Returns a supplier for loading an AspectModel from multiple files.
+    *
+    * @param files files with Aspect Models
+    * @param aspectModelLoader the loader to load the Aspect Model
+    * @return a Supplier for the Aspect Model
+    */
+   public static Supplier<AspectModel> getAspectModelSupplierFromFiles( final List<File> files,
+         final AspectModelLoader aspectModelLoader ) {
+      return createLazySupplier( () -> aspectModelLoader.load( files ) );
    }
 
    private static void checkForDuplicateFiles( final AspectModel aspectModel,
@@ -262,5 +289,41 @@ public class ModelUtils {
    public static void throwIfViolationPresent( final List<Violation> violations, final Predicate<Violation> predicate,
          final RuntimeException exception ) {
       violations.stream().filter( predicate ).findFirst().ifPresent( v -> {throw exception;} );
+   }
+
+   /**
+    * Extracts the SAMM (Semantic Aspect Meta Model) version from an AspectModelFile. This method retrieves the SAMM namespace URI
+    * from the model's source and parses * the version number using a regular expression pattern. The version is then validated against
+    * known SAMM versions.
+    *
+    * @param aspectModelFile the aspect model file from which to extract the SAMM version
+    * @return the SAMM version as a string (e.g., "2.2.0")
+    * @throws FileReadException if the SAMM version cannot be found or is invalid
+    */
+   public static String extractSammVersion( final AspectModelFile aspectModelFile ) {
+      final Model sourceModel = aspectModelFile.sourceModel();
+      final String sammPrefixUri = sourceModel.getNsPrefixURI( "samm" );
+
+      return KnownVersion.fromVersionString(
+                  sammPrefixUri.replaceAll( ".*meta-model:([\\d.]+)#", "$1" ) )
+            .map( KnownVersion::toVersionString )
+            .orElseThrow( () -> new FileReadException( "Invalid SAMM version in model" ) );
+   }
+
+   /**
+    * Converts a FileEntry to a File by resolving its absolute name path. The absolute name format is expected to be
+    * "namespace:version:filename" (e.g., "org.eclipse.esmf.example:1.0.0:BatchTestAspect.ttl"). This method replaces
+    * colons with the system's file separator, splits the path into components, and resolves it against the model path.
+    *
+    * @param fileEntry the file entry containing the absolute name path
+    * @param modelPath the base path to the model storage directory
+    * @return the resolved File object
+    * @throws AssertionError if the fileEntry's absoluteName is null
+    */
+   public static File convertFileEntryToFile( final FileEntry fileEntry, final Path modelPath ) {
+      assert fileEntry.absoluteName() != null;
+      final Path path = Paths.get( fileEntry.absoluteName().replace( ":", File.separator ) ).normalize();
+      final String[] pathParts = StreamSupport.stream( path.spliterator(), false ).map( Path::toString ).toArray( String[]::new );
+      return modelPath.resolve( pathParts[0] ).resolve( pathParts[1] ).resolve( pathParts[2] ).toFile();
    }
 }

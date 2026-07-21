@@ -47,15 +47,6 @@
 
       <!-- Third party dependencies for developing-->
       <dependency>
-         <groupId>org.graalvm.sdk</groupId>
-         <artifactId>graal-sdk</artifactId>
-         <scope>provided</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.graalvm.truffle</groupId>
-         <artifactId>truffle-api</artifactId>
-      </dependency>
-      <dependency>
          <groupId>io.micronaut</groupId>
          <artifactId>micronaut-inject-java</artifactId>
       </dependency>

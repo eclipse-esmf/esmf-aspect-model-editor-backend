@@ -25,13 +25,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.services.models.Model;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.AspectModelFileLoader;
+import org.eclipse.esmf.aspectmodel.resolver.exceptions.ParserException;
 import org.eclipse.esmf.aspectmodel.resolver.modelfile.RawAspectModelFile;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.ModelElement;
 import org.eclipse.esmf.metamodel.vocabulary.SAMM;
 import org.eclipse.esmf.metamodel.vocabulary.SAMMC;
@@ -48,7 +51,7 @@ import org.apache.jena.vocabulary.RDF;
  *
  * @param aspectModelLoader the loader for aspect models
  */
-public record ModelGroupingUtils( AspectModelLoader aspectModelLoader ) {
+public record ModelGroupingUtils( AspectModelLoader aspectModelLoader, AspectModelValidator aspectModelValidator ) {
    /**
     * Constructs a ModelGrouper with the given base model path.
     */
@@ -88,10 +91,14 @@ public record ModelGroupingUtils( AspectModelLoader aspectModelLoader ) {
    }
 
    private Map.Entry<RawAspectModelFile, Optional<KnownVersion>> loadModelWithVersion( final File file ) {
-      final RawAspectModelFile rawFile = AspectModelFileLoader.load( file );
-      final Optional<KnownVersion> metaModelVersion = extractMetaModelVersion( rawFile );
+      try {
+         final RawAspectModelFile rawFile = AspectModelFileLoader.load( file );
+         final Optional<KnownVersion> metaModelVersion = extractMetaModelVersion( rawFile );
 
-      return new AbstractMap.SimpleEntry<>( rawFile, metaModelVersion );
+         return new AbstractMap.SimpleEntry<>( rawFile, metaModelVersion );
+      } catch ( final ParserException e ) {
+         throw new FileReadException( String.format( "Failed to parse model file '%s': %s", file.getPath(), e.getMessage() ) );
+      }
    }
 
    private Optional<KnownVersion> extractMetaModelVersion( final RawAspectModelFile rawFile ) {
@@ -101,12 +108,10 @@ public record ModelGroupingUtils( AspectModelLoader aspectModelLoader ) {
          final String bammPrefix = rawFile.sourceModel().getNsPrefixMap().get( "bamm" );
          throw new IllegalStateException( String.format(
                "The model uses an outdated BAMM definition '%s', which is no longer supported by the Aspect Model Editor. "
-                     + "Please migrate your model to the current SAMM specification before reloading.",
-               bammPrefix ) );
+                     + "Please migrate your model to the current SAMM specification before reloading.", bammPrefix ) );
       }
 
-      return AspectModelUrn.from( sammPrefix ).toJavaOptional()
-            .map( AspectModelUrn::getVersion )
+      return AspectModelUrn.from( sammPrefix ).toJavaOptional().map( AspectModelUrn::getVersion )
             .flatMap( KnownVersion::fromVersionString );
    }
 

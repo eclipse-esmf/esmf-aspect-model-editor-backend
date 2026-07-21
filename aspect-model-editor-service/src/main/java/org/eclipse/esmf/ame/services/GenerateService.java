@@ -14,7 +14,6 @@
 package org.eclipse.esmf.ame.services;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -24,9 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.ame.exceptions.GenerationException;
-import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.services.utils.ModelUtils;
 import org.eclipse.esmf.ame.services.utils.ZipUtils;
 import org.eclipse.esmf.aspectmodel.aas.AasFileFormat;
@@ -48,13 +45,12 @@ import org.eclipse.esmf.aspectmodel.generator.openapi.OpenApiSchemaGenerationCon
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.metamodel.AspectModel;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * Service class for generating various specifications and files from Aspect Models.
@@ -152,28 +148,23 @@ public class GenerateService {
 
    public String generateJsonOpenApiSpec( final CompletedFileUpload aspectModelFile, final URI uri,
          final OpenApiSchemaGenerationConfig config ) {
-      try {
-         final InputStream inputStream = ModelUtils.openInputStreamFromUpload( aspectModelFile );
-         final AspectModel aspectModel = aspectModelLoader.load( inputStream, uri );
+      final InputStream inputStream = ModelUtils.openInputStreamFromUpload( aspectModelFile );
+      final AspectModel aspectModel = aspectModelLoader.load( inputStream, uri );
 
-         final JsonNode json = new AspectModelOpenApiGenerator( aspectModel.aspect(), config ).getContent();
+      final JsonNode json = new AspectModelOpenApiGenerator( aspectModel.aspect(), config ).getContent();
 
-         final ByteArrayOutputStream out = new ByteArrayOutputStream();
-         final ObjectMapper objectMapper = new ObjectMapper();
+      final ByteArrayOutputStream out = new ByteArrayOutputStream();
+      final ObjectMapper objectMapper = new ObjectMapper();
 
-         objectMapper.writerWithDefaultPrettyPrinter().writeValue( out, json );
+      objectMapper.writerWithDefaultPrettyPrinter().writeValue( out, json );
 
-         final String jsonOutput = out.toString();
+      final String jsonOutput = out.toString();
 
-         if ( jsonOutput.equals( "{ }" ) ) {
-            throw new GenerationException( WRONG_RESOURCE_PATH_ID );
-         }
-
-         return jsonOutput;
-      } catch ( final IOException e ) {
-         LOG.error( "JSON OpenAPI specification could not be generated." );
-         throw new InvalidAspectModelException( "Error generating JSON OpenAPI specification", e );
+      if ( jsonOutput.equals( "{ }" ) ) {
+         throw new GenerationException( WRONG_RESOURCE_PATH_ID );
       }
+
+      return jsonOutput;
    }
 
    public byte[] generateAsyncApiSpec( final CompletedFileUpload aspectModelFile, final URI uri, final String language, final String output,
@@ -213,13 +204,8 @@ public class GenerateService {
       final Map<Path, byte[]> content = new HashMap<>();
 
       for ( final Map.Entry<Path, JsonNode> entry : separateFilesContent.entrySet() ) {
-         try {
-            final byte[] bytes = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes( entry.getValue() );
-            content.put( entry.getKey(), bytes );
-         } catch ( final JsonProcessingException e ) {
-            LOG.error( "Failed to convert JSON to bytes.", e );
-            throw new FileHandlingException( "Failed to get JSON async api.", e );
-         }
+         final byte[] bytes = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes( entry.getValue() );
+         content.put( entry.getKey(), bytes );
       }
 
       return ZipUtils.createPackage( content );

@@ -44,9 +44,5 @@
          <groupId>io.micronaut.serde</groupId>
          <artifactId>micronaut-serde-api</artifactId>
       </dependency>
-      <dependency>
-         <groupId>org.graalvm.truffle</groupId>
-         <artifactId>truffle-api</artifactId>
-      </dependency>
    </dependencies>
 </project>
