@@ -125,9 +125,6 @@ jobs:
             exit 1
           fi
 
-          echo "Testing EXE..."
-          ./ame-backend-DEV-SNAPSHOT-win.exe --help || echo "EXE test exit code: $?"
-          
           size=$(stat -c%s ame-backend-DEV-SNAPSHOT-win.exe 2>/dev/null || stat -f%z ame-backend-DEV-SNAPSHOT-win.exe)
           size_mb=$((size / 1048576))
           echo "EXE size: ${size_mb} MB"
