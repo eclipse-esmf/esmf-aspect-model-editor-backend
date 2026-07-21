@@ -472,7 +472,7 @@
             <version>${maven-surefire-plugin-version}</version>
             <configuration>
                <skip>false</skip>
-               <argLine>--enable-native-access=ALL-UNNAMED</argLine>
+               <argLine>-Xmx6g --enable-native-access=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow</argLine>
                <reportsDirectory>${project.build.directory}/${testreports.surefire}</reportsDirectory>
                <includes>
                   <include>**/*Tests.java</include>
