@@ -39,12 +39,6 @@ jobs:
           java-version: '25.0.3'
           distribution: 'temurin'
 
-      - name: Setup Python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 #v6.3.0
-        with:
-          python-version: '3.13'
-      - run: pip install pefile
-
       - name: Cache Maven packages
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
@@ -118,7 +112,8 @@ jobs:
           rm jre.zip
 
           mv aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar "./$bundle/app"
-          cp ./scripts/windows/run.bat "./$bundle/"
+          
+          gcc -o "./$bundle/run.exe" scripts/windows/run.c -mwindows
 
           curl -Lo warp-packer.exe https://github.com/kirbylink/warp/releases/download/v1.3.0/windows-x64.warp-packer.exe
           if [ "$(sha256sum warp-packer.exe | cut -d' ' -f1)" != "483726e0eb10a43167c03c8e4f27a2901741affd245e5ec8ed45509f9dcd7a8a" ]; then
@@ -126,8 +121,7 @@ jobs:
             exit 1
           fi
           
-          ./warp-packer.exe pack --arch windows-x64 --input-dir "$bundle" --exec run.bat --output ame-backend-DEV-SNAPSHOT-win.exe
-          python3 scripts/windows/set_gui_flag.py ame-backend-DEV-SNAPSHOT-win.exe
+          ./warp-packer.exe pack --arch windows-x64 --input-dir "$bundle" --exec run.exe --output ame-backend-DEV-SNAPSHOT-win.exe
 
           mv ame-backend-DEV-SNAPSHOT-win.exe aspect-model-editor-runtime/target/
         shell: bash
