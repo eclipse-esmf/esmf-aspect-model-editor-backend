@@ -14,7 +14,7 @@ func main() {
 	java := filepath.Join(dir, "jre", "bin", "java.exe")
 
 	// Find JAR dynamically
-	matches, _ := filepath.Glob(filepath.Join(dir, "aspect-model-editor-runtime-*.jar"))
+	matches, _ := filepath.Glob(filepath.Join(dir, "app", "aspect-model-editor-runtime-*.jar"))
 	if len(matches) == 0 {
 		os.Exit(1)
 	}
