@@ -144,7 +144,7 @@ jobs:
 
           mv aspect-model-editor-runtime/target/aspect-model-editor-runtime-${{ env.RELEASE_VERSION }}.jar "./$bundle/app"
           
-          gcc -o "./$bundle/run.exe" scripts/windows/run.c -mwindows
+          GOOS=windows GOARCH=amd64 go build -ldflags -H=windowsgui -o "./$bundle/run.exe" scripts/windows/run.go
 
           curl -Lo warp-packer.exe https://github.com/kirbylink/warp/releases/download/v1.3.0/windows-x64.warp-packer.exe
           if [ "$(sha256sum warp-packer.exe | cut -d' ' -f1)" != "483726e0eb10a43167c03c8e4f27a2901741affd245e5ec8ed45509f9dcd7a8a" ]; then
