@@ -96,6 +96,21 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
 
+      - name: Free disk space (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          rm -rf "/c/hostedtoolcache/CodeQL" || true
+          rm -rf "/c/hostedtoolcache/Python" || true
+          rm -rf "/c/hostedtoolcache/Ruby" || true
+          rm -rf "/c/hostedtoolcache/node" || true
+          rm -rf "/c/Program Files/dotnet" || true
+          rm -rf "/c/Program Files/MongoDB" || true
+          rm -rf "/c/Program Files/PostgreSQL" || true
+          rm -rf "/c/Program Files/MySQL" || true
+          rm -rf "/c/Selenium" || true
+          df -h /c
+        shell: bash
+
       - name: Build Fat-jar
         run: |
           java --version
