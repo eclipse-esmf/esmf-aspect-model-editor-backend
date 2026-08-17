@@ -21,13 +21,24 @@ func main() {
 	}
 	jar := matches[0]
 
+	var dllPath string
+	dllMatches, _ := filepath.Glob(filepath.Join(appDir, "*zstd-jni-*.dll"))
+	if len(dllMatches) > 0 {
+		dllPath = dllMatches[0]
+	}
+
 	args := []string{
 		"--enable-native-access=ALL-UNNAMED",
 		"--sun-misc-unsafe-memory-access=allow",
 		"-Dpolyglotimpl.DisableMultiReleaseCheck=true",
 		"-Djava.library.path=" + appDir,
-		"-jar", jar,
 	}
+
+	if dllPath != "" {
+		args = append(args, "-DZstdNativePath="+dllPath)
+	}
+
+	args = append(args, "-jar", jar)
 	args = append(args, os.Args[1:]...)
 
 	cmd := exec.Command(java, args...)
