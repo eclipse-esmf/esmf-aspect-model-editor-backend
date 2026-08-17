@@ -167,7 +167,7 @@ jobs:
 
       - name: Performing integration test for Windows
         if: matrix.os == 'windows-latest'
-        run: mvn verify -DskipTests -P dependencies-for-integration-tests,start-windows-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=win -Dmaven.shade.skip=true -Dmaven.jar.skip=true
+        run: mvn verify -DskipTests -P dependencies-for-integration-tests,start-windows-image-for-integration-tests,run-bruno-integration-tests -D os.platform=win -Dmaven.shade.skip=true -Dmaven.jar.skip=true
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
