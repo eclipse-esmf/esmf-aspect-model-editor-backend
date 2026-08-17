@@ -11,19 +11,24 @@ import (
 
 func main() {
 	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
+	appDir := filepath.Join(dir, "app")
 	java := filepath.Join(dir, "jre", "bin", "java.exe")
 
 	// Find JAR dynamically
-	matches, _ := filepath.Glob(filepath.Join(dir, "app", "aspect-model-editor-runtime-*.jar"))
+	matches, _ := filepath.Glob(filepath.Join(appDir, "aspect-model-editor-runtime-*.jar"))
 	if len(matches) == 0 {
 		os.Exit(1)
 	}
 	jar := matches[0]
 
+	classpath := filepath.Join(appDir, "*")
+
 	args := []string{
 		"--enable-native-access=ALL-UNNAMED",
 		"--sun-misc-unsafe-memory-access=allow",
 		"-Dpolyglotimpl.DisableMultiReleaseCheck=true",
+		"-Djava.library.path=" + appDir,
+		"-cp", classpath,
 		"-jar", jar,
 	}
 	args = append(args, os.Args[1:]...)
