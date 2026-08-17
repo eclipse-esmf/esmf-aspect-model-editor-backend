@@ -155,19 +155,19 @@ jobs:
 
       - name: Performing integration test for Mac
         if: matrix.os == 'macos-15-intel'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-mac-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=mac
+        run: mvn verify -DskipTests -P dependencies-for-integration-tests,start-mac-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=mac -Dmaven.shade.skip=true -Dmaven.jar.skip
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Linux
         if: matrix.os == 'ubuntu-latest'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-linux-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=linux
+        run: mvn verify -DskipTests -P dependencies-for-integration-tests,start-linux-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=linux -Dmaven.shade.skip=true -Dmaven.jar.skip
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Performing integration test for Windows
         if: matrix.os == 'windows-latest'
-        run: mvn install -DskipTests -P dependencies-for-integration-tests,start-windows-image-for-integration-tests,run-bruno-integration-tests -D os.platform=win
+        run: mvn verify -DskipTests -P dependencies-for-integration-tests,start-windows-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=win -Dmaven.shade.skip=true -Dmaven.jar.skip=true
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
