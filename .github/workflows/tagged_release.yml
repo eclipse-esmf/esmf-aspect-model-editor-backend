@@ -56,8 +56,8 @@ jobs:
         # https://github.com/actions/virtual-environments/issues/3420#issuecomment-861342418
         uses: al-cheb/configure-pagefile-action@9b6da52fb72a3c6147c1aad2df22d8d905681adc # v1.5
         with:
-          minimum-size: 16GB
-          maximum-size: 16GB
+          minimum-size: 8GB
+          maximum-size: 8GB
           disk-root: "C:"
 
       - name: Set Swap Space (Linux)
@@ -95,21 +95,6 @@ jobs:
       - name: Set up MSVC
         if: matrix.os == 'windows-latest'
         uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
-
-      - name: Free disk space (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          rm -rf "/c/hostedtoolcache/CodeQL" || true
-          rm -rf "/c/hostedtoolcache/Python" || true
-          rm -rf "/c/hostedtoolcache/Ruby" || true
-          rm -rf "/c/hostedtoolcache/node" || true
-          rm -rf "/c/Program Files/dotnet" || true
-          rm -rf "/c/Program Files/MongoDB" || true
-          rm -rf "/c/Program Files/PostgreSQL" || true
-          rm -rf "/c/Program Files/MySQL" || true
-          rm -rf "/c/Selenium" || true
-          df -h /c
-        shell: bash
 
       - name: Build Fat-jar
         run: |
