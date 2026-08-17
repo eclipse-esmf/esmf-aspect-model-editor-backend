@@ -120,8 +120,14 @@ jobs:
           
           if [ -n "$zstd_jar" ] && [ -f "$zstd_jar" ]; then
               cp "$zstd_jar" "./$bundle/app/"
+              unzip -p "$zstd_jar" "natives/windows_amd64/libzstd-jni.dll" > "./$bundle/app/libzstd-jni.dll"
+          
+              if [ -s "./$bundle/app/libzstd-jni.dll" ]; then
+                  echo "Success"
+              else
+                  exit 1
+              fi
           else
-              echo "Error: zstd-jni JAR not found in $m2_repo!"
               exit 1
           fi
           

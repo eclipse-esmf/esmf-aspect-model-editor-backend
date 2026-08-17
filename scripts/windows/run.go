@@ -21,14 +21,11 @@ func main() {
 	}
 	jar := matches[0]
 
-	classpath := filepath.Join(appDir, "*")
-
 	args := []string{
 		"--enable-native-access=ALL-UNNAMED",
 		"--sun-misc-unsafe-memory-access=allow",
 		"-Dpolyglotimpl.DisableMultiReleaseCheck=true",
 		"-Djava.library.path=" + appDir,
-		"-cp", classpath,
 		"-jar", jar,
 	}
 	args = append(args, os.Args[1:]...)
