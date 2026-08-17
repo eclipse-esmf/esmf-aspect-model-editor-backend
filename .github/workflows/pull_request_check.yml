@@ -119,16 +119,18 @@ jobs:
           zstd_jar=$(find "$m2_repo" -name "zstd-jni-*.jar" ! -name "*-sources.jar" ! -name "*-javadoc.jar" | head -n 1)
           
           if [ -n "$zstd_jar" ] && [ -f "$zstd_jar" ]; then
-              cp "$zstd_jar" "./$bundle/app/"
-              unzip -p "$zstd_jar" "natives/windows_amd64/libzstd-jni.dll" > "./$bundle/app/libzstd-jni.dll"
+            cp "$zstd_jar" "$target_dir/"
           
-              if [ -s "./$bundle/app/libzstd-jni.dll" ]; then
-                  echo "Success"
-              else
-                  exit 1
-              fi
-          else
-              exit 1
+            jar_basename=$(basename "$zstd_jar")
+            version="${jar_basename#zstd-jni-}"
+            version="${version%.jar}"
+          
+            unzip -p "$zstd_jar" "win/amd64/libzstd-jni-${version}.dll" > "$target_dir/zstd-jni-${version}.dll"
+            cp "$target_dir/zstd-jni-${version}.dll" "$target_dir/libzstd-jni-${version}.dll"
+          
+            if [ -s "$target_dir/zstd-jni-${version}.dll" ]; then
+              echo "Success"
+             fi
           fi
           
           echo "Bundle app folder:"
