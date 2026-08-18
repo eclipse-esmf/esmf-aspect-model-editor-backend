@@ -146,7 +146,7 @@ jobs:
           cp "./$bundle/jre/bin/jimage.dll" "./$bundle/app/"
           cp "./$bundle/jre/bin/server/jvm.dll" "./$bundle/app/"
 
-          zstd_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=zstd-jni | grep -E '\.jar$' | tr ':' '\n' | grep 'zstd-jni' | head -n 1)
+          zstd_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=zstd-jni | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'zstd-jni' | grep '\.jar$' | head -n 1)
           api_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=truffle-api | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'truffle-api' | grep '\.jar$' | head -n 1)     
           
           if [ -n "$zstd_jar" ] && [ -f "$zstd_jar" ]; then
