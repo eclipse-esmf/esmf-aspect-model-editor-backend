@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 import org.eclipse.esmf.ame.exceptions.UrnNotFoundException;
 import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.utils.ValidationUtils;
+import org.eclipse.esmf.aspectmodel.Violation;
+import org.eclipse.esmf.aspectmodel.ViolationReport;
 import org.eclipse.esmf.aspectmodel.shacl.fix.Fix;
 import org.eclipse.esmf.aspectmodel.shacl.violation.ClassTypeViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.ClosedViolation;
@@ -44,10 +46,10 @@ import org.eclipse.esmf.aspectmodel.shacl.violation.MinLengthViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.NodeKindViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.NotViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.PatternViolation;
+import org.eclipse.esmf.aspectmodel.shacl.violation.ShaclViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.SparqlConstraintViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.UniqueLanguageViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.ValueFromListViolation;
-import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.ProcessingViolation;
 
@@ -58,9 +60,10 @@ import org.eclipse.esmf.aspectmodel.validation.ProcessingViolation;
  * specific types of violations.
  */
 public class ViolationFormatter
-      implements Function<List<Violation>, List<ViolationError>>, Violation.Visitor<ViolationError> {
+      implements Function<ViolationReport, List<ViolationError>>, ShaclViolation.Visitor<ViolationError> {
    @Override
-   public List<ViolationError> apply( final List<Violation> violations ) {
+   public List<ViolationError> apply( final ViolationReport violationReport ) {
+      final List<Violation> violations = violationReport.violations();
       if ( violations.isEmpty() ) {
          return List.of();
       }
@@ -82,7 +85,7 @@ public class ViolationFormatter
 
    protected List<ViolationError> processNonSemanticViolation( final List<Violation> violations,
          final List<ViolationError> violationErrors ) {
-      violations.forEach( violation -> violationErrors.add( violation.accept( this ) ) );
+      violations.forEach( violation -> violationErrors.add( formatViolation( violation ) ) );
 
       return violationErrors;
    }
@@ -92,7 +95,7 @@ public class ViolationFormatter
       final Map<Class<? extends Violation>, List<Violation>> violationsByType = groupViolationsByType( violations );
 
       for ( final Map.Entry<Class<? extends Violation>, List<Violation>> entry : violationsByType.entrySet() ) {
-         entry.getValue().forEach( violation -> violationErrors.add( violation.accept( this ) ) );
+         entry.getValue().forEach( violation -> violationErrors.add( formatViolation( violation ) ) );
       }
       return violationErrors;
    }
@@ -101,11 +104,27 @@ public class ViolationFormatter
       return violations.stream().collect( Collectors.groupingBy( Violation::getClass ) );
    }
 
-   @Override
+   private ViolationError formatViolation( final Violation violation ) {
+      if ( violation instanceof final ShaclViolation shaclViolation ) {
+         return shaclViolation.accept( this );
+      }
+      if ( violation instanceof final ProcessingViolation processingViolation ) {
+         return visitProcessingViolation( processingViolation );
+      }
+      return visit( violation );
+   }
+
    public ViolationError visit( final Violation violation ) {
       final ViolationError violationError = new ViolationError( violation.message() );
 
-      violationError.setErrorCode( violation.errorCode() );
+      violationError.setErrorCode( violation.code().code() );
+
+      return violationError;
+   }
+
+   @Override
+   public ViolationError visit( final ShaclViolation violation ) {
+      final ViolationError violationError = visit( (Violation) violation );
 
       for ( final Fix possibleFix : violation.fixes() ) {
          violationError.addFix( String.format( "%n  > Possible fix: %s", possibleFix.description() ) );
@@ -114,11 +133,10 @@ public class ViolationFormatter
       return violationError;
    }
 
-   @Override
    public ViolationError visitProcessingViolation( final ProcessingViolation violation ) {
       final ViolationError violationError = visit( violation );
 
-      if ( violation.cause() instanceof final UrnNotFoundException urnNotFoundException ) {
+      if ( violation.cause().orElse( null ) instanceof final UrnNotFoundException urnNotFoundException ) {
          violationError.setFocusNode( urnNotFoundException.getUrn() );
          violationError.setFix( List.of(
                "Ensure the referred element is available. If it's in a different model of the same namespace, include it in your "

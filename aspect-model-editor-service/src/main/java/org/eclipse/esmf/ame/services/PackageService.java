@@ -112,7 +112,7 @@ public class PackageService {
       final URI targetLocation = modelsRoot.directoryForNamespace( file.namespaceUrn() ).resolve( file.filename().orElseThrow() ).toUri();
 
       final RawAspectModelFileBuilder builder = RawAspectModelFileBuilder.builder().sourceModel( file.sourceModel() )
-            .sourceLocation( Optional.of( targetLocation ) ).headerComment( file.headerComment() );
+            .sourceUri( targetLocation ).headerComment( file.headerComment() );
 
       return new AddAspectModelFile( builder.build() );
    }

@@ -64,7 +64,7 @@
       <os.platform/>
 
       <!-- Internal esmf dependencies -->
-      <esmf-sdk-version>2.15.1</esmf-sdk-version>
+      <esmf-sdk-version>2.16.0</esmf-sdk-version>
 
       <!-- Micronaut settings -->
       <micronaut.runtime>netty</micronaut.runtime>

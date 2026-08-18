@@ -41,13 +41,14 @@ import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.ame.validation.utils.ValidationUtils;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
+import org.eclipse.esmf.aspectmodel.Violation;
 import org.eclipse.esmf.aspectmodel.edit.AspectChangeManager;
 import org.eclipse.esmf.aspectmodel.edit.change.CopyFileWithIncreasedNamespaceVersion;
 import org.eclipse.esmf.aspectmodel.edit.change.IncreaseVersion;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
+import org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
 import org.eclipse.esmf.aspectmodel.serializer.AspectSerializer;
-import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
@@ -130,8 +131,8 @@ public class ModelService {
    }
 
    private void validateModel( final AspectModel aspectModel ) {
-      final List<Violation> violations = aspectModelValidator.validateModel( aspectModel );
-      if ( violations.stream().anyMatch( ValidationUtils.isInvalidSyntaxViolation() ) ) {
+      final org.eclipse.esmf.aspectmodel.ViolationReport violationReport = aspectModelValidator.validateModel( aspectModel );
+      if ( violationReport.violations().stream().anyMatch( ValidationUtils.isInvalidSyntaxViolation() ) ) {
          throw new FileReadException( "Aspect Model is not valid" );
       }
    }
@@ -143,7 +144,8 @@ public class ModelService {
 
          final Supplier<AspectModel> aspectModelSupplier = ModelUtils.getAspectModelSupplierFromTurtle( turtleData, newFile.toFile(),
                aspectModelLoader );
-         final List<Violation> violations = aspectModelValidator.validateModel( aspectModelSupplier );
+         final org.eclipse.esmf.aspectmodel.ViolationReport violationReport = aspectModelValidator.validateModel( aspectModelSupplier );
+         final List<Violation> violations = violationReport.violations();
 
          ModelUtils.throwIfViolationPresent( violations, ValidationUtils.isInvalidSyntaxViolation(), new FileReadException(
                violations.stream().filter( ValidationUtils.isInvalidSyntaxViolation() ).findFirst().map( Violation::message )
@@ -173,8 +175,8 @@ public class ModelService {
    public ViolationReport validateModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
       final Supplier<AspectModel> aspectModelSupplier = () -> aspectModelLoader.load(
             ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
-      final List<Violation> violations = aspectModelValidator.validateModel( aspectModelSupplier );
-      final List<ViolationError> violationErrors = ValidationUtils.violationErrors( violations );
+      final org.eclipse.esmf.aspectmodel.ViolationReport violationReport = aspectModelValidator.validateModel( aspectModelSupplier );
+      final List<ViolationError> violationErrors = ValidationUtils.violationErrors( violationReport );
       return new ViolationReport( violationErrors );
    }
 
@@ -329,7 +331,7 @@ public class ModelService {
             results.add( convertToFileInformation( aspectModelFile ) );
          } catch ( final ModelResolutionException e ) {
             final String elementInfo = e.getCheckedLocations().stream().findFirst()
-                  .flatMap( ModelResolutionException.LoadingFailure::element )
+                  .flatMap( ModelResolutionViolation::element )
                   .map( element -> String.format( "Element '%s' not found", element ) )
                   .orElse( "Model resolution failed" );
 
