@@ -18,7 +18,8 @@ import java.util.function.Predicate;
 
 import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.services.ViolationFormatter;
-import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
+import org.eclipse.esmf.aspectmodel.Violation;
+import org.eclipse.esmf.aspectmodel.ViolationReport;
 import org.eclipse.esmf.aspectmodel.validation.InvalidSyntaxViolation;
 import org.eclipse.esmf.aspectmodel.validation.ProcessingViolation;
 
@@ -29,8 +30,8 @@ import org.eclipse.esmf.aspectmodel.validation.ProcessingViolation;
  * for filtering specific types of violations, such as invalid syntax or processing violations.
  */
 public class ValidationUtils {
-   public static List<ViolationError> violationErrors( final List<Violation> violations ) {
-      return new ViolationFormatter().apply( violations );
+   public static List<ViolationError> violationErrors( final ViolationReport violationReport ) {
+      return new ViolationFormatter().apply( violationReport );
    }
 
    /**
@@ -39,7 +40,7 @@ public class ValidationUtils {
     * @return {@link Predicate<Violation>} that can be used to filter invalid syntax violations.
     */
    public static Predicate<Violation> isInvalidSyntaxViolation() {
-      return violation -> violation.errorCode() != null && violation.errorCode()
+      return violation -> violation.code() != null && violation.code().code()
             .equals( InvalidSyntaxViolation.ERROR_CODE );
    }
 
@@ -49,7 +50,7 @@ public class ValidationUtils {
     * @return {@link Predicate<Violation>} that can be used to filter processing violations.
     */
    public static Predicate<Violation> isProcessingViolation() {
-      return violation -> violation.errorCode() != null && violation.errorCode()
+      return violation -> violation.code() != null && violation.code().code()
             .equals( ProcessingViolation.ERROR_CODE );
    }
 }

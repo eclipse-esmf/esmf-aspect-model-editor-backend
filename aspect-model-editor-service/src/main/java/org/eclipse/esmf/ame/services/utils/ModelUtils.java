@@ -34,7 +34,7 @@ import org.eclipse.esmf.aspectmodel.AspectLoadingException;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
-import org.eclipse.esmf.aspectmodel.shacl.violation.Violation;
+import org.eclipse.esmf.aspectmodel.Violation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.metamodel.AspectModel;
 import org.eclipse.esmf.metamodel.ModelElement;
@@ -59,7 +59,7 @@ public class ModelUtils {
     * @param aspectModelFile - that will be removed.
     */
    public static void deleteEmptyFiles( @Nonnull final AspectModelFile aspectModelFile ) {
-      aspectModelFile.sourceLocation().ifPresent( uri -> deleteFileSafely( new File( uri ) ) );
+      deleteFileSafely( new File( aspectModelFile.sourceUri() ) );
    }
 
    /**
