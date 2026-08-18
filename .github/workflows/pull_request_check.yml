@@ -112,10 +112,11 @@ jobs:
           rm jre.zip
           
           cp "./$bundle/jre/bin/jli.dll" "./$bundle/app/"
+          cp "./$bundle/jre/bin/jimage.dll" "./$bundle/app/"
           cp "./$bundle/jre/bin/server/jvm.dll" "./$bundle/app/"
 
           zstd_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=zstd-jni | grep -E '\.jar$' | tr ':' '\n' | grep 'zstd-jni' | head -n 1)
-          truffle_tar=$(mvn dependency:build-classpath -DincludeArtifactIds=truffle-nfi-native-windows-amd64 | grep -E '\.tar\.gz$' | tr ':' '\n' | grep 'truffle-nfi-native-windows-amd64' | head -n 1)
+          api_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=truffle-api | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'truffle-api' | grep '\.jar$' | head -n 1)     
           
           if [ -n "$zstd_jar" ] && [ -f "$zstd_jar" ]; then
             cp "$zstd_jar" "./$bundle/app/"
@@ -132,16 +133,13 @@ jobs:
              fi
           fi
           
-          if [ -n "$truffle_tar" ] && [ -f "$truffle_tar" ]; then
-            mkdir -p native-libs && tar -xzf "$truffle_tar" -C native-libs
-            truffle_dll=$(find native-libs -name "truffleattach.dll" | head -n 1)
-
-            if [ -n "$truffle_dll" ] && [ -f "$truffle_dll" ]; then
-              cp "$truffle_dll" "./$bundle/app/truffleattach.dll"
-
-              if [ -s "./$bundle/app/truffleattach.dll" ]; then
-                echo "Success extraction truffleattach.dll"
-              fi
+          if [ -n "$api_jar" ] && [ -f "$api_jar" ]; then
+            mkdir -p native-libs
+            unzip -j "$api_jar" "META-INF/resources/engine/libtruffleattach/windows/amd64/bin/truffleattach.dll" -d native-libs
+            
+            if [ -f "native-libs/truffleattach.dll" ]; then
+              cp "native-libs/truffleattach.dll" "./$bundle/app/truffleattach.dll"
+              echo "Success extraction truffleattach.dll"
             fi
           fi
           
