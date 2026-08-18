@@ -59,7 +59,7 @@ public class ModelUtils {
     * @param aspectModelFile - that will be removed.
     */
    public static void deleteEmptyFiles( @Nonnull final AspectModelFile aspectModelFile ) {
-      aspectModelFile.sourceLocation().ifPresent( uri -> deleteFileSafely( new File( uri ) ) );
+      deleteFileSafely( new File( aspectModelFile.sourceUri() ) );
    }
 
    /**

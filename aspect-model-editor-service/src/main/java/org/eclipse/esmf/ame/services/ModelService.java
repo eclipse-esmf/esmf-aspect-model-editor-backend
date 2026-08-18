@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
@@ -95,7 +96,7 @@ public class ModelService {
                .filter( this::hasValidCasing )
                .findFirst()
                .map( aspectModelFile -> new AspectModelResult( aspectModelFile.filename(),
-                     AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ), aspectModelFile.sourceLocation() ) )
+                     AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ), Optional.of( aspectModelFile.sourceUri() ) ) )
                .orElseThrow( () -> new FileNotFoundException( "Aspect Model not found" ) );
       } catch ( final ModelResolutionException e ) {
          throw new FileNotFoundException( e.getMessage(), e );
@@ -109,7 +110,7 @@ public class ModelService {
 
    private boolean hasValidCasing( final AspectModelFile aspectModelFile ) {
       try {
-         final URI sourceLocation = aspectModelFile.sourceLocation().orElseThrow( () -> new IOException( "Source location not present" ) );
+         final URI sourceLocation = aspectModelFile.sourceUri();
          final Path file = Path.of( sourceLocation );
 
          if ( !Files.exists( file ) ) {
@@ -158,7 +159,7 @@ public class ModelService {
          ModelUtils.createFile( newFile );
 
          final AspectModelFile createdFile = aspectModelSupplier.get().files().stream()
-               .filter( aspectModelFile -> aspectModelFile.sourceLocation().map( src -> src.equals( newFile.toUri() ) ).orElse( false ) )
+               .filter( aspectModelFile -> aspectModelFile.sourceUri().equals( newFile.toUri() ) )
                .findFirst().orElseThrow( () -> new FileNotFoundException( "Created aspect model file not found: " + newFile ) );
 
          AspectSerializer.INSTANCE.write( createdFile );
@@ -183,20 +184,20 @@ public class ModelService {
    public String migrateModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
       final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
-      return aspectModel.files().stream().filter( a -> a.sourceLocation().map( source -> {
-               final String scheme = source.getScheme();
+      return aspectModel.files().stream().filter( a -> {
+               final String scheme = a.sourceUri().getScheme();
                return "blob".equals( scheme ) || "file".equals( scheme );
-            } ).orElse( false ) ).findFirst().map( AspectSerializer.INSTANCE::aspectModelFileToString )
+            } ).findFirst().map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to migrate" ) );
    }
 
    public String getFormattedModel( final URI uri, final CompletedFileUpload aspectModelFile ) {
       final AspectModel aspectModel = aspectModelLoader.load( ModelUtils.openInputStreamFromUpload( aspectModelFile ), uri );
 
-      return aspectModel.files().stream().filter( a -> a.sourceLocation().map( source -> {
-               final String scheme = source.getScheme();
+      return aspectModel.files().stream().filter( a -> {
+               final String scheme = a.sourceUri().getScheme();
                return "blob".equals( scheme ) || "file".equals( scheme );
-            } ).orElse( false ) ).findFirst().map( AspectSerializer.INSTANCE::aspectModelFileToString )
+            } ).findFirst().map( AspectSerializer.INSTANCE::aspectModelFileToString )
             .orElseThrow( () -> new InvalidAspectModelException( "No aspect model found to formate" ) );
    }
 
@@ -267,8 +268,7 @@ public class ModelService {
          }
 
          final AspectModelFile updatedFile = newFiles.getFirst();
-         final URI sourceLocation = updatedFile.sourceLocation()
-               .orElseThrow( () -> new IllegalStateException( "Source location missing" ) );
+         final URI sourceLocation = updatedFile.sourceUri();
 
          if ( new File( sourceLocation ).exists() ) {
             errors.add( String.format( "A new version of the Aspect Model: %s with Version: %s already exists",

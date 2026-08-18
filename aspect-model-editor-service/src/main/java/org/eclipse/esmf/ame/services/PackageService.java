@@ -24,7 +24,6 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -123,16 +122,14 @@ public class PackageService {
    }
 
    private Stream<URI> saveAspectModelFiles( final Stream<AspectModelFile> files ) {
-      return files.peek( this::ensureParentDirectoryExists ).peek( AspectSerializer.INSTANCE::write ).map( AspectModelFile::sourceLocation )
-            .filter( Optional::isPresent ).map( Optional::get );
+      return files.peek( this::ensureParentDirectoryExists ).peek( AspectSerializer.INSTANCE::write ).map( AspectModelFile::sourceUri );
    }
 
    private void ensureParentDirectoryExists( final AspectModelFile file ) {
-      file.sourceLocation().map( Paths::get ).map( Path::toFile ).map( File::getParentFile ).ifPresent( parent -> {
-         if ( !parent.exists() ) {
-            parent.mkdirs();
-         }
-      } );
+      final File parent = Paths.get( file.sourceUri() ).toFile().getParentFile();
+      if ( parent != null && !parent.exists() ) {
+         parent.mkdirs();
+      }
    }
 
    public void backupWorkspace() {

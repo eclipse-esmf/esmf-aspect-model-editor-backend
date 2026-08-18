@@ -130,7 +130,7 @@ public record ModelGroupingUtils( AspectModelLoader aspectModelLoader, AspectMod
    }
 
    private String extractFilename( final RawAspectModelFile rawFile ) {
-      return rawFile.sourceLocation().map( uri -> Path.of( uri ).getFileName().toString() ).orElse( "unnamed file" );
+      return Path.of( rawFile.sourceUri() ).getFileName().toString();
    }
 
    private List<Resource> collectMetaModelResources( final KnownVersion version ) {
