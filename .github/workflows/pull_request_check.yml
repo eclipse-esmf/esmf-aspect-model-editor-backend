@@ -116,6 +116,7 @@ jobs:
           cp "./$bundle/jre/bin/server/jvm.dll" "./$bundle/app/"
 
           zstd_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=zstd-jni | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'zstd-jni' | grep '\.jar$' | head -n 1)
+          jna_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=jna | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'jna' | grep '\.jar$' | head -n 1)
           api_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=truffle-api | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'truffle-api' | grep '\.jar$' | head -n 1)
           
           if [ -n "$zstd_jar" ] && [ -f "$zstd_jar" ]; then
@@ -132,11 +133,21 @@ jobs:
               echo "Success extraction JNI"
              fi
           fi
+
+          if [ -n "$jna_jar" ] && [ -f "$jna_jar" ]; then
+            cp "$jna_jar" "./$bundle/app/"
+
+            unzip -p "$jna_jar" "com/sun/jna/win32-x86-64/jnidispatch.dll" > "./$bundle/app/jnidispatch.dll"
+
+            if [ -s "./$bundle/app/jnidispatch.dll" ]; then
+              echo "Success extraction JNA DLL"
+            fi
+          fi
           
           if [ -n "$api_jar" ] && [ -f "$api_jar" ]; then
             mkdir -p native-libs
             unzip -j "$api_jar" "META-INF/resources/engine/libtruffleattach/windows/amd64/bin/truffleattach.dll" -d native-libs
-            
+
             if [ -f "native-libs/truffleattach.dll" ]; then
               cp "native-libs/truffleattach.dll" "./$bundle/app/truffleattach.dll"
               echo "Success extraction truffleattach.dll"

@@ -147,6 +147,7 @@ jobs:
           cp "./$bundle/jre/bin/server/jvm.dll" "./$bundle/app/"
 
           zstd_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=zstd-jni | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'zstd-jni' | grep '\.jar$' | head -n 1)
+          jna_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=jna | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'jna' | grep '\.jar$' | head -n 1)
           api_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=truffle-api | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'truffle-api' | grep '\.jar$' | head -n 1)     
           
           if [ -n "$zstd_jar" ] && [ -f "$zstd_jar" ]; then
@@ -155,12 +156,22 @@ jobs:
             jar_basename=$(basename "$zstd_jar")
             version="${jar_basename#zstd-jni-}"
             version="${version%.jar}"
-            
+
             unzip -p "$zstd_jar" "win/amd64/libzstd-jni-${version}.dll" > "./$bundle/app/libzstd-jni-${version}.dll"
             cp "./$bundle/app/libzstd-jni-${version}.dll" "./$bundle/app/zstd-jni-${version}.dll"
             
             if [ -s "./$bundle/app/zstd-jni-${version}.dll" ]; then
               echo "Success extraction JNI"
+            fi
+          fi
+
+          if [ -n "$jna_jar" ] && [ -f "$jna_jar" ]; then
+            cp "$jna_jar" "./$bundle/app/"
+
+            unzip -p "$jna_jar" "com/sun/jna/win32-x86-64/jnidispatch.dll" > "./$bundle/app/jnidispatch.dll"
+
+            if [ -s "./$bundle/app/jnidispatch.dll" ]; then
+              echo "Success extraction JNA DLL"
             fi
           fi
 
@@ -186,7 +197,7 @@ jobs:
             echo "Warp packer checksum does not match"
             exit 1
           fi
-          
+
           ./warp-packer.exe pack --arch windows-x64 --input-dir "$bundle" --exec run.exe --output ame-backend-${{ env.RELEASE_VERSION }}-win.exe
 
           mv ame-backend-${{ env.RELEASE_VERSION }}-win.exe aspect-model-editor-runtime/target/

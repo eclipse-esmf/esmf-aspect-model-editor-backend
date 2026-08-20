@@ -32,6 +32,8 @@ func main() {
 		"--sun-misc-unsafe-memory-access=allow",
 		"-Dpolyglotimpl.DisableMultiReleaseCheck=true",
 		"-Djava.library.path=" + appDir,
+		"-Djna.nounpack=true",
+        "-Djna.boot.library.path=" + appDir,
 	}
 
 	if dllPath != "" {
