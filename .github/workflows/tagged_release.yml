@@ -48,18 +48,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Configure Pagefile
-        if: matrix.os == 'windows-latest'
-        # Fix for "LINK : fatal error LNK1171: unable to load mspdbcore.dll (error code: 1455)":
-        # This seems to be caused by running out of memory; increasing page file
-        # size suggested here:
-        # https://github.com/actions/virtual-environments/issues/3420#issuecomment-861342418
-        uses: al-cheb/configure-pagefile-action@9b6da52fb72a3c6147c1aad2df22d8d905681adc # v1.5
-        with:
-          minimum-size: 16GB
-          maximum-size: 16GB
-          disk-root: "C:"
-
       - name: Set Swap Space (Linux)
         if: matrix.os == 'ubuntu-latest'
         uses: pierotofy/set-swap-space@49819abfb41bd9b44fb781159c033dba90353a7c # master
@@ -92,9 +80,6 @@ jobs:
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up MSVC
-        if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1.13.0
 
       - name: Build Fat-jar
         run: |
