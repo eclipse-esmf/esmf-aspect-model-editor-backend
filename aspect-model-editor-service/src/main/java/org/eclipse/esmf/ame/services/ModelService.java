@@ -33,10 +33,6 @@ import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
 import org.eclipse.esmf.ame.services.validation.ValidationOperations;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
-import org.eclipse.esmf.aspectmodel.Violation;
-import org.eclipse.esmf.aspectmodel.edit.AspectChangeManager;
-import org.eclipse.esmf.aspectmodel.edit.change.CopyFileWithIncreasedNamespaceVersion;
-import org.eclipse.esmf.aspectmodel.edit.change.IncreaseVersion;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
@@ -143,7 +139,8 @@ public class ModelService {
       final String fileName = aspectModelFile.filename().orElse( "" );
 
       final String fileKey = String.format( "%s:%s:%s", aspectModelUrn.getNamespaceMainPart(), aspectModelUrn.getVersion(),
-            aspectModelFile.filename().orElseThrow( () -> new FileReadException( String.format( "Filename missing for Aspect Model with URN: %s", urn ) ) ) );
+            aspectModelFile.filename()
+                  .orElseThrow( () -> new FileReadException( String.format( "Filename missing for Aspect Model with URN: %s", urn ) ) ) );
 
       return new FileInformation( fileKey, urn, sammVersion, AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ),
             fileName );
