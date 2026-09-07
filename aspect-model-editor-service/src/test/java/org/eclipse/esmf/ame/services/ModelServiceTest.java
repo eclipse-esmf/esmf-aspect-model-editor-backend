@@ -13,6 +13,7 @@
 
 package org.eclipse.esmf.ame.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -128,18 +129,30 @@ class ModelServiceTest {
    @Test
    void testGetModels_MissingElement() {
       final List<FileEntry> fileEntries = List.of(
-            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_BATCH + FILE_EXTENSION,
-                  TEST_MODEL_FOR_BATCH + FILE_EXTENSION, "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_FOR_BATCH,
-                  "2.2.0" ) );
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#MissingElement",
+                  "" ) );
 
       final FileNotFoundException fileNotFoundException = assertThrows( FileNotFoundException.class,
             () -> modelService.getModels( fileEntries ), "Should throw FileNotFoundException when element is missing" );
 
-      assertTrue( fileNotFoundException.getMessage().contains( "Failed to load file" ) );
-      assertTrue( fileNotFoundException.getMessage()
-            .contains( "org.eclipse.esmf.example" + File.separator + "1.0.0" + File.separator + "BatchTestAspect.ttl" ) );
-      assertTrue( fileNotFoundException.getMessage()
-            .contains( "Element 'urn:samm:org.eclipse.esmf.example:1.0.0#notDefinedProperty' not found" ) );
+      assertTrue( fileNotFoundException.getMessage().contains( "Aspect Model not found" ) );
+      assertTrue( fileNotFoundException.getMessage().contains( "MissingElement" ) );
+   }
+
+   @Test
+   void testGetModels_PreservesOriginalSammVersion() {
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_OLD_ASPECT + FILE_EXTENSION,
+                  TEST_MODEL_OLD_ASPECT + FILE_EXTENSION, "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_OLD_ASPECT,
+                  "" ) );
+
+      final List<FileInformation> results = modelService.getModels( fileEntries );
+
+      assertFalse( results.isEmpty() );
+      final FileInformation fileInfo = results.getFirst();
+      assertEquals( "2.1.0", fileInfo.modelVersion(), "Should preserve original SAMM 2.1.0 version without auto-migrating" );
+      assertTrue( fileInfo.aspectModel().contains( "meta-model:2.1.0#" ), "Turtle content should retain original 2.1.0 prefix" );
    }
 
    @Test

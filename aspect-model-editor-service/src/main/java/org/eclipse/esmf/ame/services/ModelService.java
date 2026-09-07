@@ -13,17 +13,21 @@
 
 package org.eclipse.esmf.ame.services;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.function.Supplier;
 
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.riot.RiotException;
 import org.eclipse.esmf.ame.constants.ApplicationConstants;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
-import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
 import org.eclipse.esmf.ame.services.file.FilePathResolver;
 import org.eclipse.esmf.ame.services.models.FileEntry;
@@ -31,15 +35,14 @@ import org.eclipse.esmf.ame.services.models.FileInformation;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
 import org.eclipse.esmf.ame.services.validation.ValidationOperations;
-import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
-import org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation;
+import org.eclipse.esmf.aspectmodel.resolver.AspectModelFileLoader;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
-import org.eclipse.esmf.aspectmodel.serializer.AspectSerializer;
+import org.eclipse.esmf.aspectmodel.resolver.exceptions.ParserException;
+import org.eclipse.esmf.aspectmodel.resolver.modelfile.RawAspectModelFile;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
-import org.eclipse.esmf.metamodel.AspectModel;
 
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
@@ -91,13 +94,12 @@ public class ModelService {
       final List<FileInformation> results = new ArrayList<>();
 
       for ( final FileEntry fileEntry : fileEntries ) {
-         final Supplier<AspectModel> lazySupplier;
+         final Path filePath;
          final String fileIdentifier;
          final AspectModelUrn urn;
 
          if ( fileEntry.absoluteName() != null ) {
-            final Path filePath = filePathResolver.resolveFromFileEntry( fileEntry, modelPath );
-            lazySupplier = aspectModelRepository.loadFromFiles( List.of( filePath.toFile() ) );
+            filePath = filePathResolver.resolveFromFileEntry( fileEntry, modelPath );
             fileIdentifier = filePath.toString();
 
             urn = AspectModelUrn.from( fileEntry.aspectModelUrn() ).getOrElseThrow(
@@ -106,63 +108,64 @@ public class ModelService {
             urn = AspectModelUrn.from( fileEntry.aspectModelUrn() ).getOrElseThrow(
                   () -> new IllegalArgumentException( String.format( "Invalid aspect model URN: '%s'", fileEntry.aspectModelUrn() ) ) );
 
-            lazySupplier = aspectModelRepository.loadByUrns( List.of( urn ) );
+            filePath = filePathResolver.resolveFilePath( urn, fileEntry.fileName() != null ? fileEntry.fileName() : "", modelPath );
             fileIdentifier = fileEntry.aspectModelUrn();
          }
 
-         try {
-            final AspectModel aspectModel = lazySupplier.get();
-
-            final AspectModelFile aspectModelFile = aspectModel.files().stream()
-                  .filter( file -> aspectModelReader.containsElement( file, urn ) ).filter( aspectModelReader::hasValidCasing ).findFirst()
-                  .orElseThrow( () -> new FileNotFoundException(
-                        String.format( "Aspect Model not found for URN '%s' in file '%s'", urn, fileIdentifier ) ) );
-
-            results.add( convertToFileInformation( aspectModelFile ) );
-         } catch ( final ModelResolutionException e ) {
-            final String elementInfo = e.getCheckedLocations().stream().findFirst()
-                  .flatMap( ModelResolutionViolation::element )
-                  .map( element -> String.format( "Element '%s' not found", element ) )
-                  .orElse( "Model resolution failed" );
-
-            throw new FileNotFoundException( String.format( "Failed to load file '%s': %s", fileIdentifier, elementInfo ), e );
+         if ( !Files.exists( filePath ) ) {
+            throw new FileNotFoundException(
+                  String.format( "Aspect Model not found for URN '%s' in file '%s'", urn, fileIdentifier ) );
          }
+
+         try {
+            final Path realPath = filePath.toRealPath();
+            final Path providedPath = filePath.toAbsolutePath().normalize();
+            if ( !realPath.getFileName().toString().equals( providedPath.getFileName().toString() ) ) {
+               throw new FileNotFoundException(
+                     String.format( "Aspect Model not found for URN '%s' in file '%s'", urn, fileIdentifier ) );
+            }
+         } catch ( final IOException e ) {
+            throw new FileNotFoundException(
+                  String.format( "Aspect Model not found for URN '%s' in file '%s'", urn, fileIdentifier ), e );
+         }
+
+         final RawAspectModelFile rawFile;
+         try ( final InputStream inputStream = Files.newInputStream( filePath ) ) {
+            rawFile = AspectModelFileLoader.load( inputStream, filePath.toUri() );
+         } catch ( final ParserException | RiotException e ) {
+            throw new FileReadException( String.format( "Failed to parse model file '%s': %s", fileIdentifier, e.getMessage() ), e );
+         } catch ( final IOException e ) {
+            throw new FileReadException( String.format( "Failed to read model file '%s': %s", fileIdentifier, e.getMessage() ), e );
+         }
+
+         final Resource requestedResource = rawFile.sourceModel().createResource( urn.toString() );
+         if ( !rawFile.sourceModel().contains( requestedResource, null, (RDFNode) null )
+               && !urn.equals( rawFile.namespaceUrn() ) ) {
+            throw new FileNotFoundException(
+                  String.format( "Aspect Model not found for URN '%s' in file '%s'", urn, fileIdentifier ) );
+         }
+
+         results.add( convertToFileInformation( rawFile, filePath, urn ) );
       }
 
       return results;
    }
 
-   private FileInformation convertToFileInformation( final AspectModelFile aspectModelFile ) {
-      final String urn = extractUrn( aspectModelFile );
-      final String sammVersion = validationOperations.extractSammVersion( aspectModelFile );
-      final AspectModelUrn aspectModelUrn = aspectModelFile.namespaceUrn();
-      final String fileName = aspectModelFile.filename().orElse( "" );
+   private FileInformation convertToFileInformation( final RawAspectModelFile rawAspectModelFile, final Path filePath,
+         final AspectModelUrn requestedUrn ) {
+      final String sammVersion = validationOperations.extractSammVersion( rawAspectModelFile );
+      final AspectModelUrn aspectModelUrn = rawAspectModelFile.namespaceUrn();
+      final String fileName = rawAspectModelFile.filename().orElse( filePath.getFileName().toString() );
 
-      final String fileKey = String.format( "%s:%s:%s", aspectModelUrn.getNamespaceMainPart(), aspectModelUrn.getVersion(),
-            aspectModelFile.filename()
-                  .orElseThrow( () -> new FileReadException( String.format( "Filename missing for Aspect Model with URN: %s", urn ) ) ) );
+      final String fileKey = String.format( "%s:%s:%s", aspectModelUrn.getNamespaceMainPart(), aspectModelUrn.getVersion(), fileName );
 
-      return new FileInformation( fileKey, urn, sammVersion, AspectSerializer.INSTANCE.aspectModelFileToString( aspectModelFile ),
-            fileName );
-   }
-
-   private String extractUrn( final AspectModelFile aspectModelFile ) {
-      final String fileName = aspectModelFile.filename().orElse( "unknown file" );
+      final String rawContent;
       try {
-         return aspectModelFile.aspect().urn().toString();
-      } catch ( final NoSuchElementException e ) {
-         if ( !aspectModelFile.elements().isEmpty() ) {
-            try {
-               return aspectModelFile.elements().getFirst().urn().toString();
-            } catch ( final Exception ex ) {
-               throw new InvalidAspectModelException(
-                     String.format( "Invalid URN for element in file '%s': %s", fileName, ex.getMessage() ), ex );
-            }
-         }
-         return aspectModelFile.namespaceUrn().toString();
-      } catch ( final Exception e ) {
-         throw new InvalidAspectModelException(
-               String.format( "Invalid Aspect URN in file '%s': %s", fileName, e.getMessage() ), e );
+         rawContent = Files.readString( filePath, StandardCharsets.UTF_8 );
+      } catch ( final IOException e ) {
+         throw new FileReadException( String.format( "Failed to read content of file '%s'", fileName ), e );
       }
+
+      return new FileInformation( fileKey, requestedUrn.toString(), sammVersion, rawContent, fileName );
    }
 }
