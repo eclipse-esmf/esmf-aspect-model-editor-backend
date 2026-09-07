@@ -14,7 +14,10 @@
 package org.eclipse.esmf.ame.services.utils;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.Comparator;
@@ -26,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.services.models.NamespaceModel;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
@@ -90,13 +94,15 @@ public record ModelGroupingUtils( AspectModelLoader aspectModelLoader, AspectMod
    }
 
    private Map.Entry<RawAspectModelFile, Optional<KnownVersion>> loadModelWithVersion( final File file ) {
-      try {
-         final RawAspectModelFile rawFile = AspectModelFileLoader.load( file );
+      try ( final InputStream inputStream = Files.newInputStream( file.toPath() ) ) {
+         final RawAspectModelFile rawFile = AspectModelFileLoader.load( inputStream, file.toURI() );
          final Optional<KnownVersion> metaModelVersion = extractMetaModelVersion( rawFile );
 
          return new AbstractMap.SimpleEntry<>( rawFile, metaModelVersion );
       } catch ( final ParserException e ) {
          throw new FileReadException( String.format( "Failed to parse model file '%s': %s", file.getPath(), e.getMessage() ) );
+      } catch ( final IOException e ) {
+         throw new FileReadException( String.format( "Failed to read model file '%s': %s", file.getPath(), e.getMessage() ), e );
       }
    }
 
@@ -123,10 +129,62 @@ public record ModelGroupingUtils( AspectModelLoader aspectModelLoader, AspectMod
       final List<Resource> resources = collectMetaModelResources( version );
       final Resource firstNonBlankSubject = findFirstNonBlankSubject( rawFile.sourceModel(), resources, filename );
 
-      final NamespaceModel model = new NamespaceModel( filename, AspectModelUrn.fromUrn( firstNonBlankSubject.getURI() ),
+      final AspectModelUrn aspectModelUrn;
+      try {
+         aspectModelUrn = AspectModelUrn.fromUrn( firstNonBlankSubject.getURI() );
+      } catch ( final Exception e ) {
+         throw new InvalidAspectModelException(
+               String.format( "Invalid Aspect Model URN '%s' in file '%s': %s", firstNonBlankSubject.getURI(), filename, e.getMessage() ),
+               e
+         );
+      }
+
+      final NamespaceModel model = new NamespaceModel( filename, aspectModelUrn,
             version.toVersionString(), true );
 
       return Stream.of( model );
+   }
+
+   /**
+    * Safely extracts the AspectModelUrn from a ModelElement, enriching any failure with the file name.
+    *
+    * @param modelElement the model element
+    * @return an Optional containing the AspectModelUrn, or empty if modelElement is null
+    * @throws InvalidAspectModelException if the URN cannot be extracted or is invalid
+    */
+   public Optional<AspectModelUrn> getUrn( final ModelElement modelElement ) {
+      if ( modelElement == null ) {
+         return Optional.empty();
+      }
+      try {
+         return Optional.of( modelElement.urn() );
+      } catch ( final Exception e ) {
+         final String fileName = extractSourceFileName( modelElement );
+         throw new InvalidAspectModelException(
+               String.format( "Invalid URN for model element in file '%s': %s", fileName, e.getMessage() ),
+               e
+         );
+      }
+   }
+
+   /**
+    * Extracts the source file name from a ModelElement.
+    *
+    * @param modelElement the model element
+    * @return the file name or "unknown file"
+    */
+   public String extractSourceFileName( final ModelElement modelElement ) {
+      if ( modelElement == null ) {
+         return "unknown file";
+      }
+      try {
+         return modelElement.getSourceFile()
+               .filename()
+               .or( () -> modelElement.getSourceFile().sourceLocation().map( URI::toString ) )
+               .orElse( "unknown file" );
+      } catch ( final Exception ignored ) {
+         return "unknown file";
+      }
    }
 
    private String extractFilename( final RawAspectModelFile rawFile ) {

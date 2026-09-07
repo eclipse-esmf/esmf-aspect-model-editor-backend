@@ -23,6 +23,7 @@ import java.util.function.Supplier;
 import org.eclipse.esmf.ame.constants.ApplicationConstants;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
 import org.eclipse.esmf.ame.services.file.FilePathResolver;
 import org.eclipse.esmf.ame.services.models.FileEntry;
@@ -149,13 +150,22 @@ public class ModelService {
    }
 
    private String extractUrn( final AspectModelFile aspectModelFile ) {
+      final String fileName = aspectModelFile.filename().orElse( "unknown file" );
       try {
          return aspectModelFile.aspect().urn().toString();
       } catch ( final NoSuchElementException e ) {
          if ( !aspectModelFile.elements().isEmpty() ) {
-            return aspectModelFile.elements().getFirst().urn().toString();
+            try {
+               return aspectModelFile.elements().getFirst().urn().toString();
+            } catch ( final Exception ex ) {
+               throw new InvalidAspectModelException(
+                     String.format( "Invalid URN for element in file '%s': %s", fileName, ex.getMessage() ), ex );
+            }
          }
          return aspectModelFile.namespaceUrn().toString();
+      } catch ( final Exception e ) {
+         throw new InvalidAspectModelException(
+               String.format( "Invalid Aspect URN in file '%s': %s", fileName, e.getMessage() ), e );
       }
    }
 }
