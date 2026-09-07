@@ -226,4 +226,17 @@ class ModelServiceTest {
          assertTrue( fileInfo.absoluteName().contains( VERSION ), "Absolute name should contain version" );
       } );
    }
+
+   @Test
+   void testGetModels_ByUrnOnly() {
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( null, null, "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_FOR_SERVICE, "" ) );
+
+      final List<FileInformation> results = modelService.getModels( fileEntries );
+
+      assertFalse( results.isEmpty(), "Results should not be empty" );
+      final FileInformation fileInfo = results.getFirst();
+      assertEquals( TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, fileInfo.fileName() );
+      assertTrue( fileInfo.aspectModel().contains( ":Movement" ) );
+   }
 }
