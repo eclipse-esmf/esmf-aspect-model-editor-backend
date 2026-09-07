@@ -16,6 +16,7 @@ package org.eclipse.esmf.ame.services;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
@@ -124,7 +125,11 @@ public class AspectModelWriter {
    public void deleteModel( final AspectModelUrn aspectModelUrn ) {
       LOG.info( "Deleting model: {}", aspectModelUrn );
       try {
-         final AspectModelFile aspectModelFile = aspectModelLoader.load( aspectModelUrn ).files().getFirst();
+         final AspectModel aspectModel = aspectModelLoader.load( aspectModelUrn );
+         if ( aspectModel.files().isEmpty() ) {
+            throw new FileNotFoundException( "No files found for Aspect Model: " + aspectModelUrn );
+         }
+         final AspectModelFile aspectModelFile = aspectModel.files().getFirst();
          fileOperations.deleteAspectModelFile( aspectModelFile );
          LOG.info( "Model deleted successfully: {}", aspectModelUrn );
       } catch ( final Exception e ) {
@@ -164,7 +169,14 @@ public class AspectModelWriter {
    private AspectModelFile findFileInModel( final AspectModel model, final Path targetFile ) {
       return model.files().stream()
             .filter( file -> file.sourceLocation()
-                  .map( src -> src.equals( targetFile.toUri() ) )
+                  .or( () -> Optional.ofNullable( file.sourceUri() ) )
+                  .map( src -> {
+                     try {
+                        return Path.of( src ).toAbsolutePath().normalize().equals( targetFile.toAbsolutePath().normalize() );
+                     } catch ( final Exception e ) {
+                        return src.equals( targetFile.toUri() );
+                     }
+                  } )
                   .orElse( false ) )
             .findFirst()
             .orElseThrow( () -> new FileNotFoundException(
