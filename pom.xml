@@ -84,7 +84,7 @@
       <velocity-version>2.4</velocity-version>
       <graph-support-version>1.5.0</graph-support-version>
       <jackson-annotations.version>2.22</jackson-annotations.version>
-      <jackson-databind2.version>2.22.0</jackson-databind2.version>
+      <jackson-databind2.version>2.22.1</jackson-databind2.version>
 
       <!-- Versions of plugins -->
       <junit-version>5.11.3</junit-version>
