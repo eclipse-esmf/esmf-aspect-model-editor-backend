@@ -1,0 +1,31 @@
+meta {
+  name: FormatAspectModel_InvalidSyntax
+  type: http
+  seq: 57
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/format
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  uri: blob://invalid.ttl
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/InvalidAspectModel.ttl)
+}
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+  
+  test("Error message contains syntax details", function() {
+    const error = res.getBody().error;
+    expect(error.code).to.equal(409);
+    expect(error.message).to.be.a('string').that.is.not.empty;
+  });
+}

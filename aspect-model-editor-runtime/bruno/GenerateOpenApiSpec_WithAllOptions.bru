@@ -1,0 +1,33 @@
+meta {
+  name: GenerateOpenApiSpec_WithAllOptions
+  type: http
+  seq: 54
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/generate/open-api-spec?output=json&includeCrud=true&includePost=true&includePut=true&includePatch=true&includeQueryApi=true&useSemanticVersion=true&pagingOption=OFFSET_BASED_PAGING
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  uri: blob://movement.ttl
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/Movement.ttl)
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("OpenAPI spec contains paths for full CRUD and Query API", function() {
+    const data = res.getBody();
+    expect(data.openapi).to.be.a('string');
+    expect(data.info.version).to.equal("v1.0.0");
+    expect(data.paths).to.be.an('object');
+    expect(Object.keys(data.paths).length).to.be.greaterThan(0);
+  });
+}

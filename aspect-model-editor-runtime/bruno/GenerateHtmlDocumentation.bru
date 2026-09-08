@@ -1,0 +1,35 @@
+meta {
+  name: GenerateHtmlDocumentation
+  type: http
+  seq: 39
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/generate/documentation?language=en
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  uri: blob://movement.ttl
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/Movement.ttl)
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Content type is text/html", function() {
+    expect(res.getHeader('content-type')).to.include("text/html");
+  });
+  
+  test("HTML content contains aspect model details", function() {
+    const body = res.getBody();
+    expect(body).to.include("<html");
+    expect(body).to.include("movement");
+  });
+}

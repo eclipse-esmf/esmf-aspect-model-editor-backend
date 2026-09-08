@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -17,11 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.esmf.ame.exceptions.UrnNotFoundException;
 import org.eclipse.esmf.ame.validation.model.ViolationError;
-import org.eclipse.esmf.ame.validation.utils.ValidationUtils;
 import org.eclipse.esmf.aspectmodel.Violation;
 import org.eclipse.esmf.aspectmodel.ViolationReport;
 import org.eclipse.esmf.aspectmodel.shacl.fix.Fix;
@@ -51,6 +51,7 @@ import org.eclipse.esmf.aspectmodel.shacl.violation.SparqlConstraintViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.UniqueLanguageViolation;
 import org.eclipse.esmf.aspectmodel.shacl.violation.ValueFromListViolation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
+import org.eclipse.esmf.aspectmodel.validation.InvalidSyntaxViolation;
 import org.eclipse.esmf.aspectmodel.validation.ProcessingViolation;
 
 /**
@@ -79,8 +80,8 @@ public class ViolationFormatter
    }
 
    private List<Violation> filterNonSemanticViolations( final List<Violation> violations ) {
-      return violations.stream().filter( violation -> ValidationUtils.isInvalidSyntaxViolation().test( violation )
-            || ValidationUtils.isProcessingViolation().test( violation ) ).toList();
+      return violations.stream().filter( violation -> isInvalidSyntaxViolation().test( violation )
+            || isProcessingViolation().test( violation ) ).toList();
    }
 
    protected List<ViolationError> processNonSemanticViolation( final List<Violation> violations,
@@ -135,12 +136,25 @@ public class ViolationFormatter
 
    public ViolationError visitProcessingViolation( final ProcessingViolation violation ) {
       final ViolationError violationError = visit( violation );
+      final Throwable cause = violation.cause().orElse( null );
 
-      if ( violation.cause().orElse( null ) instanceof final UrnNotFoundException urnNotFoundException ) {
+      if ( cause instanceof final UrnNotFoundException urnNotFoundException ) {
          violationError.setFocusNode( urnNotFoundException.getUrn() );
          violationError.setFix( List.of(
                "Ensure the referred element is available. If it's in a different model of the same namespace, include it in your "
                      + "workspace or the imported package." ) );
+      } else if ( cause instanceof final org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException modelResolutionException ) {
+         modelResolutionException.getCheckedLocations().stream().findFirst()
+               .flatMap( org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation::element )
+               .ifPresent( violationError::setFocusNode );
+         violationError.setFix( List.of(
+               "The referenced element or model could not be resolved. Ensure that all referenced models are in the workspace with correct namespace and version structure." ) );
+      } else if ( cause instanceof org.eclipse.esmf.aspectmodel.UnsupportedVersionException ) {
+         violationError.setFix( List.of(
+               "The Aspect Model uses an unsupported SAMM version. Please migrate the model to a supported SAMM version (e.g., SAMM 2.1.0 or 2.2.0)." ) );
+      } else if ( cause instanceof org.eclipse.esmf.aspectmodel.resolver.exceptions.ParserException ) {
+         violationError.setFix( List.of(
+               "The Turtle syntax contains errors. Check for missing prefixes, commas, semicolons, or unclosed quotes/brackets." ) );
       }
 
       return violationError;
@@ -317,5 +331,25 @@ public class ViolationFormatter
 
    public ViolationError visitInvalidSyntaxViolation( final String invalidSyntaxViolation ) {
       return new ViolationError( invalidSyntaxViolation );
+   }
+
+   /**
+    * Creates a predicate that tests if a given violation is an invalid syntax violation.
+    *
+    * @return Predicate that can be used to filter invalid syntax violations
+    */
+   public static Predicate<Violation> isInvalidSyntaxViolation() {
+      return violation -> violation.code() != null
+            && violation.code().code().equals( InvalidSyntaxViolation.ERROR_CODE );
+   }
+
+   /**
+    * Creates a predicate that tests if a given violation is a processing violation.
+    *
+    * @return Predicate that can be used to filter processing violations
+    */
+   public static Predicate<Violation> isProcessingViolation() {
+      return violation -> violation.code() != null
+            && violation.code().code().equals( ProcessingViolation.ERROR_CODE );
    }
 }

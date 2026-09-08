@@ -21,18 +21,6 @@ jobs:
       - name: Checkout project
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6.0.1
 
-      - name: Configure Pagefile
-        if: matrix.os == 'windows-latest'
-        # Fix for "LINK : fatal error LNK1171: unable to load mspdbcore.dll (error code: 1455)":
-        # This seems to be caused by running out of memory; increasing page file
-        # size suggested here:
-        # https://github.com/actions/virtual-environments/issues/3420#issuecomment-861342418
-        uses: al-cheb/configure-pagefile-action@9b6da52fb72a3c6147c1aad2df22d8d905681adc # v1.5
-        with:
-          minimum-size: 16GB
-          maximum-size: 16GB
-          disk-root: "C:"
-
       - name: Setup JDK
         uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.8.0
         with:
@@ -47,17 +35,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Configure Pagefile (Windows)
-        if: matrix.os == 'windows-latest'
-        # Fix for "LINK : fatal error LNK1171: unable to load mspdbcore.dll (error code: 1455)":
-        # This seems to be caused by running out of memory; increasing page file
-        # size suggested here:
-        # https://github.com/actions/virtual-environments/issues/3420#issuecomment-861342418
-        uses: al-cheb/configure-pagefile-action@86589fd789a4de3e62ba628dda2cb10027b66d67 # v1.3
-        with:
-          minimum-size: 32GB
-          maximum-size: 32GB
-          disk-root: "C:"
 
       - name: Set Swap Space (Linux)
         if: matrix.os == 'ubuntu-latest'

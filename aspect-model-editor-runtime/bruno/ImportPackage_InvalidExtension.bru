@@ -1,0 +1,26 @@
+meta {
+  name: ImportPackage_InvalidExtension
+  type: http
+  seq: 45
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/package/import
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  zipFile: @file(./TestingFiles/Movement.ttl)
+}
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.be.oneOf([409]);
+  });
+  
+  test("Error message mentions ZIP format", function() {
+    const error = res.getBody().error;
+    expect(error.message).to.include("The selected file 'Movement.ttl' is not in ZIP format. Please upload a .zip package.");
+  });
+}

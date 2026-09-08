@@ -1,0 +1,27 @@
+meta {
+  name: CheckElementExists_False
+  type: http
+  seq: 38
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models/check-element?fileName=Movement.ttl
+  body: none
+  auth: none
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.examples:1.0.0#Movement
+  Accept: application/json
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Element does not exist in a different file", function() {
+    const data = res.getBody();
+    expect(data).to.equal(false);
+  });
+}

@@ -1,0 +1,36 @@
+meta {
+  name: CreateAspectModel_InvalidSyntax
+  type: http
+  seq: 51
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models
+  body: text
+  auth: none
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.examples:1.0.0#Movement
+  Content-Type: text/plain
+}
+
+body:text {
+  @prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> .
+  @prefix : <urn:samm:org.eclipse.examples:1.0.0#> .
+  
+  :Movement a samm:Aspect ;
+     this is completely broken turtle syntax !!!
+}
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+  
+  test("Error response contains syntax error details", function() {
+    const error = res.getBody().error;
+    expect(error.code).to.equal(409);
+    expect(error.message).to.be.a('string').that.is.not.empty;
+  });
+}

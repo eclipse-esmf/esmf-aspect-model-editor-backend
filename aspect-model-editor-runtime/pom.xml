@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+  ~ Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
   ~
   ~ See the AUTHORS file(s) distributed with this work for
   ~ additional information regarding authorship.
@@ -38,10 +38,6 @@
       <dependency>
          <groupId>org.eclipse.esmf</groupId>
          <artifactId>aspect-model-editor-core</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.eclipse.esmf</groupId>
-         <artifactId>aspect-model-editor-web-core</artifactId>
       </dependency>
       <dependency>
          <groupId>org.eclipse.esmf</groupId>
@@ -96,7 +92,7 @@
       <dependency>
          <groupId>io.micronaut.test</groupId>
          <artifactId>micronaut-test-junit5</artifactId>
-         <scope>runtime</scope>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.junit.jupiter</groupId>
@@ -151,18 +147,18 @@
                      <createDependencyReducedPom>false</createDependencyReducedPom>
                      <createSourcesJar>false</createSourcesJar>
                      <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                           <manifestEntries>
-                              <Main-Class>${main.class}</Main-Class>
-                              <Multi-Release>true</Multi-Release>
-                           </manifestEntries>
-                        </transformer>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                            <resource>META-INF/truffle/language</resource>
                         </transformer>
                         <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                            <resource>META-INF/truffle/instrument</resource>
+                        </transformer>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                           <manifestEntries>
+                              <Main-Class>${main.class}</Main-Class>
+                              <Multi-Release>true</Multi-Release>
+                           </manifestEntries>
                         </transformer>
                      </transformers>
                      <artifactSet>
@@ -176,7 +172,13 @@
                            <artifact>*:*</artifact>
                            <excludes>
                               <exclude>module-info.class</exclude>
-                              <exclude>META-INF/*</exclude>
+                              <exclude>META-INF/MANIFEST.MF</exclude>
+                              <exclude>META-INF/*.SF</exclude>
+                              <exclude>META-INF/*.DSA</exclude>
+                              <exclude>META-INF/*.RSA</exclude>
+                              <exclude>META-INF/LICENSE*</exclude>
+                              <exclude>META-INF/NOTICE*</exclude>
+                              <exclude>META-INF/DEPENDENCIES*</exclude>
                               <exclude>META-INF/sisu/javax.inject.Named</exclude>
                               <exclude>META-INF/plexus/components.xml</exclude>
                               <exclude>META-INF/maven/**</exclude>

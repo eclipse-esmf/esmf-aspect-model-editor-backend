@@ -1,0 +1,39 @@
+meta {
+  name: GetModelsBatch_InvalidUrn
+  type: http
+  seq: 36
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/batch
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  [
+    {
+      "key": "invalid",
+      "fileName": "Invalid.ttl",
+      "aspectModelUrn": "not-a-valid-urn",
+      "modelVersion": "2.2.0"
+    }
+  ]
+}
+
+tests {
+  test("Status code is 404", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+  
+  test("Error response structure", function() {
+    const error = res.getBody().error;
+  
+    expect(error.code).to.equal(400);
+    expect(error.message).to.include("Invalid aspect model URN");
+  });
+}

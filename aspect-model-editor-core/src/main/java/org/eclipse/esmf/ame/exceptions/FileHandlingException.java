@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -15,20 +15,32 @@ package org.eclipse.esmf.ame.exceptions;
 
 import java.io.Serial;
 
-public class FileHandlingException extends RuntimeException {
+import io.micronaut.http.HttpStatus;
+
+/**
+ * Exception thrown when file operations (create, delete, move) fail.
+ * Results in HTTP 500 Internal Server Error response.
+ */
+public class FileHandlingException extends AspectModelEditorException {
    @Serial
    private static final long serialVersionUID = 1L;
 
    /**
-    * Constructs a FileHandlingException with message and cause.
+    * Constructs a new FileHandlingException with the specified detail message.
     *
-    * @param message the message of the exception
+    * @param message the detail message explaining the file handling failure
     */
    public FileHandlingException( final String message ) {
-      super( message );
+      super( message, HttpStatus.INTERNAL_SERVER_ERROR.getCode() );
    }
 
+   /**
+    * Constructs a new FileHandlingException with the specified detail message and cause.
+    *
+    * @param message the detail message explaining the file handling failure
+    * @param cause the cause of this exception
+    */
    public FileHandlingException( final String message, final Throwable cause ) {
-      super( message, cause );
+      super( message, cause, HttpStatus.INTERNAL_SERVER_ERROR.getCode() );
    }
 }

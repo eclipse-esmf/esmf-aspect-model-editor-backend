@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -24,7 +24,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Objects;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -34,6 +36,7 @@ import io.micronaut.http.MediaType;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import jakarta.inject.Inject;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 @MicronautTest
@@ -52,6 +55,35 @@ class PackageServiceTest {
    private static final String NAMESPACE_VERSION = SAMM_URN + ":" + EXPORT_NAMESPACE + ":" + VERSION;
 
    private static final String FILE_ONE = "TestFileOne";
+
+   @AfterEach
+   void tearDown() throws IOException {
+      final Path importedFile = RESOURCE_PATH.resolve( Path.of( "org.eclipse.esmf.example", "1.0.0", "Esmf.ttl" ) );
+      Files.deleteIfExists( importedFile );
+
+      final Path importedTestDir = RESOURCE_PATH.resolve( "org.eclipse.esmf.test" );
+      if ( Files.exists( importedTestDir ) ) {
+         try ( final Stream<Path> stream = Files.walk( importedTestDir ) ) {
+            stream.sorted( Comparator.reverseOrder() ).forEach( path -> {
+               try {
+                  Files.deleteIfExists( path );
+               } catch ( final IOException ignored ) {
+               }
+            } );
+         }
+      }
+
+      try ( final Stream<Path> stream = Files.list( RESOURCE_PATH ) ) {
+         stream.filter( path -> path.getFileName().toString().startsWith( "backup-" )
+               && path.getFileName().toString().endsWith( ".zip" ) )
+               .forEach( path -> {
+                  try {
+                     Files.deleteIfExists( path );
+                  } catch ( final IOException ignored ) {
+                  }
+               } );
+      }
+   }
 
    @Test
    void testExportAspectModelPackage() {

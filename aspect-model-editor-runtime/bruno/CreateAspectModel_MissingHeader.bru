@@ -1,0 +1,34 @@
+meta {
+  name: CreateAspectModel_MissingHeader
+  type: http
+  seq: 55
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models
+  body: text
+  auth: none
+}
+
+headers {
+  Content-Type: text/plain
+}
+
+body:text {
+  @prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> .
+  @prefix : <urn:samm:org.eclipse.examples:1.0.0#> .
+  
+  :Movement a samm:Aspect .
+}
+
+tests {
+  test("Status code is 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+  
+  test("Error message asks to specify aspect model URN", function() {
+    const error = res.getBody().error;
+    expect(error.code).to.equal(404);
+    expect(error.message).to.include("Please specify an aspect model urn");
+  });
+}

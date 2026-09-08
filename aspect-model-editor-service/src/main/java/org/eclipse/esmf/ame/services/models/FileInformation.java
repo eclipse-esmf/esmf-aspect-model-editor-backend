@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -17,9 +17,9 @@ import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 
 /**
- * Represents information about an Aspect Model file.
+ * Represents batch information about an Aspect Model file including its location and content.
  *
- * @param absoluteName the absolute path of the file
+ * @param absoluteName the absolute path identifier of the file (namespace:version:filename)
  * @param aspectModelUrn the URN of the aspect model
  * @param modelVersion the version of the model
  * @param aspectModel the aspect model content

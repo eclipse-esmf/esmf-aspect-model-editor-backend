@@ -1,0 +1,27 @@
+meta {
+  name: ExportPackage_NotFound
+  type: http
+  seq: 59
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/package/export
+  body: none
+  auth: none
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.examples:1.0.0#NonExistent
+}
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+  
+  test("Error message indicates model not found", function() {
+    const error = res.getBody().error;
+    expect(error.code).to.equal(409);
+    expect(error.message).to.be.a('string').that.is.not.empty;
+  });
+}

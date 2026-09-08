@@ -1,0 +1,26 @@
+meta {
+  name: ImportPackage
+  type: http
+  seq: 44
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/package/import
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  zipFile: @file(./TestingFiles/TestPackage.zip)
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Import response returns grouped namespaces and models", function() {
+    const data = res.getBody();
+    expect(data).to.be.an('object');
+  });
+}

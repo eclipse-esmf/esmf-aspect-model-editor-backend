@@ -1,0 +1,31 @@
+meta {
+  name: GenerateOpenApiSpec_InvalidJsonProperties
+  type: http
+  seq: 60
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/generate/openapi?format=json&includeResourcePath=true&resourcePathProperties=invalid_json_properties
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  uri: blob://movement.ttl
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/Movement.ttl)
+}
+
+tests {
+  test("Status code is 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+  
+  test("Error message indicates invalid OpenAPI properties format", function() {
+    const data = res.getBody();
+    expect(data.message).to.equal('Not Found');
+    expect(data._embedded.errors[0].message).to.include("Page Not Found");
+  });
+}

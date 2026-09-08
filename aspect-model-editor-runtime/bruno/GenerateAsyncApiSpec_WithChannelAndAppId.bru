@@ -1,0 +1,32 @@
+meta {
+  name: GenerateAsyncApiSpec_WithChannelAndAppId
+  type: http
+  seq: 53
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/generate/async-api-spec?output=json&applicationId=https://example.com/app&channelAddress=telemetry/movement&useSemanticVersion=true
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  uri: blob://movement.ttl
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/Movement.ttl)
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("AsyncAPI JSON contains channels and custom settings", function() {
+    const data = res.getBody();
+    expect(data.asyncapi).to.be.a('string');
+    expect(data.channels.Movement.address).to.equal('telemetry/movement');
+    expect(data.info.version).to.equal("v1.0.0");
+  });
+}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+  ~ Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
   ~
   ~ See the AUTHORS file(s) distributed with this work for
   ~ additional information regarding authorship.
@@ -40,15 +40,19 @@
          <groupId>org.eclipse.esmf</groupId>
          <artifactId>aspect-model-editor-validation</artifactId>
       </dependency>
-      <dependency>
-         <groupId>org.eclipse.esmf</groupId>
-         <artifactId>aspect-model-editor-web-core</artifactId>
-      </dependency>
 
       <!-- ESMF dependencies -->
       <dependency>
          <groupId>org.eclipse.esmf</groupId>
          <artifactId>esmf-aspect-model-document-generators</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.esmf</groupId>
+         <artifactId>esmf-aspect-model-validator</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.esmf</groupId>
+         <artifactId>esmf-aspect-model-aas-generator</artifactId>
       </dependency>
 
       <!-- Third party dependencies -->
@@ -60,6 +64,23 @@
       <dependency>
          <groupId>io.micronaut</groupId>
          <artifactId>micronaut-inject</artifactId>
+      </dependency>
+
+      <!-- Third party testing dependencies -->
+      <dependency>
+         <groupId>io.micronaut.test</groupId>
+         <artifactId>micronaut-test-junit5</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.junit.jupiter</groupId>
+         <artifactId>junit-jupiter-engine</artifactId>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.mockito</groupId>
+         <artifactId>mockito-inline</artifactId>
+         <scope>test</scope>
       </dependency>
    </dependencies>
 </project>

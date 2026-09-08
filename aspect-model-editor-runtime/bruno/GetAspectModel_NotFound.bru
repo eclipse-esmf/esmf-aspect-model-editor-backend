@@ -1,0 +1,27 @@
+meta {
+  name: GetAspectModel_NotFound
+  type: http
+  seq: 46
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models
+  body: none
+  auth: none
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.examples:1.0.0#NonExistent
+}
+
+tests {
+  test("Status code is 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+  
+  test("Error response contains NOT_FOUND and message", function() {
+    const error = res.getBody().error;
+    expect(error.code).to.equal(404);
+    expect(error.message).to.be.a('string').that.is.not.empty;
+  });
+}

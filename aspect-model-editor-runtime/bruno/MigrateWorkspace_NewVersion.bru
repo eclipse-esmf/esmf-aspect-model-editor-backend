@@ -1,0 +1,22 @@
+meta {
+  name: MigrateWorkspace_NewVersion
+  type: http
+  seq: 42
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models/migrate-workspace?setNewVersion=true
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Migration result structure", function() {
+    const result = res.getBody();
+    expect(result).to.have.property('success');
+  });
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -13,24 +13,28 @@
 
 package org.eclipse.esmf.ame.exceptions;
 
-import java.io.IOException;
 import java.io.Serial;
 
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
-public class UrnNotFoundException extends IOException {
+import io.micronaut.http.HttpStatus;
+
+/**
+ * Exception thrown when an Aspect Model URN cannot be found.
+ */
+public class UrnNotFoundException extends AspectModelEditorException {
    @Serial
    private static final long serialVersionUID = 1L;
    private final transient AspectModelUrn urn;
 
    /**
-    * Constructs a UrnFoundException with message, cause and value.
+    * Constructs a UrnNotFoundException with message and the URN that was not found.
     *
     * @param message the message of the exception
     * @param urn Not found AspectModelUrn
     */
    public UrnNotFoundException( final String message, final AspectModelUrn urn ) {
-      super( message );
+      super( message, HttpStatus.NOT_FOUND.getCode() );
       this.urn = urn;
    }
 

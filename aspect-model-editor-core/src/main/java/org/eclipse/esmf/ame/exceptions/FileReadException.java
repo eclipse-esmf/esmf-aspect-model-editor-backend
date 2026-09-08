@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -15,16 +15,32 @@ package org.eclipse.esmf.ame.exceptions;
 
 import java.io.Serial;
 
-public class FileReadException extends RuntimeException {
+import io.micronaut.http.HttpStatus;
+
+/**
+ * Exception thrown when a file cannot be read due to IO errors or parsing failures.
+ * Results in HTTP 409 Conflict response.
+ */
+public class FileReadException extends AspectModelEditorException {
    @Serial
    private static final long serialVersionUID = 1L;
 
    /**
-    * Constructs a FileReadException with message.
+    * Constructs a new FileReadException with the specified detail message.
     *
-    * @param message the message of the exception
+    * @param message the detail message explaining why the file cannot be read
     */
    public FileReadException( final String message ) {
-      super( message );
+      super( message, HttpStatus.CONFLICT.getCode() );
+   }
+
+   /**
+    * Constructs a new FileReadException with the specified detail message and cause.
+    *
+    * @param message the detail message explaining why the file cannot be read
+    * @param cause the cause of this exception
+    */
+   public FileReadException( final String message, final Throwable cause ) {
+      super( message, cause, HttpStatus.CONFLICT.getCode() );
    }
 }

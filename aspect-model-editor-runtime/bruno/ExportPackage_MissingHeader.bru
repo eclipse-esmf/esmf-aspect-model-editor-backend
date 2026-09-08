@@ -1,0 +1,22 @@
+meta {
+  name: ExportPackage_MissingHeader
+  type: http
+  seq: 49
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/package/export
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+  
+  test("Error message asks to specify aspect model URN", function() {
+    const error = res.getBody().error;
+    expect(error.message).to.include("Please specify an aspect model urn");
+  });
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -20,16 +20,18 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.eclipse.esmf.ame.constants.ApplicationConstants;
 import org.eclipse.esmf.ame.exceptions.CreateFileException;
-import org.eclipse.esmf.ame.exceptions.FileHandlingException;
+import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
@@ -62,8 +64,10 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class PackageService {
    private static final Logger LOG = LoggerFactory.getLogger( PackageService.class );
+   private static final DateTimeFormatter BACKUP_TIMESTAMP_FORMAT = DateTimeFormatter.ofPattern( "yyyy.MM.dd-HH.mm.ss" );
 
    private final AspectModelLoader aspectModelLoader;
+   private final AspectModelValidator aspectModelValidator;
    private final Path modelPath;
 
    public PackageService( final AspectModelLoader aspectModelLoader, final Path modelPath,
@@ -92,20 +96,24 @@ public class PackageService {
 
          final List<File> list = saveAspectModelFiles( changeManager.aspectModelFiles() ).map( File::new ).toList();
 
-         return new ModelGroupingUtils( aspectModelLoader, aspectModelValidator ).groupModelsByNamespaceAndVersion( list, false );
+         return new ModelGroupingUtils( aspectModelLoader, aspectModelValidator ).groupModelsByNamespaceAndVersion( list );
       } catch ( final ValueParsingException | IOException e ) {
          if ( e instanceof ValueParsingException ) {
-            throw new FileHandlingException( "The structure inside the .zip file does not match the expected format." );
+            throw new InvalidAspectModelException( "The structure inside the " + ApplicationConstants.FileExtensions.ZIP + " file does not match the expected format.", e );
          } else {
-            throw new FileHandlingException( "Could not read from input", e );
+            throw new FileReadException( "Could not read from input: " + e.getMessage(), e );
          }
       }
    }
 
    private AddAspectModelFile createAddChange( final AspectModelFile file, final ModelsRoot modelsRoot ) {
       if ( file.sourceModel().isEmpty() ) {
-         // TODO check why this will not returend ...
-         throw new FileHandlingException( "Source model is empty for file: " + file );
+         // Source model should always be present after loading from package
+         // This indicates a malformed file in the package
+         final String fileName = file.filename().orElse( "unknown" );
+         LOG.warn( "Source model is empty for file: {} with namespace: {}", fileName, file.namespaceUrn() );
+         throw new InvalidAspectModelException( String.format(
+               "Source model is empty for file '%s'. The package may be malformed or corrupted.", fileName ) );
       }
 
       final URI targetLocation = modelsRoot.directoryForNamespace( file.namespaceUrn() ).resolve( file.filename().orElseThrow() ).toUri();
@@ -134,14 +142,13 @@ public class PackageService {
 
    public void backupWorkspace() {
       try {
-         final SimpleDateFormat sdf = new SimpleDateFormat( "yyyy.MM.dd-HH.mm.ss" );
-         final String timestamp = sdf.format( new Timestamp( System.currentTimeMillis() ) );
-         final String zipFileName = modelPath.resolve( "backup-" + timestamp + ".zip" ).toString();
+         final String timestamp = LocalDateTime.now().format( BACKUP_TIMESTAMP_FORMAT );
+         final String zipFileName = modelPath.resolve( "backup-" + timestamp + ApplicationConstants.FileExtensions.ZIP ).toString();
 
          try ( final ZipOutputStream zos = new ZipOutputStream( new FileOutputStream( zipFileName ) );
                final Stream<Path> paths = Files.walk( modelPath ) ) {
 
-            paths.filter( Files::isRegularFile ).filter( path -> path.toString().endsWith( ".ttl" ) ).forEach( filePath -> {
+            paths.filter( Files::isRegularFile ).filter( path -> path.toString().endsWith( ApplicationConstants.FileExtensions.TTL ) ).forEach( filePath -> {
                try {
                   final ZipEntry zipEntry = new ZipEntry( modelPath.relativize( filePath ).toString() );
                   zos.putNextEntry( zipEntry );
@@ -158,6 +165,4 @@ public class PackageService {
          throw new CreateFileException( "An error occurred while creating the zip file.", e );
       }
    }
-
-   private final AspectModelValidator aspectModelValidator;
 }

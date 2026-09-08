@@ -1,0 +1,26 @@
+meta {
+  name: GetAspectModel_InvalidUrn
+  type: http
+  seq: 47
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models
+  body: none
+  auth: none
+}
+
+headers {
+  aspect-model-urn: invalid-aspect-model-urn
+}
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.be.oneOf([409]);
+  });
+  
+  test("Error message indicates invalid URN format", function() {
+    const error = res.getBody().error;
+    expect(error.message).to.include("Invalid Aspect Model URN format");
+  });
+}

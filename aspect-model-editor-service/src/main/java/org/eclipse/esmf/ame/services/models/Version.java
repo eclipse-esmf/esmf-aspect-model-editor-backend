@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -19,14 +19,14 @@ import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 
 /**
- * Represents a version containing a list of models.
+ * Represents a version containing a list of namespace models.
  *
  * @param version the version identifier
- * @param models list of models associated with this version
+ * @param models list of namespace models associated with this version
  */
 @Serdeable
 @Introspected
 public record Version(
       String version,
-      List<Model> models
+      List<NamespaceModel> models
 ) {}

@@ -1,0 +1,26 @@
+meta {
+  name: ValidateModel_MissingUri
+  type: http
+  seq: 52
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/validate
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/Movement.ttl)
+}
+
+tests {
+  test("Status code is 422", function() {
+    expect(res.getStatus()).to.equal(422);
+  });
+  
+  test("Error message indicates missing URI format", function() {
+    const error = res.getBody().error;
+    expect(error.message).to.include("Please define a file URI in the request header");
+  });
+}

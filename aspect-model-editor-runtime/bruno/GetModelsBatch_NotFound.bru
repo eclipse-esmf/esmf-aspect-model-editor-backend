@@ -1,0 +1,39 @@
+meta {
+  name: GetModelsBatch_NotFound
+  type: http
+  seq: 35
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/batch
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  [
+    {
+      "key": "org.eclipse.examples:1.0.0:NonExistent.ttl",
+      "fileName": "NonExistent.ttl",
+      "aspectModelUrn": "urn:samm:org.eclipse.examples:1.0.0#NonExistent",
+      "modelVersion": "2.2.0"
+    }
+  ]
+}
+
+tests {
+  test("Status code is 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+  
+  test("Error response structure", function() {
+    const error = res.getBody().error;
+  
+    expect(error.code).to.equal(404);
+    expect(error.message).to.be.a('string').that.is.not.empty;
+  });
+}

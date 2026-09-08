@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Robert Bosch Manufacturing Solutions GmbH
+ * Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
  *
  * See the AUTHORS file(s) distributed with this work for
  * additional information regarding authorship.
@@ -15,20 +15,32 @@ package org.eclipse.esmf.ame.exceptions;
 
 import java.io.Serial;
 
-public class FileNotFoundException extends RuntimeException {
+import io.micronaut.http.HttpStatus;
+
+/**
+ * Exception thrown when a requested file or aspect model cannot be found.
+ * Results in HTTP 404 Not Found response.
+ */
+public class FileNotFoundException extends AspectModelEditorException {
    @Serial
    private static final long serialVersionUID = 1L;
 
    /**
-    * Constructs a FileNotFoundException with message and cause.
+    * Constructs a new FileNotFoundException with the specified detail message.
     *
-    * @param message the message of the exception
+    * @param message the detail message explaining which file was not found
     */
    public FileNotFoundException( final String message ) {
-      super( message );
+      super( message, HttpStatus.NOT_FOUND.getCode() );
    }
 
+   /**
+    * Constructs a new FileNotFoundException with the specified detail message and cause.
+    *
+    * @param message the detail message explaining which file was not found
+    * @param cause the cause of this exception
+    */
    public FileNotFoundException( final String message, final Throwable cause ) {
-      super( message, cause );
+      super( message, cause, HttpStatus.NOT_FOUND.getCode() );
    }
 }

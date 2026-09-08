@@ -1,0 +1,40 @@
+meta {
+  name: GetModelsBatch
+  type: http
+  seq: 34
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/batch
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  [
+    {
+      "key": "org.eclipse.examples:1.0.0:Movement.ttl",
+      "fileName": "Movement.ttl",
+      "aspectModelUrn": "urn:samm:org.eclipse.examples:1.0.0#Movement",
+      "modelVersion": "2.2.0"
+    }
+  ]
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response contains loaded model information", function() {
+    const data = res.getBody();
+    expect(data).to.be.an('array').that.is.not.empty;
+    expect(data[0].fileName).to.include("Movement.ttl");
+    expect(data[0].aspectModelUrn).to.include("urn:samm:org.eclipse.examples:1.0.0#Movement");
+    expect(data[0].aspectModel).to.include(":Movement a samm:Aspect");
+  });
+}
