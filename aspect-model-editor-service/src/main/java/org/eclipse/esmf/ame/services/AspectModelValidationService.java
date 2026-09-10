@@ -14,12 +14,20 @@
 package org.eclipse.esmf.ame.services;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.eclipse.esmf.ame.exceptions.AspectModelEditorException;
+import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
 import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.ame.validation.services.ViolationFormatter;
+import org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation;
+import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
 
@@ -65,10 +73,63 @@ public class AspectModelValidationService {
 
          LOG.info( "Validation completed with {} violations", violationErrors.size() );
          return new ViolationReport( violationErrors );
-      } catch ( final Exception e ) {
+      } catch ( final AspectModelEditorException e ) {
          LOG.error( "Validation failed for URI: {}", uri, e );
          throw e;
+      } catch ( final Exception e ) {
+         LOG.error( "Validation failed for URI: {}", uri, e );
+         final String errorMessage = buildErrorMessage( e );
+         throw new InvalidAspectModelException( errorMessage, e );
       }
+   }
+
+   private String buildErrorMessage( final Exception e ) {
+      final Optional<ModelResolutionException> mreOpt = findModelResolutionException( e );
+      if ( mreOpt.isEmpty() ) {
+         return e.getMessage() != null && !e.getMessage().isBlank() ? e.getMessage() : "Aspect Model validation failed";
+      }
+
+      final ModelResolutionException mre = mreOpt.get();
+      final List<ModelResolutionViolation> checkedLocations = mre.getCheckedLocations();
+      if ( checkedLocations != null && !checkedLocations.isEmpty() ) {
+         final List<String> elementMessages = checkedLocations.stream()
+               .map( ModelResolutionViolation::element )
+               .flatMap( Optional::stream )
+               .map( AspectModelUrn::getUrn )
+               .distinct()
+               .map( urn -> String.format( "Element '%s' does not exist in a file.", urn ) )
+               .toList();
+
+         if ( !elementMessages.isEmpty() ) {
+            return String.join( " ", elementMessages );
+         }
+
+         final List<String> violationMessages = checkedLocations.stream()
+               .map( ModelResolutionViolation::message )
+               .filter( msg -> msg != null && !msg.isBlank() )
+               .distinct()
+               .toList();
+
+         if ( !violationMessages.isEmpty() ) {
+            return String.join( "; ", violationMessages );
+         }
+      }
+
+      final String fallbackMessage = mre.getMessage() != null && !mre.getMessage().isBlank()
+            ? mre.getMessage()
+            : e.getMessage();
+      return fallbackMessage != null && !fallbackMessage.isBlank() ? fallbackMessage : "Aspect Model validation failed";
+   }
+
+   private Optional<ModelResolutionException> findModelResolutionException( final Throwable throwable ) {
+      Throwable current = throwable;
+      while ( current != null ) {
+         if ( current instanceof final ModelResolutionException mre ) {
+            return Optional.of( mre );
+         }
+         current = current.getCause();
+      }
+      return Optional.empty();
    }
 
    /**
