@@ -22,7 +22,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
+import org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
+import org.eclipse.esmf.ame.model.FileLoadError;
 import org.eclipse.esmf.ame.services.models.FileEntry;
 import org.eclipse.esmf.ame.services.models.FileInformation;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
@@ -238,5 +240,55 @@ class ModelServiceTest {
       final FileInformation fileInfo = results.getFirst();
       assertEquals( TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, fileInfo.fileName() );
       assertTrue( fileInfo.aspectModel().contains( ":Movement" ) );
+   }
+
+   @Test
+   void testGetModels_MultipleFilesWithError_CollectsAllErrorsAndSortsByFile() {
+      final String fileZ = "ZzzNonExistent.ttl";
+      final String fileA = "AaaNonExistent.ttl";
+
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + fileZ, fileZ,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#ZzzNonExistent", "" ),
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + fileA, fileA,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#AaaNonExistent", "" ) );
+
+      final AspectModelBatchLoadException exception = assertThrows( AspectModelBatchLoadException.class,
+            () -> modelService.getModels( fileEntries ),
+            "Should throw AspectModelBatchLoadException when files fail to load" );
+
+      final List<FileLoadError> errors = exception.getErrors();
+      assertEquals( 2, errors.size(), "Should collect errors for all failed files" );
+
+      final String message = exception.getMessage();
+      assertTrue( message.contains( "SourceDocument" ), "Message should contain SourceDocument info" );
+      assertTrue( message.contains( fileA ), "Message should contain fileA" );
+      assertTrue( message.contains( fileZ ), "Message should contain fileZ" );
+
+      // Verify files are sorted alphabetically in the message (AAA before ZZZ)
+      final int indexOfA = message.indexOf( fileA );
+      final int indexOfZ = message.indexOf( fileZ );
+      assertTrue( indexOfA < indexOfZ, "Errors should be sorted alphabetically by file" );
+   }
+
+   @Test
+   void testGetModels_MixedSuccessAndFailure_ThrowsAggregatedException() {
+      final String nonExistentFile = "NonExistentModel.ttl";
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,
+                  TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_FOR_SERVICE,
+                  "" ),
+            new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + nonExistentFile, nonExistentFile,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#NonExistentModel", "" ) );
+
+      final AspectModelBatchLoadException exception = assertThrows( AspectModelBatchLoadException.class,
+            () -> modelService.getModels( fileEntries ),
+            "Should throw AspectModelBatchLoadException when at least one file fails" );
+
+      assertEquals( 1, exception.getErrors().size() );
+      final FileLoadError error = exception.getErrors().getFirst();
+      assertTrue( error.fileIdentifier().contains( nonExistentFile ) );
+      assertTrue( error.sourceDocument().contains( nonExistentFile ) );
+      assertTrue( exception.getMessage().contains( "SourceDocument" ) );
    }
 }

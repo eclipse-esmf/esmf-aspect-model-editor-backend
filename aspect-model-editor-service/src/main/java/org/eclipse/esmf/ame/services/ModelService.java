@@ -20,13 +20,18 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.TreeMap;
 import java.util.function.Supplier;
 
 import org.eclipse.esmf.ame.constants.ApplicationConstants;
+import org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.ame.model.FileLoadError;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
 import org.eclipse.esmf.ame.services.file.FilePathResolver;
 import org.eclipse.esmf.ame.services.models.FileEntry;
@@ -96,6 +101,7 @@ public class ModelService {
 
    public List<FileInformation> getModels( final List<FileEntry> fileEntries ) {
       final List<FileInformation> results = new ArrayList<>();
+      final List<FileLoadError> errors = new ArrayList<>();
 
       for ( final FileEntry fileEntry : fileEntries ) {
          final Supplier<AspectModel> lazySupplier;
@@ -128,17 +134,144 @@ public class ModelService {
                         String.format( "Aspect Model not found for URN '%s' in file '%s'", urn, fileIdentifier ) ) );
 
             results.add( convertToFileInformation( aspectModelFile, urn ) );
-         } catch ( final ModelResolutionException e ) {
-            final String elementInfo = e.getCheckedLocations().stream().findFirst()
-                  .flatMap( ModelResolutionViolation::element )
-                  .map( element -> String.format( "Element '%s' not found", element ) )
-                  .orElse( "Model resolution failed" );
-
-            throw new FileNotFoundException( String.format( "Failed to load file '%s': %s", fileIdentifier, elementInfo ), e );
+         } catch ( final FileNotFoundException fnfe ) {
+            errors.add( new FileLoadError( fileIdentifier, fileIdentifier, fnfe.getMessage() ) );
+         } catch ( final FileReadException fre ) {
+            errors.add( new FileLoadError( fileIdentifier, fileIdentifier, fre.getMessage() ) );
+         } catch ( final Throwable t ) {
+            final Optional<ModelResolutionException> mreOpt = findModelResolutionException( t );
+            if ( mreOpt.isPresent() ) {
+               errors.addAll( extractErrorsFromResolutionException( fileIdentifier, mreOpt.get() ) );
+            } else {
+               final Optional<ParserException> peOpt = findParserException( t );
+               if ( peOpt.isPresent() ) {
+                  errors.add( extractErrorFromParserException( fileIdentifier, peOpt.get() ) );
+               } else {
+                  final String msg = t.getMessage() != null && !t.getMessage().isBlank()
+                        ? t.getMessage()
+                        : t.getClass().getSimpleName();
+                  errors.add( new FileLoadError( fileIdentifier, fileIdentifier, msg ) );
+               }
+            }
          }
       }
 
+      if ( !errors.isEmpty() ) {
+         final Map<String, List<FileLoadError>> errorsByFile = new TreeMap<>();
+         for ( final FileLoadError err : errors ) {
+            errorsByFile.computeIfAbsent( err.fileIdentifier(), k -> new ArrayList<>() ).add( err );
+         }
+         for ( final List<FileLoadError> fileErrors : errorsByFile.values() ) {
+            fileErrors.sort( Comparator.comparing( FileLoadError::sourceDocument )
+                  .thenComparing( FileLoadError::message ) );
+         }
+
+         final String aggregatedMessage = formatErrorMessage( errorsByFile );
+         throw new AspectModelBatchLoadException( aggregatedMessage, errors );
+      }
+
       return results;
+   }
+
+   private List<FileLoadError> extractErrorsFromResolutionException(
+         final String fileIdentifier, final ModelResolutionException mre ) {
+      final List<ModelResolutionViolation> violations = mre.getCheckedLocations();
+      if ( violations == null || violations.isEmpty() ) {
+         final String message = mre.getMessage() != null && !mre.getMessage().isBlank()
+               ? mre.getMessage()
+               : "Model resolution failed";
+         return List.of( new FileLoadError( fileIdentifier, fileIdentifier, message ) );
+      }
+
+      final List<FileLoadError> result = new ArrayList<>();
+      for ( final ModelResolutionViolation violation : violations ) {
+         final String sourceDoc = violation.location() != null
+               ? violation.location().toString()
+               : fileIdentifier;
+
+         final String message;
+         if ( violation.element().isPresent() ) {
+            message = String.format( "Element '%s' not found", violation.element().get() );
+         } else if ( violation.message() != null && !violation.message().isBlank() ) {
+            message = violation.message();
+         } else if ( violation.cause().isPresent() && violation.cause().get().getMessage() != null ) {
+            message = violation.cause().get().getMessage();
+         } else if ( mre.getMessage() != null && !mre.getMessage().isBlank() ) {
+            message = mre.getMessage();
+         } else {
+            message = "Model resolution failed";
+         }
+
+         final FileLoadError error = new FileLoadError( fileIdentifier, sourceDoc, message );
+         if ( !result.contains( error ) ) {
+            result.add( error );
+         }
+      }
+      return result;
+   }
+
+   private FileLoadError extractErrorFromParserException(
+         final String fileIdentifier, final ParserException pe ) {
+      final String sourceDoc = pe.getSourceLocation() != null
+            ? pe.getSourceLocation().toString()
+            : ( pe.getSourceDocument() != null && !pe.getSourceDocument().isBlank()
+            ? pe.getSourceDocument()
+            : fileIdentifier );
+
+      final String message;
+      if ( pe.getLine() > 0 ) {
+         message = String.format( "Parsing error at line %d, column %d: %s",
+               pe.getLine(), pe.getColumn(), pe.getMessage() );
+      } else {
+         message = pe.getMessage() != null ? pe.getMessage() : "Parsing failed";
+      }
+      return new FileLoadError( fileIdentifier, sourceDoc, message );
+   }
+
+   private Optional<ModelResolutionException> findModelResolutionException( final Throwable throwable ) {
+      Throwable current = throwable;
+      while ( current != null ) {
+         if ( current instanceof final ModelResolutionException mre ) {
+            return Optional.of( mre );
+         }
+         current = current.getCause();
+      }
+      return Optional.empty();
+   }
+
+   private Optional<ParserException> findParserException( final Throwable throwable ) {
+      Throwable current = throwable;
+      while ( current != null ) {
+         if ( current instanceof final ParserException pe ) {
+            return Optional.of( pe );
+         }
+         current = current.getCause();
+      }
+      return Optional.empty();
+   }
+
+   private String formatErrorMessage( final Map<String, List<FileLoadError>> errorsByFile ) {
+      final StringBuilder sb = new StringBuilder();
+      if ( errorsByFile.size() == 1 ) {
+         sb.append( "Failed to load aspect model file:\n\n" );
+      } else {
+         sb.append( "Failed to load aspect model files:\n\n" );
+      }
+
+      boolean firstFile = true;
+      for ( final Map.Entry<String, List<FileLoadError>> entry : errorsByFile.entrySet() ) {
+         if ( !firstFile ) {
+            sb.append( "\n\n" );
+         }
+         firstFile = false;
+
+         sb.append( "File: " ).append( entry.getKey() );
+         for ( final FileLoadError err : entry.getValue() ) {
+            sb.append( "\n• Error: " ).append( err.message() );
+         }
+      }
+
+      return sb.toString();
    }
 
    private FileInformation convertToFileInformation( final AspectModelFile aspectModelFile, final AspectModelUrn requestedUrn ) {
