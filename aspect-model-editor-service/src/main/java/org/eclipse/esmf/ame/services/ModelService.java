@@ -90,6 +90,10 @@ public class ModelService {
             validationOperations, modelPath, new FileLoadErrorHandler() );
    }
 
+   public Path getModelPath() {
+      return modelPath;
+   }
+
    public Map<String, List<Version>> getAllNamespaces() {
       try {
          return new ModelGroupingUtils( aspectModelLoader, aspectModelValidator ).groupModelsByNamespaceAndVersion(

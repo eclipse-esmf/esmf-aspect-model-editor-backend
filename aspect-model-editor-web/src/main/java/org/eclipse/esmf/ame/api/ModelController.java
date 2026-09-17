@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import org.eclipse.esmf.ame.MediaTypeExtension;
 import org.eclipse.esmf.ame.api.model.response.AspectModelResponse;
+import org.eclipse.esmf.ame.api.model.response.StoragePathResponse;
 import org.eclipse.esmf.ame.config.ApplicationSettings;
 import org.eclipse.esmf.ame.constants.ApplicationConstants;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
@@ -218,6 +219,28 @@ public class ModelController {
    @Get( uri = "namespaces", consumes = MediaType.TEXT_PLAIN )
    public HttpResponse<Map<String, List<Version>>> getAllNamespaces() {
       return HttpResponse.ok( modelService.getAllNamespaces() );
+   }
+
+   /**
+    * Returns the storage path where aspect models are stored.
+    *
+    * @return a HttpResponse containing the storage path details.
+    */
+   @Get( uri = "storage-path" )
+   @Produces( MediaType.APPLICATION_JSON )
+   public HttpResponse<StoragePathResponse> getStoragePath() {
+      return HttpResponse.ok( new StoragePathResponse( modelService.getModelPath() ) );
+   }
+
+   /**
+    * Alias for {@link #getStoragePath()} returning the models storage path.
+    *
+    * @return a HttpResponse containing the storage path details.
+    */
+   @Get( uri = "path" )
+   @Produces( MediaType.APPLICATION_JSON )
+   public HttpResponse<StoragePathResponse> getPath() {
+      return getStoragePath();
    }
 
    /**

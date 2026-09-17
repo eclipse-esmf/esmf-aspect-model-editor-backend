@@ -24,12 +24,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.net.URI;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.eclipse.esmf.ame.api.model.response.AspectModelResponse;
+import org.eclipse.esmf.ame.api.model.response.StoragePathResponse;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.exceptions.UriNotDefinedException;
@@ -223,6 +225,31 @@ class ModelControllerTest {
       assertEquals( HttpStatus.OK, response.getStatus() );
       assertNotNull( response.body() );
       assertTrue( response.body().success() );
+   }
+
+   @Test
+   void testGetStoragePathSuccess() {
+      final Path testPath = Path.of( "/tmp/test-models" );
+      when( modelService.getModelPath() ).thenReturn( testPath );
+
+      final HttpResponse<StoragePathResponse> response = controller.getStoragePath();
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertNotNull( response.body() );
+      assertEquals( testPath.toAbsolutePath().toString(), response.body().path() );
+      assertEquals( testPath.toAbsolutePath().toString(), response.body().storagePath() );
+   }
+
+   @Test
+   void testGetPathSuccess() {
+      final Path testPath = Path.of( "/tmp/test-models" );
+      when( modelService.getModelPath() ).thenReturn( testPath );
+
+      final HttpResponse<StoragePathResponse> response = controller.getPath();
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertNotNull( response.body() );
+      assertEquals( testPath.toAbsolutePath().toString(), response.body().path() );
    }
 }
 
