@@ -251,5 +251,19 @@ class ModelControllerTest {
       assertNotNull( response.body() );
       assertEquals( testPath.toAbsolutePath().toString(), response.body().path() );
    }
+
+   @Test
+   void testGetModelsBatchFailure_ThrowsBatchLoadException() {
+      final List<FileEntry> entries = List.of( new FileEntry( "ns:1.0.0:Model.ttl", "Model.ttl", "urn:samm:ns:1.0.0#Model", "" ) );
+      final org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException batchException =
+            new org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException(
+                  "Failed to load", List.of() );
+      when( modelService.getModels( entries ) ).thenThrow( batchException );
+
+      final org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException thrown =
+            assertThrows( org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException.class, () -> controller.getModels( entries ) );
+
+      assertEquals( 422, thrown.getHttpStatusCode() );
+   }
 }
 

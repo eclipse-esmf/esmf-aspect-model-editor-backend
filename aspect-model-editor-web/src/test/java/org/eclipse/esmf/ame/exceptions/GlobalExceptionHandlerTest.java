@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.eclipse.esmf.ame.api.model.response.ErrorResponse;
@@ -218,6 +219,20 @@ class GlobalExceptionHandlerTest {
       assertNotNull( body );
       assertEquals( 422, body.error().code() );
       assertTrue( body.error().message().contains( "Invalid URI format" ) );
+   }
+
+   @Test
+   void testHandleAspectModelBatchLoadException() {
+      final AspectModelBatchLoadException ex = new AspectModelBatchLoadException(
+            "Failed to load aspect model files:\n\nFile: A.ttl\n• Error: issue",
+            List.of( new org.eclipse.esmf.ame.model.FileLoadError( "A.ttl", "A.ttl", "issue" ) ) );
+      final HttpResponse<?> response = handler.handle( request, ex );
+
+      assertEquals( HttpStatus.UNPROCESSABLE_ENTITY, response.getStatus() );
+      final ErrorResponse body = (ErrorResponse) response.body();
+      assertNotNull( body );
+      assertEquals( 422, body.error().code() );
+      assertTrue( body.error().message().contains( "Failed to load aspect model files" ) );
    }
 
    @Test

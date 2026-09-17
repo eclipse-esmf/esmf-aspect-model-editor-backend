@@ -15,14 +15,17 @@ package org.eclipse.esmf.ame.services;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.model.FileLoadError;
 import org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
@@ -62,10 +65,25 @@ public class FileLoadErrorHandler {
          return List.of( extractErrorFromParserException( fileIdentifier, peOpt.get() ) );
       }
 
-      final String fallbackMessage = throwable.getMessage() != null && !throwable.getMessage().isBlank()
-            ? throwable.getMessage()
-            : throwable.getClass().getSimpleName();
-      return List.of( new FileLoadError( fileIdentifier, fileIdentifier, fallbackMessage ) );
+      final Optional<InvalidAspectModelException> iameOpt = findExceptionInCause( throwable, InvalidAspectModelException.class );
+      if ( iameOpt.isPresent() ) {
+         return extractErrorsFromInvalidAspectModel( fileIdentifier, iameOpt.get() );
+      }
+
+      final String rawMessage = throwable.getMessage();
+      if ( rawMessage != null && !rawMessage.isBlank() ) {
+         if ( rawMessage.contains( ";" ) || rawMessage.contains( "\n" ) ) {
+            return splitMultiMessage( fileIdentifier, fileIdentifier, rawMessage );
+         }
+         return List.of( new FileLoadError( fileIdentifier, fileIdentifier, rawMessage ) );
+      }
+
+      final Throwable cause = throwable.getCause();
+      if ( cause != null && cause != throwable ) {
+         return extractErrors( fileIdentifier, cause );
+      }
+
+      return List.of( new FileLoadError( fileIdentifier, fileIdentifier, throwable.getClass().getSimpleName() ) );
    }
 
    /**
@@ -112,8 +130,11 @@ public class FileLoadErrorHandler {
          firstFile = false;
 
          sb.append( "File: " ).append( entry.getKey() );
+         final Set<String> seenMessages = new LinkedHashSet<>();
          for ( final FileLoadError err : entry.getValue() ) {
-            sb.append( "\n• Error: " ).append( err.message() );
+            if ( seenMessages.add( err.message() ) ) {
+               sb.append( "\n• Error: " ).append( err.message() );
+            }
          }
       }
 
@@ -138,7 +159,7 @@ public class FileLoadErrorHandler {
          final String message = mre.getMessage() != null && !mre.getMessage().isBlank()
                ? mre.getMessage()
                : "Model resolution failed";
-         return List.of( new FileLoadError( fileIdentifier, fileIdentifier, message ) );
+         return splitMultiMessage( fileIdentifier, fileIdentifier, message );
       }
 
       final List<FileLoadError> result = new ArrayList<>();
@@ -147,25 +168,89 @@ public class FileLoadErrorHandler {
                ? violation.location().toString()
                : fileIdentifier;
 
-         final String message;
-         if ( violation.element().isPresent() ) {
-            message = String.format( "Element '%s' not found", violation.element().get() );
-         } else if ( violation.message() != null && !violation.message().isBlank() ) {
-            message = violation.message();
-         } else if ( violation.cause().isPresent() && violation.cause().get().getMessage() != null ) {
-            message = violation.cause().get().getMessage();
-         } else if ( mre.getMessage() != null && !mre.getMessage().isBlank() ) {
-            message = mre.getMessage();
-         } else {
-            message = "Model resolution failed";
-         }
-
+         final String message = buildViolationMessage( violation, mre.getMessage() );
          final FileLoadError error = new FileLoadError( fileIdentifier, sourceDoc, message );
          if ( !result.contains( error ) ) {
             result.add( error );
          }
       }
+
+      if ( result.isEmpty() ) {
+         final String fallback = mre.getMessage() != null && !mre.getMessage().isBlank()
+               ? mre.getMessage()
+               : "Model resolution failed";
+         result.add( new FileLoadError( fileIdentifier, fileIdentifier, fallback ) );
+      }
+
       return result;
+   }
+
+   private String buildViolationMessage( final ModelResolutionViolation violation, final String fallback ) {
+      final StringBuilder sb = new StringBuilder();
+
+      if ( violation.element().isPresent() ) {
+         sb.append( "Element '" ).append( violation.element().get() ).append( "'" );
+      }
+
+      final String detailMessage = violation.message();
+      final String causeMessage = violation.cause()
+            .map( Throwable::getMessage )
+            .filter( m -> m != null && !m.isBlank() )
+            .orElse( null );
+
+      if ( detailMessage != null && !detailMessage.isBlank() ) {
+         if ( sb.length() > 0 ) {
+            sb.append( ": " );
+         }
+         sb.append( detailMessage );
+      }
+
+      if ( causeMessage != null && !causeMessage.isBlank() ) {
+         if ( detailMessage == null || !detailMessage.contains( causeMessage ) ) {
+            if ( sb.length() > 0 ) {
+               sb.append( " (" ).append( causeMessage ).append( ")" );
+            } else {
+               sb.append( causeMessage );
+            }
+         }
+      }
+
+      if ( sb.length() == 0 ) {
+         return ( fallback != null && !fallback.isBlank() ) ? fallback : "Model resolution failed";
+      }
+
+      return sb.toString();
+   }
+
+   private List<FileLoadError> extractErrorsFromInvalidAspectModel(
+         final String fileIdentifier, final InvalidAspectModelException iame ) {
+      final String rawMessage = iame.getMessage();
+      if ( rawMessage == null || rawMessage.isBlank() ) {
+         return List.of( new FileLoadError( fileIdentifier, fileIdentifier, "Aspect Model is invalid" ) );
+      }
+
+      String text = rawMessage;
+      final String prefix = "Aspect Model has invalid syntax: ";
+      if ( text.startsWith( prefix ) ) {
+         text = text.substring( prefix.length() );
+      }
+
+      return splitMultiMessage( fileIdentifier, fileIdentifier, text );
+   }
+
+   private List<FileLoadError> splitMultiMessage( final String fileIdentifier, final String sourceDoc, final String rawMessage ) {
+      final List<FileLoadError> list = new ArrayList<>();
+      final String[] parts = rawMessage.split( ";\\s*|\\r?\\n+" );
+      for ( final String part : parts ) {
+         final String trimmed = part.trim();
+         if ( !trimmed.isBlank() ) {
+            list.add( new FileLoadError( fileIdentifier, sourceDoc, trimmed ) );
+         }
+      }
+      if ( list.isEmpty() ) {
+         list.add( new FileLoadError( fileIdentifier, sourceDoc, rawMessage.trim() ) );
+      }
+      return list;
    }
 
    private FileLoadError extractErrorFromParserException(

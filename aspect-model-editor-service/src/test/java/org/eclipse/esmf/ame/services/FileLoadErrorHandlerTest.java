@@ -129,6 +129,67 @@ class FileLoadErrorHandlerTest {
       final AspectModelBatchLoadException exception = errorHandler.createBatchLoadException( errors );
 
       assertEquals( errors, exception.getErrors() );
+      assertEquals( 422, exception.getHttpStatusCode() );
       assertFalse( exception.getMessage().isEmpty() );
+   }
+
+   @Test
+   void testExtractErrors_SingleFileWithMultipleResolutionViolations_AllCaptured() {
+      final URI docUri = URI.create( "file:/path/models/Movement.ttl" );
+      final AspectModelUrn urn1 = AspectModelUrn.fromUrn( "urn:samm:org.eclipse.esmf.example:1.0.0#Prop1" );
+      final AspectModelUrn urn2 = AspectModelUrn.fromUrn( "urn:samm:org.eclipse.esmf.example:1.0.0#Prop2" );
+
+      final ModelResolutionViolation violation1 = new ModelResolutionViolation(
+            Optional.of( urn1 ), docUri, "File does not exist", Optional.empty() );
+      final ModelResolutionViolation violation2 = new ModelResolutionViolation(
+            Optional.of( urn2 ), docUri, "File does not contain the element definition", Optional.empty() );
+
+      final ModelResolutionException mre = new ModelResolutionException( List.of( violation1, violation2 ) );
+      final List<FileLoadError> errors = errorHandler.extractErrors( "models/Movement.ttl", mre );
+
+      assertEquals( 2, errors.size(), "Both violations should be extracted for the single file" );
+      assertTrue( errors.get( 0 ).message().contains( "Prop1" ) );
+      assertTrue( errors.get( 0 ).message().contains( "File does not exist" ) );
+      assertTrue( errors.get( 1 ).message().contains( "Prop2" ) );
+      assertTrue( errors.get( 1 ).message().contains( "File does not contain the element definition" ) );
+   }
+
+   @Test
+   void testExtractErrors_ModelResolutionExceptionStringMessageWithMultipleErrors() {
+      final ModelResolutionException mre = new ModelResolutionException(
+            "Element 'urn:samm:org.eclipse.esmf:1.0.0#A' not found; Element 'urn:samm:org.eclipse.esmf:1.0.0#B' not found" );
+      final List<FileLoadError> errors = errorHandler.extractErrors( "models/Multi.ttl", mre );
+
+      assertEquals( 2, errors.size(), "Semicolon-separated errors should be split into individual errors" );
+      assertEquals( "Element 'urn:samm:org.eclipse.esmf:1.0.0#A' not found", errors.get( 0 ).message() );
+      assertEquals( "Element 'urn:samm:org.eclipse.esmf:1.0.0#B' not found", errors.get( 1 ).message() );
+   }
+
+   @Test
+   void testExtractErrors_InvalidAspectModelException_MultipleSyntaxErrors() {
+      final org.eclipse.esmf.ame.exceptions.InvalidAspectModelException iame =
+            new org.eclipse.esmf.ame.exceptions.InvalidAspectModelException(
+                  "Aspect Model has invalid syntax: Missing property description; Characteristic requires dataType" );
+
+      final List<FileLoadError> errors = errorHandler.extractErrors( "models/Invalid.ttl", iame );
+
+      assertEquals( 2, errors.size(), "All syntax errors should be extracted from InvalidAspectModelException" );
+      assertEquals( "Missing property description", errors.get( 0 ).message() );
+      assertEquals( "Characteristic requires dataType", errors.get( 1 ).message() );
+   }
+
+   @Test
+   void testFormatErrorMessage_DeduplicatesIdenticalMessagesUnderSameFile() {
+      final List<FileLoadError> errors = List.of(
+            new FileLoadError( "models/A.ttl", "file:/path/A.ttl", "Same error" ),
+            new FileLoadError( "models/A.ttl", "file:/path/A_other.ttl", "Same error" ),
+            new FileLoadError( "models/A.ttl", "file:/path/A.ttl", "Different error" ) );
+
+      final String message = errorHandler.formatErrorMessage( errors );
+
+      final int firstIdx = message.indexOf( "• Error: Same error" );
+      final int secondIdx = message.indexOf( "• Error: Same error", firstIdx + 1 );
+      assertEquals( -1, secondIdx, "Identical error message should not be repeated under the same file" );
+      assertTrue( message.contains( "• Error: Different error" ) );
    }
 }

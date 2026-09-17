@@ -97,8 +97,11 @@ class ModelServiceTest {
                   TEST_MODEL_NOT_FOUND + FILE_EXTENSION, "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#" + TEST_MODEL_NOT_FOUND,
                   "" ) );
 
-      assertThrows( FileNotFoundException.class, () -> modelService.getModels( fileEntries ),
-            "Should throw FileNotFoundException when file does not exist" );
+      final AspectModelBatchLoadException exception = assertThrows( AspectModelBatchLoadException.class,
+            () -> modelService.getModels( fileEntries ),
+            "Should throw AspectModelBatchLoadException when file does not exist" );
+
+      assertEquals( 422, exception.getHttpStatusCode() );
    }
 
    @Test
@@ -135,11 +138,12 @@ class ModelServiceTest {
                   TEST_MODEL_FOR_SERVICE + FILE_EXTENSION, "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#MissingElement",
                   "" ) );
 
-      final FileNotFoundException fileNotFoundException = assertThrows( FileNotFoundException.class,
-            () -> modelService.getModels( fileEntries ), "Should throw FileNotFoundException when element is missing" );
+      final AspectModelBatchLoadException batchLoadException = assertThrows( AspectModelBatchLoadException.class,
+            () -> modelService.getModels( fileEntries ), "Should throw AspectModelBatchLoadException when element is missing" );
 
-      assertTrue( fileNotFoundException.getMessage().contains( "Aspect Model not found" ) );
-      assertTrue( fileNotFoundException.getMessage().contains( "MissingElement" ) );
+      assertEquals( 422, batchLoadException.getHttpStatusCode() );
+      assertTrue( batchLoadException.getMessage().contains( "Aspect Model not found" ) );
+      assertTrue( batchLoadException.getMessage().contains( "MissingElement" ) );
    }
 
    @Test
@@ -205,10 +209,11 @@ class ModelServiceTest {
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + nonExistentFile, nonExistentFile,
                   "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#NonExistent", "" ) );
 
-      final FileNotFoundException fileNotFoundException = assertThrows( FileNotFoundException.class,
-            () -> modelService.getModels( fileEntries ), "Should throw FileNotFoundException" );
+      final AspectModelBatchLoadException batchLoadException = assertThrows( AspectModelBatchLoadException.class,
+            () -> modelService.getModels( fileEntries ), "Should throw AspectModelBatchLoadException" );
 
-      assertTrue( fileNotFoundException.getMessage().contains( nonExistentFile ) || fileNotFoundException.getMessage()
+      assertEquals( 422, batchLoadException.getHttpStatusCode() );
+      assertTrue( batchLoadException.getMessage().contains( nonExistentFile ) || batchLoadException.getMessage()
             .contains( EXAMPLE_NAMESPACE ), "Exception message should contain file name or namespace information" );
    }
 
