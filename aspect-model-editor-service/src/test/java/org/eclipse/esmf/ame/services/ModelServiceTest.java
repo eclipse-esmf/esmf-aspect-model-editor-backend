@@ -261,7 +261,7 @@ class ModelServiceTest {
       assertEquals( 2, errors.size(), "Should collect errors for all failed files" );
 
       final String message = exception.getMessage();
-      assertTrue( message.contains( "SourceDocument" ), "Message should contain SourceDocument info" );
+      assertTrue( message.contains( "File:" ), "Message should contain File info" );
       assertTrue( message.contains( fileA ), "Message should contain fileA" );
       assertTrue( message.contains( fileZ ), "Message should contain fileZ" );
 
@@ -289,6 +289,6 @@ class ModelServiceTest {
       final FileLoadError error = exception.getErrors().getFirst();
       assertTrue( error.fileIdentifier().contains( nonExistentFile ) );
       assertTrue( error.sourceDocument().contains( nonExistentFile ) );
-      assertTrue( exception.getMessage().contains( "SourceDocument" ) );
+      assertTrue( exception.getMessage().contains( "Error:" ) );
    }
 }
