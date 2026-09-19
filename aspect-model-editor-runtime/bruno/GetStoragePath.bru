@@ -1,0 +1,23 @@
+meta {
+  name: GetStoragePath
+  type: http
+  seq: 64
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models/storage-path
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+  
+  test("Response contains storage path", function() {
+    const data = res.getBody();
+    expect(data).to.have.property("storagePath");
+    expect(data.storagePath).to.be.a("string").that.is.not.empty;
+  });
+}

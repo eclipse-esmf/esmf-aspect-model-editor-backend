@@ -15,9 +15,11 @@ package org.eclipse.esmf.ame.exceptions;
 
 import java.net.URISyntaxException;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.eclipse.esmf.ame.api.model.response.Error;
 import org.eclipse.esmf.ame.api.model.response.ErrorResponse;
+import org.eclipse.esmf.ame.services.utils.TurtleElementResolver;
 import org.eclipse.esmf.aspectmodel.AspectLoadingException;
 import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
 import org.eclipse.esmf.aspectmodel.ValueParsingException;
@@ -32,6 +34,7 @@ import io.micronaut.http.exceptions.HttpStatusException;
 import io.micronaut.http.server.exceptions.ExceptionHandler;
 import jakarta.inject.Singleton;
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.core.JacksonException;
@@ -50,16 +53,54 @@ public class GlobalExceptionHandler implements ExceptionHandler<Throwable, HttpR
    public HttpResponse<?> handle( final @NonNull HttpRequest request, final @NonNull Throwable exception ) {
       final HttpStatus status = determineHttpStatus( exception );
       final String errorMessage = extractErrorMessage( exception );
+      final String focusNode = extractFocusNode( exception );
       logException( request, exception, status, errorMessage );
 
       final ErrorResponse errorResponse = new ErrorResponse(
             new Error(
                   errorMessage,
                   request.getUri().toString(),
-                  status.getCode() )
+                  status.getCode(),
+                  focusNode )
       );
 
       return HttpResponse.status( status ).body( errorResponse );
+   }
+
+   /**
+    * Extracts an optional focus node (Aspect Model URN) associated with the exception if available.
+    *
+    * @param exception the exception to extract the focus node from
+    * @return the resolved focus node URN, or null if not available
+    */
+   private @Nullable String extractFocusNode( final Throwable exception ) {
+      final Optional<ValueParsingException> vpeOpt = findExceptionInCause( exception, ValueParsingException.class );
+      if ( vpeOpt.isPresent() ) {
+         final Optional<String> urn = TurtleElementResolver.resolveElementUrn( vpeOpt.get() );
+         if ( urn.isPresent() ) {
+            return urn.get();
+         }
+      }
+
+      final Optional<ModelResolutionException> mreOpt = findExceptionInCause( exception, ModelResolutionException.class );
+      if ( mreOpt.isPresent() && mreOpt.get().getCheckedLocations() != null ) {
+         for ( final var violation : mreOpt.get().getCheckedLocations() ) {
+            if ( violation.cause().isPresent() ) {
+               final Optional<ValueParsingException> nestedVpe = findExceptionInCause( violation.cause().get(), ValueParsingException.class );
+               if ( nestedVpe.isPresent() ) {
+                  final Optional<String> urn = TurtleElementResolver.resolveElementUrn( nestedVpe.get() );
+                  if ( urn.isPresent() ) {
+                     return urn.get();
+                  }
+               }
+            }
+            if ( violation.element().isPresent() ) {
+               return violation.element().get().toString();
+            }
+         }
+      }
+
+      return null;
    }
 
    /**
@@ -69,6 +110,23 @@ public class GlobalExceptionHandler implements ExceptionHandler<Throwable, HttpR
     * @return the extracted error message
     */
    private String extractErrorMessage( final Throwable exception ) {
+      final Optional<ValueParsingException> vpeOpt = findExceptionInCause( exception, ValueParsingException.class );
+      if ( vpeOpt.isPresent() ) {
+         return TurtleElementResolver.formatValueParsingException( vpeOpt.get() );
+      }
+
+      final Optional<ModelResolutionException> mreOpt = findExceptionInCause( exception, ModelResolutionException.class );
+      if ( mreOpt.isPresent() && mreOpt.get().getCheckedLocations() != null ) {
+         for ( final var violation : mreOpt.get().getCheckedLocations() ) {
+            if ( violation.cause().isPresent() ) {
+               final Optional<ValueParsingException> nestedVpe = findExceptionInCause( violation.cause().get(), ValueParsingException.class );
+               if ( nestedVpe.isPresent() ) {
+                  return TurtleElementResolver.formatValueParsingException( nestedVpe.get() );
+               }
+            }
+         }
+      }
+
       if ( exception instanceof AspectLoadingException ) {
          final Throwable cause = exception.getCause();
          if ( cause != null && cause.getMessage() != null && !cause.getMessage().isBlank() ) {
@@ -161,5 +219,17 @@ public class GlobalExceptionHandler implements ExceptionHandler<Throwable, HttpR
                request.getUri(),
                errorMessage );
       }
+   }
+
+   @SuppressWarnings( "unchecked" )
+   private <T extends Throwable> Optional<T> findExceptionInCause( final Throwable throwable, final Class<T> targetClass ) {
+      Throwable current = throwable;
+      while ( current != null ) {
+         if ( targetClass.isInstance( current ) ) {
+            return Optional.of( (T) current );
+         }
+         current = current.getCause();
+      }
+      return Optional.empty();
    }
 }

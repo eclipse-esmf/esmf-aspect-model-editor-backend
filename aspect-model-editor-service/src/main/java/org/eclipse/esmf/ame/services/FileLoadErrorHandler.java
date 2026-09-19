@@ -13,6 +13,10 @@
 
 package org.eclipse.esmf.ame.services;
 
+import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -27,6 +31,9 @@ import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.model.FileLoadError;
+import org.eclipse.esmf.ame.services.utils.TurtleElementContext;
+import org.eclipse.esmf.ame.services.utils.TurtleElementResolver;
+import org.eclipse.esmf.aspectmodel.ValueParsingException;
 import org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ParserException;
@@ -53,6 +60,11 @@ public class FileLoadErrorHandler {
 
       if ( throwable instanceof final FileReadException fre ) {
          return List.of( new FileLoadError( fileIdentifier, fileIdentifier, fre.getMessage() ) );
+      }
+
+      final Optional<ValueParsingException> vpeOpt = findExceptionInCause( throwable, ValueParsingException.class );
+      if ( vpeOpt.isPresent() ) {
+         return List.of( extractErrorFromValueParsingException( fileIdentifier, vpeOpt.get() ) );
       }
 
       final Optional<ModelResolutionException> mreOpt = findExceptionInCause( throwable, ModelResolutionException.class );
@@ -186,6 +198,20 @@ public class FileLoadErrorHandler {
    }
 
    private String buildViolationMessage( final ModelResolutionViolation violation, final String fallback ) {
+      if ( violation.cause().isPresent() ) {
+         final Optional<ValueParsingException> vpeOpt = findExceptionInCause( violation.cause().get(), ValueParsingException.class );
+         if ( vpeOpt.isPresent() ) {
+            final ValueParsingException vpe = vpeOpt.get();
+            String doc = vpe.getSourceDocument();
+            if ( doc == null || doc.isBlank() ) {
+               doc = tryReadContent( null, violation.location() );
+            }
+            final TurtleElementContext context = TurtleElementResolver.resolveContext(
+                  doc, vpe.getLine(), vpe.getColumn() );
+            return TurtleElementResolver.formatValueParsingMessage( vpe, context );
+         }
+      }
+
       final StringBuilder sb = new StringBuilder();
 
       if ( violation.element().isPresent() ) {
@@ -269,6 +295,48 @@ public class FileLoadErrorHandler {
          message = pe.getMessage() != null ? pe.getMessage() : "Parsing failed";
       }
       return new FileLoadError( fileIdentifier, sourceDoc, message );
+   }
+
+   private FileLoadError extractErrorFromValueParsingException(
+         final String fileIdentifier, final ValueParsingException vpe ) {
+      String documentContent = vpe.getSourceDocument();
+      if ( documentContent == null || documentContent.isBlank() ) {
+         documentContent = tryReadContent( fileIdentifier, vpe.getSourceLocation() );
+      }
+
+      final TurtleElementContext context = TurtleElementResolver.resolveContext(
+            documentContent, vpe.getLine(), vpe.getColumn() );
+
+      final String sourceDoc = vpe.getSourceLocation() != null
+            ? vpe.getSourceLocation().toString()
+            : fileIdentifier;
+
+      final String message = TurtleElementResolver.formatValueParsingMessage( vpe, context );
+      return new FileLoadError( fileIdentifier, sourceDoc, message );
+   }
+
+   private String tryReadContent( final String fileIdentifier, final URI sourceLocation ) {
+      if ( fileIdentifier != null ) {
+         try {
+            final Path path = Path.of( fileIdentifier );
+            if ( Files.isRegularFile( path ) ) {
+               return Files.readString( path );
+            }
+         } catch ( final Exception ignored ) {
+            // Ignore and fall back to sourceLocation
+         }
+      }
+      if ( sourceLocation != null ) {
+         try {
+            final Path path = Paths.get( sourceLocation );
+            if ( Files.isRegularFile( path ) ) {
+               return Files.readString( path );
+            }
+         } catch ( final Exception ignored ) {
+            // Ignore fallback
+         }
+      }
+      return null;
    }
 
    @SuppressWarnings( "unchecked" )

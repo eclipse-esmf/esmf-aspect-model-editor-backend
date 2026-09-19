@@ -1,0 +1,35 @@
+meta {
+  name: ValidateAspectModel_InvalidValueParsing
+  type: http
+  seq: 67
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/validate
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  uri: blob://invalid-value.ttl
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/AspectWithInvalidLiteralValue.ttl)
+}
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+  
+  test("Error response contains focusNode and descriptive message", function() {
+    const error = res.getBody().error;
+    expect(error.code).to.equal(409);
+    expect(error.focusNode).to.equal("urn:samm:org.eclipse.examples:1.0.0#speed");
+    expect(error.message).to.be.a('string').that.is.not.empty;
+    expect(error.message).to.include("Element 'urn:samm:org.eclipse.examples:1.0.0#speed'");
+    expect(error.message).to.include("samm:exampleValue");
+    expect(error.message).to.include("fef");
+  });
+}

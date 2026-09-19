@@ -192,4 +192,36 @@ class FileLoadErrorHandlerTest {
       assertEquals( -1, secondIdx, "Identical error message should not be repeated under the same file" );
       assertTrue( message.contains( "• Error: Different error" ) );
    }
+
+   @Test
+   void testExtractErrors_ValueParsingException_ResolvesElementUrnAndProperty() {
+      final String turtle = """
+            @prefix : <urn:samm:org.eclipse.esmf.example:1.0.0#> .
+            @prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> .
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+            
+            :speed a samm:Property ;
+               samm:exampleValue "fef"^^xsd:int .
+            """;
+
+      final org.apache.jena.rdf.model.Resource intType =
+            org.apache.jena.rdf.model.ResourceFactory.createResource( "http://www.w3.org/2001/XMLSchema#int" );
+      final org.eclipse.esmf.aspectmodel.ValueParsingException vpe =
+            new org.eclipse.esmf.aspectmodel.ValueParsingException(
+                  intType, "fef", new NumberFormatException( "For input string: \"fef\"" ) );
+      vpe.setLine( 6 );
+      vpe.setColumn( 21 );
+      vpe.setSourceDocument( turtle );
+      vpe.setSourceLocation( URI.create( "file:///models/Speed.ttl" ) );
+
+      final List<FileLoadError> errors = errorHandler.extractErrors( "models/Speed.ttl", vpe );
+
+      assertEquals( 1, errors.size() );
+      final FileLoadError error = errors.getFirst();
+      assertEquals( "models/Speed.ttl", error.fileIdentifier() );
+      assertTrue( error.message().contains( "Element 'urn:samm:org.eclipse.esmf.example:1.0.0#speed'" ) );
+      assertTrue( error.message().contains( "(samm:exampleValue)" ) );
+      assertTrue( error.message().contains( "Invalid value \"fef\" for type xsd:int at line 6, column 21" ) );
+      assertTrue( error.message().contains( "For input string: \"fef\"" ) );
+   }
 }

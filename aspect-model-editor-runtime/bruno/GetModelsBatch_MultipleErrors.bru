@@ -1,0 +1,47 @@
+meta {
+  name: GetModelsBatch_MultipleErrors
+  type: http
+  seq: 66
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/batch
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  [
+    {
+      "key": "org.eclipse.examples:1.0.0:NonExistent1.ttl",
+      "fileName": "NonExistent1.ttl",
+      "aspectModelUrn": "urn:samm:org.eclipse.examples:1.0.0#NonExistent1",
+      "modelVersion": "2.2.0"
+    },
+    {
+      "key": "org.eclipse.examples:1.0.0:NonExistent2.ttl",
+      "fileName": "NonExistent2.ttl",
+      "aspectModelUrn": "urn:samm:org.eclipse.examples:1.0.0#NonExistent2",
+      "modelVersion": "2.2.0"
+    }
+  ]
+}
+
+tests {
+  test("Status code is 422", function() {
+    expect(res.getStatus()).to.equal(422);
+  });
+  
+  test("Error response aggregates multiple file errors", function() {
+    const error = res.getBody().error;
+  
+    expect(error.code).to.equal(422);
+    expect(error.message).to.be.a('string').that.is.not.empty;
+    expect(error.message).to.include("NonExistent1.ttl");
+    expect(error.message).to.include("NonExistent2.ttl");
+  });
+}
