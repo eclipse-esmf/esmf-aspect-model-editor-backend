@@ -129,7 +129,9 @@ public class ModelService {
                   () -> new IllegalArgumentException( String.format( "Invalid aspect model URN: '%s'", fileEntry.aspectModelUrn() ) ) );
 
             lazySupplier = aspectModelRepository.loadByUrns( List.of( urn ) );
-            fileIdentifier = fileEntry.aspectModelUrn();
+            fileIdentifier = fileEntry.fileName() != null && !fileEntry.fileName().isBlank()
+                  ? fileEntry.fileName()
+                  : fileEntry.aspectModelUrn();
          }
 
          try {

@@ -218,6 +218,21 @@ class ModelServiceTest {
    }
 
    @Test
+   void testGetModels_FallbackToFileNameWhenAbsoluteNameNull() {
+      final String nonExistentFile = "NonExistentFallback.ttl";
+      final List<FileEntry> fileEntries = List.of(
+            new FileEntry( null, nonExistentFile,
+                  "urn:samm:" + EXAMPLE_NAMESPACE + ":" + VERSION + "#NonExistentFallback", "" ) );
+
+      final AspectModelBatchLoadException batchLoadException = assertThrows( AspectModelBatchLoadException.class,
+            () -> modelService.getModels( fileEntries ), "Should throw AspectModelBatchLoadException" );
+
+      assertEquals( 422, batchLoadException.getHttpStatusCode() );
+      assertTrue( batchLoadException.getMessage().contains( nonExistentFile ),
+            "Exception message should contain file name even when absoluteName is null" );
+   }
+
+   @Test
    void testGetModels_DifferentNamespaces() {
       final List<FileEntry> fileEntries = List.of(
             new FileEntry( EXAMPLE_NAMESPACE + ":" + VERSION + ":" + TEST_MODEL_FOR_SERVICE + FILE_EXTENSION,

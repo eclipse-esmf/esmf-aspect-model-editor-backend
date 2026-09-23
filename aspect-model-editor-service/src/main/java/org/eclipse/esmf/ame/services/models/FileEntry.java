@@ -13,6 +13,7 @@
 
 package org.eclipse.esmf.ame.services.models;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.serde.annotation.Serdeable;
 
@@ -26,7 +27,11 @@ import io.micronaut.serde.annotation.Serdeable;
  */
 @Serdeable
 @Introspected
-public record FileEntry( String absoluteName, String fileName, String aspectModelUrn, String modelVersion ) {
+public record FileEntry(
+      @JsonAlias( { "key", "absoluteName" } ) String absoluteName,
+      String fileName,
+      String aspectModelUrn,
+      String modelVersion ) {
    /**
     * Creates a FileEntry with only the aspect model URN.
     *
