@@ -27,6 +27,7 @@ import java.util.function.Supplier;
 import org.eclipse.esmf.ame.constants.ApplicationConstants;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
+import org.eclipse.esmf.ame.model.FileLoadError;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
 import org.eclipse.esmf.ame.services.file.FilePathResolver;
 import org.eclipse.esmf.ame.services.models.FileEntry;
@@ -38,7 +39,6 @@ import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
 import org.eclipse.esmf.aspectmodel.resolver.AspectModelFileLoader;
-import org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ParserException;
 import org.eclipse.esmf.aspectmodel.resolver.modelfile.RawAspectModelFile;
@@ -67,10 +67,12 @@ public class ModelService {
    private final FilePathResolver filePathResolver;
    private final ValidationOperations validationOperations;
    private final Path modelPath;
+   private final FileLoadErrorHandler fileLoadErrorHandler;
 
    public ModelService( final AspectModelValidator aspectModelValidator, final AspectModelLoader aspectModelLoader,
          final AspectModelRepository aspectModelRepository, final AspectModelReader aspectModelReader,
-         final FilePathResolver filePathResolver, final ValidationOperations validationOperations, final Path modelPath ) {
+         final FilePathResolver filePathResolver, final ValidationOperations validationOperations, final Path modelPath,
+         final FileLoadErrorHandler fileLoadErrorHandler ) {
       this.aspectModelValidator = aspectModelValidator;
       this.aspectModelLoader = aspectModelLoader;
       this.aspectModelRepository = aspectModelRepository;
@@ -78,6 +80,18 @@ public class ModelService {
       this.filePathResolver = filePathResolver;
       this.validationOperations = validationOperations;
       this.modelPath = modelPath;
+      this.fileLoadErrorHandler = fileLoadErrorHandler;
+   }
+
+   public ModelService( final AspectModelValidator aspectModelValidator, final AspectModelLoader aspectModelLoader,
+         final AspectModelRepository aspectModelRepository, final AspectModelReader aspectModelReader,
+         final FilePathResolver filePathResolver, final ValidationOperations validationOperations, final Path modelPath ) {
+      this( aspectModelValidator, aspectModelLoader, aspectModelRepository, aspectModelReader, filePathResolver,
+            validationOperations, modelPath, new FileLoadErrorHandler() );
+   }
+
+   public Path getModelPath() {
+      return modelPath;
    }
 
    public Map<String, List<Version>> getAllNamespaces() {
@@ -96,6 +110,7 @@ public class ModelService {
 
    public List<FileInformation> getModels( final List<FileEntry> fileEntries ) {
       final List<FileInformation> results = new ArrayList<>();
+      final List<FileLoadError> errors = new ArrayList<>();
 
       for ( final FileEntry fileEntry : fileEntries ) {
          final Supplier<AspectModel> lazySupplier;
@@ -114,7 +129,9 @@ public class ModelService {
                   () -> new IllegalArgumentException( String.format( "Invalid aspect model URN: '%s'", fileEntry.aspectModelUrn() ) ) );
 
             lazySupplier = aspectModelRepository.loadByUrns( List.of( urn ) );
-            fileIdentifier = fileEntry.aspectModelUrn();
+            fileIdentifier = fileEntry.fileName() != null && !fileEntry.fileName().isBlank()
+                  ? fileEntry.fileName()
+                  : fileEntry.aspectModelUrn();
          }
 
          try {
@@ -128,14 +145,13 @@ public class ModelService {
                         String.format( "Aspect Model not found for URN '%s' in file '%s'", urn, fileIdentifier ) ) );
 
             results.add( convertToFileInformation( aspectModelFile, urn ) );
-         } catch ( final ModelResolutionException e ) {
-            final String elementInfo = e.getCheckedLocations().stream().findFirst()
-                  .flatMap( ModelResolutionViolation::element )
-                  .map( element -> String.format( "Element '%s' not found", element ) )
-                  .orElse( "Model resolution failed" );
-
-            throw new FileNotFoundException( String.format( "Failed to load file '%s': %s", fileIdentifier, elementInfo ), e );
+         } catch ( final Throwable t ) {
+            errors.addAll( fileLoadErrorHandler.extractErrors( fileIdentifier, t ) );
          }
+      }
+
+      if ( !errors.isEmpty() ) {
+         throw fileLoadErrorHandler.createBatchLoadException( errors );
       }
 
       return results;

@@ -15,15 +15,18 @@ package org.eclipse.esmf.ame.exceptions;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.eclipse.esmf.ame.api.model.response.ErrorResponse;
 import org.eclipse.esmf.aspectmodel.AspectLoadingException;
 import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
+import org.eclipse.esmf.aspectmodel.ValueParsingException;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ParserException;
 
 import io.micronaut.http.HttpRequest;
@@ -221,6 +224,86 @@ class GlobalExceptionHandlerTest {
    }
 
    @Test
+   void testHandleAspectModelBatchLoadException() {
+      final AspectModelBatchLoadException ex = new AspectModelBatchLoadException(
+            "Failed to load aspect model files:\n\nFile: A.ttl\n• Error: issue",
+            List.of( new org.eclipse.esmf.ame.model.FileLoadError( "A.ttl", "A.ttl", "issue" ) ) );
+      final HttpResponse<?> response = handler.handle( request, ex );
+
+      assertEquals( HttpStatus.UNPROCESSABLE_ENTITY, response.getStatus() );
+      final ErrorResponse body = (ErrorResponse) response.body();
+      assertNotNull( body );
+      assertEquals( 422, body.error().code() );
+      assertTrue( body.error().message().contains( "Failed to load aspect model files" ) );
+   }
+
+   @Test
+   void testHandleValueParsingException() {
+      final String turtle = """
+            @prefix : <urn:samm:org.eclipse.esmf.example:1.0.0#> .
+            @prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> .
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+            
+            :speed a samm:Property ;
+               samm:exampleValue "fef"^^xsd:int .
+            """;
+
+      final org.apache.jena.rdf.model.Resource intType =
+            org.apache.jena.rdf.model.ResourceFactory.createResource( "http://www.w3.org/2001/XMLSchema#int" );
+      final ValueParsingException vpe = new ValueParsingException(
+            intType, "fef", new NumberFormatException( "For input string: \"fef\"" ) );
+      vpe.setLine( 6 );
+      vpe.setColumn( 21 );
+      vpe.setSourceDocument( turtle );
+
+      final HttpResponse<?> response = handler.handle( request, vpe );
+
+      assertEquals( HttpStatus.BAD_REQUEST, response.getStatus() );
+      final ErrorResponse body = (ErrorResponse) response.body();
+      assertNotNull( body );
+      assertEquals( 400, body.error().code() );
+      assertEquals( "urn:samm:org.eclipse.esmf.example:1.0.0#speed", body.error().focusNode() );
+      assertTrue( body.error().message().contains( "Element 'urn:samm:org.eclipse.esmf.example:1.0.0#speed'" ) );
+      assertTrue( body.error().message().contains( "(samm:exampleValue)" ) );
+      assertTrue( body.error().message().contains( "Invalid value \"fef\" for type xsd:int at line 6, column 21" ) );
+      assertTrue( body.error().message().contains( "For input string: \"fef\"" ) );
+   }
+
+   @Test
+   void testHandleInvalidAspectModelException_WithValueParsingExceptionCause() {
+      final String turtle = """
+            @prefix : <urn:samm:org.eclipse.esmf.example:1.0.0#> .
+            @prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> .
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+            
+            :speed a samm:Property ;
+               samm:exampleValue "fef"^^xsd:int .
+            """;
+
+      final org.apache.jena.rdf.model.Resource intType =
+            org.apache.jena.rdf.model.ResourceFactory.createResource( "http://www.w3.org/2001/XMLSchema#int" );
+      final ValueParsingException vpe = new ValueParsingException(
+            intType, "fef", new NumberFormatException( "For input string: \"fef\"" ) );
+      vpe.setLine( 6 );
+      vpe.setColumn( 21 );
+      vpe.setSourceDocument( turtle );
+
+      final org.eclipse.esmf.ame.exceptions.InvalidAspectModelException ex =
+            new org.eclipse.esmf.ame.exceptions.InvalidAspectModelException( "Aspect Model validation failed", vpe );
+
+      final HttpResponse<?> response = handler.handle( request, ex );
+
+      assertEquals( HttpStatus.CONFLICT, response.getStatus() );
+      final ErrorResponse body = (ErrorResponse) response.body();
+      assertNotNull( body );
+      assertEquals( 409, body.error().code() );
+      assertEquals( "urn:samm:org.eclipse.esmf.example:1.0.0#speed", body.error().focusNode() );
+      assertTrue( body.error().message().contains( "Element 'urn:samm:org.eclipse.esmf.example:1.0.0#speed'" ) );
+      assertTrue( body.error().message().contains( "(samm:exampleValue)" ) );
+      assertTrue( body.error().message().contains( "Invalid value \"fef\" for type xsd:int at line 6, column 21" ) );
+   }
+
+   @Test
    void testHandleGenericException() {
       final NullPointerException ex = new NullPointerException();
       final HttpResponse<?> response = handler.handle( request, ex );
@@ -229,6 +312,7 @@ class GlobalExceptionHandlerTest {
       final ErrorResponse body = (ErrorResponse) response.body();
       assertNotNull( body );
       assertEquals( 500, body.error().code() );
+      assertNull( body.error().focusNode() );
       assertTrue( body.error().message().contains( "NullPointerException" ) );
    }
 }

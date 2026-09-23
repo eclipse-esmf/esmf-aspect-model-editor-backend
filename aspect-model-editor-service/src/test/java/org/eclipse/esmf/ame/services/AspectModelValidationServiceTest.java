@@ -129,6 +129,44 @@ class AspectModelValidationServiceTest {
       assertTrue( ex.getMessage().contains( "General resolution error" ) );
    }
 
+   @Test
+   void testValidateThrowsInvalidAspectModelException_WithValueParsingException() {
+      final AspectModelRepository mockRepository = mock( AspectModelRepository.class );
+      final AspectModelValidator mockValidator = mock( AspectModelValidator.class );
+      final AspectModelValidationService service = new AspectModelValidationService( mockRepository, mockValidator );
+
+      final String turtle = """
+            @prefix : <urn:samm:org.eclipse.esmf.example:1.0.0#> .
+            @prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> .
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+            
+            :speed a samm:Property ;
+               samm:exampleValue "fef"^^xsd:int .
+            """;
+
+      final org.apache.jena.rdf.model.Resource intType =
+            org.apache.jena.rdf.model.ResourceFactory.createResource( "http://www.w3.org/2001/XMLSchema#int" );
+      final org.eclipse.esmf.aspectmodel.ValueParsingException vpe =
+            new org.eclipse.esmf.aspectmodel.ValueParsingException(
+                  intType, "fef", new NumberFormatException( "For input string: \"fef\"" ) );
+      vpe.setLine( 6 );
+      vpe.setColumn( 21 );
+      vpe.setSourceDocument( turtle );
+
+      when( mockRepository.loadFromUpload( any(), any() ) ).thenThrow( vpe );
+
+      final CompletedFileUpload mockUpload = MockFileUpload.create( "test.ttl", turtle.getBytes( java.nio.charset.StandardCharsets.UTF_8 ),
+            MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
+
+      final InvalidAspectModelException ex = assertThrows( InvalidAspectModelException.class,
+            () -> service.validate( URI.create( "blob://test.ttl" ), mockUpload ) );
+
+      assertTrue( ex.getMessage().contains( "Element 'urn:samm:org.eclipse.esmf.example:1.0.0#speed'" ) );
+      assertTrue( ex.getMessage().contains( "(samm:exampleValue)" ) );
+      assertTrue( ex.getMessage().contains( "Invalid value \"fef\" for type xsd:int at line 6, column 21" ) );
+      assertTrue( ex.getMessage().contains( "For input string: \"fef\"" ) );
+   }
+
    private String toUriPath( final Path path ) {
       String uriPath = path.toString();
       if ( System.getProperty( "os.name" ).toLowerCase().contains( "win" ) ) {

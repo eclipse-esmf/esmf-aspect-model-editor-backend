@@ -26,14 +26,14 @@ body:json {
 }
 
 tests {
-  test("Status code is 404", function() {
-    expect(res.getStatus()).to.equal(404);
+  test("Status code is 422", function() {
+    expect(res.getStatus()).to.equal(422);
   });
   
   test("Error response structure", function() {
     const error = res.getBody().error;
   
-    expect(error.code).to.equal(404);
+    expect(error.code).to.equal(422);
     expect(error.message).to.be.a('string').that.is.not.empty;
   });
 }

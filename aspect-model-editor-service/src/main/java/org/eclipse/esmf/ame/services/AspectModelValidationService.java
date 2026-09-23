@@ -14,23 +14,25 @@
 package org.eclipse.esmf.ame.services;
 
 import java.net.URI;
-import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import org.eclipse.esmf.ame.exceptions.AspectModelEditorException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
+import org.eclipse.esmf.ame.services.utils.TurtleElementResolver;
 import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.ame.validation.services.ViolationFormatter;
+import org.eclipse.esmf.aspectmodel.ValueParsingException;
 import org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
 
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
@@ -78,12 +80,19 @@ public class AspectModelValidationService {
          throw e;
       } catch ( final Exception e ) {
          LOG.error( "Validation failed for URI: {}", uri, e );
-         final String errorMessage = buildErrorMessage( e );
+         final String errorMessage = buildErrorMessage( e, upload );
          throw new InvalidAspectModelException( errorMessage, e );
       }
    }
 
-   private String buildErrorMessage( final Exception e ) {
+   private String buildErrorMessage( final Exception e, @Nullable final CompletedFileUpload upload ) {
+      final Optional<ValueParsingException> vpeOpt = findExceptionInCause( e, ValueParsingException.class );
+      if ( vpeOpt.isPresent() ) {
+         final ValueParsingException vpe = vpeOpt.get();
+         enrichSourceDocumentIfMissing( vpe, upload );
+         return TurtleElementResolver.formatValueParsingException( vpe );
+      }
+
       final Optional<ModelResolutionException> mreOpt = findModelResolutionException( e );
       if ( mreOpt.isEmpty() ) {
          return e.getMessage() != null && !e.getMessage().isBlank() ? e.getMessage() : "Aspect Model validation failed";
@@ -92,6 +101,18 @@ public class AspectModelValidationService {
       final ModelResolutionException mre = mreOpt.get();
       final List<ModelResolutionViolation> checkedLocations = mre.getCheckedLocations();
       if ( checkedLocations != null && !checkedLocations.isEmpty() ) {
+         for ( final ModelResolutionViolation violation : checkedLocations ) {
+            if ( violation.cause().isPresent() ) {
+               final Optional<ValueParsingException> nestedVpe = findExceptionInCause( violation.cause().get(),
+                     ValueParsingException.class );
+               if ( nestedVpe.isPresent() ) {
+                  final ValueParsingException vpe = nestedVpe.get();
+                  enrichSourceDocumentIfMissing( vpe, upload );
+                  return TurtleElementResolver.formatValueParsingException( vpe );
+               }
+            }
+         }
+
          final List<String> elementMessages = checkedLocations.stream()
                .map( ModelResolutionViolation::element )
                .flatMap( Optional::stream )
@@ -119,6 +140,28 @@ public class AspectModelValidationService {
             ? mre.getMessage()
             : e.getMessage();
       return fallbackMessage != null && !fallbackMessage.isBlank() ? fallbackMessage : "Aspect Model validation failed";
+   }
+
+   private void enrichSourceDocumentIfMissing( final ValueParsingException vpe, @Nullable final CompletedFileUpload upload ) {
+      if ( ( vpe.getSourceDocument() == null || vpe.getSourceDocument().isBlank() ) && upload != null ) {
+         try {
+            vpe.setSourceDocument( new String( upload.getBytes(), StandardCharsets.UTF_8 ) );
+         } catch ( final Exception ignored ) {
+            // Ignore fallback
+         }
+      }
+   }
+
+   @SuppressWarnings( "unchecked" )
+   private <T extends Throwable> Optional<T> findExceptionInCause( final Throwable throwable, final Class<T> targetClass ) {
+      Throwable current = throwable;
+      while ( current != null ) {
+         if ( targetClass.isInstance( current ) ) {
+            return Optional.of( (T) current );
+         }
+         current = current.getCause();
+      }
+      return Optional.empty();
    }
 
    private Optional<ModelResolutionException> findModelResolutionException( final Throwable throwable ) {
