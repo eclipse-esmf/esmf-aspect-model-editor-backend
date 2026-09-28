@@ -319,33 +319,41 @@ public class ViolationFormatter
    }
 
    private Optional<String> extractFilePath( final Violation violation ) {
-      if ( violation instanceof final ShaclViolation shaclViolation ) {
-         Optional<URI> loc = shaclViolation.sourceLocation();
-         if ( loc.isEmpty() && shaclViolation.context() != null ) {
-            loc = Optional.ofNullable( shaclViolation.context().element() )
-                  .map( RDFNode::asNode )
-                  .flatMap( TokenRegistry::getToken )
-                  .map( SmartToken::getOriginatingFile )
-                  .map( AspectModelFile::sourceUri );
+      try {
+         if ( violation instanceof final ShaclViolation shaclViolation ) {
+            Optional<URI> loc = shaclViolation.sourceLocation();
+            if ( loc.isEmpty() && shaclViolation.context() != null ) {
+               loc = Optional.ofNullable( shaclViolation.context().element() )
+                     .map( RDFNode::asNode )
+                     .flatMap( TokenRegistry::getToken )
+                     .map( SmartToken::getOriginatingFile )
+                     .map( AspectModelFile::sourceUri );
+            }
+            if ( loc.isPresent() ) {
+               return loc.map( this::formatUri );
+            }
          }
-         if ( loc.isPresent() ) {
-            return loc.map( this::formatUri );
+         if ( violation instanceof final DocumentViolation documentViolation ) {
+            try {
+               return Optional.ofNullable( documentViolation.sourceDocument() ).map( this::formatUri );
+            } catch ( final Exception ignored ) {
+               // sourceDocument() can throw AspectModelException if the element has no registered token
+            }
          }
-      }
-      if ( violation instanceof final DocumentViolation documentViolation ) {
-         return Optional.ofNullable( documentViolation.sourceDocument() ).map( this::formatUri );
-      }
-      if ( violation instanceof final ProcessingViolation processingViolation ) {
-         final Throwable cause = processingViolation.cause().orElse( null );
-         if ( cause instanceof final ParserException parserException && parserException.getSourceLocation() != null ) {
-            return Optional.of( formatUri( parserException.getSourceLocation() ) );
+         if ( violation instanceof final ProcessingViolation processingViolation ) {
+            final Throwable cause = processingViolation.cause().orElse( null );
+            if ( cause instanceof final ParserException parserException && parserException.getSourceLocation() != null ) {
+               return Optional.of( formatUri( parserException.getSourceLocation() ) );
+            }
+            if ( cause instanceof final ModelResolutionException modelResolutionException ) {
+               return modelResolutionException.getCheckedLocations().stream()
+                     .findFirst()
+                     .map( ModelResolutionViolation::location )
+                     .map( this::formatUri );
+            }
          }
-         if ( cause instanceof final ModelResolutionException modelResolutionException ) {
-            return modelResolutionException.getCheckedLocations().stream()
-                  .findFirst()
-                  .map( ModelResolutionViolation::location )
-                  .map( this::formatUri );
-         }
+      } catch ( final Exception ignored ) {
+         // Gracefully handle any unexpected errors during file path extraction
       }
       return Optional.empty();
    }

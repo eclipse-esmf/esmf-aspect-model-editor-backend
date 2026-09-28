@@ -31,6 +31,7 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.eclipse.esmf.ame.exceptions.UrnNotFoundException;
 import org.eclipse.esmf.ame.validation.model.ViolationError;
+import org.eclipse.esmf.aspectmodel.DocumentViolation;
 import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
 import org.eclipse.esmf.aspectmodel.Violation;
 import org.eclipse.esmf.aspectmodel.ViolationCode;
@@ -170,6 +171,18 @@ class ViolationFormatterTest {
 
       assertNotNull( error );
       assertTrue( error.getMessage().startsWith( "In '/workspace/models/TestModel.ttl': Something is wrong" ) );
+   }
+
+   @Test
+   void testDocumentViolationWhenSourceDocumentThrows() {
+      final DocumentViolation violation = mock( DocumentViolation.class );
+      when( violation.message() ).thenReturn( "Violation message" );
+      when( violation.sourceDocument() ).thenThrow( new RuntimeException( "Could not determine source document" ) );
+
+      final ViolationError error = formatter.visit( violation );
+
+      assertNotNull( error );
+      assertEquals( "Violation message", error.getMessage() );
    }
 }
 
