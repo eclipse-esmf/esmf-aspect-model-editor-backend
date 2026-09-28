@@ -117,6 +117,8 @@ class ViolationFormatterTest {
             "value", ResourceFactory.createResource( highlightUrn )
       );
 
+      final java.net.URI testFileUri = java.net.URI.create( "file:///workspace/models/TestModel.ttl" );
+      final String expectedFilePath = new java.io.File( testFileUri ).getAbsolutePath();
       final SparqlConstraintViolation violation = mock( SparqlConstraintViolation.class );
       when( violation.accept( any() ) ).thenCallRealMethod();
       when( violation.errorCode() ).thenReturn( "ERR_WRONG_DATATYPE" );
@@ -126,7 +128,7 @@ class ViolationFormatterTest {
       when( violation.context() ).thenReturn( context );
       when( violation.bindings() ).thenReturn( bindings );
       when( violation.fixes() ).thenReturn( List.of() );
-      when( violation.sourceLocation() ).thenReturn( Optional.of( java.net.URI.create( "file:///workspace/models/TestModel.ttl" ) ) );
+      when( violation.sourceLocation() ).thenReturn( Optional.of( testFileUri ) );
 
       final ViolationReport report = new ViolationReport( List.of( violation ) );
       final List<ViolationError> errors = formatter.apply( report );
@@ -135,7 +137,7 @@ class ViolationFormatterTest {
       final ViolationError error = errors.getFirst();
       assertEquals( "ERR_WRONG_DATATYPE", error.getErrorCode() );
       assertNull( error.getFocusNode() );
-      assertTrue( error.getMessage().startsWith( "In '/workspace/models/TestModel.ttl':" ) );
+      assertTrue( error.getMessage().startsWith( "In '" + expectedFilePath + "':" ) );
       assertTrue( error.getMessage().contains( "(anonymous element)" ) );
       assertFalse( error.getMessage().contains( "_:3c3d685655be8180cf552b2349684f53" ) );
    }
@@ -160,17 +162,35 @@ class ViolationFormatterTest {
 
    @Test
    void testSourceLocationIncludedInMessage() {
+      final java.net.URI testFileUri = java.net.URI.create( "file:///workspace/models/TestModel.ttl" );
+      final String expectedFilePath = new java.io.File( testFileUri ).getAbsolutePath();
       final SparqlConstraintViolation violation = mock( SparqlConstraintViolation.class );
       when( violation.accept( any() ) ).thenCallRealMethod();
       when( violation.message() ).thenReturn( "Something is wrong" );
-      when( violation.sourceLocation() ).thenReturn( Optional.of( java.net.URI.create( "file:///workspace/models/TestModel.ttl" ) ) );
+      when( violation.sourceLocation() ).thenReturn( Optional.of( testFileUri ) );
       when( violation.context() ).thenReturn( null );
       when( violation.fixes() ).thenReturn( List.of() );
 
       final ViolationError error = formatter.visitSparqlConstraintViolation( violation );
 
       assertNotNull( error );
-      assertTrue( error.getMessage().startsWith( "In '/workspace/models/TestModel.ttl': Something is wrong" ) );
+      assertTrue( error.getMessage().startsWith( "In '" + expectedFilePath + "': Something is wrong" ) );
+   }
+
+   @Test
+   void testSourceLocationWithNonFileUri() {
+      final java.net.URI testBlobUri = java.net.URI.create( "blob://test.ttl" );
+      final SparqlConstraintViolation violation = mock( SparqlConstraintViolation.class );
+      when( violation.accept( any() ) ).thenCallRealMethod();
+      when( violation.message() ).thenReturn( "Something is wrong" );
+      when( violation.sourceLocation() ).thenReturn( Optional.of( testBlobUri ) );
+      when( violation.context() ).thenReturn( null );
+      when( violation.fixes() ).thenReturn( List.of() );
+
+      final ViolationError error = formatter.visitSparqlConstraintViolation( violation );
+
+      assertNotNull( error );
+      assertTrue( error.getMessage().startsWith( "In 'blob://test.ttl': Something is wrong" ) );
    }
 
    @Test

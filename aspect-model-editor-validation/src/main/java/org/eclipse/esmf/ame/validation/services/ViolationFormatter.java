@@ -362,9 +362,16 @@ public class ViolationFormatter
       if ( uri == null ) {
          return "";
       }
-      return "file".equalsIgnoreCase( uri.getScheme() )
-            ? new File( uri ).getAbsolutePath()
-            : uri.toString();
+      try {
+         if ( "file".equalsIgnoreCase( uri.getScheme() ) ) {
+            return new File( uri ).getAbsolutePath();
+         }
+      } catch ( final Exception ignored ) {
+         if ( uri.getPath() != null && !uri.getPath().isBlank() ) {
+            return uri.getPath();
+         }
+      }
+      return uri.toString();
    }
 
    /**
