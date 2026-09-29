@@ -417,7 +417,7 @@
                            <goal>start</goal>
                         </goals>
                         <configuration>
-                           <workingDir>${project.build.directory}</workingDir>
+                           <workingDir>${project.build.directory}/ame-backend-${project.version}-${os.platform}</workingDir>
                            <arguments>
                               <argument>cmd</argument>
                               <argument>/C</argument>
@@ -455,9 +455,9 @@
                            <goal>start</goal>
                         </goals>
                         <configuration>
-                           <workingDir>${project.build.directory}</workingDir>
+                           <workingDir>${project.build.directory}/ame-backend-${project.version}-${os.platform}</workingDir>
                            <arguments>
-                              <argument>./ame-backend-${project.version}-${os.platform}</argument>
+                              <argument>./bin/ame-backend-${project.version}-${os.platform}</argument>
                               <argument>-Dmicronaut.server.port=${integration-test-port}</argument>
                            </arguments>
                         </configuration>
@@ -493,7 +493,7 @@
                         <configuration>
                            <workingDir>${project.build.directory}</workingDir>
                            <arguments>
-                              <argument>./ame-backend-${project.version}-${os.platform}</argument>
+                              <argument>./ame-backend-${project.version}-${os.platform}.app/Contents/MacOS/ame-backend-${project.version}-${os.platform}</argument>
                               <argument>-Dmicronaut.server.port=${integration-test-port}</argument>
                            </arguments>
                         </configuration>

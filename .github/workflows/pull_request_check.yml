@@ -52,128 +52,118 @@ jobs:
           mvn -B clean install -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
         shell: bash
 
-      - name: Build warp packer (Linux)
+      - name: Build package with jlink and jpackage (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
-          bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
-          mkdir ${bundle}
-          curl -Lo jre.tar.gz https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jre_x64_linux_hotspot_25.0.3_9.tar.gz
-          tar -xvf jre.tar.gz -C $bundle
-          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar ./${bundle}/
-          
-          cp scripts/linux/run.sh ./${bundle}/
-          chmod +x ./${bundle}/run.sh
+          echo "Analyzing JAR dependencies with jdeps..."
+          jdeps --multi-release base --ignore-missing-deps --print-module-deps \
+            aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar || true
 
-          curl -Lo warp-packer https://github.com/kirbylink/warp/releases/download/v1.3.0/linux-x64.warp-packer
-          if [ "$(sha256sum warp-packer | cut -d' ' -f1)" != "add6f937db8b9207d1bb81a900ef609f41875f07c6c8b2d596bfc134c8f285ff" ]; then
-            echo "Warp packer checksum does not match"
-            exit 1
-          fi
-          chmod +x warp-packer
+          echo "Creating custom runtime with jlink..."
+          jlink --no-header-files --no-man-pages --strip-debug --compress=zip-6 \
+            --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.crypto.cryptoki,jdk.charsets,jdk.zipfs,jdk.management,jdk.attach,jdk.jfr \
+            --output aspect-model-editor-runtime/target/jlink-runtime
 
-          ./warp-packer pack --arch linux-x64 --input-dir ${bundle} --exec run.sh --output ame-backend-DEV-SNAPSHOT-linux
-          chmod +x ame-backend-DEV-SNAPSHOT-linux
-          
-          cp ame-backend-DEV-SNAPSHOT-linux aspect-model-editor-runtime/target/
+          echo "Packaging application image with jpackage..."
+          mkdir -p aspect-model-editor-runtime/target/jpackage-input
+          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar aspect-model-editor-runtime/target/jpackage-input/
+
+          jpackage --type app-image \
+            --name ame-backend-DEV-SNAPSHOT-linux \
+            --input aspect-model-editor-runtime/target/jpackage-input \
+            --main-jar aspect-model-editor-runtime-DEV-SNAPSHOT.jar \
+            --main-class org.eclipse.esmf.ame.Application \
+            --runtime-image aspect-model-editor-runtime/target/jlink-runtime \
+            --java-options "--enable-native-access=ALL-UNNAMED" \
+            --java-options "--sun-misc-unsafe-memory-access=allow" \
+            --java-options "-Dpolyglotimpl.DisableMultiReleaseCheck=true" \
+            --dest aspect-model-editor-runtime/target
+
+          rm -rf aspect-model-editor-runtime/target/jlink-runtime aspect-model-editor-runtime/target/jpackage-input
         shell: bash
 
-      - name: Build warp packer (Windows)
+      - name: Build package with jlink and jpackage (Windows)
         if: matrix.os == 'windows-latest'
         run: |
-          bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
-          mkdir "$bundle"
-          mkdir "$bundle/app"
-          curl -Lo jre.zip https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jre_x64_windows_hotspot_25.0.3_9.zip
-          unzip -q jre.zip -d "./$bundle"
-          mv "./$bundle/jdk-25.0.3+9-jre" "./$bundle/jre"
-          rm jre.zip
-          
-          cp "./$bundle/jre/bin/jli.dll" "./$bundle/app/"
-          cp "./$bundle/jre/bin/jimage.dll" "./$bundle/app/"
-          cp "./$bundle/jre/bin/server/jvm.dll" "./$bundle/app/"
+          echo "Analyzing JAR dependencies with jdeps..."
+          jdeps --multi-release base --ignore-missing-deps --print-module-deps \
+            aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar || true
+
+          echo "Creating custom runtime with jlink..."
+          jlink --no-header-files --no-man-pages --strip-debug --compress=zip-6 \
+            --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.crypto.cryptoki,jdk.charsets,jdk.zipfs,jdk.management,jdk.attach,jdk.jfr \
+            --output aspect-model-editor-runtime/target/jlink-runtime
+
+          echo "Preparing input and extracting native DLLs..."
+          mkdir -p aspect-model-editor-runtime/target/jpackage-input
+          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar aspect-model-editor-runtime/target/jpackage-input/
 
           zstd_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=zstd-jni | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'zstd-jni' | grep '\.jar$' | head -n 1)
           jna_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=jna | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'jna' | grep '\.jar$' | head -n 1)
           api_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=truffle-api | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'truffle-api' | grep '\.jar$' | head -n 1)
-          
+
           if [ -n "$zstd_jar" ] && [ -f "$zstd_jar" ]; then
-            cp "$zstd_jar" "./$bundle/app/"
-          
             jar_basename=$(basename "$zstd_jar")
             version="${jar_basename#zstd-jni-}"
             version="${version%.jar}"
-          
-            unzip -p "$zstd_jar" "win/amd64/libzstd-jni-${version}.dll" > "./$bundle/app/libzstd-jni-${version}.dll"
-            cp "./$bundle/app/libzstd-jni-${version}.dll" "./$bundle/app/zstd-jni-${version}.dll"
-          
-            if [ -s "./$bundle/app/zstd-jni-${version}.dll" ]; then
-              echo "Success extraction JNI"
-             fi
+            unzip -p "$zstd_jar" "win/amd64/libzstd-jni-${version}.dll" > "aspect-model-editor-runtime/target/jpackage-input/libzstd-jni-${version}.dll"
+            cp "aspect-model-editor-runtime/target/jpackage-input/libzstd-jni-${version}.dll" "aspect-model-editor-runtime/target/jpackage-input/zstd-jni-${version}.dll"
           fi
 
           if [ -n "$jna_jar" ] && [ -f "$jna_jar" ]; then
-            cp "$jna_jar" "./$bundle/app/"
-
-            unzip -p "$jna_jar" "com/sun/jna/win32-x86-64/jnidispatch.dll" > "./$bundle/app/jnidispatch.dll"
-
-            if [ -s "./$bundle/app/jnidispatch.dll" ]; then
-              echo "Success extraction JNA DLL"
-            fi
+            unzip -p "$jna_jar" "com/sun/jna/win32-x86-64/jnidispatch.dll" > "aspect-model-editor-runtime/target/jpackage-input/jnidispatch.dll"
           fi
-          
+
           if [ -n "$api_jar" ] && [ -f "$api_jar" ]; then
-            mkdir -p native-libs
-            unzip -j "$api_jar" "META-INF/resources/engine/libtruffleattach/windows/amd64/bin/truffleattach.dll" -d native-libs
-
-            if [ -f "native-libs/truffleattach.dll" ]; then
-              cp "native-libs/truffleattach.dll" "./$bundle/app/truffleattach.dll"
-              echo "Success extraction truffleattach.dll"
-            fi
+            unzip -j "$api_jar" "META-INF/resources/engine/libtruffleattach/windows/amd64/bin/truffleattach.dll" -d "aspect-model-editor-runtime/target/jpackage-input" || true
           fi
-          
-          echo "Bundle app folder:"
-          ls -l "./$bundle/app/"
 
-          mv aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar "./$bundle/app"
-          
-          GOOS=windows GOARCH=amd64 go build -ldflags -H=windowsgui -o "./$bundle/run.exe" scripts/windows/run.go
+          echo "Packaging application image with jpackage..."
+          jpackage --type app-image \
+            --name ame-backend-DEV-SNAPSHOT-win \
+            --input aspect-model-editor-runtime/target/jpackage-input \
+            --main-jar aspect-model-editor-runtime-DEV-SNAPSHOT.jar \
+            --main-class org.eclipse.esmf.ame.Application \
+            --runtime-image aspect-model-editor-runtime/target/jlink-runtime \
+            --java-options "--enable-native-access=ALL-UNNAMED" \
+            --java-options "--sun-misc-unsafe-memory-access=allow" \
+            --java-options "-Dpolyglotimpl.DisableMultiReleaseCheck=true" \
+            --java-options '-Djava.library.path=$APPDIR' \
+            --java-options '-Djna.nounpack=true' \
+            --java-options '-Djna.boot.library.path=$APPDIR' \
+            --dest aspect-model-editor-runtime/target
 
-          curl -Lo warp-packer.exe https://github.com/kirbylink/warp/releases/download/v1.3.0/windows-x64.warp-packer.exe
-          if [ "$(sha256sum warp-packer.exe | cut -d' ' -f1)" != "483726e0eb10a43167c03c8e4f27a2901741affd245e5ec8ed45509f9dcd7a8a" ]; then
-            echo "Warp packer checksum does not match"
-            exit 1
-          fi
-          
-          ./warp-packer.exe pack --arch windows-x64 --input-dir "$bundle" --exec run.exe --output ame-backend-DEV-SNAPSHOT-win.exe
-
-          mv ame-backend-DEV-SNAPSHOT-win.exe aspect-model-editor-runtime/target/
-          rm -rf "$bundle"
+          rm -rf aspect-model-editor-runtime/target/jlink-runtime aspect-model-editor-runtime/target/jpackage-input
         shell: bash
 
-      - name: Build warp packer (Mac)
+      - name: Build package with jlink and jpackage (Mac)
         if: matrix.os == 'macos-15-intel'
         run: |
-          bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
-          mkdir ${bundle}
-          curl -Lo jre.tar.gz https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jre_x64_mac_hotspot_25.0.3_9.tar.gz
-          tar -xvf jre.tar.gz
-          cp -r ./jdk-25.0.3+9-jre ./${bundle}/jre
-          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar ./${bundle}/
-          cp scripts/macos/run.sh ./${bundle}/
-          chmod +x ./${bundle}/run.sh
+          echo "Analyzing JAR dependencies with jdeps..."
+          jdeps --multi-release base --ignore-missing-deps --print-module-deps \
+            aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar || true
 
-          curl -Lo warp-packer https://github.com/kirbylink/warp/releases/download/v1.3.0/macos-x64.warp-packer
-          if [ "$(shasum -a 256 warp-packer | cut -d' ' -f1)" != "311bd238d087ea92f486d3d754a0f11826d9bd49d6f8ae849e5d6f6089a2e9c9" ]; then
-            echo "Warp packer checksum does not match"
-            exit 1
-          fi
-          chmod +x warp-packer
-          xattr -d com.apple.quarantine warp-packer || true
+          echo "Creating custom runtime with jlink..."
+          jlink --no-header-files --no-man-pages --strip-debug --compress=zip-6 \
+            --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.crypto.cryptoki,jdk.charsets,jdk.zipfs,jdk.management,jdk.attach,jdk.jfr \
+            --output aspect-model-editor-runtime/target/jlink-runtime
 
-          ./warp-packer pack --arch macos-x64 --input-dir ${bundle} --exec run.sh --output ame-backend-DEV-SNAPSHOT-mac
-          chmod +x ame-backend-DEV-SNAPSHOT-mac
+          echo "Packaging application image with jpackage..."
+          mkdir -p aspect-model-editor-runtime/target/jpackage-input
+          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar aspect-model-editor-runtime/target/jpackage-input/
 
-          cp ame-backend-DEV-SNAPSHOT-mac aspect-model-editor-runtime/target/
+          jpackage --type app-image \
+            --name ame-backend-DEV-SNAPSHOT-mac \
+            --input aspect-model-editor-runtime/target/jpackage-input \
+            --main-jar aspect-model-editor-runtime-DEV-SNAPSHOT.jar \
+            --main-class org.eclipse.esmf.ame.Application \
+            --runtime-image aspect-model-editor-runtime/target/jlink-runtime \
+            --java-options "--enable-native-access=ALL-UNNAMED" \
+            --java-options "--sun-misc-unsafe-memory-access=allow" \
+            --java-options "-Dpolyglotimpl.DisableMultiReleaseCheck=true" \
+            --dest aspect-model-editor-runtime/target
+
+          rm -rf aspect-model-editor-runtime/target/jlink-runtime aspect-model-editor-runtime/target/jpackage-input
         shell: bash
 
       - name: Performing integration test for Mac
@@ -199,7 +189,7 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
           name: ame-backend-win
-          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win.exe
+          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win
 
       - name: Upload binary (Linux)
         if: matrix.os == 'ubuntu-latest'
@@ -213,5 +203,5 @@ jobs:
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
           name: ame-backend-mac
-          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac
+          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac.app
           compression-level: 0
