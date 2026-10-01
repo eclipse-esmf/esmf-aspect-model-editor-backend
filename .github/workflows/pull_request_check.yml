@@ -191,17 +191,32 @@ jobs:
           name: ame-backend-win
           path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win
 
+      # upload-artifact does not preserve file permissions/symlinks, so archive first
+      - name: Create tar.gz (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd aspect-model-editor-runtime/target
+          tar -czf ame-backend-DEV-SNAPSHOT-linux.tar.gz ame-backend-DEV-SNAPSHOT-linux
+        shell: bash
+
       - name: Upload binary (Linux)
         if: matrix.os == 'ubuntu-latest'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
           name: ame-backend-linux
-          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux
+          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux.tar.gz
+          compression-level: 0
+
+      - name: Create zip with .app bundle (Mac)
+        if: matrix.os == 'macos-15-intel'
+        run: |
+          cd aspect-model-editor-runtime/target
+          ditto -c -k --sequesterRsrc --keepParent ame-backend-DEV-SNAPSHOT-mac.app ame-backend-DEV-SNAPSHOT-mac.zip
 
       - name: Upload binary (Mac)
         if: matrix.os == 'macos-15-intel'
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
           name: ame-backend-mac
-          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac.app
+          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac.zip
           compression-level: 0
