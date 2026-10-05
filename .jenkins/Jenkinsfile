@@ -1,4 +1,15 @@
-import groovy.json.JsonSlurper;
+/*
+ * Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
+ *
+ * See the AUTHORS file(s) distributed with this work for
+ * additional information regarding authorship.
+ *
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ *
+ * SPDX-License-Identifier: MPL-2.0
+ */
 
 pipeline {
     agent any
@@ -29,7 +40,7 @@ pipeline {
                         echo "Artifact URL Win: ${env.artifact_url_win}"
                         echo "Version: ${env.version}"
                     } else {
-                        echo "Error: parameters.txt does not exist."
+                        error("parameters.txt does not exist.")
                     }
                 }
             }
@@ -39,26 +50,46 @@ pipeline {
             steps {
                 script {
                     def winOsFile = "ame-backend-v${env.version}-win.zip"
-                    sh "curl -L -H 'Accept: application/vnd.github.v3+json' \
+                    sh "curl --fail -L -H 'Accept: application/vnd.github.v3+json' \
                         -H 'Authorization: Bearer ${GITHUB_BOT_TOKEN}' \
                         '${env.artifact_url_win}' \
                         --output '${winOsFile}'"
-                    sh "mkdir -p unpack_dir"
-                    sh "unzip -o ame-backend-v${env.version}-win.zip -d unpack_dir"
+                    sh "rm -rf unpack_dir && mkdir -p unpack_dir"
+                    sh "unzip -q -o '${winOsFile}' -d unpack_dir"
                     sh "rm '${winOsFile}'"
                     sh "ls -lh unpack_dir"
                 }
             }
         }
 
+        // The artifact is a jpackage app image (launcher exe, app/ and runtime/), which must stay complete to be startable.
+        // All Windows binaries (exe, dll) are signed, as some environments (e.g. WDAC/AppLocker) validate every loaded binary.
         stage('Sign Windows Applications') {
             steps {
                 script {
-                    sh "mkdir -p signed_dir"
-                    sh "find unpack_dir -name '*.dll' -exec mv {} signed_dir \\;"
-                    sh "curl -o signed_dir/ame-backend-${env.version}-win.exe -F file=@unpack_dir/ame-backend-${env.version}-win.exe https://cbi.eclipse.org/authenticode/sign"
-                    sh "zip -r ame-backend-v${env.version}-win.zip signed_dir"
-                    sh "ls -lh signed_dir"
+                    def appImage = "ame-backend-${env.version}-win"
+                    def fileNameWin = "ame-backend-v${env.version}-win.zip"
+                    sh """
+                        set -e
+                        launcher=\$(find unpack_dir -type f -name '${appImage}.exe' | head -n 1)
+                        if [ -z "\$launcher" ]; then
+                            echo "Launcher ${appImage}.exe not found in the Windows artifact."
+                            exit 1
+                        fi
+
+                        rm -rf '${appImage}' '${fileNameWin}'
+                        mkdir '${appImage}'
+                        cp -R "\$(dirname "\$launcher")"/. '${appImage}/'
+
+                        find '${appImage}' -type f \\( -iname '*.exe' -o -iname '*.dll' \\) | while read -r file; do
+                            echo "Signing \$file"
+                            curl --fail -s -S -o "\$file.signed" -F file=@"\$file" https://cbi.eclipse.org/authenticode/sign
+                            mv "\$file.signed" "\$file"
+                        done
+
+                        zip -q -r '${fileNameWin}' '${appImage}'
+                        ls -lh '${appImage}' '${fileNameWin}'
+                    """
                 }
             }
         }
