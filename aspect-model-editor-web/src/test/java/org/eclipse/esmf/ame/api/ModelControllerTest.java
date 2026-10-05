@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,8 +35,11 @@ import org.eclipse.esmf.ame.api.model.response.AspectModelResponse;
 import org.eclipse.esmf.ame.api.model.response.StoragePathResponse;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
+import org.eclipse.esmf.ame.exceptions.ModelReferencedException;
 import org.eclipse.esmf.ame.exceptions.UriNotDefinedException;
 import org.eclipse.esmf.ame.model.MockFileUpload;
+import org.eclipse.esmf.ame.model.ModelReference;
+import org.eclipse.esmf.ame.model.ReferenceReport;
 import org.eclipse.esmf.ame.security.FileNameSanitizer;
 import org.eclipse.esmf.ame.services.AspectModelMigrator;
 import org.eclipse.esmf.ame.services.AspectModelReader;
@@ -43,10 +47,12 @@ import org.eclipse.esmf.ame.services.AspectModelValidationService;
 import org.eclipse.esmf.ame.services.AspectModelWriter;
 import org.eclipse.esmf.ame.services.ModelService;
 import org.eclipse.esmf.ame.services.models.AspectModelResult;
+import org.eclipse.esmf.ame.services.models.ClearWorkspaceResult;
 import org.eclipse.esmf.ame.services.models.FileEntry;
 import org.eclipse.esmf.ame.services.models.FileInformation;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.services.models.Version;
+import org.eclipse.esmf.ame.services.workspace.WorkspaceCleanupService;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
@@ -64,6 +70,7 @@ class ModelControllerTest {
    private AspectModelValidationService validationService;
    private AspectModelMigrator aspectModelMigrator;
    private FileNameSanitizer fileNameSanitizer;
+   private WorkspaceCleanupService workspaceCleanupService;
    private ModelController controller;
 
    private static final String VALID_URN = "urn:samm:org.eclipse.esmf.example:1.0.0#Movement";
@@ -76,6 +83,7 @@ class ModelControllerTest {
       validationService = mock( AspectModelValidationService.class );
       aspectModelMigrator = mock( AspectModelMigrator.class );
       fileNameSanitizer = new FileNameSanitizer();
+      workspaceCleanupService = mock( WorkspaceCleanupService.class );
 
       controller = new ModelController(
             modelService,
@@ -83,7 +91,8 @@ class ModelControllerTest {
             aspectModelWriter,
             validationService,
             aspectModelMigrator,
-            fileNameSanitizer
+            fileNameSanitizer,
+            workspaceCleanupService
       );
    }
 
@@ -148,6 +157,67 @@ class ModelControllerTest {
    void testDeleteModelSuccess() {
       controller.deleteModel( Optional.of( VALID_URN ) );
       verify( aspectModelWriter ).deleteModel( eq( AspectModelUrn.fromUrn( VALID_URN ) ) );
+   }
+
+   @Test
+   void testDeleteModelStillReferencedPropagatesException() {
+      final ModelReferencedException exception = new ModelReferencedException( "used", blockedReport() );
+      doThrow( exception ).when( aspectModelWriter ).deleteModel( any() );
+
+      assertEquals( exception, assertThrows( ModelReferencedException.class, () -> controller.deleteModel( Optional.of( VALID_URN ) ) ) );
+   }
+
+   @Test
+   void testGetReferencesOfNamespace() {
+      final ReferenceReport report = blockedReport();
+      when( workspaceCleanupService.checkNamespace( "org.example", "1.0.0" ) ).thenReturn( report );
+
+      final HttpResponse<ReferenceReport> response = controller.getReferences( "org.example", "1.0.0", Optional.empty() );
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertEquals( report, response.body() );
+   }
+
+   @Test
+   void testGetReferencesOfFile() {
+      final ReferenceReport report = ReferenceReport.empty();
+      when( workspaceCleanupService.checkFile( "org.example", "1.0.0", "A.ttl" ) ).thenReturn( report );
+
+      final HttpResponse<ReferenceReport> response = controller.getReferences( "org.example", "1.0.0", Optional.of( "A.ttl" ) );
+
+      assertTrue( response.body().deletable() );
+   }
+
+   @Test
+   void testDeleteNamespaceSuccess() {
+      final HttpResponse<ReferenceReport> response = controller.deleteNamespace( "org.example", "1.0.0" );
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertEquals( ReferenceReport.empty(), response.body() );
+      verify( workspaceCleanupService ).deleteNamespace( "org.example", "1.0.0" );
+   }
+
+   @Test
+   void testDeleteNamespaceStillReferencedPropagatesException() {
+      when( workspaceCleanupService.deleteNamespace( "org.example", "1.0.0" ) )
+            .thenThrow( new ModelReferencedException( "used", blockedReport() ) );
+
+      assertThrows( ModelReferencedException.class, () -> controller.deleteNamespace( "org.example", "1.0.0" ) );
+   }
+
+   @Test
+   void testClearWorkspace() {
+      when( workspaceCleanupService.clearWorkspace( true ) ).thenReturn( new ClearWorkspaceResult( 3, true ) );
+
+      final HttpResponse<ClearWorkspaceResult> response = controller.clearWorkspace( true );
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertEquals( 3, response.body().deletedFiles() );
+   }
+
+   private static ReferenceReport blockedReport() {
+      return ReferenceReport.of(
+            List.of( new ModelReference( "org.other", "1.0.0", "B.ttl", List.of( "urn:samm:org.example:1.0.0#Prop" ) ) ), List.of() );
    }
 
    @Test

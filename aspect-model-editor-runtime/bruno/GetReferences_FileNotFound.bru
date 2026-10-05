@@ -1,0 +1,17 @@
+meta {
+  name: GetReferences_FileNotFound
+  type: http
+  seq: 76
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models/references?namespace=org.eclipse.bruno.referenced&version=1.0.0&fileName=Missing.ttl
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

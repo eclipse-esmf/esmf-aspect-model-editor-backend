@@ -14,10 +14,14 @@
 package org.eclipse.esmf.ame.services.file;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import org.eclipse.esmf.ame.exceptions.FileHandlingException;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
@@ -35,6 +39,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class FileOperations {
    private static final Logger LOG = LoggerFactory.getLogger( FileOperations.class );
+   private static final Set<String> SYSTEM_FILES = Set.of( ".DS_Store", "Thumbs.db", "desktop.ini" );
 
    /**
     * Deletes the file associated with the given AspectModelFile if it exists.
@@ -42,13 +47,19 @@ public class FileOperations {
     * @param aspectModelFile the aspect model file whose source location should be deleted
     */
    public void deleteAspectModelFile( @Nonnull final AspectModelFile aspectModelFile ) {
-      final URI uri = aspectModelFile.sourceLocation()
+      sourcePath( aspectModelFile ).ifPresent( this::deleteFileSafely );
+   }
+
+   /**
+    * Returns the local file of the given AspectModelFile.
+    *
+    * @param aspectModelFile the aspect model file
+    * @return the path of its source location, if known
+    */
+   public Optional<Path> sourcePath( @Nonnull final AspectModelFile aspectModelFile ) {
+      return aspectModelFile.sourceLocation()
             .or( () -> Optional.ofNullable( aspectModelFile.sourceUri() ) )
-            .orElse( null );
-      if ( uri != null ) {
-         final Path path = uriToPath( uri );
-         deleteFileSafely( path );
-      }
+            .map( this::uriToPath );
    }
 
    private Path uriToPath( final URI uri ) {
@@ -145,5 +156,46 @@ public class FileOperations {
    public boolean exists( final Path filePath ) {
       return Files.exists( filePath );
    }
-}
 
+   /**
+    * Lists the direct subdirectories of the given directory.
+    *
+    * @param directory the directory to list
+    * @return the subdirectories, or an empty list if the directory does not exist
+    */
+   public List<Path> listSubdirectories( @Nonnull final Path directory ) {
+      if ( !Files.isDirectory( directory ) ) {
+         return List.of();
+      }
+      try ( final Stream<Path> entries = Files.list( directory ) ) {
+         return entries.filter( Files::isDirectory ).toList();
+      } catch ( final IOException e ) {
+         throw new UncheckedIOException( "Could not list the directory " + directory, e );
+      }
+   }
+
+   /**
+    * Deletes the given directory if it contains nothing but operating system files (e.g. {@code .DS_Store}).
+    *
+    * @param directory the directory to delete
+    */
+   public void deleteDirectoryIfEmpty( @Nonnull final Path directory ) {
+      if ( !Files.isDirectory( directory ) ) {
+         return;
+      }
+      try {
+         try ( final Stream<Path> entries = Files.list( directory ) ) {
+            final List<Path> content = entries.toList();
+            if ( content.stream().anyMatch( entry -> !SYSTEM_FILES.contains( entry.getFileName().toString() ) ) ) {
+               return;
+            }
+            for ( final Path systemFile : content ) {
+               Files.deleteIfExists( systemFile );
+            }
+         }
+         Files.deleteIfExists( directory );
+      } catch ( final IOException e ) {
+         throw new UncheckedIOException( "Could not delete the directory " + directory, e );
+      }
+   }
+}

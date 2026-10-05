@@ -1,0 +1,17 @@
+meta {
+  name: GetReferences_InvalidNamespace
+  type: http
+  seq: 75
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models/references?namespace=..&version=1.0.0
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+}

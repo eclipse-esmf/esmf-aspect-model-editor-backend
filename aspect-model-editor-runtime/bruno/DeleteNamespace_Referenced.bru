@@ -1,0 +1,23 @@
+meta {
+  name: DeleteNamespace_Referenced
+  type: http
+  seq: 78
+}
+
+delete {
+  url: http://localhost:{{port}}/ame/api/models/namespace?namespace=org.eclipse.bruno.referenced&version=1.0.0
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+
+  test("The response lists the referencing files", function() {
+    const body = res.getBody();
+    expect(body.deletable).to.equal(false);
+    expect(body.references.map(r => r.fileName).sort()).to.eql(["Consumer.ttl", "SecondConsumer.ttl"]);
+  });
+}

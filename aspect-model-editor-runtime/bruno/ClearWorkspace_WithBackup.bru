@@ -1,0 +1,23 @@
+meta {
+  name: ClearWorkspace_WithBackup
+  type: http
+  seq: 86
+}
+
+delete {
+  url: http://localhost:{{port}}/ame/api/models/workspace?backup=true
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("A backup is created before the workspace is cleared", function() {
+    const body = res.getBody();
+    expect(body.backupCreated).to.equal(true);
+    expect(body.deletedFiles).to.be.a('number');
+  });
+}

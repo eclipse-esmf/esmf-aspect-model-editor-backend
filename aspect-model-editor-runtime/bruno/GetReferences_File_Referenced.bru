@@ -1,0 +1,32 @@
+meta {
+  name: GetReferences_File_Referenced
+  type: http
+  seq: 71
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models/references?namespace=org.eclipse.bruno.referenced&version=1.0.0&fileName=Provider.ttl
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("The referenced file is not deletable", function() {
+    expect(res.getBody().deletable).to.equal(false);
+  });
+
+  test("Every referencing file is listed with the used element", function() {
+    const references = res.getBody().references;
+    const files = references.map(r => r.fileName).sort();
+    expect(files).to.eql(["Consumer.ttl", "SecondConsumer.ttl"]);
+    references.forEach(r => {
+      expect(r.namespace).to.equal("org.eclipse.bruno.referencing");
+      expect(r.version).to.equal("1.0.0");
+      expect(r.referencedElements).to.include("urn:samm:org.eclipse.bruno.referenced:1.0.0#sharedProperty");
+    });
+  });
+}

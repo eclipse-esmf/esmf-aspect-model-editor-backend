@@ -1,0 +1,22 @@
+meta {
+  name: GetReferences_Namespace_OnlyInternalAndOutgoingReferences
+  type: http
+  seq: 74
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models/references?namespace=org.eclipse.bruno.referencing&version=1.0.0
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("References inside the namespace version do not block the deletion", function() {
+    expect(res.getBody().deletable).to.equal(true);
+    expect(res.getBody().references).to.be.empty;
+  });
+}

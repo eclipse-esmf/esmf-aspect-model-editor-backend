@@ -1,0 +1,34 @@
+meta {
+  name: WorkspaceDeletion_CreateReferencingModel
+  type: http
+  seq: 69
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models
+  body: text
+  auth: none
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.bruno.referencing:1.0.0#Consumer
+  file-name: Consumer.ttl
+  Content-Type: text/plain
+}
+
+body:text {
+  @prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> .
+  @prefix ref: <urn:samm:org.eclipse.bruno.referenced:1.0.0#> .
+  @prefix : <urn:samm:org.eclipse.bruno.referencing:1.0.0#> .
+  
+  :Consumer a samm:Aspect ;
+     samm:properties ( ref:sharedProperty ) ;
+     samm:operations ( ) ;
+     samm:events ( ) .
+}
+
+tests {
+  test("Status code is 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}
