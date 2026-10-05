@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       release_version:
-        description: 'Version number of the release, e.g. 2.3.0 or 2.3.0-M1 (pre-release)'
+        description: 'Version number of the release, e.g. 2.3.0 or 2.3.0-rc1 (pre-release)'
         required: true
 
 permissions: { }
@@ -25,11 +25,11 @@ jobs:
           RELEASE_VERSION: ${{ github.event.inputs.release_version }}
         run: |
           if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
-            echo "::error::Invalid release version. Expected e.g. 2.3.0 or 2.3.0-M1."
+            echo "::error::Invalid release version. Expected e.g. 2.3.0 or 2.3.0-rc1."
             exit 1
           fi
           prerelease=false
-          if [[ "$RELEASE_VERSION" == *-* ]]; then prerelease=true; fi
+          if [[ "$RELEASE_VERSION" == *-rc* ]]; then prerelease=true; fi
           echo "version=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
           echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
 
@@ -203,6 +203,18 @@ jobs:
           ASSET: ${{ steps.archive.outputs.path }}
         run: gh release upload "v$RELEASE_VERSION" "$ASSET" --repo "$GITHUB_REPOSITORY" --clobber
 
+      # In the original repository the Windows app image is signed and uploaded by the Jenkins job,
+      # a fork uploads the unsigned app image, so that the editor release of the fork can be built
+      - name: Upload unsigned Windows app image to draft release (fork only)
+        if: runner.os == 'Windows' && github.repository_owner != 'eclipse-esmf'
+        shell: pwsh
+        run: |
+          $zip = "$env:TARGET/ame-backend-v$env:RELEASE_VERSION-win.zip"
+          Compress-Archive -Path "$env:TARGET/ame-backend-$env:RELEASE_VERSION-win" -DestinationPath $zip
+          gh release upload "v$env:RELEASE_VERSION" $zip --repo $env:GITHUB_REPOSITORY --clobber
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   publish:
     name: Publish release
     needs: [ prepare, build ]
@@ -222,9 +234,11 @@ jobs:
         with:
           persist-credentials: false
 
+      # Only in the original repository, so that test runs in a fork do not trigger the Eclipse Jenkins.
       # The Jenkins job reads parameters.txt from the branch pre_release_configuration, signs the Windows
       # app image and uploads it to the release.
       - name: Provide Windows artifact for the Jenkins job
+        if: github.repository_owner == 'eclipse-esmf'
         run: |
           artifact_id_win=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" \
             --jq '.artifacts[] | select(.name | endswith("-win")) | .id')
@@ -239,12 +253,17 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          # the branch of a previous release is replaced
+          if git ls-remote --exit-code --heads origin pre_release_configuration > /dev/null; then
+            git push origin --delete pre_release_configuration
+          fi
           git checkout -b pre_release_configuration
           git add parameters.txt
           git commit -m "Add parameters.txt with artifact_url_win and the version"
           git push origin pre_release_configuration
 
       - name: Trigger Jenkins job for signing the Windows executable
+        if: github.repository_owner == 'eclipse-esmf'
         run: |
           DATA='{"repository": {"url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "html_url": "https://github.com/eclipse-esmf/esmf-aspect-model-editor-backend", "owner": { "name": "ESMF"}}, "pusher": { "name": "GitHub Action", "email": "esmf-dev@eclipse.org"}}'
           SHA1="$(echo -n "${DATA}" | openssl dgst -sha1 -hmac "${WEBHOOK_SECRET}" | sed 's/SHA1(stdin)= //')"

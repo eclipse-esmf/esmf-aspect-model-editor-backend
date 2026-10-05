@@ -50,7 +50,7 @@ and publishes it as GitHub release. The desktop app of the
 release must exist before the editor release with the same version is created.
 
 1. `prepare` creates the branch `<major>.<minor>.x`, the tag `v<version>` and a draft release.
-   Versions with a suffix (e.g. `2.3.0-M1`) become a pre-release.
+   Release candidates (e.g. `2.3.0-rc1`) become a pre-release.
 2. `build` creates the app image on every platform and uploads it to the draft release:
 
    | Runner           | Release asset                                                        |
@@ -61,6 +61,7 @@ release must exist before the editor release with the same version is created.
    | `windows-latest` | `ame-backend-v<version>-win` (workflow artifact only, signed and uploaded by Jenkins) |
 
 3. `publish` publishes the release and triggers the Jenkins job which signs the Windows app image.
+   The Jenkins job is only triggered in the repository `eclipse-esmf`, so the workflow can be tested in a fork.
 
 The Java runtime in the app image matches the processor architecture, therefore macOS is built separately for Intel and
 Apple silicon.
