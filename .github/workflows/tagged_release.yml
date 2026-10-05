@@ -122,96 +122,25 @@ jobs:
           mvn -B versions:set -DnewVersion="$RELEASE_VERSION"
           MAVEN_OPTS="-Xmx4096m" mvn -B clean install -DskipTests -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
 
-      - name: Create runtime with jlink
-        run: |
-          jdeps --multi-release base --ignore-missing-deps --print-module-deps \
-            "$TARGET/aspect-model-editor-runtime-$RELEASE_VERSION.jar" || true
-
-          jlink --no-header-files --no-man-pages --strip-debug --compress=zip-6 \
-            --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.crypto.cryptoki,jdk.charsets,jdk.zipfs,jdk.management,jdk.attach,jdk.jfr \
-            --output "$TARGET/jlink-runtime"
-
-          mkdir -p "$TARGET/jpackage-input"
-          cp "$TARGET/aspect-model-editor-runtime-$RELEASE_VERSION.jar" "$TARGET/jpackage-input/"
-
-      - name: Extract native libraries (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          input="$TARGET/jpackage-input"
-          classpath_jar() {
-            mvn dependency:build-classpath -DincludeArtifactIds="$1" \
-              | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep "$1" | grep '\.jar$' | head -n 1
-          }
-          zstd_jar=$(classpath_jar zstd-jni)
-          jna_jar=$(classpath_jar jna)
-          api_jar=$(classpath_jar truffle-api)
-
-          if [ -n "$zstd_jar" ] && [ -f "$zstd_jar" ]; then
-            version=$(basename "$zstd_jar" .jar)
-            version="${version#zstd-jni-}"
-            unzip -p "$zstd_jar" "win/amd64/libzstd-jni-${version}.dll" > "$input/libzstd-jni-${version}.dll"
-            cp "$input/libzstd-jni-${version}.dll" "$input/zstd-jni-${version}.dll"
-          fi
-          if [ -n "$jna_jar" ] && [ -f "$jna_jar" ]; then
-            unzip -p "$jna_jar" "com/sun/jna/win32-x86-64/jnidispatch.dll" > "$input/jnidispatch.dll"
-          fi
-          if [ -n "$api_jar" ] && [ -f "$api_jar" ]; then
-            unzip -j "$api_jar" "META-INF/resources/engine/libtruffleattach/windows/amd64/bin/truffleattach.dll" -d "$input" || true
-          fi
-
-      - name: Package app image with jpackage
-        run: |
-          options=()
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            options+=(--java-options '-Djava.library.path=$APPDIR'
-                      --java-options '-Djna.nounpack=true'
-                      --java-options '-Djna.boot.library.path=$APPDIR')
-          fi
-
-          jpackage --type app-image \
-            --name "ame-backend-$RELEASE_VERSION-$PLATFORM" \
-            --input "$TARGET/jpackage-input" \
-            --main-jar "aspect-model-editor-runtime-$RELEASE_VERSION.jar" \
-            --main-class org.eclipse.esmf.ame.Application \
-            --runtime-image "$TARGET/jlink-runtime" \
-            --java-options "--enable-native-access=ALL-UNNAMED" \
-            --java-options "--sun-misc-unsafe-memory-access=allow" \
-            --java-options "-Dpolyglotimpl.DisableMultiReleaseCheck=true" \
-            "${options[@]}" \
-            --dest "$TARGET"
-
-          rm -rf "$TARGET/jlink-runtime" "$TARGET/jpackage-input"
-
-      # Linux: tar.gz keeps the permissions. macOS: ditto keeps symlinks, permissions and extended attributes,
-      # --keepParent keeps the .app bundle as top-level entry. Windows: the app image folder is uploaded as artifact.
-      - name: Create release archive
-        id: archive
-        run: |
-          name="ame-backend-$RELEASE_VERSION-$PLATFORM"
-          cd "$TARGET"
-          case "$RUNNER_OS" in
-            Linux)
-              asset="ame-backend-v$RELEASE_VERSION-$PLATFORM.tar.gz"
-              tar -czf "$asset" "$name" ;;
-            macOS)
-              asset="ame-backend-v$RELEASE_VERSION-$PLATFORM.zip"
-              ditto -c -k --sequesterRsrc --keepParent "$name.app" "$asset" ;;
-            Windows)
-              asset="$name" ;;
-          esac
-          echo "path=$TARGET/$asset" >> "$GITHUB_OUTPUT"
+      - name: Package app image
+        id: app-image
+        uses: ./.github/actions/package-app-image
+        with:
+          version: ${{ needs.prepare.outputs.version }}
+          platform: ${{ matrix.platform }}
+          archive-name: ame-backend-v${{ needs.prepare.outputs.version }}-${{ matrix.platform }}
 
       - name: Upload workflow artifact
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
           name: ame-backend-v${{ needs.prepare.outputs.version }}-${{ matrix.platform }}
-          path: ${{ steps.archive.outputs.path }}
+          path: ${{ steps.app-image.outputs.path }}
 
       - name: Upload to draft release
         if: runner.os != 'Windows'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ASSET: ${{ steps.archive.outputs.path }}
+          ASSET: ${{ steps.app-image.outputs.path }}
         run: gh release upload "v$RELEASE_VERSION" "$ASSET" --repo "$GITHUB_REPOSITORY" --clobber
 
       # In the original repository the Windows app image is signed and uploaded by the Jenkins job,

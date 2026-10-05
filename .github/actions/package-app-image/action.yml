@@ -1,0 +1,129 @@
+# Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
+#
+# See the AUTHORS file(s) distributed with this work for
+# additional information regarding authorship.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# SPDX-License-Identifier: MPL-2.0
+
+name: "Package app image"
+description: "Packages the built runtime jar with jlink and jpackage into a platform specific app image and archives it"
+
+inputs:
+  version:
+    description: "Maven project version of the built runtime jar, e.g. 2.3.0 or DEV-SNAPSHOT"
+    required: true
+  platform:
+    description: "Platform suffix of the app image, e.g. linux, win, mac-x64 or mac-arm64"
+    required: true
+  archive-name:
+    description: "File name of the archive without extension (Linux: .tar.gz, macOS: .zip)"
+    required: true
+
+outputs:
+  path:
+    description: "Path of the archive (Linux, macOS) or of the app image folder (Windows)"
+    value: ${{ steps.archive.outputs.path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Create runtime with jlink
+      shell: bash
+      env:
+        TARGET: aspect-model-editor-runtime/target
+        VERSION: ${{ inputs.version }}
+      run: |
+        jdeps --multi-release base --ignore-missing-deps --print-module-deps \
+          "$TARGET/aspect-model-editor-runtime-$VERSION.jar" || true
+
+        jlink --no-header-files --no-man-pages --strip-debug --compress=zip-6 \
+          --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.crypto.cryptoki,jdk.charsets,jdk.zipfs,jdk.management,jdk.attach,jdk.jfr \
+          --output "$TARGET/jlink-runtime"
+
+        mkdir -p "$TARGET/jpackage-input"
+        cp "$TARGET/aspect-model-editor-runtime-$VERSION.jar" "$TARGET/jpackage-input/"
+
+    # AppLocker/WDAC block native libraries that are unpacked at runtime into the temp or cache folder,
+    # so they are bundled in the app image (and signed with it) and loaded from there.
+    - name: Extract native libraries (Windows)
+      if: runner.os == 'Windows'
+      shell: bash
+      env:
+        TARGET: aspect-model-editor-runtime/target
+      run: |
+        input="$TARGET/jpackage-input"
+        classpath_jar() {
+          mvn dependency:build-classpath -DincludeArtifactIds="$1" \
+            | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep "/$1-[0-9][^/]*\.jar$" | head -n 1
+        }
+        zstd_jar=$(classpath_jar zstd-jni)
+        jna_jar=$(classpath_jar jna)
+        truffle_jar=$(classpath_jar truffle-api)
+
+        # zstd-jni loads libzstd-jni-<version>.dll from java.library.path
+        zstd_lib="$(basename "$zstd_jar" .jar | sed 's/^zstd-jni-/libzstd-jni-/').dll"
+        unzip -j "$zstd_jar" "win/amd64/$zstd_lib" -d "$input"
+        # JNA loads jnidispatch.dll from jna.boot.library.path
+        unzip -j "$jna_jar" "com/sun/jna/win32-x86-64/jnidispatch.dll" -d "$input"
+        # Truffle loads truffleattach.dll from <polyglot.engine.resourcePath.engine.libtruffleattach>/bin
+        mkdir -p "$input/libtruffleattach/bin"
+        unzip -j "$truffle_jar" "META-INF/resources/engine/libtruffleattach/windows/amd64/bin/truffleattach.dll" \
+          -d "$input/libtruffleattach/bin"
+
+    - name: Package app image with jpackage
+      shell: bash
+      env:
+        TARGET: aspect-model-editor-runtime/target
+        VERSION: ${{ inputs.version }}
+        PLATFORM: ${{ inputs.platform }}
+      run: |
+        options=()
+        if [ "$RUNNER_OS" = "Windows" ]; then
+          options+=(--java-options '-Djava.library.path=$APPDIR'
+                    --java-options '-Djna.nounpack=true'
+                    --java-options '-Djna.boot.library.path=$APPDIR'
+                    --java-options '-Dpolyglot.engine.resourcePath.engine.libtruffleattach=$APPDIR/libtruffleattach')
+        fi
+
+        jpackage --type app-image \
+          --name "ame-backend-$VERSION-$PLATFORM" \
+          --input "$TARGET/jpackage-input" \
+          --main-jar "aspect-model-editor-runtime-$VERSION.jar" \
+          --main-class org.eclipse.esmf.ame.Application \
+          --runtime-image "$TARGET/jlink-runtime" \
+          --java-options "--enable-native-access=ALL-UNNAMED" \
+          --java-options "--sun-misc-unsafe-memory-access=allow" \
+          --java-options "-Dpolyglotimpl.DisableMultiReleaseCheck=true" \
+          "${options[@]}" \
+          --dest "$TARGET"
+
+        rm -rf "$TARGET/jlink-runtime" "$TARGET/jpackage-input"
+
+    # Linux: tar.gz keeps the permissions. macOS: ditto keeps symlinks, permissions and extended attributes,
+    # --keepParent keeps the .app bundle as top-level entry. Windows: the app image folder is uploaded as artifact.
+    - name: Create archive
+      id: archive
+      shell: bash
+      env:
+        TARGET: aspect-model-editor-runtime/target
+        VERSION: ${{ inputs.version }}
+        PLATFORM: ${{ inputs.platform }}
+        ARCHIVE_NAME: ${{ inputs.archive-name }}
+      run: |
+        name="ame-backend-$VERSION-$PLATFORM"
+        cd "$TARGET"
+        case "$RUNNER_OS" in
+          Linux)
+            asset="$ARCHIVE_NAME.tar.gz"
+            tar -czf "$asset" "$name" ;;
+          macOS)
+            asset="$ARCHIVE_NAME.zip"
+            ditto -c -k --sequesterRsrc --keepParent "$name.app" "$asset" ;;
+          Windows)
+            asset="$name" ;;
+        esac
+        echo "path=$TARGET/$asset" >> "$GITHUB_OUTPUT"

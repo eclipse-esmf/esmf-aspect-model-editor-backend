@@ -1,3 +1,14 @@
+# Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
+#
+# See the AUTHORS file(s) distributed with this work for
+# additional information regarding authorship.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# SPDX-License-Identifier: MPL-2.0
+
 name: Check New Pull Request
 
 on:
@@ -24,28 +35,26 @@ jobs:
             platform: mac-x64
           - os: macos-latest
             platform: mac-arm64
-
+    env:
+      PLATFORM: ${{ matrix.platform }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout project
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup JDK
         uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.8.0
         with:
           java-version: '25.0.3'
           distribution: 'temurin'
+          cache: maven
 
-      - name: Cache Maven packages
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-
-      - name: Set Swap Space (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Set swap space (Linux)
+        if: runner.os == 'Linux'
         uses: pierotofy/set-swap-space@49819abfb41bd9b44fb781159c033dba90353a7c # master
         with:
           swap-size-gb: 12
@@ -53,178 +62,33 @@ jobs:
       - name: Build and run tests
         run: |
           java --version
-          export MAVEN_OPTS="-Xmx4096m"
-          export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8"
-          # Build aspect model editor executable jar
-          unset JAVA_TOOL_OPTIONS
-          mvn -B clean install -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
-        shell: bash
+          MAVEN_OPTS="-Xmx4096m" mvn -B clean install -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
 
-      - name: Build package with jlink and jpackage (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          echo "Analyzing JAR dependencies with jdeps..."
-          jdeps --multi-release base --ignore-missing-deps --print-module-deps \
-            aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar || true
-
-          echo "Creating custom runtime with jlink..."
-          jlink --no-header-files --no-man-pages --strip-debug --compress=zip-6 \
-            --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.crypto.cryptoki,jdk.charsets,jdk.zipfs,jdk.management,jdk.attach,jdk.jfr \
-            --output aspect-model-editor-runtime/target/jlink-runtime
-
-          echo "Packaging application image with jpackage..."
-          mkdir -p aspect-model-editor-runtime/target/jpackage-input
-          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar aspect-model-editor-runtime/target/jpackage-input/
-
-          jpackage --type app-image \
-            --name ame-backend-DEV-SNAPSHOT-linux \
-            --input aspect-model-editor-runtime/target/jpackage-input \
-            --main-jar aspect-model-editor-runtime-DEV-SNAPSHOT.jar \
-            --main-class org.eclipse.esmf.ame.Application \
-            --runtime-image aspect-model-editor-runtime/target/jlink-runtime \
-            --java-options "--enable-native-access=ALL-UNNAMED" \
-            --java-options "--sun-misc-unsafe-memory-access=allow" \
-            --java-options "-Dpolyglotimpl.DisableMultiReleaseCheck=true" \
-            --dest aspect-model-editor-runtime/target
-
-          rm -rf aspect-model-editor-runtime/target/jlink-runtime aspect-model-editor-runtime/target/jpackage-input
-        shell: bash
-
-      - name: Build package with jlink and jpackage (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          echo "Analyzing JAR dependencies with jdeps..."
-          jdeps --multi-release base --ignore-missing-deps --print-module-deps \
-            aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar || true
-
-          echo "Creating custom runtime with jlink..."
-          jlink --no-header-files --no-man-pages --strip-debug --compress=zip-6 \
-            --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.crypto.cryptoki,jdk.charsets,jdk.zipfs,jdk.management,jdk.attach,jdk.jfr \
-            --output aspect-model-editor-runtime/target/jlink-runtime
-
-          echo "Preparing input and extracting native DLLs..."
-          mkdir -p aspect-model-editor-runtime/target/jpackage-input
-          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar aspect-model-editor-runtime/target/jpackage-input/
-
-          zstd_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=zstd-jni | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'zstd-jni' | grep '\.jar$' | head -n 1)
-          jna_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=jna | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'jna' | grep '\.jar$' | head -n 1)
-          api_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=truffle-api | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'truffle-api' | grep '\.jar$' | head -n 1)
-
-          if [ -n "$zstd_jar" ] && [ -f "$zstd_jar" ]; then
-            jar_basename=$(basename "$zstd_jar")
-            version="${jar_basename#zstd-jni-}"
-            version="${version%.jar}"
-            unzip -p "$zstd_jar" "win/amd64/libzstd-jni-${version}.dll" > "aspect-model-editor-runtime/target/jpackage-input/libzstd-jni-${version}.dll"
-            cp "aspect-model-editor-runtime/target/jpackage-input/libzstd-jni-${version}.dll" "aspect-model-editor-runtime/target/jpackage-input/zstd-jni-${version}.dll"
-          fi
-
-          if [ -n "$jna_jar" ] && [ -f "$jna_jar" ]; then
-            unzip -p "$jna_jar" "com/sun/jna/win32-x86-64/jnidispatch.dll" > "aspect-model-editor-runtime/target/jpackage-input/jnidispatch.dll"
-          fi
-
-          if [ -n "$api_jar" ] && [ -f "$api_jar" ]; then
-            unzip -j "$api_jar" "META-INF/resources/engine/libtruffleattach/windows/amd64/bin/truffleattach.dll" -d "aspect-model-editor-runtime/target/jpackage-input" || true
-          fi
-
-          echo "Packaging application image with jpackage..."
-          jpackage --type app-image \
-            --name ame-backend-DEV-SNAPSHOT-win \
-            --input aspect-model-editor-runtime/target/jpackage-input \
-            --main-jar aspect-model-editor-runtime-DEV-SNAPSHOT.jar \
-            --main-class org.eclipse.esmf.ame.Application \
-            --runtime-image aspect-model-editor-runtime/target/jlink-runtime \
-            --java-options "--enable-native-access=ALL-UNNAMED" \
-            --java-options "--sun-misc-unsafe-memory-access=allow" \
-            --java-options "-Dpolyglotimpl.DisableMultiReleaseCheck=true" \
-            --java-options '-Djava.library.path=$APPDIR' \
-            --java-options '-Djna.nounpack=true' \
-            --java-options '-Djna.boot.library.path=$APPDIR' \
-            --dest aspect-model-editor-runtime/target
-
-          rm -rf aspect-model-editor-runtime/target/jlink-runtime aspect-model-editor-runtime/target/jpackage-input
-        shell: bash
-
-      - name: Build package with jlink and jpackage (Mac)
-        if: runner.os == 'macOS'
-        run: |
-          echo "Analyzing JAR dependencies with jdeps..."
-          jdeps --multi-release base --ignore-missing-deps --print-module-deps \
-            aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar || true
-
-          echo "Creating custom runtime with jlink..."
-          jlink --no-header-files --no-man-pages --strip-debug --compress=zip-6 \
-            --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.crypto.cryptoki,jdk.charsets,jdk.zipfs,jdk.management,jdk.attach,jdk.jfr \
-            --output aspect-model-editor-runtime/target/jlink-runtime
-
-          echo "Packaging application image with jpackage..."
-          mkdir -p aspect-model-editor-runtime/target/jpackage-input
-          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar aspect-model-editor-runtime/target/jpackage-input/
-
-          jpackage --type app-image \
-            --name ame-backend-DEV-SNAPSHOT-mac \
-            --input aspect-model-editor-runtime/target/jpackage-input \
-            --main-jar aspect-model-editor-runtime-DEV-SNAPSHOT.jar \
-            --main-class org.eclipse.esmf.ame.Application \
-            --runtime-image aspect-model-editor-runtime/target/jlink-runtime \
-            --java-options "--enable-native-access=ALL-UNNAMED" \
-            --java-options "--sun-misc-unsafe-memory-access=allow" \
-            --java-options "-Dpolyglotimpl.DisableMultiReleaseCheck=true" \
-            --dest aspect-model-editor-runtime/target
-
-          rm -rf aspect-model-editor-runtime/target/jlink-runtime aspect-model-editor-runtime/target/jpackage-input
-        shell: bash
-
-      - name: Performing integration test for Mac
-        if: runner.os == 'macOS'
-        run: mvn verify -DskipTests -P dependencies-for-integration-tests,start-mac-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=mac -Dmaven.shade.skip=true -Dmaven.jar.skip=true
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Performing integration test for Linux
-        if: matrix.os == 'ubuntu-latest'
-        run: mvn verify -DskipTests -P dependencies-for-integration-tests,start-linux-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=linux -Dmaven.shade.skip=true -Dmaven.jar.skip=true
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Performing integration test for Windows
-        if: matrix.os == 'windows-latest'
-        run: mvn verify -DskipTests -P dependencies-for-integration-tests,start-windows-image-for-integration-tests,run-bruno-integration-tests -D os.platform=win -D maven.shade.skip=true -D maven.jar.skip=true
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload binary (Windows)
-        if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
+      - name: Package app image
+        id: app-image
+        uses: ./.github/actions/package-app-image
         with:
-          name: ame-backend-win
-          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win
+          version: DEV-SNAPSHOT
+          platform: ${{ matrix.platform }}
+          archive-name: ame-backend-DEV-SNAPSHOT-${{ matrix.platform }}
 
-      # upload-artifact does not preserve file permissions/symlinks, so archive first
-      - name: Create tar.gz (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Run integration tests
         run: |
-          cd aspect-model-editor-runtime/target
-          tar -czf ame-backend-DEV-SNAPSHOT-linux.tar.gz ame-backend-DEV-SNAPSHOT-linux
-        shell: bash
+          case "$RUNNER_OS" in
+            Linux) image=linux ;;
+            Windows) image=windows ;;
+            macOS) image=mac ;;
+          esac
+          mvn -B verify -DskipTests \
+            -P "dependencies-for-integration-tests,start-$image-image-for-integration-tests,run-bruno-integration-tests" \
+            -Dos.platform="$PLATFORM" -Dmaven.shade.skip=true -Dmaven.jar.skip=true
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload binary (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
-        with:
-          name: ame-backend-linux
-          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux.tar.gz
-          compression-level: 0
-
-      - name: Create zip with .app bundle (Mac)
-        if: runner.os == 'macOS'
-        run: |
-          cd aspect-model-editor-runtime/target
-          ditto -c -k --sequesterRsrc --keepParent ame-backend-DEV-SNAPSHOT-mac.app ame-backend-DEV-SNAPSHOT-mac.zip
-
-      - name: Upload binary (Mac)
-        if: runner.os == 'macOS'
+      # The archives are already compressed, only the Windows app image folder is compressed by the upload
+      - name: Upload app image
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
         with:
           name: ame-backend-${{ matrix.platform }}
-          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac.zip
-          compression-level: 0
+          path: ${{ steps.app-image.outputs.path }}
+          compression-level: ${{ runner.os == 'Windows' && 6 || 0 }}
