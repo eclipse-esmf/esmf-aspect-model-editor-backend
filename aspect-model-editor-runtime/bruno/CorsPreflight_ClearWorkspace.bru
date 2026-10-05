@@ -1,0 +1,27 @@
+meta {
+  name: CorsPreflight_ClearWorkspace
+  type: http
+  seq: 89
+}
+
+options {
+  url: http://localhost:{{port}}/ame/api/models/workspace?backup=true
+  body: none
+  auth: none
+}
+
+headers {
+  Origin: http://localhost:4200
+  Access-Control-Request-Method: DELETE
+}
+
+tests {
+  test("The browser preflight without custom headers is allowed", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("The UI origin and DELETE are allowed", function() {
+    expect(res.getHeader("access-control-allow-origin")).to.equal("http://localhost:4200");
+    expect(res.getHeader("access-control-allow-methods")).to.contain("DELETE");
+  });
+}
