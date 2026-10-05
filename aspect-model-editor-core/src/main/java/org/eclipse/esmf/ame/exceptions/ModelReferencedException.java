@@ -19,8 +19,7 @@ import org.eclipse.esmf.ame.model.ReferenceReport;
 import io.micronaut.http.HttpStatus;
 
 /**
- * Thrown when a namespace or an Aspect Model file cannot be deleted because other files still use its elements
- * or could not be checked.
+ * Thrown when a namespace or an Aspect Model file cannot be deleted because other files still use its elements or could not be checked.
  */
 public class ModelReferencedException extends AspectModelEditorException {
    @Serial
