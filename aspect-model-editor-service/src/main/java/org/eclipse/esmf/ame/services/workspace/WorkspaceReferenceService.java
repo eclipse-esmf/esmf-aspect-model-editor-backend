@@ -23,6 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
@@ -123,6 +124,38 @@ public class WorkspaceReferenceService {
             .filter( other -> !other.path().toAbsolutePath().normalize().equals( target ) )
             .toList();
       return findReferences( others, definedElements::contains );
+   }
+
+   /**
+    * Finds the file of a namespace version that defines the given element. The files are read as plain RDF (without
+    * resolving their imports), so a file is found even if elements it references are missing in the workspace.
+    *
+    * @param namespace the namespace, e.g. {@code org.eclipse.example}
+    * @param version the version, e.g. {@code 1.0.0}
+    * @param elementUri the URN of the element, e.g. {@code urn:samm:org.eclipse.example:1.0.0#property}
+    * @return the defining file, empty if no file of the namespace version defines the element
+    * @throws RuntimeException the error of the first unreadable file if no file defines the element, since the
+    *       unreadable file might define it
+    */
+   public Optional<Path> findDefiningFile( final String namespace, final String version, final String elementUri ) {
+      RuntimeException firstReadError = null;
+      final List<WorkspaceFile> candidates = listWorkspaceFiles().stream().filter( file -> file.isIn( namespace, version ) ).toList();
+      for ( final WorkspaceFile file : candidates ) {
+         try {
+            if ( definedUris( parse( file.path() ) ).contains( elementUri ) ) {
+               return Optional.of( file.path() );
+            }
+         } catch ( final RuntimeException e ) {
+            LOG.warn( "Could not read {} while looking for {}: {}", file.path(), elementUri, e.getMessage() );
+            if ( firstReadError == null ) {
+               firstReadError = e;
+            }
+         }
+      }
+      if ( firstReadError != null ) {
+         throw firstReadError;
+      }
+      return Optional.empty();
    }
 
    private ReferenceReport findReferences( final List<WorkspaceFile> files, final Predicate<String> isTargetElement ) {

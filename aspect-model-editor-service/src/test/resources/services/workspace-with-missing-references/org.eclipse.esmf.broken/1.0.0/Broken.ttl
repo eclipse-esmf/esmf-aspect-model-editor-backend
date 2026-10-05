@@ -1,0 +1,5 @@
+@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> .
+@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.2.0#> .
+@prefix : <urn:samm:org.eclipse.esmf.broken:1.0.0#> .
+
+:brokenProperty a samm:Property ; samm:characteristic

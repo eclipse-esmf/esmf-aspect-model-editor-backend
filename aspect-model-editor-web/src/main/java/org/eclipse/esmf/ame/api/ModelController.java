@@ -112,12 +112,18 @@ public class ModelController {
    /**
     * Method used to return a turtle file based on the header parameter: Aspect-Model-Urn which consists of
     * urn:samm:namespace:version#AspectModelElement
+    *
+    * @param ignoreMissing if the references of the file cannot be resolved, returns the unresolved file instead of
+    *       failing, so that the file can be opened and repaired
     */
    @Get()
    @Produces( MediaType.APPLICATION_JSON )
-   public HttpResponse<AspectModelResponse> getModel( @Header( ApplicationConstants.Headers.URN ) final Optional<String> urn ) {
+   public HttpResponse<AspectModelResponse> getModel( @Header( ApplicationConstants.Headers.URN ) final Optional<String> urn,
+         @QueryValue( defaultValue = "false" ) final boolean ignoreMissing ) {
       final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
-      final AspectModelResult result = aspectModelReader.getModel( aspectModelUrn, null );
+      final AspectModelResult result = ignoreMissing
+            ? getModelOrUnresolved( aspectModelUrn )
+            : aspectModelReader.getModel( aspectModelUrn, null );
       return HttpResponse.ok( new AspectModelResponse( result.content(), result.sourceLocation().orElse( null ) ) );
    }
 
@@ -138,14 +144,27 @@ public class ModelController {
       return HttpResponse.ok( aspectModelReader.checkElementExists( aspectModelUrn, fileName ) );
    }
 
+   private AspectModelResult getModelOrUnresolved( final AspectModelUrn aspectModelUrn ) {
+      try {
+         return aspectModelReader.getModel( aspectModelUrn, null );
+      } catch ( final FileNotFoundException e ) {
+         return modelService.getUnresolvedModel( aspectModelUrn ).orElseThrow( () -> e );
+      }
+   }
+
    /**
     * Method used to return multiple turtle files in batch based on a list of Aspect Model URNs.
     * Each URN consists of urn:samm:namespace:version#AspectModelElement
+    *
+    * @param fileEntries the requested elements
+    * @param ignoreMissing leaves out elements that no workspace file defines instead of failing the request, and
+    *       returns files whose own references cannot be resolved unresolved
     */
    @Post( uri = "batch", consumes = MediaType.APPLICATION_JSON )
    @Produces( MediaType.APPLICATION_JSON )
-   public HttpResponse<List<FileInformation>> getModels( @Body final List<FileEntry> fileEntries ) {
-      return HttpResponse.ok( modelService.getModels( fileEntries ) );
+   public HttpResponse<List<FileInformation>> getModels( @Body final List<FileEntry> fileEntries,
+         @QueryValue( defaultValue = "false" ) final boolean ignoreMissing ) {
+      return HttpResponse.ok( modelService.getModels( fileEntries, ignoreMissing ) );
    }
 
    /**

@@ -14,6 +14,7 @@ package org.eclipse.esmf.ame.services.workspace;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.eclipse.esmf.ame.services.workspace.WorkspaceTestFiles.consumerB;
 import static org.eclipse.esmf.ame.services.workspace.WorkspaceTestFiles.providerA;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.esmf.ame.model.ModelReference;
 import org.eclipse.esmf.ame.model.ReferenceReport;
@@ -206,5 +208,48 @@ class WorkspaceReferenceServiceTest {
    void emptyOrMissingWorkspaceHasNoFiles() {
       assertTrue( new WorkspaceReferenceService( workspace.resolve( "missing" ) ).listWorkspaceFiles().isEmpty() );
       assertTrue( service.findNamespaceReferences( "org.example.a", "1.0.0" ).deletable() );
+   }
+
+   @Test
+   void definingFileIsFoundEvenIfItsReferencesAreMissing() {
+      write( workspace, "org.example.b", "1.0.0", "Other.ttl", """
+            @prefix : <urn:samm:org.example.b:1.0.0#> .
+            :otherProperty a samm:Property ; samm:characteristic samm-c:Text .
+            """ );
+      final Path consumer = consumerB( workspace );
+
+      assertEquals( Optional.of( consumer ), service.findDefiningFile( "org.example.b", "1.0.0", "urn:samm:org.example.b:1.0.0#Consumer" ) );
+   }
+
+   @Test
+   void definingFileIsOnlySearchedInTheNamespaceVersion() {
+      providerA( workspace );
+      write( workspace, "org.example.a", "2.0.0", "Uses.ttl", """
+            @prefix : <urn:samm:org.example.a:2.0.0#> .
+            @prefix old: <urn:samm:org.example.a:1.0.0#> .
+            :Uses a samm:Aspect ; samm:properties ( old:sharedProperty ) ; samm:operations ( ) .
+            """ );
+
+      assertTrue( service.findDefiningFile( "org.example.a", "2.0.0", "urn:samm:org.example.a:1.0.0#sharedProperty" ).isEmpty() );
+      assertTrue( service.findDefiningFile( "org.example.a", "1.0.0", "urn:samm:org.example.a:1.0.0#unknown" ).isEmpty() );
+      assertTrue( service.findDefiningFile( "org.example.x", "1.0.0", "urn:samm:org.example.x:1.0.0#sharedProperty" ).isEmpty() );
+   }
+
+   @Test
+   void usedButNotDefinedElementHasNoDefiningFile() {
+      consumerB( workspace );
+
+      assertTrue( service.findDefiningFile( "org.example.a", "1.0.0", "urn:samm:org.example.a:1.0.0#sharedProperty" ).isEmpty() );
+   }
+
+   @Test
+   void unreadableFileFailsTheLookupOnlyIfNoOtherFileDefinesTheElement() {
+      final Path provider = providerA( workspace );
+      write( workspace, "org.example.a", "1.0.0", "Broken.ttl", ":broken a samm:Property ;" );
+
+      assertEquals( Optional.of( provider ),
+            service.findDefiningFile( "org.example.a", "1.0.0", "urn:samm:org.example.a:1.0.0#sharedProperty" ) );
+      assertThrows( RuntimeException.class,
+            () -> service.findDefiningFile( "org.example.a", "1.0.0", "urn:samm:org.example.a:1.0.0#broken" ) );
    }
 }

@@ -22,6 +22,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import org.eclipse.esmf.ame.constants.ApplicationConstants;
@@ -30,11 +31,13 @@ import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.model.FileLoadError;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
 import org.eclipse.esmf.ame.services.file.FilePathResolver;
+import org.eclipse.esmf.ame.services.models.AspectModelResult;
 import org.eclipse.esmf.ame.services.models.FileEntry;
 import org.eclipse.esmf.ame.services.models.FileInformation;
 import org.eclipse.esmf.ame.services.models.Version;
 import org.eclipse.esmf.ame.services.utils.ModelGroupingUtils;
 import org.eclipse.esmf.ame.services.validation.ValidationOperations;
+import org.eclipse.esmf.ame.services.workspace.WorkspaceReferenceService;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
 import org.eclipse.esmf.aspectmodel.loader.AspectModelLoader;
@@ -47,7 +50,9 @@ import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
 
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.jena.riot.RiotException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,11 +73,13 @@ public class ModelService {
    private final ValidationOperations validationOperations;
    private final Path modelPath;
    private final FileLoadErrorHandler fileLoadErrorHandler;
+   private final WorkspaceReferenceService workspaceReferenceService;
 
+   @Inject
    public ModelService( final AspectModelValidator aspectModelValidator, final AspectModelLoader aspectModelLoader,
          final AspectModelRepository aspectModelRepository, final AspectModelReader aspectModelReader,
          final FilePathResolver filePathResolver, final ValidationOperations validationOperations, final Path modelPath,
-         final FileLoadErrorHandler fileLoadErrorHandler ) {
+         final FileLoadErrorHandler fileLoadErrorHandler, final WorkspaceReferenceService workspaceReferenceService ) {
       this.aspectModelValidator = aspectModelValidator;
       this.aspectModelLoader = aspectModelLoader;
       this.aspectModelRepository = aspectModelRepository;
@@ -81,13 +88,14 @@ public class ModelService {
       this.validationOperations = validationOperations;
       this.modelPath = modelPath;
       this.fileLoadErrorHandler = fileLoadErrorHandler;
+      this.workspaceReferenceService = workspaceReferenceService;
    }
 
    public ModelService( final AspectModelValidator aspectModelValidator, final AspectModelLoader aspectModelLoader,
          final AspectModelRepository aspectModelRepository, final AspectModelReader aspectModelReader,
          final FilePathResolver filePathResolver, final ValidationOperations validationOperations, final Path modelPath ) {
       this( aspectModelValidator, aspectModelLoader, aspectModelRepository, aspectModelReader, filePathResolver,
-            validationOperations, modelPath, new FileLoadErrorHandler() );
+            validationOperations, modelPath, new FileLoadErrorHandler(), new WorkspaceReferenceService( modelPath ) );
    }
 
    public Path getModelPath() {
@@ -109,6 +117,19 @@ public class ModelService {
    }
 
    public List<FileInformation> getModels( final List<FileEntry> fileEntries ) {
+      return getModels( fileEntries, false );
+   }
+
+   /**
+    * Loads the files that define the requested elements.
+    *
+    * @param fileEntries the requested elements
+    * @param ignoreMissing if {@code true}, elements that no workspace file defines are left out of the result
+    *       instead of failing the whole request, and a file whose own references cannot be resolved is returned
+    *       unresolved. Other errors (e.g. syntax errors) still fail the request.
+    * @return the files defining the requested elements
+    */
+   public List<FileInformation> getModels( final List<FileEntry> fileEntries, final boolean ignoreMissing ) {
       final List<FileInformation> results = new ArrayList<>();
       final List<FileLoadError> errors = new ArrayList<>();
 
@@ -146,6 +167,9 @@ public class ModelService {
 
             results.add( convertToFileInformation( aspectModelFile, urn ) );
          } catch ( final Throwable t ) {
+            if ( ignoreMissing && isResolutionFailure( t ) && addUnresolvedDefiningFile( urn, results ) ) {
+               continue;
+            }
             errors.addAll( fileLoadErrorHandler.extractErrors( fileIdentifier, t ) );
          }
       }
@@ -155,6 +179,70 @@ public class ModelService {
       }
 
       return results;
+   }
+
+   private static boolean isResolutionFailure( final Throwable throwable ) {
+      return ExceptionUtils.indexOfType( throwable, FileNotFoundException.class ) >= 0
+            || ExceptionUtils.indexOfType( throwable, ModelResolutionException.class ) >= 0;
+   }
+
+   /**
+    * Adds the raw workspace file defining the element, if there is one.
+    *
+    * @return {@code false} if the workspace could not be searched, so the original error has to be reported
+    */
+   private boolean addUnresolvedDefiningFile( final AspectModelUrn urn, final List<FileInformation> results ) {
+      try {
+         findDefiningFile( urn ).map( path -> rawFileInformation( path, urn ) ).ifPresent( results::add );
+         return true;
+      } catch ( final RuntimeException readError ) {
+         LOG.warn( "Could not look up the file defining {}: {}", urn, readError.getMessage() );
+         return false;
+      }
+   }
+
+   /**
+    * Returns the raw content of the workspace file defining the element without resolving its references, so that a
+    * file whose referenced elements are missing in the workspace can still be opened and repaired.
+    *
+    * @param urn the requested element
+    * @return the defining file, empty if no workspace file defines the element
+    */
+   public Optional<AspectModelResult> getUnresolvedModel( final AspectModelUrn urn ) {
+      return findDefiningFile( urn ).map( path -> {
+         final String fileName = path.getFileName().toString();
+         return new AspectModelResult( Optional.of( fileName ), readContent( path, fileName ), Optional.of( path.toUri() ) );
+      } );
+   }
+
+   private Optional<Path> findDefiningFile( final AspectModelUrn urn ) {
+      return workspaceReferenceService.findDefiningFile( urn.getNamespaceMainPart(), urn.getVersion(), urn.toString() );
+   }
+
+   private FileInformation rawFileInformation( final Path filePath, final AspectModelUrn requestedUrn ) {
+      final String fileName = filePath.getFileName().toString();
+      final String fileKey = String.format( "%s:%s:%s", requestedUrn.getNamespaceMainPart(), requestedUrn.getVersion(), fileName );
+      final String rawContent = readContent( filePath, fileName );
+      try {
+         return new FileInformation( fileKey, requestedUrn.toString(), readSammVersion( filePath, filePath.toUri() ), rawContent, fileName );
+      } catch ( final IOException e ) {
+         throw new FileReadException( String.format( "Failed to read content of file '%s'", fileName ), e );
+      }
+   }
+
+   private static String readContent( final Path filePath, final String fileName ) {
+      try {
+         return Files.readString( filePath, StandardCharsets.UTF_8 );
+      } catch ( final IOException e ) {
+         throw new FileReadException( String.format( "Failed to read content of file '%s'", fileName ), e );
+      }
+   }
+
+   private String readSammVersion( final Path filePath, final URI sourceUri ) throws IOException {
+      try ( final InputStream inputStream = Files.newInputStream( filePath ) ) {
+         final RawAspectModelFile rawFile = AspectModelFileLoader.load( inputStream, sourceUri );
+         return validationOperations.extractSammVersion( rawFile );
+      }
    }
 
    private FileInformation convertToFileInformation( final AspectModelFile aspectModelFile, final AspectModelUrn requestedUrn ) {
@@ -169,17 +257,11 @@ public class ModelService {
             fileName.isEmpty() ? requestedUrn.getName() : fileName );
 
       if ( filePath != null && Files.exists( filePath ) ) {
-         final String rawContent;
-         try {
-            rawContent = Files.readString( filePath, StandardCharsets.UTF_8 );
-         } catch ( final IOException e ) {
-            throw new FileReadException( String.format( "Failed to read content of file '%s'", fileName ), e );
-         }
+         final String rawContent = readContent( filePath, fileName );
 
          final String sammVersion;
-         try ( final InputStream inputStream = Files.newInputStream( filePath ) ) {
-            final RawAspectModelFile rawFile = AspectModelFileLoader.load( inputStream, sourceUri );
-            sammVersion = validationOperations.extractSammVersion( rawFile );
+         try {
+            sammVersion = readSammVersion( filePath, sourceUri );
          } catch ( final ParserException | RiotException | IOException e ) {
             return new FileInformation( fileKey, requestedUrn.toString(), validationOperations.extractSammVersion( aspectModelFile ),
                   rawContent, fileName );

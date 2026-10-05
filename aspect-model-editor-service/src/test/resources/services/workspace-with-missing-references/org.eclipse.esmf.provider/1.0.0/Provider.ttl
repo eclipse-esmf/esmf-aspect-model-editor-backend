@@ -1,0 +1,7 @@
+@prefix samm: <urn:samm:org.eclipse.esmf.samm:meta-model:2.2.0#> .
+@prefix samm-c: <urn:samm:org.eclipse.esmf.samm:characteristic:2.2.0#> .
+@prefix missing: <urn:samm:org.eclipse.esmf.missing:1.0.0#> .
+@prefix : <urn:samm:org.eclipse.esmf.provider:1.0.0#> .
+
+:propertyWithMissingCharacteristic a samm:Property ; samm:characteristic missing:MissingCharacteristic .
+:resolvableProperty a samm:Property ; samm:characteristic samm-c:Text .

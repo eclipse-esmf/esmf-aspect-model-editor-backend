@@ -1,0 +1,29 @@
+meta {
+  name: GetAspectModel_IgnoreMissing_Resolvable
+  type: http
+  seq: 90
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models?ignoreMissing=true
+  body: none
+  auth: none
+}
+
+params:query {
+  ignoreMissing: true
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.esmf.test:1.0.0#Movement
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Resolvable models are returned like without ignoreMissing", function() {
+    expect(res.getBody().content).to.include(":Movement a samm:Aspect");
+  });
+}

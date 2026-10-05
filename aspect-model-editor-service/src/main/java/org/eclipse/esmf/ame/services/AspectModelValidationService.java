@@ -20,8 +20,10 @@ import java.util.Optional;
 
 import org.eclipse.esmf.ame.exceptions.AspectModelEditorException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
+import org.eclipse.esmf.ame.exceptions.UnresolvedReferencesException;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
 import org.eclipse.esmf.ame.services.utils.TurtleElementResolver;
+import org.eclipse.esmf.ame.services.utils.UnresolvedReferences;
 import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.ame.validation.services.ViolationFormatter;
@@ -81,6 +83,10 @@ public class AspectModelValidationService {
       } catch ( final Exception e ) {
          LOG.error( "Validation failed for URI: {}", uri, e );
          final String errorMessage = buildErrorMessage( e, upload );
+         final List<String> unresolvedElements = UnresolvedReferences.find( e );
+         if ( !unresolvedElements.isEmpty() ) {
+            throw new UnresolvedReferencesException( errorMessage, unresolvedElements, e );
+         }
          throw new InvalidAspectModelException( errorMessage, e );
       }
    }

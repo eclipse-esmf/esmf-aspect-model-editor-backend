@@ -15,12 +15,14 @@ package org.eclipse.esmf.ame.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -101,7 +103,7 @@ class ModelControllerTest {
       final AspectModelResult result = new AspectModelResult( Optional.of( "Movement.ttl" ), "turtle-content", Optional.empty() );
       when( aspectModelReader.getModel( eq( AspectModelUrn.fromUrn( VALID_URN ) ), any() ) ).thenReturn( result );
 
-      final HttpResponse<AspectModelResponse> response = controller.getModel( Optional.of( VALID_URN ) );
+      final HttpResponse<AspectModelResponse> response = controller.getModel( Optional.of( VALID_URN ), false );
 
       assertEquals( HttpStatus.OK, response.getStatus() );
       assertNotNull( response.body() );
@@ -109,8 +111,40 @@ class ModelControllerTest {
    }
 
    @Test
+   void testGetModelWithIgnoreMissingReturnsTheUnresolvedFile() {
+      final AspectModelUrn urn = AspectModelUrn.fromUrn( VALID_URN );
+      when( aspectModelReader.getModel( eq( urn ), any() ) ).thenThrow( new FileNotFoundException( "resolution failed" ) );
+      when( modelService.getUnresolvedModel( urn ) ).thenReturn(
+            Optional.of( new AspectModelResult( Optional.of( "Movement.ttl" ), "raw-content", Optional.empty() ) ) );
+
+      final HttpResponse<AspectModelResponse> response = controller.getModel( Optional.of( VALID_URN ), true );
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertEquals( "raw-content", response.body().content() );
+   }
+
+   @Test
+   void testGetModelWithIgnoreMissingFailsIfNoFileDefinesTheElement() {
+      final AspectModelUrn urn = AspectModelUrn.fromUrn( VALID_URN );
+      final FileNotFoundException notFound = new FileNotFoundException( "resolution failed" );
+      when( aspectModelReader.getModel( eq( urn ), any() ) ).thenThrow( notFound );
+      when( modelService.getUnresolvedModel( urn ) ).thenReturn( Optional.empty() );
+
+      assertSame( notFound, assertThrows( FileNotFoundException.class, () -> controller.getModel( Optional.of( VALID_URN ), true ) ) );
+   }
+
+   @Test
+   void testGetModelWithoutIgnoreMissingDoesNotLookForTheUnresolvedFile() {
+      final AspectModelUrn urn = AspectModelUrn.fromUrn( VALID_URN );
+      when( aspectModelReader.getModel( eq( urn ), any() ) ).thenThrow( new FileNotFoundException( "resolution failed" ) );
+
+      assertThrows( FileNotFoundException.class, () -> controller.getModel( Optional.of( VALID_URN ), false ) );
+      verify( modelService, never() ).getUnresolvedModel( any() );
+   }
+
+   @Test
    void testGetModelMissingUrnThrowsFileNotFoundException() {
-      final FileNotFoundException ex = assertThrows( FileNotFoundException.class, () -> controller.getModel( Optional.empty() ) );
+      final FileNotFoundException ex = assertThrows( FileNotFoundException.class, () -> controller.getModel( Optional.empty(), false ) );
       assertEquals( "Please specify an aspect model urn", ex.getMessage() );
       assertEquals( 404, ex.getHttpStatusCode() );
    }
@@ -118,7 +152,7 @@ class ModelControllerTest {
    @Test
    void testGetModelInvalidUrnThrowsInvalidAspectModelException() {
       final InvalidAspectModelException ex = assertThrows( InvalidAspectModelException.class,
-            () -> controller.getModel( Optional.of( "urn:invalid:format" ) ) );
+            () -> controller.getModel( Optional.of( "urn:invalid:format" ), false ) );
       assertEquals( 409, ex.getHttpStatusCode() );
       assertTrue( ex.getMessage().contains( "Invalid Aspect Model URN format" ) );
    }
@@ -137,12 +171,24 @@ class ModelControllerTest {
    void testGetModelsBatchSuccess() {
       final List<FileEntry> entries = List.of( new FileEntry( "key", "file.ttl", VALID_URN, "2.2.0" ) );
       final List<FileInformation> fileInfoList = List.of( new FileInformation( "key", VALID_URN, "2.2.0", "content", "file.ttl" ) );
-      when( modelService.getModels( entries ) ).thenReturn( fileInfoList );
+      when( modelService.getModels( entries, false ) ).thenReturn( fileInfoList );
 
-      final HttpResponse<List<FileInformation>> response = controller.getModels( entries );
+      final HttpResponse<List<FileInformation>> response = controller.getModels( entries, false );
 
       assertEquals( HttpStatus.OK, response.getStatus() );
       assertEquals( 1, response.body().size() );
+   }
+
+   @Test
+   void testGetModelsBatchPassesIgnoreMissing() {
+      final List<FileEntry> entries = List.of( new FileEntry( null, null, VALID_URN, null ) );
+      when( modelService.getModels( entries, true ) ).thenReturn( List.of() );
+
+      final HttpResponse<List<FileInformation>> response = controller.getModels( entries, true );
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertTrue( response.body().isEmpty() );
+      verify( modelService ).getModels( entries, true );
    }
 
    @Test
@@ -328,10 +374,10 @@ class ModelControllerTest {
       final org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException batchException =
             new org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException(
                   "Failed to load", List.of() );
-      when( modelService.getModels( entries ) ).thenThrow( batchException );
+      when( modelService.getModels( entries, false ) ).thenThrow( batchException );
 
       final org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException thrown =
-            assertThrows( org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException.class, () -> controller.getModels( entries ) );
+            assertThrows( org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException.class, () -> controller.getModels( entries, false ) );
 
       assertEquals( 422, thrown.getHttpStatusCode() );
    }

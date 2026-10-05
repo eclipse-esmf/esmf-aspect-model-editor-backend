@@ -1,0 +1,40 @@
+meta {
+  name: GetModelsBatch_IgnoreMissing_MissingElement
+  type: http
+  seq: 86
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/batch?ignoreMissing=true
+  body: json
+  auth: none
+}
+
+params:query {
+  ignoreMissing: true
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  [
+    {
+      "key": "org.eclipse.examples:1.0.0:NonExistent.ttl",
+      "fileName": "NonExistent.ttl",
+      "aspectModelUrn": "urn:samm:org.eclipse.examples:1.0.0#NonExistent",
+      "modelVersion": "2.2.0"
+    }
+  ]
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("A missing element is skipped instead of failing the request", function() {
+    expect(res.getBody()).to.be.an('array').that.is.empty;
+  });
+}

@@ -13,6 +13,8 @@
 
 package org.eclipse.esmf.ame.services;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
+import org.eclipse.esmf.ame.exceptions.UnresolvedReferencesException;
 import org.eclipse.esmf.ame.model.MockFileUpload;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
@@ -165,6 +168,81 @@ class AspectModelValidationServiceTest {
       assertTrue( ex.getMessage().contains( "(samm:exampleValue)" ) );
       assertTrue( ex.getMessage().contains( "Invalid value \"fef\" for type xsd:int at line 6, column 21" ) );
       assertTrue( ex.getMessage().contains( "For input string: \"fef\"" ) );
+      assertFalse( ex instanceof UnresolvedReferencesException );
+   }
+
+   @Test
+   void testValidateListsUnresolvedElementsIfOnlyReferencesAreMissing() {
+      final AspectModelRepository mockRepository = mock( AspectModelRepository.class );
+      final AspectModelValidationService service = new AspectModelValidationService( mockRepository, mock( AspectModelValidator.class ) );
+
+      final String second = "urn:samm:org.eclipse.esmf.example:1.0.0#ElementTwo";
+      final String first = "urn:samm:org.eclipse.esmf.example:1.0.0#ElementOne";
+      final ModelResolutionException mre = new ModelResolutionException( List.of(
+            new ModelResolutionViolation( Optional.of( AspectModelUrn.fromUrn( second ) ), URI.create( "file:///two.ttl" ), "missing",
+                  Optional.empty() ),
+            new ModelResolutionViolation( Optional.of( AspectModelUrn.fromUrn( first ) ), URI.create( "file:///one.ttl" ), "missing",
+                  Optional.empty() ),
+            new ModelResolutionViolation( Optional.of( AspectModelUrn.fromUrn( first ) ), URI.create( "file:///three.ttl" ), "missing",
+                  Optional.empty() ) ) );
+      when( mockRepository.loadFromUpload( any(), any() ) ).thenThrow( mre );
+
+      final UnresolvedReferencesException ex = assertThrows( UnresolvedReferencesException.class,
+            () -> service.validate( URI.create( "blob://test.ttl" ), emptyUpload() ) );
+
+      assertEquals( 409, ex.getHttpStatusCode() );
+      assertEquals( List.of( first, second ), ex.getUnresolvedElements() );
+      assertTrue( ex.getMessage().contains( "Element '" + first + "' does not exist in a file." ) );
+   }
+
+   @Test
+   void testValidateDoesNotListUnresolvedElementsIfAReferencedFileHasAValueError() {
+      final AspectModelRepository mockRepository = mock( AspectModelRepository.class );
+      final AspectModelValidationService service = new AspectModelValidationService( mockRepository, mock( AspectModelValidator.class ) );
+
+      final org.eclipse.esmf.aspectmodel.ValueParsingException vpe = new org.eclipse.esmf.aspectmodel.ValueParsingException(
+            org.apache.jena.rdf.model.ResourceFactory.createResource( "http://www.w3.org/2001/XMLSchema#int" ), "x",
+            new NumberFormatException( "x" ) );
+      final ModelResolutionException mre = new ModelResolutionException( List.of(
+            new ModelResolutionViolation( Optional.of( AspectModelUrn.fromUrn( "urn:samm:org.eclipse.esmf.example:1.0.0#Element" ) ),
+                  URI.create( "file:///one.ttl" ), "broken", Optional.of( vpe ) ) ) );
+      when( mockRepository.loadFromUpload( any(), any() ) ).thenThrow( mre );
+
+      final InvalidAspectModelException ex = assertThrows( InvalidAspectModelException.class,
+            () -> service.validate( URI.create( "blob://test.ttl" ), emptyUpload() ) );
+
+      assertFalse( ex instanceof UnresolvedReferencesException );
+   }
+
+   @Test
+   void testValidateDoesNotListUnresolvedElementsForGeneralResolutionErrors() {
+      final AspectModelRepository mockRepository = mock( AspectModelRepository.class );
+      final AspectModelValidationService service = new AspectModelValidationService( mockRepository, mock( AspectModelValidator.class ) );
+      when( mockRepository.loadFromUpload( any(), any() ) ).thenThrow( new ModelResolutionException( List.of(
+            new ModelResolutionViolation( Optional.empty(), URI.create( "file:///file.ttl" ), "General resolution error",
+                  Optional.empty() ) ) ) );
+
+      final InvalidAspectModelException ex = assertThrows( InvalidAspectModelException.class,
+            () -> service.validate( URI.create( "blob://test.ttl" ), emptyUpload() ) );
+
+      assertFalse( ex instanceof UnresolvedReferencesException );
+   }
+
+   @Test
+   void testValidateRealModelWithMissingReferenceListsTheMissingElement() throws IOException {
+      final Path file = Path.of( RESOURCE_PATH.toString(), "workspace-with-missing-references", "org.eclipse.esmf.provider", VERSION,
+            "Provider.ttl" );
+      final CompletedFileUpload upload = MockFileUpload.create( "Provider.ttl", Files.readAllBytes( file ),
+            MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
+
+      final UnresolvedReferencesException ex = assertThrows( UnresolvedReferencesException.class,
+            () -> validationService.validate( URI.create( "blob:///" + toUriPath( file ) ), upload ) );
+
+      assertEquals( List.of( "urn:samm:org.eclipse.esmf.missing:1.0.0#MissingCharacteristic" ), ex.getUnresolvedElements() );
+   }
+
+   private static CompletedFileUpload emptyUpload() {
+      return MockFileUpload.create( "test.ttl", new byte[0], MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
    }
 
    private String toUriPath( final Path path ) {

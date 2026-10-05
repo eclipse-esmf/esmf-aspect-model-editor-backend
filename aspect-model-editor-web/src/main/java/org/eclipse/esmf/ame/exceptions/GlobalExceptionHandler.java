@@ -14,12 +14,14 @@
 package org.eclipse.esmf.ame.exceptions;
 
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.eclipse.esmf.ame.api.model.response.Error;
 import org.eclipse.esmf.ame.api.model.response.ErrorResponse;
 import org.eclipse.esmf.ame.services.utils.TurtleElementResolver;
+import org.eclipse.esmf.ame.services.utils.UnresolvedReferences;
 import org.eclipse.esmf.aspectmodel.AspectLoadingException;
 import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
 import org.eclipse.esmf.aspectmodel.ValueParsingException;
@@ -52,7 +54,8 @@ public class GlobalExceptionHandler implements ExceptionHandler<Throwable, HttpR
    @Override
    public HttpResponse<?> handle( final @NonNull HttpRequest request, final @NonNull Throwable exception ) {
       final HttpStatus status = determineHttpStatus( exception );
-      final String errorMessage = extractErrorMessage( exception );
+      final List<String> unresolvedElements = findUnresolvedElements( exception );
+      final String errorMessage = extractErrorMessage( exception, unresolvedElements );
       final String focusNode = extractFocusNode( exception );
       logException( request, exception, status, errorMessage );
 
@@ -61,10 +64,32 @@ public class GlobalExceptionHandler implements ExceptionHandler<Throwable, HttpR
                   errorMessage,
                   request.getUri().toString(),
                   status.getCode(),
-                  focusNode )
+                  focusNode,
+                  unresolvedElements.isEmpty() ? null : unresolvedElements )
       );
 
       return HttpResponse.status( status ).body( errorResponse );
+   }
+
+   /**
+    * Models which only miss referenced elements are reported the same way by every endpoint, so that clients can
+    * name the missing elements.
+    */
+   private List<String> findUnresolvedElements( final Throwable exception ) {
+      return findExceptionInCause( exception, UnresolvedReferencesException.class )
+            .map( UnresolvedReferencesException::getUnresolvedElements )
+            .orElseGet( () -> UnresolvedReferences.find( exception ) );
+   }
+
+   /**
+    * Names the missing elements instead of the raw resolution messages ("File does not exist; ..."), unless the
+    * exception already carries a message describing them.
+    */
+   private String extractErrorMessage( final Throwable exception, final List<String> unresolvedElements ) {
+      if ( unresolvedElements.isEmpty() || exception instanceof UnresolvedReferencesException ) {
+         return extractErrorMessage( exception );
+      }
+      return UnresolvedReferences.message( unresolvedElements );
    }
 
    /**
