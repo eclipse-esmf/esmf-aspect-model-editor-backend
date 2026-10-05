@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
-import org.eclipse.esmf.ame.exceptions.UnresolvedReferencesException;
 import org.eclipse.esmf.ame.model.MockFileUpload;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
+import org.eclipse.esmf.ame.services.utils.UnresolvedReferences;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
@@ -168,7 +168,7 @@ class AspectModelValidationServiceTest {
       assertTrue( ex.getMessage().contains( "(samm:exampleValue)" ) );
       assertTrue( ex.getMessage().contains( "Invalid value \"fef\" for type xsd:int at line 6, column 21" ) );
       assertTrue( ex.getMessage().contains( "For input string: \"fef\"" ) );
-      assertFalse( ex instanceof UnresolvedReferencesException );
+      assertTrue( UnresolvedReferences.find( ex ).isEmpty() );
    }
 
    @Test
@@ -187,11 +187,11 @@ class AspectModelValidationServiceTest {
                   Optional.empty() ) ) );
       when( mockRepository.loadFromUpload( any(), any() ) ).thenThrow( mre );
 
-      final UnresolvedReferencesException ex = assertThrows( UnresolvedReferencesException.class,
+      final InvalidAspectModelException ex = assertThrows( InvalidAspectModelException.class,
             () -> service.validate( URI.create( "blob://test.ttl" ), emptyUpload() ) );
 
       assertEquals( 409, ex.getHttpStatusCode() );
-      assertEquals( List.of( first, second ), ex.getUnresolvedElements() );
+      assertEquals( List.of( first, second ), UnresolvedReferences.find( ex ) );
       assertTrue( ex.getMessage().contains( "Element '" + first + "' does not exist in a file." ) );
    }
 
@@ -211,7 +211,7 @@ class AspectModelValidationServiceTest {
       final InvalidAspectModelException ex = assertThrows( InvalidAspectModelException.class,
             () -> service.validate( URI.create( "blob://test.ttl" ), emptyUpload() ) );
 
-      assertFalse( ex instanceof UnresolvedReferencesException );
+      assertTrue( UnresolvedReferences.find( ex ).isEmpty() );
    }
 
    @Test
@@ -225,7 +225,7 @@ class AspectModelValidationServiceTest {
       final InvalidAspectModelException ex = assertThrows( InvalidAspectModelException.class,
             () -> service.validate( URI.create( "blob://test.ttl" ), emptyUpload() ) );
 
-      assertFalse( ex instanceof UnresolvedReferencesException );
+      assertTrue( UnresolvedReferences.find( ex ).isEmpty() );
    }
 
    @Test
@@ -235,10 +235,10 @@ class AspectModelValidationServiceTest {
       final CompletedFileUpload upload = MockFileUpload.create( "Provider.ttl", Files.readAllBytes( file ),
             MediaType.of( MediaType.MULTIPART_FORM_DATA ) );
 
-      final UnresolvedReferencesException ex = assertThrows( UnresolvedReferencesException.class,
+      final InvalidAspectModelException ex = assertThrows( InvalidAspectModelException.class,
             () -> validationService.validate( URI.create( "blob:///" + toUriPath( file ) ), upload ) );
 
-      assertEquals( List.of( "urn:samm:org.eclipse.esmf.missing:1.0.0#MissingCharacteristic" ), ex.getUnresolvedElements() );
+      assertEquals( List.of( "urn:samm:org.eclipse.esmf.missing:1.0.0#MissingCharacteristic" ), UnresolvedReferences.find( ex ) );
    }
 
    private static CompletedFileUpload emptyUpload() {

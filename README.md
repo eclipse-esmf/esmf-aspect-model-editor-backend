@@ -6,6 +6,7 @@
 - [Getting help](#getting-help)
 - [Setup](#setup)
 - [Build and run](#build-and-run)
+- [Further documentation](#further-documentation)
 - [License](#license)
 
 ## Introduction
@@ -38,6 +39,11 @@ Are you having trouble with Aspect Model Editor backend? We want to help!
 mvn clean package
 mvn exec:java -pl aspect-model-editor-runtime
 ```
+
+## Further documentation
+
+* [Workspace deletion and missing references](docs/workspace-and-references.adoc): reference-aware deletion of files,
+  namespaces and the workspace, `ignoreMissing` and the `unresolvedElements` error responses, and how to run the Bruno tests
 
 We are always looking forward to your contributions. For more details on how to contribute just take a look at the
 [contribution guidelines](CONTRIBUTING.md). Please create an issue first before opening a pull request.

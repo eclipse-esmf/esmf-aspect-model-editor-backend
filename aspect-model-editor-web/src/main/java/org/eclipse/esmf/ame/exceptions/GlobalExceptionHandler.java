@@ -54,7 +54,7 @@ public class GlobalExceptionHandler implements ExceptionHandler<Throwable, HttpR
    @Override
    public HttpResponse<?> handle( final @NonNull HttpRequest request, final @NonNull Throwable exception ) {
       final HttpStatus status = determineHttpStatus( exception );
-      final List<String> unresolvedElements = findUnresolvedElements( exception );
+      final List<String> unresolvedElements = UnresolvedReferences.find( exception );
       final String errorMessage = extractErrorMessage( exception, unresolvedElements );
       final String focusNode = extractFocusNode( exception );
       logException( request, exception, status, errorMessage );
@@ -72,24 +72,12 @@ public class GlobalExceptionHandler implements ExceptionHandler<Throwable, HttpR
    }
 
    /**
-    * Models which only miss referenced elements are reported the same way by every endpoint, so that clients can
-    * name the missing elements.
-    */
-   private List<String> findUnresolvedElements( final Throwable exception ) {
-      return findExceptionInCause( exception, UnresolvedReferencesException.class )
-            .map( UnresolvedReferencesException::getUnresolvedElements )
-            .orElseGet( () -> UnresolvedReferences.find( exception ) );
-   }
-
-   /**
-    * Names the missing elements instead of the raw resolution messages ("File does not exist; ..."), unless the
-    * exception already carries a message describing them.
+    * Models which only miss referenced elements are reported the same way by every endpoint (validate, format, save,
+    * load): the message names the missing elements instead of the raw resolution messages ("File does not exist; ..."),
+    * and {@code unresolvedElements} lists them, so that clients can show them.
     */
    private String extractErrorMessage( final Throwable exception, final List<String> unresolvedElements ) {
-      if ( unresolvedElements.isEmpty() || exception instanceof UnresolvedReferencesException ) {
-         return extractErrorMessage( exception );
-      }
-      return UnresolvedReferences.message( unresolvedElements );
+      return unresolvedElements.isEmpty() ? extractErrorMessage( exception ) : UnresolvedReferences.message( unresolvedElements );
    }
 
    /**

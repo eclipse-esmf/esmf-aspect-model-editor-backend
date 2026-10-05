@@ -76,16 +76,20 @@ class GlobalExceptionHandlerTest {
    }
 
    @Test
-   void testHandleUnresolvedReferencesExceptionListsTheUnresolvedElements() {
-      final List<String> elements = List.of( "urn:samm:org.eclipse.esmf.example:1.0.0#missing" );
-      final UnresolvedReferencesException ex = new UnresolvedReferencesException( "Element does not exist in a file.", elements, null );
+   void testHandleWrappedModelResolutionExceptionListsTheUnresolvedElements() {
+      // e.g. thrown by the validation, which wraps the exception of the SDK
+      final String missing = "urn:samm:org.eclipse.esmf.example:1.0.0#missing";
+      final ModelResolutionException mre = new ModelResolutionException( List.of(
+            new ModelResolutionViolation( Optional.of( AspectModelUrn.fromUrn( missing ) ), URI.create( "file:///a.ttl" ),
+                  "File does not exist", Optional.empty() ) ) );
+      final InvalidAspectModelException ex = new InvalidAspectModelException( "Validation failed", mre );
       final HttpResponse<?> response = handler.handle( request, ex );
 
       assertEquals( HttpStatus.CONFLICT, response.getStatus() );
       final ErrorResponse body = (ErrorResponse) response.body();
       assertNotNull( body );
-      assertEquals( "Element does not exist in a file.", body.error().message() );
-      assertEquals( elements, body.error().unresolvedElements() );
+      assertEquals( "Element '" + missing + "' does not exist in a file.", body.error().message() );
+      assertEquals( List.of( missing ), body.error().unresolvedElements() );
    }
 
    @Test
