@@ -15,13 +15,24 @@ package org.eclipse.esmf.ame;
 
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
+import io.micronaut.context.ApplicationContext;
 import io.micronaut.runtime.Micronaut;
 import io.micronaut.serde.annotation.SerdeImport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SerdeImport( AspectModelUrn.class )
 public class Application {
+   private static final Logger LOG = LoggerFactory.getLogger( Application.class );
+
    static void main( final String[] args ) {
-      Micronaut.run( Application.class, args );
+      final ApplicationContext context = Micronaut.run( Application.class, args );
+
+      ParentProcessWatchdog.watch( context, () -> {
+         LOG.info( "The desktop app has ended, stopping the backend." );
+         context.close();
+         System.exit( 0 );
+      } );
    }
 }
 
