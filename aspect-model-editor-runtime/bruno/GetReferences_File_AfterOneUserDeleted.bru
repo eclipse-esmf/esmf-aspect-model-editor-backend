@@ -1,0 +1,22 @@
+meta {
+  name: GetReferences_File_AfterOneUserDeleted
+  type: http
+  seq: 82
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models/references?namespace=org.eclipse.bruno.referenced&version=1.0.0&fileName=Provider.ttl
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Only the remaining referencing file is listed", function() {
+    expect(res.getBody().deletable).to.equal(false);
+    expect(res.getBody().references.map(r => r.fileName)).to.eql(["Consumer.ttl"]);
+  });
+}

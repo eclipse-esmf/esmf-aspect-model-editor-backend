@@ -14,8 +14,10 @@
 package org.eclipse.esmf.ame.services;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -23,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
+import org.eclipse.esmf.ame.exceptions.ModelReferencedException;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
@@ -52,6 +55,7 @@ class AspectModelWriterTest {
 
    private static final String TEST_MODEL_FOR_SERVICE = "Movement";
    private static final String TEST_MODEL_TO_DELETE = "FileToDelete";
+   private static final String USES_FILE_TO_DELETE = "UsesFileToDelete";
 
    private String originalFileToDeleteContent;
    private String originalMovementContent;
@@ -80,6 +84,7 @@ class AspectModelWriterTest {
       }
       final Path newFilePath = Path.of( TEST_NAMESPACE_PATH.toString(), "TestNewModel" + FILE_EXTENSION );
       Files.deleteIfExists( newFilePath );
+      Files.deleteIfExists( Path.of( TEST_NAMESPACE_PATH.toString(), USES_FILE_TO_DELETE + FILE_EXTENSION ) );
    }
 
    @Test
@@ -92,6 +97,23 @@ class AspectModelWriterTest {
       assertThrows( FileNotFoundException.class,
             () -> aspectModelReader.getModel( NAMESPACE.withName( TEST_MODEL_TO_DELETE ), TEST_MODEL_TO_DELETE + FILE_EXTENSION ),
             "Relative path must contain at least namespace, version, and filename: FileToDelete.ttl" );
+   }
+
+   @Test
+   void testDeleteModelStillUsedByAnotherFile() throws IOException {
+      final Path fileToDelete = Path.of( TEST_NAMESPACE_PATH.toString(), TEST_MODEL_TO_DELETE + FILE_EXTENSION );
+      Files.writeString( Path.of( TEST_NAMESPACE_PATH.toString(), USES_FILE_TO_DELETE + FILE_EXTENSION ), """
+            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+            @prefix : <urn:samm:org.eclipse.esmf.example:1.0.0#> .
+            :UsesFileToDelete rdfs:seeAlso :FileToDelete .
+            """, StandardCharsets.UTF_8 );
+
+      final ModelReferencedException exception = assertThrows( ModelReferencedException.class,
+            () -> aspectModelWriter.deleteModel( NAMESPACE.withName( TEST_MODEL_TO_DELETE ) ) );
+
+      assertEquals( 409, exception.getHttpStatusCode() );
+      assertEquals( USES_FILE_TO_DELETE + FILE_EXTENSION, exception.getReport().references().getFirst().fileName() );
+      assertTrue( Files.exists( fileToDelete ), "A file that is still used must not be deleted." );
    }
 
    @Test

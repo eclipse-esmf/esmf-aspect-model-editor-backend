@@ -1,0 +1,21 @@
+meta {
+  name: GetAllNamespaces_AfterClearWorkspace
+  type: http
+  seq: 95
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models/namespaces
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("The workspace is empty", function() {
+    expect(Object.keys(res.getBody())).to.be.empty;
+  });
+}

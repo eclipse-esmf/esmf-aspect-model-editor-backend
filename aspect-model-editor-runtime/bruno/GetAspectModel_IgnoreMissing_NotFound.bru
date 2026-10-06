@@ -1,0 +1,31 @@
+meta {
+  name: GetAspectModel_IgnoreMissing_NotFound
+  type: http
+  seq: 91
+}
+
+get {
+  url: http://localhost:{{port}}/ame/api/models?ignoreMissing=true
+  body: none
+  auth: none
+}
+
+params:query {
+  ignoreMissing: true
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.examples:1.0.0#NonExistent
+}
+
+tests {
+  test("Status code is 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+
+  test("Elements which no file defines are still reported as not found", function() {
+    const error = res.getBody().error;
+    expect(error.code).to.equal(404);
+    expect(error.message).to.be.a('string').that.is.not.empty;
+  });
+}

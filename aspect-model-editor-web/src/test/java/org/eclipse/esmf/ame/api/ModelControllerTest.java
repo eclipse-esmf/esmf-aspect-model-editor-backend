@@ -15,11 +15,14 @@ package org.eclipse.esmf.ame.api;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,8 +37,11 @@ import org.eclipse.esmf.ame.api.model.response.AspectModelResponse;
 import org.eclipse.esmf.ame.api.model.response.StoragePathResponse;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
+import org.eclipse.esmf.ame.exceptions.ModelReferencedException;
 import org.eclipse.esmf.ame.exceptions.UriNotDefinedException;
 import org.eclipse.esmf.ame.model.MockFileUpload;
+import org.eclipse.esmf.ame.model.ModelReference;
+import org.eclipse.esmf.ame.model.ReferenceReport;
 import org.eclipse.esmf.ame.security.FileNameSanitizer;
 import org.eclipse.esmf.ame.services.AspectModelMigrator;
 import org.eclipse.esmf.ame.services.AspectModelReader;
@@ -43,10 +49,12 @@ import org.eclipse.esmf.ame.services.AspectModelValidationService;
 import org.eclipse.esmf.ame.services.AspectModelWriter;
 import org.eclipse.esmf.ame.services.ModelService;
 import org.eclipse.esmf.ame.services.models.AspectModelResult;
+import org.eclipse.esmf.ame.services.models.ClearWorkspaceResult;
 import org.eclipse.esmf.ame.services.models.FileEntry;
 import org.eclipse.esmf.ame.services.models.FileInformation;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.services.models.Version;
+import org.eclipse.esmf.ame.services.workspace.WorkspaceCleanupService;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
@@ -64,6 +72,7 @@ class ModelControllerTest {
    private AspectModelValidationService validationService;
    private AspectModelMigrator aspectModelMigrator;
    private FileNameSanitizer fileNameSanitizer;
+   private WorkspaceCleanupService workspaceCleanupService;
    private ModelController controller;
 
    private static final String VALID_URN = "urn:samm:org.eclipse.esmf.example:1.0.0#Movement";
@@ -76,6 +85,7 @@ class ModelControllerTest {
       validationService = mock( AspectModelValidationService.class );
       aspectModelMigrator = mock( AspectModelMigrator.class );
       fileNameSanitizer = new FileNameSanitizer();
+      workspaceCleanupService = mock( WorkspaceCleanupService.class );
 
       controller = new ModelController(
             modelService,
@@ -83,7 +93,8 @@ class ModelControllerTest {
             aspectModelWriter,
             validationService,
             aspectModelMigrator,
-            fileNameSanitizer
+            fileNameSanitizer,
+            workspaceCleanupService
       );
    }
 
@@ -92,7 +103,7 @@ class ModelControllerTest {
       final AspectModelResult result = new AspectModelResult( Optional.of( "Movement.ttl" ), "turtle-content", Optional.empty() );
       when( aspectModelReader.getModel( eq( AspectModelUrn.fromUrn( VALID_URN ) ), any() ) ).thenReturn( result );
 
-      final HttpResponse<AspectModelResponse> response = controller.getModel( Optional.of( VALID_URN ) );
+      final HttpResponse<AspectModelResponse> response = controller.getModel( Optional.of( VALID_URN ), false );
 
       assertEquals( HttpStatus.OK, response.getStatus() );
       assertNotNull( response.body() );
@@ -100,8 +111,40 @@ class ModelControllerTest {
    }
 
    @Test
+   void testGetModelWithIgnoreMissingReturnsTheUnresolvedFile() {
+      final AspectModelUrn urn = AspectModelUrn.fromUrn( VALID_URN );
+      when( aspectModelReader.getModel( eq( urn ), any() ) ).thenThrow( new FileNotFoundException( "resolution failed" ) );
+      when( modelService.getUnresolvedModel( urn ) ).thenReturn(
+            Optional.of( new AspectModelResult( Optional.of( "Movement.ttl" ), "raw-content", Optional.empty() ) ) );
+
+      final HttpResponse<AspectModelResponse> response = controller.getModel( Optional.of( VALID_URN ), true );
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertEquals( "raw-content", response.body().content() );
+   }
+
+   @Test
+   void testGetModelWithIgnoreMissingFailsIfNoFileDefinesTheElement() {
+      final AspectModelUrn urn = AspectModelUrn.fromUrn( VALID_URN );
+      final FileNotFoundException notFound = new FileNotFoundException( "resolution failed" );
+      when( aspectModelReader.getModel( eq( urn ), any() ) ).thenThrow( notFound );
+      when( modelService.getUnresolvedModel( urn ) ).thenReturn( Optional.empty() );
+
+      assertSame( notFound, assertThrows( FileNotFoundException.class, () -> controller.getModel( Optional.of( VALID_URN ), true ) ) );
+   }
+
+   @Test
+   void testGetModelWithoutIgnoreMissingDoesNotLookForTheUnresolvedFile() {
+      final AspectModelUrn urn = AspectModelUrn.fromUrn( VALID_URN );
+      when( aspectModelReader.getModel( eq( urn ), any() ) ).thenThrow( new FileNotFoundException( "resolution failed" ) );
+
+      assertThrows( FileNotFoundException.class, () -> controller.getModel( Optional.of( VALID_URN ), false ) );
+      verify( modelService, never() ).getUnresolvedModel( any() );
+   }
+
+   @Test
    void testGetModelMissingUrnThrowsFileNotFoundException() {
-      final FileNotFoundException ex = assertThrows( FileNotFoundException.class, () -> controller.getModel( Optional.empty() ) );
+      final FileNotFoundException ex = assertThrows( FileNotFoundException.class, () -> controller.getModel( Optional.empty(), false ) );
       assertEquals( "Please specify an aspect model urn", ex.getMessage() );
       assertEquals( 404, ex.getHttpStatusCode() );
    }
@@ -109,7 +152,7 @@ class ModelControllerTest {
    @Test
    void testGetModelInvalidUrnThrowsInvalidAspectModelException() {
       final InvalidAspectModelException ex = assertThrows( InvalidAspectModelException.class,
-            () -> controller.getModel( Optional.of( "urn:invalid:format" ) ) );
+            () -> controller.getModel( Optional.of( "urn:invalid:format" ), false ) );
       assertEquals( 409, ex.getHttpStatusCode() );
       assertTrue( ex.getMessage().contains( "Invalid Aspect Model URN format" ) );
    }
@@ -128,12 +171,24 @@ class ModelControllerTest {
    void testGetModelsBatchSuccess() {
       final List<FileEntry> entries = List.of( new FileEntry( "key", "file.ttl", VALID_URN, "2.2.0" ) );
       final List<FileInformation> fileInfoList = List.of( new FileInformation( "key", VALID_URN, "2.2.0", "content", "file.ttl" ) );
-      when( modelService.getModels( entries ) ).thenReturn( fileInfoList );
+      when( modelService.getModels( entries, false ) ).thenReturn( fileInfoList );
 
-      final HttpResponse<List<FileInformation>> response = controller.getModels( entries );
+      final HttpResponse<List<FileInformation>> response = controller.getModels( entries, false );
 
       assertEquals( HttpStatus.OK, response.getStatus() );
       assertEquals( 1, response.body().size() );
+   }
+
+   @Test
+   void testGetModelsBatchPassesIgnoreMissing() {
+      final List<FileEntry> entries = List.of( new FileEntry( null, null, VALID_URN, null ) );
+      when( modelService.getModels( entries, true ) ).thenReturn( List.of() );
+
+      final HttpResponse<List<FileInformation>> response = controller.getModels( entries, true );
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertTrue( response.body().isEmpty() );
+      verify( modelService ).getModels( entries, true );
    }
 
    @Test
@@ -148,6 +203,67 @@ class ModelControllerTest {
    void testDeleteModelSuccess() {
       controller.deleteModel( Optional.of( VALID_URN ) );
       verify( aspectModelWriter ).deleteModel( eq( AspectModelUrn.fromUrn( VALID_URN ) ) );
+   }
+
+   @Test
+   void testDeleteModelStillReferencedPropagatesException() {
+      final ModelReferencedException exception = new ModelReferencedException( "used", blockedReport() );
+      doThrow( exception ).when( aspectModelWriter ).deleteModel( any() );
+
+      assertEquals( exception, assertThrows( ModelReferencedException.class, () -> controller.deleteModel( Optional.of( VALID_URN ) ) ) );
+   }
+
+   @Test
+   void testGetReferencesOfNamespace() {
+      final ReferenceReport report = blockedReport();
+      when( workspaceCleanupService.checkNamespace( "org.example", "1.0.0" ) ).thenReturn( report );
+
+      final HttpResponse<ReferenceReport> response = controller.getReferences( "org.example", "1.0.0", Optional.empty() );
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertEquals( report, response.body() );
+   }
+
+   @Test
+   void testGetReferencesOfFile() {
+      final ReferenceReport report = ReferenceReport.empty();
+      when( workspaceCleanupService.checkFile( "org.example", "1.0.0", "A.ttl" ) ).thenReturn( report );
+
+      final HttpResponse<ReferenceReport> response = controller.getReferences( "org.example", "1.0.0", Optional.of( "A.ttl" ) );
+
+      assertTrue( response.body().deletable() );
+   }
+
+   @Test
+   void testDeleteNamespaceSuccess() {
+      final HttpResponse<ReferenceReport> response = controller.deleteNamespace( "org.example", "1.0.0" );
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertEquals( ReferenceReport.empty(), response.body() );
+      verify( workspaceCleanupService ).deleteNamespace( "org.example", "1.0.0" );
+   }
+
+   @Test
+   void testDeleteNamespaceStillReferencedPropagatesException() {
+      when( workspaceCleanupService.deleteNamespace( "org.example", "1.0.0" ) )
+            .thenThrow( new ModelReferencedException( "used", blockedReport() ) );
+
+      assertThrows( ModelReferencedException.class, () -> controller.deleteNamespace( "org.example", "1.0.0" ) );
+   }
+
+   @Test
+   void testClearWorkspace() {
+      when( workspaceCleanupService.clearWorkspace( true ) ).thenReturn( new ClearWorkspaceResult( 3, true ) );
+
+      final HttpResponse<ClearWorkspaceResult> response = controller.clearWorkspace( true );
+
+      assertEquals( HttpStatus.OK, response.getStatus() );
+      assertEquals( 3, response.body().deletedFiles() );
+   }
+
+   private static ReferenceReport blockedReport() {
+      return ReferenceReport.of(
+            List.of( new ModelReference( "org.other", "1.0.0", "B.ttl", List.of( "urn:samm:org.example:1.0.0#Prop" ) ) ), List.of() );
    }
 
    @Test
@@ -258,10 +374,10 @@ class ModelControllerTest {
       final org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException batchException =
             new org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException(
                   "Failed to load", List.of() );
-      when( modelService.getModels( entries ) ).thenThrow( batchException );
+      when( modelService.getModels( entries, false ) ).thenThrow( batchException );
 
       final org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException thrown =
-            assertThrows( org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException.class, () -> controller.getModels( entries ) );
+            assertThrows( org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException.class, () -> controller.getModels( entries, false ) );
 
       assertEquals( 422, thrown.getHttpStatusCode() );
    }

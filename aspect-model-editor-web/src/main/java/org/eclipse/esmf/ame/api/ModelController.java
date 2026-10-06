@@ -27,6 +27,7 @@ import org.eclipse.esmf.ame.constants.ApplicationConstants;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.exceptions.UriNotDefinedException;
+import org.eclipse.esmf.ame.model.ReferenceReport;
 import org.eclipse.esmf.ame.security.FileNameSanitizer;
 import org.eclipse.esmf.ame.services.AspectModelMigrator;
 import org.eclipse.esmf.ame.services.AspectModelReader;
@@ -34,10 +35,12 @@ import org.eclipse.esmf.ame.services.AspectModelValidationService;
 import org.eclipse.esmf.ame.services.AspectModelWriter;
 import org.eclipse.esmf.ame.services.ModelService;
 import org.eclipse.esmf.ame.services.models.AspectModelResult;
+import org.eclipse.esmf.ame.services.models.ClearWorkspaceResult;
 import org.eclipse.esmf.ame.services.models.FileEntry;
 import org.eclipse.esmf.ame.services.models.FileInformation;
 import org.eclipse.esmf.ame.services.models.MigrationResult;
 import org.eclipse.esmf.ame.services.models.Version;
+import org.eclipse.esmf.ame.services.workspace.WorkspaceCleanupService;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
@@ -68,6 +71,7 @@ public class ModelController {
    private final AspectModelValidationService validationService;
    private final AspectModelMigrator aspectModelMigrator;
    private final FileNameSanitizer fileNameSanitizer;
+   private final WorkspaceCleanupService workspaceCleanupService;
 
    public ModelController(
          final ModelService modelService,
@@ -75,13 +79,15 @@ public class ModelController {
          final AspectModelWriter aspectModelWriter,
          final AspectModelValidationService validationService,
          final AspectModelMigrator aspectModelMigrator,
-         final FileNameSanitizer fileNameSanitizer ) {
+         final FileNameSanitizer fileNameSanitizer,
+         final WorkspaceCleanupService workspaceCleanupService ) {
       this.modelService = modelService;
       this.aspectModelReader = aspectModelReader;
       this.aspectModelWriter = aspectModelWriter;
       this.validationService = validationService;
       this.aspectModelMigrator = aspectModelMigrator;
       this.fileNameSanitizer = fileNameSanitizer;
+      this.workspaceCleanupService = workspaceCleanupService;
    }
 
    private AspectModelUrn parseAspectModelUrn( final Optional<String> urn ) {
@@ -106,12 +112,18 @@ public class ModelController {
    /**
     * Method used to return a turtle file based on the header parameter: Aspect-Model-Urn which consists of
     * urn:samm:namespace:version#AspectModelElement
+    *
+    * @param ignoreMissing if the references of the file cannot be resolved, returns the unresolved file instead of
+    *       failing, so that the file can be opened and repaired
     */
    @Get()
    @Produces( MediaType.APPLICATION_JSON )
-   public HttpResponse<AspectModelResponse> getModel( @Header( ApplicationConstants.Headers.URN ) final Optional<String> urn ) {
+   public HttpResponse<AspectModelResponse> getModel( @Header( ApplicationConstants.Headers.URN ) final Optional<String> urn,
+         @QueryValue( defaultValue = "false" ) final boolean ignoreMissing ) {
       final AspectModelUrn aspectModelUrn = parseAspectModelUrn( urn );
-      final AspectModelResult result = aspectModelReader.getModel( aspectModelUrn, null );
+      final AspectModelResult result = ignoreMissing
+            ? getModelOrUnresolved( aspectModelUrn )
+            : aspectModelReader.getModel( aspectModelUrn, null );
       return HttpResponse.ok( new AspectModelResponse( result.content(), result.sourceLocation().orElse( null ) ) );
    }
 
@@ -132,14 +144,27 @@ public class ModelController {
       return HttpResponse.ok( aspectModelReader.checkElementExists( aspectModelUrn, fileName ) );
    }
 
+   private AspectModelResult getModelOrUnresolved( final AspectModelUrn aspectModelUrn ) {
+      try {
+         return aspectModelReader.getModel( aspectModelUrn, null );
+      } catch ( final FileNotFoundException e ) {
+         return modelService.getUnresolvedModel( aspectModelUrn ).orElseThrow( () -> e );
+      }
+   }
+
    /**
     * Method used to return multiple turtle files in batch based on a list of Aspect Model URNs.
     * Each URN consists of urn:samm:namespace:version#AspectModelElement
+    *
+    * @param fileEntries the requested elements
+    * @param ignoreMissing leaves out elements that no workspace file defines instead of failing the request, and
+    *       returns files whose own references cannot be resolved unresolved
     */
    @Post( uri = "batch", consumes = MediaType.APPLICATION_JSON )
    @Produces( MediaType.APPLICATION_JSON )
-   public HttpResponse<List<FileInformation>> getModels( @Body final List<FileEntry> fileEntries ) {
-      return HttpResponse.ok( modelService.getModels( fileEntries ) );
+   public HttpResponse<List<FileInformation>> getModels( @Body final List<FileEntry> fileEntries,
+         @QueryValue( defaultValue = "false" ) final boolean ignoreMissing ) {
+      return HttpResponse.ok( modelService.getModels( fileEntries, ignoreMissing ) );
    }
 
    /**
@@ -160,11 +185,59 @@ public class ModelController {
 
    /**
     * Method used to delete a turtle file based on the header parameter: Ame-Model-Urn which consists of
-    * urn:samm:namespace:version#AspectModelElement.
+    * urn:samm:namespace:version#AspectModelElement. Answers 409 with the reference report if other files still use
+    * elements of the model.
     */
    @Delete()
    public void deleteModel( @Header( ApplicationConstants.Headers.URN ) final Optional<String> urn ) {
       aspectModelWriter.deleteModel( parseAspectModelUrn( urn ) );
+   }
+
+   /**
+    * Checks which other workspace files use elements of a namespace version or, if a file name is given, of a single
+    * Aspect Model file. Only incoming references count: what the checked files use themselves does not matter.
+    *
+    * @param namespace the namespace, e.g. {@code org.eclipse.example}
+    * @param version the version, e.g. {@code 1.0.0}
+    * @param fileName optional file name to check a single file instead of the whole namespace version
+    * @return the files that use the elements and the files that could not be checked
+    */
+   @Get( uri = "references" )
+   @Produces( MediaType.APPLICATION_JSON )
+   public HttpResponse<ReferenceReport> getReferences( @QueryValue( "namespace" ) final String namespace,
+         @QueryValue( "version" ) final String version,
+         @QueryValue( "fileName" ) final Optional<String> fileName ) {
+      return HttpResponse.ok( fileName
+            .map( name -> workspaceCleanupService.checkFile( namespace, version, name ) )
+            .orElseGet( () -> workspaceCleanupService.checkNamespace( namespace, version ) ) );
+   }
+
+   /**
+    * Deletes all Aspect Model files of a namespace version. Not allowed (409 with the reference report) while files
+    * of other namespaces or versions use its elements or cannot be checked.
+    *
+    * @param namespace the namespace
+    * @param version the version
+    * @return 200 if deleted, 409 with the reference report if it is still used
+    */
+   @Delete( uri = "namespace" )
+   @Produces( MediaType.APPLICATION_JSON )
+   public HttpResponse<ReferenceReport> deleteNamespace( @QueryValue( "namespace" ) final String namespace,
+         @QueryValue( "version" ) final String version ) {
+      workspaceCleanupService.deleteNamespace( namespace, version );
+      return HttpResponse.ok( ReferenceReport.empty() );
+   }
+
+   /**
+    * Deletes all Aspect Model files of the workspace. Backups and other files are kept.
+    *
+    * @param backup whether a backup of the workspace is created first (default: true)
+    * @return the number of deleted files and whether a backup was created
+    */
+   @Delete( uri = "workspace" )
+   @Produces( MediaType.APPLICATION_JSON )
+   public HttpResponse<ClearWorkspaceResult> clearWorkspace( @QueryValue( value = "backup", defaultValue = "true" ) final boolean backup ) {
+      return HttpResponse.ok( workspaceCleanupService.clearWorkspace( backup ) );
    }
 
    /**

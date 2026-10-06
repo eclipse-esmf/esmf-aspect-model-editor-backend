@@ -1,0 +1,17 @@
+meta {
+  name: DeleteNamespace_NotFound
+  type: http
+  seq: 79
+}
+
+delete {
+  url: http://localhost:{{port}}/ame/api/models/namespace?namespace=org.eclipse.bruno.missing&version=1.0.0
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

@@ -22,12 +22,16 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import org.eclipse.esmf.ame.api.model.response.ErrorResponse;
 import org.eclipse.esmf.aspectmodel.AspectLoadingException;
 import org.eclipse.esmf.aspectmodel.UnsupportedVersionException;
 import org.eclipse.esmf.aspectmodel.ValueParsingException;
+import org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation;
+import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ParserException;
+import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
@@ -69,6 +73,57 @@ class GlobalExceptionHandlerTest {
       assertNotNull( body );
       assertEquals( "Aspect Model has invalid syntax", body.error().message() );
       assertEquals( 409, body.error().code() );
+   }
+
+   @Test
+   void testHandleWrappedModelResolutionExceptionListsTheUnresolvedElements() {
+      // e.g. thrown by the validation, which wraps the exception of the SDK
+      final String missing = "urn:samm:org.eclipse.esmf.example:1.0.0#missing";
+      final ModelResolutionException mre = new ModelResolutionException( List.of(
+            new ModelResolutionViolation( Optional.of( AspectModelUrn.fromUrn( missing ) ), URI.create( "file:///a.ttl" ),
+                  "File does not exist", Optional.empty() ) ) );
+      final InvalidAspectModelException ex = new InvalidAspectModelException( "Validation failed", mre );
+      final HttpResponse<?> response = handler.handle( request, ex );
+
+      assertEquals( HttpStatus.CONFLICT, response.getStatus() );
+      final ErrorResponse body = (ErrorResponse) response.body();
+      assertNotNull( body );
+      assertEquals( "Element '" + missing + "' does not exist in a file.", body.error().message() );
+      assertEquals( List.of( missing ), body.error().unresolvedElements() );
+   }
+
+   @Test
+   void testHandleModelResolutionExceptionNamesTheMissingElements() {
+      final String missing = "urn:samm:org.eclipse.esmf.example:1.0.0#missing";
+      final ModelResolutionException mre = new ModelResolutionException( List.of(
+            new ModelResolutionViolation( Optional.of( AspectModelUrn.fromUrn( missing ) ), URI.create( "file:///a.ttl" ),
+                  "File does not exist", Optional.empty() ),
+            new ModelResolutionViolation( Optional.of( AspectModelUrn.fromUrn( missing ) ), URI.create( "file:///b.ttl" ),
+                  "File does not contain the element definition", Optional.empty() ) ) );
+      final HttpResponse<?> response = handler.handle( HttpRequest.POST( URI.create( "/ame/api/models/format" ), "" ), mre );
+
+      assertEquals( HttpStatus.CONFLICT, response.getStatus() );
+      final ErrorResponse body = (ErrorResponse) response.body();
+      assertEquals( "Element '" + missing + "' does not exist in a file.", body.error().message() );
+      assertEquals( List.of( missing ), body.error().unresolvedElements() );
+   }
+
+   @Test
+   void testHandleModelResolutionExceptionWithoutElementsKeepsTheMessage() {
+      final ModelResolutionException mre = new ModelResolutionException( List.of(
+            new ModelResolutionViolation( Optional.empty(), URI.create( "file:///a.ttl" ), "General resolution error",
+                  Optional.empty() ) ) );
+      final ErrorResponse body = (ErrorResponse) handler.handle( request, mre ).body();
+
+      assertTrue( body.error().message().contains( "General resolution error" ) );
+      assertNull( body.error().unresolvedElements() );
+   }
+
+   @Test
+   void testHandleInvalidAspectModelExceptionHasNoUnresolvedElements() {
+      final HttpResponse<?> response = handler.handle( request, new InvalidAspectModelException( "invalid" ) );
+
+      assertNull( ( (ErrorResponse) response.body() ).error().unresolvedElements() );
    }
 
    @Test

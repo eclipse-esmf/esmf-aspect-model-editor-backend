@@ -23,10 +23,13 @@ import org.eclipse.esmf.ame.exceptions.CreateFileException;
 import org.eclipse.esmf.ame.exceptions.FileNotFoundException;
 import org.eclipse.esmf.ame.exceptions.FileReadException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
+import org.eclipse.esmf.ame.exceptions.ModelReferencedException;
+import org.eclipse.esmf.ame.model.ReferenceReport;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
 import org.eclipse.esmf.ame.services.file.FileOperations;
 import org.eclipse.esmf.ame.services.file.FilePathResolver;
 import org.eclipse.esmf.ame.services.validation.ValidationOperations;
+import org.eclipse.esmf.ame.services.workspace.WorkspaceReferenceService;
 import org.eclipse.esmf.ame.validation.services.ViolationFormatter;
 import org.eclipse.esmf.aspectmodel.AspectModelFile;
 import org.eclipse.esmf.aspectmodel.Violation;
@@ -54,6 +57,7 @@ public class AspectModelWriter {
    private final FileOperations fileOperations;
    private final FilePathResolver filePathResolver;
    private final ValidationOperations validationOperations;
+   private final WorkspaceReferenceService workspaceReferenceService;
 
    public AspectModelWriter(
          final AspectModelRepository aspectModelRepository,
@@ -61,13 +65,15 @@ public class AspectModelWriter {
          final AspectModelLoader aspectModelLoader,
          final FileOperations fileOperations,
          final FilePathResolver filePathResolver,
-         final ValidationOperations validationOperations ) {
+         final ValidationOperations validationOperations,
+         final WorkspaceReferenceService workspaceReferenceService ) {
       this.aspectModelRepository = aspectModelRepository;
       this.aspectModelValidator = aspectModelValidator;
       this.aspectModelLoader = aspectModelLoader;
       this.fileOperations = fileOperations;
       this.filePathResolver = filePathResolver;
       this.validationOperations = validationOperations;
+      this.workspaceReferenceService = workspaceReferenceService;
    }
 
    /**
@@ -121,6 +127,7 @@ public class AspectModelWriter {
     *
     * @param aspectModelUrn the URN of the model to delete
     * @throws FileNotFoundException if the model cannot be found
+    * @throws ModelReferencedException if other workspace files still use elements of the model
     */
    public void deleteModel( final AspectModelUrn aspectModelUrn ) {
       LOG.info( "Deleting model: {}", aspectModelUrn );
@@ -130,8 +137,17 @@ public class AspectModelWriter {
             throw new FileNotFoundException( "No files found for Aspect Model: " + aspectModelUrn );
          }
          final AspectModelFile aspectModelFile = aspectModel.files().getFirst();
+         fileOperations.sourcePath( aspectModelFile ).ifPresent( path -> {
+            final ReferenceReport report = workspaceReferenceService.findFileReferences( path );
+            if ( !report.deletable() ) {
+               throw new ModelReferencedException( "Aspect Model '" + aspectModelUrn + "' is still used by other files", report );
+            }
+         } );
          fileOperations.deleteAspectModelFile( aspectModelFile );
          LOG.info( "Model deleted successfully: {}", aspectModelUrn );
+      } catch ( final ModelReferencedException e ) {
+         LOG.info( "Model not deleted, it is still referenced: {}", aspectModelUrn );
+         throw e;
       } catch ( final Exception e ) {
          LOG.error( "Failed to delete model: {}", aspectModelUrn, e );
          throw new FileNotFoundException( "Could not delete Aspect Model '" + aspectModelUrn + "': " + e.getMessage(), e );

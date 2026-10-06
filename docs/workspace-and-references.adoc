@@ -1,0 +1,174 @@
+////
+Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
+
+See the AUTHORS file(s) distributed with this work for
+additional information regarding authorship.
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+SPDX-License-Identifier: MPL-2.0
+////
+
+= Workspace deletion and missing references (backend API)
+:toc:
+
+This page describes the REST endpoints and error responses the Aspect Model Editor (AME) uses to
+
+* delete Aspect Model files, namespace versions or the whole workspace safely, and
+* open Aspect Models whose referenced elements are missing in the workspace.
+
+All paths are relative to `/ame/api/models`.
+
+== Delete safely
+
+Only *incoming* references block a deletion: a file or namespace may not be deleted while *other* workspace files use one of its elements.
+What the deleted files use themselves does not matter.
+
+=== Check references
+`GET /references?namespace=<namespace>&version=<version>[&fileName=<file>]`
+
+Without `fileName` the whole namespace version is checked. References between files of the checked namespace version do not count.
+
+.Response `ReferenceReport`
+[source,json]
+----
+{
+  "deletable": false,
+  "references": [
+    {"namespace": "org.example.user", "version": "1.0.0", "fileName": "User.ttl",
+     "referencedElements": ["urn:samm:org.example:1.0.0#property"]}
+  ],
+  "unreadableFiles": [
+    {"namespace": "org.example.broken", "version": "1.0.0", "fileName": "Broken.ttl", "message": "..."}
+  ]
+}
+----
+
+* Every referencing file is listed with the elements it uses.
+* Files that cannot be parsed are listed in `unreadableFiles` and make `deletable` false, because they might use the elements.
+* `400` for an invalid namespace or version, `404` if the file does not exist.
+
+=== Delete a file
+`DELETE /` with header `aspect-model-urn`
+
+`409` with the `ReferenceReport` as body if the file is still referenced (the check is repeated on every delete).
+
+=== Delete a namespace version
+`DELETE /namespace?namespace=<namespace>&version=<version>`
+
+Deletes all `.ttl` files of the namespace version and removes empty folders.
+
+* `409` with the `ReferenceReport` if files of other namespaces or versions use its elements or cannot be checked.
+* `400` for an invalid version, `404` if the namespace version does not exist.
+
+=== Clear the workspace
+`DELETE /workspace[?backup=true|false]`
+
+Deletes all `.ttl` files of the workspace; empty folders are removed, other files (e.g. backups) are kept.
+With `backup=true` (default) a `backup-<timestamp>.zip` of all `.ttl` files is written into the workspace folder first.
+
+.Response `ClearWorkspaceResult`
+[source,json]
+----
+{"deletedFiles": 12, "backupCreated": true}
+----
+
+WARNING: Never run the Bruno request `ClearWorkspace_WithBackup` against a real workspace.
+
+=== CORS
+`DELETE` requests from the UI trigger a browser preflight. The allowed origins and methods are configured in
+`application*.properties` (`micronaut.server.cors.configurations.all.*`) and covered by `CorsPreflightTest` and the
+Bruno requests `CorsPreflight_*`.
+
+== Missing references
+
+A reference is *missing* if no workspace file defines the referenced element (file deleted, moved, namespace not imported, typo).
+
+=== Load: `ignoreMissing`
+
+[cols="35%,65%"]
+|===
+| Endpoint | Behavior with `ignoreMissing=true`
+
+| `GET /?ignoreMissing=true` (header `aspect-model-urn`)
+| If the defining file cannot be resolved, its raw content is returned instead of failing. `404` if no file defines the element.
+
+| `POST /batch?ignoreMissing=true`
+| Elements that no file defines are left out; files whose own references cannot be resolved are returned raw. Syntax and other errors still fail the request.
+|===
+
+Without the parameter both endpoints behave as before and fail. The UI always sends `ignoreMissing=true`, so that one
+broken file never blocks loading a model, the workspace check, renaming or the migration check.
+
+=== Error responses: `unresolvedElements`
+
+If a model cannot be loaded *only* because referenced elements are missing, every endpoint (`/validate`, `/format`,
+save `POST /`, ...) answers `409` with the same error:
+
+[source,json]
+----
+{
+  "error": {
+    "message": "Element 'urn:samm:org.example.missing:1.0.0#prop' does not exist in a file.",
+    "path": "/ame/api/models/format",
+    "code": 409,
+    "focusNode": "urn:samm:org.example.missing:1.0.0#prop",
+    "unresolvedElements": ["urn:samm:org.example.missing:1.0.0#prop"]
+  }
+}
+----
+
+* `unresolvedElements` is sorted and free of duplicates. It also contains missing elements of referenced files, because the SDK checks recursively.
+* It is omitted if there is any other error, e.g. a syntax or value error, even in a referenced file. The message is then the usual one.
+
+The detection lives in one place: `UnresolvedReferences.find(Throwable)` (service module). `GlobalExceptionHandler`
+applies it to every exception, including SDK exceptions wrapped by `AspectModelValidationService`.
+
+== Code overview
+
+[cols="40%,60%"]
+|===
+| Class | Responsibility
+
+| `ModelController`
+| Endpoints described above
+
+| `WorkspaceReferenceService`
+| Parses workspace files as plain RDF (without resolving their imports) to find incoming references and the file defining an element
+
+| `WorkspaceCleanupService`
+| Reference checks and deletion of files, namespace versions and the workspace
+
+| `ModelReferencedException`, `ModelReferencedExceptionHandler`
+| `409` with the `ReferenceReport`
+
+| `ModelService#getModels(entries, ignoreMissing)`, `ModelService#getUnresolvedModel`
+| Tolerant loading
+
+| `UnresolvedReferences`
+| Detects "only references are missing" and builds the message
+
+| `GlobalExceptionHandler`
+| Error response including `unresolvedElements`
+|===
+
+== Tests
+
+* JUnit: `WorkspaceReferenceServiceTest`, `WorkspaceCleanupServiceTest`, `AspectModelWriterTest`, `ModelControllerTest`,
+`ModelReferencedExceptionHandlerTest`, `CorsPreflightTest`, `ModelServiceIgnoreMissingTest`, `UnresolvedReferencesTest`,
+`AspectModelValidationServiceTest`, `GlobalExceptionHandlerTest`.
+* Bruno (`aspect-model-editor-runtime/bruno`): `GetReferences_*`, `DeleteAspectModel_*`, `DeleteNamespace_*`,
+`WorkspaceDeletion_*`, `ClearWorkspace_WithBackup`, `GetAllNamespaces_After*`, `CorsPreflight_*`,
+`GetAspectModel_IgnoreMissing_*`, `GetModelsBatch_*`, `ValidateAspectModel_UnresolvedReferences`,
+`FormatAspectModel_UnresolvedReferences`, `CreateAspectModel_UnresolvedReferences`.
+
+Run Bruno against a backend with an empty, temporary home directory (the collection clears the workspace):
+
+[source,bash]
+----
+java -Duser.home=/tmp/ame-bruno-home -Dmicronaut.server.port=9095 \
+  -jar aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar
+cd aspect-model-editor-runtime/bruno && npx @usebruno/cli run . --env AmeEnv --env-var port=9095
+----

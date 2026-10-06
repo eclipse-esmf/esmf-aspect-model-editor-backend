@@ -1,0 +1,27 @@
+meta {
+  name: DeleteAspectModel_Referenced
+  type: http
+  seq: 77
+}
+
+delete {
+  url: http://localhost:{{port}}/ame/api/models
+  body: none
+  auth: none
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.bruno.referenced:1.0.0#Provider
+}
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+
+  test("The response lists the referencing files", function() {
+    const body = res.getBody();
+    expect(body.deletable).to.equal(false);
+    expect(body.references.map(r => r.fileName).sort()).to.eql(["Consumer.ttl", "SecondConsumer.ttl"]);
+  });
+}

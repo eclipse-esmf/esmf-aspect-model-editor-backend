@@ -1,0 +1,48 @@
+meta {
+  name: GetModelsBatch_Default_MissingElementFails
+  type: http
+  seq: 88
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/batch?ignoreMissing=false
+  body: json
+  auth: none
+}
+
+params:query {
+  ignoreMissing: false
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  [
+    {
+      "key": "org.eclipse.esmf.test:1.0.0:Movement.ttl",
+      "fileName": "Movement.ttl",
+      "aspectModelUrn": "urn:samm:org.eclipse.esmf.test:1.0.0#Movement",
+      "modelVersion": "2.2.0"
+    },
+    {
+      "key": "org.eclipse.examples:1.0.0:NonExistent.ttl",
+      "fileName": "NonExistent.ttl",
+      "aspectModelUrn": "urn:samm:org.eclipse.examples:1.0.0#NonExistent",
+      "modelVersion": "2.2.0"
+    }
+  ]
+}
+
+tests {
+  test("Status code is 422", function() {
+    expect(res.getStatus()).to.equal(422);
+  });
+
+  test("The missing element is reported", function() {
+    const error = res.getBody().error;
+    expect(error.code).to.equal(422);
+    expect(error.message).to.include("NonExistent");
+  });
+}

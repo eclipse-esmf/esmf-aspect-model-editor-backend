@@ -1,3 +1,14 @@
+# Copyright (c) 2026 Robert Bosch Manufacturing Solutions GmbH
+#
+# See the AUTHORS file(s) distributed with this work for
+# additional information regarding authorship.
+#
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+#
+# SPDX-License-Identifier: MPL-2.0
+
 name: Check New Pull Request
 
 on:
@@ -10,34 +21,40 @@ permissions: { }
 
 jobs:
   build:
-    name: Check if passes all requirements
+    name: Check if passes all requirements (${{ matrix.platform }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos-15-intel, windows-latest, ubuntu-latest ]
-
+        include:
+          - os: ubuntu-latest
+            platform: linux
+          - os: windows-latest
+            platform: win
+          - os: macos-15-intel
+            platform: mac-x64
+          - os: macos-latest
+            platform: mac-arm64
+    env:
+      PLATFORM: ${{ matrix.platform }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - name: Checkout project
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 #v6.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup JDK
         uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4.8.0
         with:
           java-version: '25.0.3'
           distribution: 'temurin'
+          cache: maven
 
-      - name: Cache Maven packages
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
-
-
-      - name: Set Swap Space (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Set swap space (Linux)
+        if: runner.os == 'Linux'
         uses: pierotofy/set-swap-space@49819abfb41bd9b44fb781159c033dba90353a7c # master
         with:
           swap-size-gb: 12
@@ -45,173 +62,44 @@ jobs:
       - name: Build and run tests
         run: |
           java --version
-          export MAVEN_OPTS="-Xmx4096m"
-          export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF8"
-          # Build aspect model editor executable jar
-          unset JAVA_TOOL_OPTIONS
-          mvn -B clean install -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
-        shell: bash
+          MAVEN_OPTS="-Xmx4096m" mvn -B clean install -Dmaven.wagon.httpconnectionManager.ttlSeconds=60
 
-      - name: Build warp packer (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Package app image
+        id: app-image
+        uses: ./.github/actions/package-app-image
+        with:
+          version: DEV-SNAPSHOT
+          platform: ${{ matrix.platform }}
+          archive-name: ame-backend-DEV-SNAPSHOT-${{ matrix.platform }}
+
+      - name: Run integration tests
         run: |
-          bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
-          mkdir ${bundle}
-          curl -Lo jre.tar.gz https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jre_x64_linux_hotspot_25.0.3_9.tar.gz
-          tar -xvf jre.tar.gz -C $bundle
-          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar ./${bundle}/
-          
-          cp scripts/linux/run.sh ./${bundle}/
-          chmod +x ./${bundle}/run.sh
-
-          curl -Lo warp-packer https://github.com/kirbylink/warp/releases/download/v1.3.0/linux-x64.warp-packer
-          if [ "$(sha256sum warp-packer | cut -d' ' -f1)" != "add6f937db8b9207d1bb81a900ef609f41875f07c6c8b2d596bfc134c8f285ff" ]; then
-            echo "Warp packer checksum does not match"
-            exit 1
-          fi
-          chmod +x warp-packer
-
-          ./warp-packer pack --arch linux-x64 --input-dir ${bundle} --exec run.sh --output ame-backend-DEV-SNAPSHOT-linux
-          chmod +x ame-backend-DEV-SNAPSHOT-linux
-          
-          cp ame-backend-DEV-SNAPSHOT-linux aspect-model-editor-runtime/target/
-        shell: bash
-
-      - name: Build warp packer (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
-          mkdir "$bundle"
-          mkdir "$bundle/app"
-          curl -Lo jre.zip https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jre_x64_windows_hotspot_25.0.3_9.zip
-          unzip -q jre.zip -d "./$bundle"
-          mv "./$bundle/jdk-25.0.3+9-jre" "./$bundle/jre"
-          rm jre.zip
-          
-          cp "./$bundle/jre/bin/jli.dll" "./$bundle/app/"
-          cp "./$bundle/jre/bin/jimage.dll" "./$bundle/app/"
-          cp "./$bundle/jre/bin/server/jvm.dll" "./$bundle/app/"
-
-          zstd_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=zstd-jni | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'zstd-jni' | grep '\.jar$' | head -n 1)
-          jna_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=jna | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'jna' | grep '\.jar$' | head -n 1)
-          api_jar=$(mvn dependency:build-classpath -DincludeArtifactIds=truffle-api | grep -E '\.jar$' | tr ';' '\n' | tr '\\' '/' | grep 'truffle-api' | grep '\.jar$' | head -n 1)
-          
-          if [ -n "$zstd_jar" ] && [ -f "$zstd_jar" ]; then
-            cp "$zstd_jar" "./$bundle/app/"
-          
-            jar_basename=$(basename "$zstd_jar")
-            version="${jar_basename#zstd-jni-}"
-            version="${version%.jar}"
-          
-            unzip -p "$zstd_jar" "win/amd64/libzstd-jni-${version}.dll" > "./$bundle/app/libzstd-jni-${version}.dll"
-            cp "./$bundle/app/libzstd-jni-${version}.dll" "./$bundle/app/zstd-jni-${version}.dll"
-          
-            if [ -s "./$bundle/app/zstd-jni-${version}.dll" ]; then
-              echo "Success extraction JNI"
-             fi
-          fi
-
-          if [ -n "$jna_jar" ] && [ -f "$jna_jar" ]; then
-            cp "$jna_jar" "./$bundle/app/"
-
-            unzip -p "$jna_jar" "com/sun/jna/win32-x86-64/jnidispatch.dll" > "./$bundle/app/jnidispatch.dll"
-
-            if [ -s "./$bundle/app/jnidispatch.dll" ]; then
-              echo "Success extraction JNA DLL"
-            fi
-          fi
-          
-          if [ -n "$api_jar" ] && [ -f "$api_jar" ]; then
-            mkdir -p native-libs
-            unzip -j "$api_jar" "META-INF/resources/engine/libtruffleattach/windows/amd64/bin/truffleattach.dll" -d native-libs
-
-            if [ -f "native-libs/truffleattach.dll" ]; then
-              cp "native-libs/truffleattach.dll" "./$bundle/app/truffleattach.dll"
-              echo "Success extraction truffleattach.dll"
-            fi
-          fi
-          
-          echo "Bundle app folder:"
-          ls -l "./$bundle/app/"
-
-          mv aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar "./$bundle/app"
-          
-          GOOS=windows GOARCH=amd64 go build -ldflags -H=windowsgui -o "./$bundle/run.exe" scripts/windows/run.go
-
-          curl -Lo warp-packer.exe https://github.com/kirbylink/warp/releases/download/v1.3.0/windows-x64.warp-packer.exe
-          if [ "$(sha256sum warp-packer.exe | cut -d' ' -f1)" != "483726e0eb10a43167c03c8e4f27a2901741affd245e5ec8ed45509f9dcd7a8a" ]; then
-            echo "Warp packer checksum does not match"
-            exit 1
-          fi
-          
-          ./warp-packer.exe pack --arch windows-x64 --input-dir "$bundle" --exec run.exe --output ame-backend-DEV-SNAPSHOT-win.exe
-
-          mv ame-backend-DEV-SNAPSHOT-win.exe aspect-model-editor-runtime/target/
-          rm -rf "$bundle"
-        shell: bash
-
-      - name: Build warp packer (Mac)
-        if: matrix.os == 'macos-15-intel'
-        run: |
-          bundle="aspect-model-editor-bundle-DEV-SNAPSHOT-$(date +%s)"
-          mkdir ${bundle}
-          curl -Lo jre.tar.gz https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.3%2B9/OpenJDK25U-jre_x64_mac_hotspot_25.0.3_9.tar.gz
-          tar -xvf jre.tar.gz
-          cp -r ./jdk-25.0.3+9-jre ./${bundle}/jre
-          cp aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar ./${bundle}/
-          cp scripts/macos/run.sh ./${bundle}/
-          chmod +x ./${bundle}/run.sh
-
-          curl -Lo warp-packer https://github.com/kirbylink/warp/releases/download/v1.3.0/macos-x64.warp-packer
-          if [ "$(shasum -a 256 warp-packer | cut -d' ' -f1)" != "311bd238d087ea92f486d3d754a0f11826d9bd49d6f8ae849e5d6f6089a2e9c9" ]; then
-            echo "Warp packer checksum does not match"
-            exit 1
-          fi
-          chmod +x warp-packer
-          xattr -d com.apple.quarantine warp-packer || true
-
-          ./warp-packer pack --arch macos-x64 --input-dir ${bundle} --exec run.sh --output ame-backend-DEV-SNAPSHOT-mac
-          chmod +x ame-backend-DEV-SNAPSHOT-mac
-
-          cp ame-backend-DEV-SNAPSHOT-mac aspect-model-editor-runtime/target/
-        shell: bash
-
-      - name: Performing integration test for Mac
-        if: matrix.os == 'macos-15-intel'
-        run: mvn verify -DskipTests -P dependencies-for-integration-tests,start-mac-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=mac -Dmaven.shade.skip=true -Dmaven.jar.skip=true
+          case "$RUNNER_OS" in
+            Linux) image=linux ;;
+            Windows) image=windows ;;
+            macOS) image=mac ;;
+          esac
+          mvn -B verify -DskipTests \
+            -P "dependencies-for-integration-tests,start-$image-image-for-integration-tests,run-bruno-integration-tests" \
+            -Dos.platform="$PLATFORM" -Dmaven.shade.skip=true -Dmaven.jar.skip=true
         env:
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Performing integration test for Linux
-        if: matrix.os == 'ubuntu-latest'
-        run: mvn verify -DskipTests -P dependencies-for-integration-tests,start-linux-image-for-integration-tests,run-bruno-integration-tests -Dos.platform=linux -Dmaven.shade.skip=true -Dmaven.jar.skip=true
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Performing integration test for Windows
-        if: matrix.os == 'windows-latest'
-        run: mvn verify -DskipTests -P dependencies-for-integration-tests,start-windows-image-for-integration-tests,run-bruno-integration-tests -D os.platform=win -D maven.shade.skip=true -D maven.jar.skip=true
-        env:
-          TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload binary (Windows)
-        if: matrix.os == 'windows-latest'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
+      # Linux and macOS: the tar.gz is uploaded as it is (archive: false), so the download is the tar.gz itself
+      # and not a zip containing it. The artifact is named like the file.
+      - name: Upload app image archive (Linux, macOS)
+        if: runner.os != 'Windows'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
-          name: ame-backend-win
-          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-win.exe
+          path: ${{ steps.app-image.outputs.path }}
+          archive: false
+          if-no-files-found: error
 
-      - name: Upload binary (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
+      # Windows: the app image folder is zipped by the upload
+      - name: Upload app image (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
-          name: ame-backend-linux
-          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-linux
-
-      - name: Upload binary (Mac)
-        if: matrix.os == 'macos-15-intel'
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
-        with:
-          name: ame-backend-mac
-          path: aspect-model-editor-runtime/target/ame-backend-DEV-SNAPSHOT-mac
-          compression-level: 0
+          name: ame-backend-DEV-SNAPSHOT-${{ matrix.platform }}
+          path: ${{ steps.app-image.outputs.path }}
+          if-no-files-found: error

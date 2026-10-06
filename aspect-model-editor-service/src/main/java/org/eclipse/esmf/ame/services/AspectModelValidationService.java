@@ -22,13 +22,13 @@ import org.eclipse.esmf.ame.exceptions.AspectModelEditorException;
 import org.eclipse.esmf.ame.exceptions.InvalidAspectModelException;
 import org.eclipse.esmf.ame.repository.AspectModelRepository;
 import org.eclipse.esmf.ame.services.utils.TurtleElementResolver;
+import org.eclipse.esmf.ame.services.utils.UnresolvedReferences;
 import org.eclipse.esmf.ame.validation.model.ViolationError;
 import org.eclipse.esmf.ame.validation.model.ViolationReport;
 import org.eclipse.esmf.ame.validation.services.ViolationFormatter;
 import org.eclipse.esmf.aspectmodel.ValueParsingException;
 import org.eclipse.esmf.aspectmodel.resolver.ModelResolutionViolation;
 import org.eclipse.esmf.aspectmodel.resolver.exceptions.ModelResolutionException;
-import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 import org.eclipse.esmf.aspectmodel.validation.services.AspectModelValidator;
 import org.eclipse.esmf.metamodel.AspectModel;
 
@@ -80,8 +80,8 @@ public class AspectModelValidationService {
          throw e;
       } catch ( final Exception e ) {
          LOG.error( "Validation failed for URI: {}", uri, e );
-         final String errorMessage = buildErrorMessage( e, upload );
-         throw new InvalidAspectModelException( errorMessage, e );
+         // The cause is kept, so that the GlobalExceptionHandler can list the unresolved elements (see UnresolvedReferences)
+         throw new InvalidAspectModelException( buildErrorMessage( e, upload ), e );
       }
    }
 
@@ -113,16 +113,15 @@ public class AspectModelValidationService {
             }
          }
 
-         final List<String> elementMessages = checkedLocations.stream()
+         final List<String> missingElements = checkedLocations.stream()
                .map( ModelResolutionViolation::element )
                .flatMap( Optional::stream )
-               .map( AspectModelUrn::getUrn )
+               .map( urn -> urn.getUrn().toString() )
                .distinct()
-               .map( urn -> String.format( "Element '%s' does not exist in a file.", urn ) )
                .toList();
 
-         if ( !elementMessages.isEmpty() ) {
-            return String.join( " ", elementMessages );
+         if ( !missingElements.isEmpty() ) {
+            return UnresolvedReferences.message( missingElements );
          }
 
          final List<String> violationMessages = checkedLocations.stream()

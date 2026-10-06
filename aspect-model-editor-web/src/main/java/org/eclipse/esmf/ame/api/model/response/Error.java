@@ -13,6 +13,8 @@
 
 package org.eclipse.esmf.ame.api.model.response;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.micronaut.serde.annotation.Serdeable;
 import org.jspecify.annotations.Nullable;
@@ -28,6 +30,8 @@ import org.jspecify.annotations.Nullable;
  * @param path The path or location associated with the error.
  * @param code The error code representing the type or category of the error.
  * @param focusNode The optional focus node (Aspect Model URN) associated with the error.
+ * @param unresolvedElements The referenced elements which no workspace file defines, if this is the only reason for
+ *       the error.
  */
 @Serdeable
 @JsonInclude( JsonInclude.Include.NON_NULL )
@@ -36,9 +40,15 @@ public record Error(
       String path,
       int code,
       @JsonInclude( JsonInclude.Include.NON_NULL )
-      @Nullable String focusNode
+      @Nullable String focusNode,
+      @JsonInclude( JsonInclude.Include.NON_NULL )
+      @Nullable List<String> unresolvedElements
 ) {
    public Error( final String message, final String path, final int code ) {
-      this( message, path, code, null );
+      this( message, path, code, null, null );
+   }
+
+   public Error( final String message, final String path, final int code, @Nullable final String focusNode ) {
+      this( message, path, code, focusNode, null );
    }
 }

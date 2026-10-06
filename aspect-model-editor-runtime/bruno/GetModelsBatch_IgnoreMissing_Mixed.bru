@@ -1,0 +1,49 @@
+meta {
+  name: GetModelsBatch_IgnoreMissing_Mixed
+  type: http
+  seq: 87
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/batch?ignoreMissing=true
+  body: json
+  auth: none
+}
+
+params:query {
+  ignoreMissing: true
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  [
+    {
+      "key": "org.eclipse.esmf.test:1.0.0:Movement.ttl",
+      "fileName": "Movement.ttl",
+      "aspectModelUrn": "urn:samm:org.eclipse.esmf.test:1.0.0#Movement",
+      "modelVersion": "2.2.0"
+    },
+    {
+      "key": "org.eclipse.examples:1.0.0:NonExistent.ttl",
+      "fileName": "NonExistent.ttl",
+      "aspectModelUrn": "urn:samm:org.eclipse.examples:1.0.0#NonExistent",
+      "modelVersion": "2.2.0"
+    }
+  ]
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Only the found element is returned", function() {
+    const data = res.getBody();
+    expect(data).to.be.an('array').with.lengthOf(1);
+    expect(data[0].aspectModelUrn).to.equal("urn:samm:org.eclipse.esmf.test:1.0.0#Movement");
+    expect(data[0].aspectModel).to.include(":Movement a samm:Aspect");
+  });
+}

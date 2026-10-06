@@ -1,0 +1,35 @@
+meta {
+  name: FormatAspectModel_UnresolvedReferences
+  type: http
+  seq: 92
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/format
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  uri: blob://unresolved-reference.ttl
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/AspectWithUnresolvedReference.ttl)
+}
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+
+  test("Error response names the missing elements like the validation", function() {
+    const error = res.getBody().error;
+    expect(error.unresolvedElements).to.deep.equal([
+      "urn:samm:org.eclipse.esmf.missing:1.0.0#MissingCharacteristic",
+      "urn:samm:org.eclipse.esmf.missing:1.0.0#missingProperty"
+    ]);
+    expect(error.message).to.include("Element 'urn:samm:org.eclipse.esmf.missing:1.0.0#MissingCharacteristic' does not exist in a file.");
+    expect(error.message).to.not.include("File does not exist");
+  });
+}

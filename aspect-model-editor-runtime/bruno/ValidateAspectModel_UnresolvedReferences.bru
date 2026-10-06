@@ -1,0 +1,35 @@
+meta {
+  name: ValidateAspectModel_UnresolvedReferences
+  type: http
+  seq: 89
+}
+
+post {
+  url: http://localhost:{{port}}/ame/api/models/validate
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  uri: blob://unresolved-reference.ttl
+}
+
+body:multipart-form {
+  aspectModel: @file(./TestingFiles/AspectWithUnresolvedReference.ttl)
+}
+
+tests {
+  test("Status code is 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+
+  test("Error response lists every unresolved element sorted and without duplicates", function() {
+    const error = res.getBody().error;
+    expect(error.code).to.equal(409);
+    expect(error.unresolvedElements).to.deep.equal([
+      "urn:samm:org.eclipse.esmf.missing:1.0.0#MissingCharacteristic",
+      "urn:samm:org.eclipse.esmf.missing:1.0.0#missingProperty"
+    ]);
+    expect(error.message).to.include("does not exist in a file");
+  });
+}

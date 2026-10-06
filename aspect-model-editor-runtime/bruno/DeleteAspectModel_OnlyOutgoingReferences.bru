@@ -1,0 +1,21 @@
+meta {
+  name: DeleteAspectModel_OnlyOutgoingReferences
+  type: http
+  seq: 81
+}
+
+delete {
+  url: http://localhost:{{port}}/ame/api/models
+  body: none
+  auth: none
+}
+
+headers {
+  aspect-model-urn: urn:samm:org.eclipse.bruno.referencing:1.0.0#SecondConsumer
+}
+
+tests {
+  test("Status code is 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

@@ -1,0 +1,17 @@
+meta {
+  name: DeleteNamespace_InvalidVersion
+  type: http
+  seq: 80
+}
+
+delete {
+  url: http://localhost:{{port}}/ame/api/models/namespace?namespace=org.eclipse.bruno.referenced&version=..
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status code is 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+}
