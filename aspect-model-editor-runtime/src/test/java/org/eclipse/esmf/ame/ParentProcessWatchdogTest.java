@@ -84,7 +84,9 @@ class ParentProcessWatchdogTest {
 
    private static Process startSleepingProcess() throws Exception {
       final String java = Path.of( System.getProperty( "java.home" ), "bin", "java" ).toString();
-      return new ProcessBuilder( java, "-cp", System.getProperty( "java.class.path" ), Sleeper.class.getName() ).start();
+      // Only the location of Sleeper, the full test class path exceeds the command line limit on Windows
+      final String classPath = Path.of( Sleeper.class.getProtectionDomain().getCodeSource().getLocation().toURI() ).toString();
+      return new ProcessBuilder( java, "-cp", classPath, Sleeper.class.getName() ).start();
    }
 
    /** Stands in for the desktop app. */
