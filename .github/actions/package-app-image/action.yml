@@ -20,7 +20,7 @@ inputs:
     description: "Platform suffix of the app image, e.g. linux, win, mac-x64 or mac-arm64"
     required: true
   archive-name:
-    description: "File name of the archive without extension (Linux: .tar.gz, macOS: .zip)"
+    description: "File name of the archive without extension (Linux, macOS: .tar.gz)"
     required: true
 
 outputs:
@@ -103,8 +103,6 @@ runs:
 
         rm -rf "$TARGET/jlink-runtime" "$TARGET/jpackage-input"
 
-    # Linux: tar.gz keeps the permissions. macOS: ditto keeps symlinks, permissions and extended attributes,
-    # --keepParent keeps the .app bundle as top-level entry. Windows: the app image folder is uploaded as artifact.
     - name: Create archive
       id: archive
       shell: bash
@@ -121,8 +119,8 @@ runs:
             asset="$ARCHIVE_NAME.tar.gz"
             tar -czf "$asset" "$name" ;;
           macOS)
-            asset="$ARCHIVE_NAME.zip"
-            ditto -c -k --sequesterRsrc --keepParent "$name.app" "$asset" ;;
+            asset="$ARCHIVE_NAME.tar.gz"
+            tar -czf "$asset" "$name.app" ;;
           Windows)
             asset="$name" ;;
         esac

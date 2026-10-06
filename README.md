@@ -69,8 +69,8 @@ release must exist before the editor release with the same version is created.
    | Runner           | Release asset                                                        |
    |------------------|----------------------------------------------------------------------|
    | `ubuntu-latest`  | `ame-backend-v<version>-linux.tar.gz`                                |
-   | `macos-15-intel` | `ame-backend-v<version>-mac-x64.zip` (Intel)                         |
-   | `macos-latest`   | `ame-backend-v<version>-mac-arm64.zip` (Apple silicon)               |
+   | `macos-15-intel` | `ame-backend-v<version>-mac-x64.tar.gz` (Intel)                      |
+   | `macos-latest`   | `ame-backend-v<version>-mac-arm64.tar.gz` (Apple silicon)            |
    | `windows-latest` | `ame-backend-v<version>-win` (workflow artifact only, signed and uploaded by Jenkins) |
 
 3. `publish` publishes the release and triggers the Jenkins job which signs the Windows app image.

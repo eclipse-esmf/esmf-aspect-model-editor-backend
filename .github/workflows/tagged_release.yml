@@ -130,11 +130,13 @@ jobs:
           platform: ${{ matrix.platform }}
           archive-name: ame-backend-v${{ needs.prepare.outputs.version }}-${{ matrix.platform }}
 
-      - name: Upload workflow artifact
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f #v6.0.0
+      - name: Upload Windows app image as workflow artifact
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a #v7.0.1
         with:
           name: ame-backend-v${{ needs.prepare.outputs.version }}-${{ matrix.platform }}
           path: ${{ steps.app-image.outputs.path }}
+          if-no-files-found: error
 
       - name: Upload to draft release
         if: runner.os != 'Windows'
@@ -143,8 +145,6 @@ jobs:
           ASSET: ${{ steps.app-image.outputs.path }}
         run: gh release upload "v$RELEASE_VERSION" "$ASSET" --repo "$GITHUB_REPOSITORY" --clobber
 
-      # In the original repository the Windows app image is signed and uploaded by the Jenkins job,
-      # a fork uploads the unsigned app image, so that the editor release of the fork can be built
       - name: Upload unsigned Windows app image to draft release (fork only)
         if: runner.os == 'Windows' && github.repository_owner != 'eclipse-esmf'
         shell: pwsh
