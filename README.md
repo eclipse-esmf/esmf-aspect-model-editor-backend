@@ -19,6 +19,7 @@ SPDX-License-Identifier: MPL-2.0
 - [Getting help](#getting-help)
 - [Setup](#setup)
 - [Build and run](#build-and-run)
+- [Desktop integration](#desktop-integration)
 - [Release](#release)
 - [Further documentation](#further-documentation)
 - [License](#license)
@@ -52,6 +53,29 @@ Are you having trouble with Aspect Model Editor backend? We want to help!
 ```
 mvn clean package
 mvn exec:java -pl aspect-model-editor-runtime
+```
+
+## Desktop integration
+
+The desktop app of the [Aspect Model Editor](https://github.com/eclipse-esmf/esmf-aspect-model-editor) (Tauri) starts
+the backend as a sidecar process and talks to it via REST on `127.0.0.1`. The following options control this contract:
+
+| Option                                                   | Purpose                                                                                                                                   |
+|----------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|
+| `AME_AUTH_TOKEN` (env) / `ame.auth.token`                | When set, every request (except CORS preflights) must carry the header `X-AME-Token` with this value, otherwise `401` is returned. Unset during local development. |
+| `-Dmicronaut.server.port=-1`                             | The operating system assigns a free port (no race between choosing and binding a port).                                                   |
+| stdout line `AME_BACKEND_READY port=<port>`              | Printed once the HTTP server accepts connections; the desktop app reads the actual port from it.                                          |
+| `-Dame.exit-on-stdin-eof=true`                           | The backend shuts down gracefully when its stdin is closed (works on all platforms, also on Windows without signals).                    |
+| `-Dame.parent-pid=<pid>`                                 | The backend exits when the desktop app process is gone (e.g. after a crash).                                                              |
+| `JAVA_TOOL_OPTIONS=-XX:SharedArchiveFile=<file> -XX:+AutoCreateSharedArchive` | Dynamic AppCDS archive created on the first graceful shutdown and reused afterwards (~30% faster startup). The jlink runtime is built with `--generate-cds-archive` for this. |
+
+Endpoints with side effects (`/package/backup-workspace`, `/models/migrate-workspace`) only accept `POST`.
+
+Example:
+
+```
+AME_AUTH_TOKEN=secret java -Dmicronaut.server.port=-1 -jar aspect-model-editor-runtime/target/aspect-model-editor-runtime-DEV-SNAPSHOT.jar
+curl -H "X-AME-Token: secret" http://127.0.0.1:<port>/ame/api/models/storage-path
 ```
 
 ## Release

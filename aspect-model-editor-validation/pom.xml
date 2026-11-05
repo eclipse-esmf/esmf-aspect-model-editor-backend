@@ -37,6 +37,10 @@
          <artifactId>esmf-aspect-model-validator</artifactId>
       </dependency>
       <dependency>
+         <groupId>jakarta.validation</groupId>
+         <artifactId>jakarta.validation-api</artifactId>
+      </dependency>
+      <dependency>
          <groupId>io.micronaut</groupId>
          <artifactId>micronaut-http-server-netty</artifactId>
       </dependency>

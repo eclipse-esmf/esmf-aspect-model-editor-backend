@@ -201,6 +201,25 @@
             <groupId>org.eclipse.esmf</groupId>
             <artifactId>esmf-aspect-model-document-generators</artifactId>
             <version>${esmf-sdk-version}</version>
+            <!-- Parquet payload generation is not exposed by the editor; avoids shipping Hadoop/Avro -->
+            <exclusions>
+               <exclusion>
+                  <groupId>org.apache.parquet</groupId>
+                  <artifactId>parquet-hadoop</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.apache.parquet</groupId>
+                  <artifactId>parquet-avro</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.apache.hadoop</groupId>
+                  <artifactId>hadoop-client</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.apache.avro</groupId>
+                  <artifactId>avro</artifactId>
+               </exclusion>
+            </exclusions>
          </dependency>
          <dependency>
             <groupId>org.eclipse.esmf</groupId>
@@ -216,6 +235,37 @@
             <groupId>org.eclipse.esmf</groupId>
             <artifactId>esmf-aspect-model-starter</artifactId>
             <version>${esmf-sdk-version}</version>
+            <!-- Importers, Java code generation and Parquet are not used by the editor -->
+            <exclusions>
+               <exclusion>
+                  <groupId>org.eclipse.esmf</groupId>
+                  <artifactId>esmf-aspect-model-importers</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.eclipse.esmf</groupId>
+                  <artifactId>esmf-aspect-model-java-generator</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.eclipse.esmf</groupId>
+                  <artifactId>esmf-aspect-model-java-core</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.apache.parquet</groupId>
+                  <artifactId>parquet-hadoop</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.apache.parquet</groupId>
+                  <artifactId>parquet-avro</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.apache.hadoop</groupId>
+                  <artifactId>hadoop-client</artifactId>
+               </exclusion>
+               <exclusion>
+                  <groupId>org.apache.avro</groupId>
+                  <artifactId>avro</artifactId>
+               </exclusion>
+            </exclusions>
          </dependency>
          <dependency>
             <groupId>org.eclipse.esmf</groupId>

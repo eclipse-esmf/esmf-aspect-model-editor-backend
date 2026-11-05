@@ -306,23 +306,12 @@ public class ModelController {
    }
 
    /**
-    * Alias for {@link #getStoragePath()} returning the models storage path.
-    *
-    * @return a HttpResponse containing the storage path details.
-    */
-   @Get( uri = "path" )
-   @Produces( MediaType.APPLICATION_JSON )
-   public HttpResponse<StoragePathResponse> getPath() {
-      return getStoragePath();
-   }
-
-   /**
     * This method migrates all Aspect models in the workspace.
     *
     * @param setNewVersion set new Version for Aspect Models
     * @return A list of Aspect Models that are migrated or not.
     */
-   @Get( uri = "migrate-workspace" )
+   @Post( uri = "migrate-workspace" )
    public HttpResponse<MigrationResult> migrateWorkspace( @QueryValue( defaultValue = "false" ) final boolean setNewVersion ) {
       return HttpResponse.ok( aspectModelMigrator.migrateWorkspace( modelService.getAllNamespaces(), setNewVersion,
             ApplicationSettings.getMetaModelStoragePath() ) );
