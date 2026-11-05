@@ -40,7 +40,9 @@ runs:
         jdeps --multi-release base --ignore-missing-deps --print-module-deps \
           "$TARGET/aspect-model-editor-runtime-$VERSION.jar" || true
 
-        jlink --no-header-files --no-man-pages --strip-debug --compress=zip-6 \
+        # --generate-cds-archive provides the base CDS archive required by the dynamic AppCDS archive
+        # (-XX:+AutoCreateSharedArchive) that the desktop app enables to speed up backend startup.
+        jlink --no-header-files --no-man-pages --strip-debug --compress=zip-6 --generate-cds-archive \
           --add-modules java.se,jdk.unsupported,jdk.crypto.ec,jdk.crypto.cryptoki,jdk.charsets,jdk.zipfs,jdk.management,jdk.attach,jdk.jfr \
           --output "$TARGET/jlink-runtime"
 

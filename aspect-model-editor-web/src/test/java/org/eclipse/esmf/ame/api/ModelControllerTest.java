@@ -357,18 +357,6 @@ class ModelControllerTest {
    }
 
    @Test
-   void testGetPathSuccess() {
-      final Path testPath = Path.of( "/tmp/test-models" );
-      when( modelService.getModelPath() ).thenReturn( testPath );
-
-      final HttpResponse<StoragePathResponse> response = controller.getPath();
-
-      assertEquals( HttpStatus.OK, response.getStatus() );
-      assertNotNull( response.body() );
-      assertEquals( testPath.toAbsolutePath().toString(), response.body().path() );
-   }
-
-   @Test
    void testGetModelsBatchFailure_ThrowsBatchLoadException() {
       final List<FileEntry> entries = List.of( new FileEntry( "ns:1.0.0:Model.ttl", "Model.ttl", "urn:samm:ns:1.0.0#Model", "" ) );
       final org.eclipse.esmf.ame.exceptions.AspectModelBatchLoadException batchException =

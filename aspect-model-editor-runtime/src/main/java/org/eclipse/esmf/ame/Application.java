@@ -13,6 +13,8 @@
 
 package org.eclipse.esmf.ame;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.eclipse.esmf.aspectmodel.urn.AspectModelUrn;
 
 import io.micronaut.context.ApplicationContext;
@@ -27,12 +29,23 @@ public class Application {
 
    static void main( final String[] args ) {
       final ApplicationContext context = Micronaut.run( Application.class, args );
+      final AtomicBoolean stopping = new AtomicBoolean();
 
       ParentProcessWatchdog.watch( context, () -> {
          LOG.info( "The desktop app has ended, stopping the backend." );
+         stop( context, stopping );
+      } );
+      StdinWatchdog.watch( context, () -> {
+         LOG.info( "The desktop app requested a shutdown, stopping the backend." );
+         stop( context, stopping );
+      } );
+   }
+
+   private static void stop( final ApplicationContext context, final AtomicBoolean stopping ) {
+      if ( stopping.compareAndSet( false, true ) ) {
          context.close();
          System.exit( 0 );
-      } );
+      }
    }
 }
 

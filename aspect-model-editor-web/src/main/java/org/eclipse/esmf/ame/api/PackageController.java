@@ -92,9 +92,9 @@ public class PackageController {
    /**
     * Backs up workspace files into a package.
     *
-    * @return HttpStatus 200 if the backup succeeded.
+    * @return HttpStatus 201 if the backup succeeded.
     */
-   @Get( "/backup-workspace" )
+   @Post( "/backup-workspace" )
    public HttpResponse<String> backupWorkspace() {
       packageService.backupWorkspace();
       return HttpResponse.status( HttpStatus.CREATED );
